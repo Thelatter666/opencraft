@@ -1,7 +1,11 @@
-# P2 缺陷证据包：ESC 暂停态下再次 ESC 无法恢复（2026-09-14）
+# P2 观察记录：ESC 暂停态下再次 ESC 未恢复（合成事件路径，2026-09-14）
 
-缺陷：游戏暂停后，按 ESC 应恢复（main.cpp:697 附近 `paused = !paused` 切换逻辑），实测不恢复。
-暂停方向（运行中按 ESC → 出菜单）正常。修复归属：T009。
+观察：游戏暂停后，按 ESC 应恢复（main.cpp:697 附近 `paused = !paused` 切换逻辑），
+经 **System Events 合成键盘事件**触发时未恢复。暂停方向（运行中 → 出菜单）正常。
+**真键盘路径未验证（见下文"关键限定"）；修复归属与是否动代码取决于真键盘结果。**
+
+⚠️ 数据来源限定：本包全部键盘证据均为 `osascript ... key code 53`（System Events 合成事件），
+**无物理键盘参与**。
 
 ## 环境
 
@@ -26,7 +30,7 @@ screencapture -x -l3579 shot.png
 # 3) 暂停态下再次发送同样的 ESC（重复了 4 次，每次均先确认 frontmost=opencraft）
 osascript -e 'tell application "System Events" to key code 53'
 screencapture -x -l3579 shot2.png
-#    → 实测：菜单仍在（02、03 两张实拍）。恢复方向不复现 = P2 缺陷
+#    → 实测：菜单仍在（02、03 两张实拍）。合成事件路径下恢复方向不复现（真键盘待证，见上文限定）
 # 4) 对照：合成鼠标点击 RESUME 按钮也不生效（CGWarpMouseCursorPosition(992,457) +
 #    CGEventCreateMouseEvent kCGHIDEventTap click；指针位置经 CGEventGetLocation 核实为 992,457）
 ```
@@ -37,17 +41,36 @@ screencapture -x -l3579 shot2.png
 |---|---|
 | 00_baseline_gameplay_running.png | 运行中未暂停基线（T008 开发者实拍） |
 | 01_esc_pause_engaged_SystemEvents_key53.png | 第 1 次 ESC 后：PAUSED 菜单出现（暂停方向 ✅） |
-| 02_after_2nd_esc_still_paused.png | 第 2 次 ESC 后：菜单仍在（恢复方向 ❌） |
-| 03_after_4th_esc_frontmost_confirmed_still_paused.png | 第 4 次 ESC（每次均重新确认 frontmost）后：菜单仍在 ❌ |
-| dev_evidence_quit_evidence.txt | T008 开发者证据：QUIT 路径退出码 0（RESUME 按钮路径有其 pause_final 实拍） |
+| 02_after_2nd_esc_still_paused.png | 第 2 次 ESC 后：菜单仍在（恢复方向 ❌，合成事件路径） |
+| 03_after_4th_esc_frontmost_confirmed_still_paused.png | 第 4 次 ESC（每次均重新确认 frontmost）后：菜单仍在 ❌（合成事件路径） |
+| dev_evidence_quit_exit_code.txt | **开发者自述的文本记录，非机器产物**：内容为 `EXIT_CODE=0` 一行，由开发者在 T008 验收时提供，PM 未独立复现该退出码、亦无可追改的进程记录。仅供参考，不作机器证据 |
 
 三张 01/02/03 字节数一致（438854）——游戏暂停后不跑 tick、画面定格，逐次截图逐字节相同，
 本身即是"每次 ESC 后状态未变"的佐证。
 
-## 结论与修复提示
+## ⚠️ 关键限定：恢复方向失败仅在"合成事件"路径下观察到（待证）
 
-- 暂停方向（运行→菜单）：System Events 键盘可达且生效。
-- 恢复方向（菜单→运行）：真键盘 ESC 不响应；代码 `paused = !paused` 看似对称，需诊断
-  （怀疑点：暂停分支里 `glfwSetInputMode(CURSOR_NORMAL)` 后按键回调/边沿状态被吞，
-  或 `key_pressed` 边沿表在暂停态未被正确轮询/清除）。
+**已实测（合成路径）**：暂停方向由 `osascript ... key code 53` 触发成功 → 证明该合成键盘
+事件**确实到达 GLFW**；同一路径在暂停态下重复 4 次均不能恢复。
+
+**未实测（真键盘）**：**本证据包不含任何物理键盘的验证**。早前 PM 报告中"真键盘 ESC 不响应"
+的措辞是叙述错误——当时使用的全部是 System Events 合成事件，无物理按键参与。该结论应读作：
+"经 System Events 合成键盘事件路径，恢复方向不复现"。
+
+**为何这一区分决定 T009 是否该动代码**：
+
+| 若真键盘…… | 结论 | T009 动作 |
+|---|---|---|
+| 也不恢复 | 真实代码缺陷（暂停态按键边沿/焦点处理有 bug） | 必须修代码 |
+| 正常恢复 | 问题局限于合成事件路径（可能与 CURSOR_NORMAL 切换后的窗口焦点、事件源可信度有关），非玩家可感知缺陷 | **不应动代码**，只补一条验收注记 |
+
+**因此：T009 开发者不得仅凭本证据包改代码。** 动手前必须先由真人按两次物理 ESC
+（运行→暂停→恢复），把结果追加到本文件；若真人复现失败，再按缺陷修。
+
+## 结论（修订）
+
+- 暂停方向（运行→菜单）：System Events 合成键盘可达且生效（已实测）。
+- 恢复方向（菜单→运行）：合成键盘路径连续 4 次不复现；**真键盘待证**。
+  代码 `paused = !paused` 看似对称，若真人复现失败，怀疑点是暂停分支里
+  `glfwSetInputMode(CURSOR_NORMAL)` 之后按键边沿状态未被正确轮询/清除。
 - 本证据包由 PM 对话 2026-09-14 生成；复现时 pid/windowID 会变，命令模板不变。
