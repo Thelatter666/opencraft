@@ -22,3 +22,6 @@ CMakeUserPresets.json
 *.dylib
 *.dll
 *.exe
+
+# Game runtime output (T009 storage writes world saves to CWD)
+saves/
