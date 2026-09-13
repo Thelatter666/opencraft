@@ -30,6 +30,8 @@
 #include "opencraft/physics/player_state.hpp"
 #include "opencraft/render/mesher.hpp"
 #include "opencraft/render/rhi.hpp"
+#include "opencraft/storage/level_file.hpp"
+#include "opencraft/storage/world_save.hpp"
 #include "world.hpp"
 
 namespace render = opencraft::render; // short alias used by the GPU glue below
@@ -159,6 +161,28 @@ void main() {
 }
 )";
 
+// Break particles: world-space GL points colored per block (T009).
+constexpr char kParticleVertexShader[] = R"(
+#version 410 core
+layout(location=0) in vec3 a_pos;
+layout(location=1) in vec4 a_color;
+uniform mat4 u_mvp;
+uniform float u_point_px;
+out vec4 v_color;
+void main() {
+    gl_Position = u_mvp * vec4(a_pos, 1.0);
+    gl_PointSize = u_point_px;
+    v_color = a_color;
+}
+)";
+
+constexpr char kParticleFragmentShader[] = R"(
+#version 410 core
+in vec4 v_color;
+out vec4 frag_color;
+void main() { frag_color = v_color; }
+)";
+
 // UI: flat quads (backdrop, buttons) and bitmap-font text.
 constexpr char kUiFlatVertexShader[] = R"(
 #version 410 core
@@ -282,22 +306,53 @@ CubeGeometry build_cube_geometry() {
     return geo;
 }
 
-// ── minimal original 5x7 bitmap font for the pause menu ────────────────────
+// ── original 5x7 bitmap font (T009: full A-Z, digits, punctuation, hearts) ──
 constexpr int kGlyphWidth = 5;
 constexpr int kGlyphHeight = 7;
-constexpr const char *kFontChars = "PAUSEDRMQIT";
+// \x01 full heart, \x02 half heart, \x03 empty heart (health bar glyphs).
+constexpr const char *kFontChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789:-\x01\x02\x03";
 constexpr std::array<std::uint8_t, kGlyphHeight> kGlyphs[] = {
-    {0x0F, 0x11, 0x11, 0x0F, 0x10, 0x10, 0x10}, // P
     {0x0E, 0x11, 0x11, 0x1F, 0x11, 0x11, 0x11}, // A
-    {0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x0E}, // U
-    {0x0F, 0x10, 0x10, 0x0E, 0x01, 0x01, 0x1E}, // S
-    {0x1F, 0x10, 0x10, 0x1E, 0x10, 0x10, 0x1F}, // E
+    {0x1E, 0x11, 0x11, 0x1E, 0x11, 0x11, 0x1E}, // B
+    {0x0E, 0x11, 0x10, 0x10, 0x10, 0x11, 0x0E}, // C
     {0x1E, 0x11, 0x11, 0x11, 0x11, 0x11, 0x1E}, // D
-    {0x1E, 0x11, 0x11, 0x1E, 0x14, 0x12, 0x11}, // R
+    {0x1F, 0x10, 0x10, 0x1E, 0x10, 0x10, 0x1F}, // E
+    {0x1F, 0x10, 0x10, 0x1E, 0x10, 0x10, 0x10}, // F
+    {0x0E, 0x11, 0x10, 0x17, 0x11, 0x11, 0x0F}, // G
+    {0x11, 0x11, 0x11, 0x1F, 0x11, 0x11, 0x11}, // H
+    {0x0E, 0x04, 0x04, 0x04, 0x04, 0x04, 0x0E}, // I
+    {0x07, 0x02, 0x02, 0x02, 0x02, 0x12, 0x0C}, // J
+    {0x11, 0x12, 0x14, 0x18, 0x14, 0x12, 0x11}, // K
+    {0x10, 0x10, 0x10, 0x10, 0x10, 0x10, 0x1F}, // L
     {0x11, 0x1B, 0x15, 0x15, 0x11, 0x11, 0x11}, // M
+    {0x11, 0x19, 0x15, 0x13, 0x11, 0x11, 0x11}, // N
+    {0x0E, 0x11, 0x11, 0x11, 0x11, 0x11, 0x0E}, // O
+    {0x0E, 0x11, 0x11, 0x0F, 0x10, 0x10, 0x10}, // P
     {0x0E, 0x11, 0x11, 0x11, 0x15, 0x12, 0x0D}, // Q
-    {0x1F, 0x04, 0x04, 0x04, 0x04, 0x04, 0x1F}, // I
-    {0x1F, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04}, // T
+    {0x0E, 0x11, 0x11, 0x0E, 0x12, 0x12, 0x11}, // R
+    {0x0F, 0x10, 0x10, 0x0E, 0x01, 0x01, 0x1E}, // S
+    {0x1F, 0x04, 0x04, 0x04, 0x04, 0x04, 0x1F}, // T
+    {0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x0E}, // U
+    {0x11, 0x11, 0x11, 0x11, 0x11, 0x0A, 0x04}, // V
+    {0x11, 0x11, 0x11, 0x15, 0x15, 0x15, 0x0A}, // W
+    {0x11, 0x11, 0x0A, 0x04, 0x0A, 0x11, 0x11}, // X
+    {0x11, 0x11, 0x11, 0x0A, 0x04, 0x04, 0x04}, // Y
+    {0x1F, 0x01, 0x02, 0x04, 0x08, 0x10, 0x1F}, // Z
+    {0x0E, 0x11, 0x13, 0x15, 0x19, 0x11, 0x0E}, // 0
+    {0x04, 0x0C, 0x04, 0x04, 0x04, 0x04, 0x0E}, // 1
+    {0x0E, 0x11, 0x01, 0x06, 0x08, 0x10, 0x1F}, // 2
+    {0x0E, 0x11, 0x01, 0x06, 0x01, 0x11, 0x0E}, // 3
+    {0x02, 0x06, 0x0A, 0x12, 0x1F, 0x02, 0x02}, // 4
+    {0x1F, 0x10, 0x1E, 0x01, 0x01, 0x11, 0x0E}, // 5
+    {0x06, 0x08, 0x10, 0x1E, 0x11, 0x11, 0x0E}, // 6
+    {0x1F, 0x01, 0x02, 0x04, 0x08, 0x08, 0x08}, // 7
+    {0x0E, 0x11, 0x11, 0x0E, 0x11, 0x11, 0x0E}, // 8
+    {0x0E, 0x11, 0x11, 0x0F, 0x01, 0x02, 0x0C}, // 9
+    {0x00, 0x04, 0x00, 0x00, 0x00, 0x04, 0x00}, // :
+    {0x00, 0x00, 0x00, 0x0E, 0x00, 0x00, 0x00}, // -
+    {0x0A, 0x1F, 0x1F, 0x1F, 0x0E, 0x04, 0x00}, // \x01 full heart
+    {0x08, 0x1C, 0x1C, 0x1C, 0x0C, 0x04, 0x00}, // \x02 half heart
+    {0x0A, 0x11, 0x11, 0x11, 0x0A, 0x04, 0x00}, // \x03 empty heart
 };
 
 struct FontImage {
@@ -368,6 +423,62 @@ void draw_rect(float x0, float y0, float x1, float y1, int fb_w, int fb_h, std::
     verts.insert(verts.end(), {a, {b.x, a.y}, b, a, {a.x, b.y}, b});
 }
 
+// Average color of each block's side tile (slot 1) - the "main color" used
+// by break particles (T009). Returns one RGB triple per registry id.
+std::vector<glm::vec3> block_main_colors(const opencraft::client::AtlasImage &atlas, std::size_t registry_size) {
+    std::vector<glm::vec3> colors(registry_size, glm::vec3(0.7f));
+    const int tile_px = 16;
+    for (std::size_t id = 0; id < registry_size; ++id) {
+        const int tile = static_cast<int>(id) * 3 + 1; // side tile (mesher convention)
+        const int tx = (tile % atlas.tiles_per_row) * tile_px;
+        const int ty = (tile / atlas.tiles_per_row) * tile_px;
+        glm::vec3 sum(0.0f);
+        int count = 0;
+        for (int y = 0; y < tile_px; ++y) {
+            for (int x = 0; x < tile_px; ++x) {
+                const std::uint32_t pixel =
+                    atlas.pixels[static_cast<std::size_t>((ty + y) * atlas.width + tx + x)];
+                const float alpha = static_cast<float>((pixel >> 24) & 0xFF);
+                if (alpha < 128.0f) {
+                    continue;
+                }
+                sum += glm::vec3(static_cast<float>(pixel & 0xFF), static_cast<float>((pixel >> 8) & 0xFF),
+                                 static_cast<float>((pixel >> 16) & 0xFF)) /
+                       255.0f;
+                ++count;
+            }
+        }
+        if (count > 0) {
+            colors[id] = sum / static_cast<float>(count);
+        }
+    }
+    return colors;
+}
+
+// ── break particles (T009) ───────────────────────────────────────────────────
+struct Particle {
+    glm::vec3 pos;
+    glm::vec3 vel;
+    float life;    // seconds until removal
+    glm::vec4 color; // rgb + current alpha (fades with life)
+};
+
+constexpr int kParticlesPerBreak = 20;
+constexpr std::size_t kMaxParticles = 256;
+
+void update_particles(std::vector<Particle> &particles, float dt) {
+    constexpr float kGravity = 13.0f; // blocks/s^2, snappier than real g for feel
+    for (Particle &p : particles) {
+        p.vel.y -= kGravity * dt;
+        p.pos += p.vel * dt;
+        p.life -= dt;
+        p.color.a = std::clamp(p.life / 0.5f, 0.0f, 1.0f);
+    }
+    particles.erase(std::remove_if(particles.begin(), particles.end(),
+                                   [](const Particle &p) { return p.life <= 0.0f; }),
+                    particles.end());
+}
+
 } // namespace
 
 int main() {
@@ -407,14 +518,36 @@ int main() {
     }
     OC_LOG_INFO("GL {} / glad loaded", reinterpret_cast<const char *>(glGetString(GL_VERSION)));
 
-    // ── world ───────────────────────────────────────────────────────────────
-    opencraft::client::WorldSource world;
+    // ── save + level ────────────────────────────────────────────────────────
+    // World directory fixed to "world" (T009 contract); saves/ is relative to
+    // the working directory (./build/opencraft -> build/saves/world).
+    opencraft::storage::WorldSave save("saves", "world");
+    const std::optional<opencraft::storage::LevelData> stored_level = save.try_read_level();
+    const std::uint64_t world_seed = stored_level.has_value() ? stored_level->seed : opencraft::client::WorldSource::kSeed;
+    std::uint64_t game_ticks = stored_level.has_value() ? stored_level->tick_count : 0;
+    if (stored_level.has_value()) {
+        OC_LOG_INFO("save: loaded level.ocd (seed={:#x}, ticks={}, player=({:.2f}, {:.2f}, {:.2f}), hp={:.1f})",
+                    stored_level->seed, stored_level->tick_count, stored_level->player_x, stored_level->player_y,
+                    stored_level->player_z, stored_level->health);
+    } else {
+        OC_LOG_INFO("save: no level.ocd, new world with seed {:#x}", world_seed);
+    }
 
-    // Spawn: generate the center chunk first, then take the surface top of
-    // the spawn column (formal spawn scan is T009).
+    // ── world ───────────────────────────────────────────────────────────────
+    opencraft::client::WorldSource world(world_seed);
+    world.attach_save(&save);
+
+    // Spawn: generate the center chunk first, then scan 5x5 surface columns
+    // (T009 card item) - or reuse the persisted player position.
     static_cast<void>(world.ensure_chunk(0, 0));
-    const int spawn_y = world.surface_height(8, 8);
-    OC_LOG_INFO("spawn surface at storage y={}", spawn_y);
+    const glm::dvec3 spawn_pos = [&] {
+        if (stored_level.has_value() && stored_level->has_player) {
+            return glm::dvec3(stored_level->player_x, stored_level->player_y, stored_level->player_z);
+        }
+        const glm::dvec3 scanned = world.find_spawn();
+        OC_LOG_INFO("spawn scan: surface at ({:.1f}, {:.1f}, {:.1f})", scanned.x, scanned.y, scanned.z);
+        return scanned;
+    }();
 
     // Startup burst: 5x5 generated synchronously so the 3x3 spawn meshes have
     // lit neighbors; everything farther streams in within the frame budget.
@@ -448,6 +581,9 @@ int main() {
     const FontImage font_image = build_font_texture();
     const render::Texture2D font(font_image.width, font_image.height, font_image.pixels.data());
 
+    // Block main colors for break particles (needs the generated atlas).
+    std::vector<glm::vec3> block_colors = block_main_colors(atlas_image, world.registry().size());
+
     // ── overlay geometry ─────────────────────────────────────────────────────
     const CubeGeometry cube = build_cube_geometry();
 
@@ -478,6 +614,14 @@ int main() {
     crosshair_vbo.bind();
     crosshair_vao.set_attribute(0, 3, GL_FLOAT, sizeof(glm::vec3), 0);
 
+    // Break particles: dynamic point cloud (pos + rgba per point, T009).
+    render::VertexArray particle_vao;
+    particle_vao.bind();
+    render::Buffer particle_vbo(render::Buffer::Target::Vertex, nullptr, 0, render::Buffer::Usage::Dynamic);
+    particle_vbo.bind();
+    particle_vao.set_attribute(0, 3, GL_FLOAT, sizeof(glm::vec4) + sizeof(glm::vec3), 0);
+    particle_vao.set_attribute(1, 4, GL_FLOAT, sizeof(glm::vec4) + sizeof(glm::vec3), sizeof(glm::vec3));
+
     // ── shaders ─────────────────────────────────────────────────────────────
     const render::Shader shader(kVertexShader, kFragmentShader);
     shader.use();
@@ -493,6 +637,8 @@ int main() {
     glUniform1i(crack_shader.uniform_location("u_atlas"), 0);
     glUniform1f(crack_shader.uniform_location("u_tiles_per_row"), tiles_per_row);
     glUniform1f(crack_shader.uniform_location("u_texel"), texel);
+
+    const render::Shader particle_shader(kParticleVertexShader, kParticleFragmentShader);
 
     const render::Shader ui_flat_shader(kUiFlatVertexShader, kUiFlatFragmentShader);
 
@@ -513,18 +659,48 @@ int main() {
 
     // ── player + simulation state ───────────────────────────────────────────
     phy::PlayerState prev_state;
-    prev_state.position = glm::dvec3(8.5, static_cast<double>(spawn_y), 8.5);
+    prev_state.position = spawn_pos;
     prev_state.on_ground = true;
     prev_state.fall_peak_y = prev_state.position.y;
     phy::PlayerState curr_state = prev_state;
+    if (stored_level.has_value() && stored_level->has_player) {
+        curr_state.position = glm::dvec3(stored_level->player_x, stored_level->player_y, stored_level->player_z);
+        curr_state.velocity = glm::dvec3(stored_level->player_vx, stored_level->player_vy, stored_level->player_vz);
+        curr_state.health = stored_level->health;
+        curr_state.fall_peak_y = stored_level->fall_peak_y;
+        curr_state.fall_distance = stored_level->fall_distance;
+        curr_state.pose = static_cast<phy::Pose>(stored_level->pose & 1U);
+        curr_state.on_ground = stored_level->on_ground;
+    }
+    prev_state = curr_state;
 
-    double view_yaw = 0.0;   // convention: forward = (-sin yaw, -cos yaw)
-    double view_pitch = 0.0; // positive = looking down
+    double view_yaw = stored_level.has_value() && stored_level->has_player ? stored_level->yaw : 0.0;
+    double view_pitch = stored_level.has_value() && stored_level->has_player ? stored_level->pitch : 0.0;
     bool paused = false;
     bool prev_esc = false;
     bool prev_right = false;
     int place_cooldown = 0;
-    std::uint16_t selected_block = world.registry().id_of("stone");
+
+    // ── hotbar (9 slots, keys 1..9; creative palette, real inventory is M2) ─
+    static constexpr std::array<const char *, 9> kHotbarNames = {
+        "stone", "cobblestone", "dirt", "planks", "log", "leaves", "glass", "sand", "gravel"};
+    std::array<std::uint16_t, 9> hotbar{};
+    for (int slot = 0; slot < 9; ++slot) {
+        hotbar[slot] = world.registry().id_of(kHotbarNames[slot]);
+    }
+    int selected_slot = 0;
+    if (stored_level.has_value() && stored_level->has_player &&
+        stored_level->selected_block < world.registry().size()) {
+        // Restore the persisted selection to its slot when it is on the bar.
+        for (int slot = 0; slot < 9; ++slot) {
+            if (hotbar[slot] == stored_level->selected_block) {
+                selected_slot = slot;
+                break;
+            }
+        }
+    }
+    std::uint16_t selected_block = hotbar[selected_slot];
+
     glm::ivec3 crack_pos{0, 0, 0};
     int crack_stage = -1; // -1 = no overlay
     glm::ivec3 target_pos{0, 0, 0};
@@ -534,6 +710,11 @@ int main() {
     std::vector<std::pair<int, int>> dirty_chunks;
     std::unordered_map<std::int64_t, ChunkRenderable> renderables;
     double last_mesh_ms = 0.0;
+
+    // Hand swing + break particles (T009 mining feedback).
+    double swing_start = -10.0;   // glfwGetTime() of the last swing start
+    bool swinging = false;
+    std::vector<Particle> particles;
 
     // Streaming offsets sorted by distance; generation radius = view + 1 so
     // chunks at the view edge mesh against lit neighbors.
@@ -584,6 +765,33 @@ int main() {
         return glm::dvec3(-std::sin(view_yaw) * cp, -std::sin(view_pitch), -std::cos(view_yaw) * cp);
     };
 
+    // Level snapshot for periodic + exit saves (T009). Field-for-field the
+    // inverse of storage::serialize_level - keep both in sync.
+    const auto make_level_data = [&] {
+        opencraft::storage::LevelData level;
+        level.seed = world_seed;
+        level.tick_count = game_ticks;
+        level.has_player = true;
+        level.spawn_x = spawn_pos.x;
+        level.spawn_y = spawn_pos.y;
+        level.spawn_z = spawn_pos.z;
+        level.player_x = curr_state.position.x;
+        level.player_y = curr_state.position.y;
+        level.player_z = curr_state.position.z;
+        level.player_vx = curr_state.velocity.x;
+        level.player_vy = curr_state.velocity.y;
+        level.player_vz = curr_state.velocity.z;
+        level.yaw = view_yaw;
+        level.pitch = view_pitch;
+        level.health = curr_state.health;
+        level.fall_peak_y = curr_state.fall_peak_y;
+        level.fall_distance = curr_state.fall_distance;
+        level.pose = static_cast<std::uint8_t>(curr_state.pose);
+        level.on_ground = curr_state.on_ground;
+        level.selected_block = selected_block;
+        return level;
+    };
+
     // One 20 TPS logic tick: physics -> targeting -> mining -> placement.
     auto run_tick = [&] {
         // ── input mapping (WASD + space + shift + ctrl) ──────────────────────
@@ -629,9 +837,37 @@ int main() {
         const bool left_held = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS;
         const std::uint16_t target_id = hit.hit ? world.block_at(hit.block_pos.x, hit.block_pos.y, hit.block_pos.z) : 0;
         const auto mining_tick = mining.tick(hit.block_pos, target_id, hit.hit, left_held);
+        if (left_held && hit.hit && !swinging) {
+            swinging = true;
+            swing_start = glfwGetTime();
+        }
         if (mining_tick.broke) {
             world.set_block(hit.block_pos.x, hit.block_pos.y, hit.block_pos.z, 0, dirty_chunks);
             crack_stage = -1;
+            // Break particles: block main color with brightness jitter (T009).
+            const std::uint16_t broken_id = target_id;
+            if (broken_id < block_colors.size()) {
+                const glm::dvec3 center = glm::dvec3(hit.block_pos) + glm::dvec3(0.5, 0.5, 0.5);
+                std::uint32_t rng = static_cast<std::uint32_t>(hit.block_pos.x * 73856093) ^
+                                    static_cast<std::uint32_t>(hit.block_pos.y * 19349663) ^
+                                    static_cast<std::uint32_t>(hit.block_pos.z * 83492791) ^
+                                    static_cast<std::uint32_t>(game_ticks * 2654435761u);
+                const auto next_rand = [&rng]() {
+                    rng = rng * 1664525u + 1013904223u;
+                    return static_cast<float>(rng >> 8) / static_cast<float>(1 << 24);
+                };
+                for (int i = 0; i < kParticlesPerBreak && particles.size() < kMaxParticles; ++i) {
+                    Particle p;
+                    p.pos = center + glm::dvec3(next_rand() - 0.5, next_rand() - 0.5, next_rand() - 0.5) * 0.6;
+                    p.vel = glm::vec3(next_rand() - 0.5, next_rand(), next_rand() - 0.5) * 3.5f;
+                    p.life = 0.4f + next_rand() * 0.25f;
+                    const float jitter = 0.75f + next_rand() * 0.5f;
+                    p.color = glm::vec4(glm::clamp(block_colors[broken_id] * jitter, 0.0f, 1.0f), 1.0f);
+                    particles.push_back(p);
+                }
+            }
+            swinging = true;
+            swing_start = glfwGetTime();
         } else if (hit.hit && mining_tick.progress > 0.0f) {
             crack_pos = hit.block_pos;
             crack_stage = mining_tick.crack_stage;
@@ -658,31 +894,32 @@ int main() {
                 }
             }
             place_cooldown = 4; // ⚖ retry rhythm whether or not the attempt succeeded
+            swinging = true;
+            swing_start = glfwGetTime();
         }
         prev_right = right_held;
 
-        // ── creative palette (infinite blocks via number keys; the real
-        //    inventory is M2) ─────────────────────────────────────────────────
-        static constexpr std::array<std::pair<int, const char *>, 8> kPalette = {{
-            {GLFW_KEY_1, "stone"},
-            {GLFW_KEY_2, "cobblestone"},
-            {GLFW_KEY_3, "dirt"},
-            {GLFW_KEY_4, "planks"},
-            {GLFW_KEY_5, "log"},
-            {GLFW_KEY_6, "leaves"},
-            {GLFW_KEY_7, "glass"},
-            {GLFW_KEY_8, "sand"},
-        }};
-        for (const auto &[key, name] : kPalette) {
-            if (key_pressed(key)) {
-                selected_block = world.registry().id_of(name);
+        // ── hotbar selection (number keys 1..9) ──────────────────────────────
+        for (int slot = 0; slot < 9; ++slot) {
+            if (key_pressed(GLFW_KEY_1 + slot)) {
+                selected_slot = slot;
+                selected_block = hotbar[slot];
             }
+        }
+
+        // ── autosave cadence: 200 ticks = ~10 s of game time (T009) ──────────
+        if (save.maybe_autosave_tick()) {
+            world.autosave_pass();
+            save.write_level_now(make_level_data());
+            OC_LOG_INFO("autosave: {} dirty chunk(s) queued, level written (ticks={})", save.pending_dirty_count(),
+                        game_ticks);
         }
     };
 
     // ── main loop ───────────────────────────────────────────────────────────
     double last_frame = glfwGetTime();
     double fps_timer = last_frame;
+    double last_particle_time = last_frame;
     int fps_frames = 0;
     double last_cursor_x = 0.0;
     double last_cursor_y = 0.0;
@@ -708,8 +945,6 @@ int main() {
         }
         prev_esc = esc_down;
 
-        prev_esc = esc_down;
-
         // ── mouse look ──────────────────────────────────────────────────────
         if (!paused) {
             if (!cursor_anchored) {
@@ -732,6 +967,7 @@ int main() {
             last_frame = now;
             for (int i = 0; i < ticks; ++i) {
                 run_tick();
+                ++game_ticks;
             }
 
             // ── streaming ───────────────────────────────────────────────────────
@@ -852,6 +1088,32 @@ int main() {
         }
         glEnable(GL_CULL_FACE);
 
+        // ── break particles (T009): depth-tested points, no depth writes ────
+        {
+            const double particles_now = glfwGetTime();
+            const float dt = static_cast<float>(std::min(particles_now - last_particle_time, 0.1));
+            last_particle_time = particles_now;
+            update_particles(particles, dt);
+            if (!particles.empty()) {
+                std::vector<float> point_data;
+                point_data.reserve(particles.size() * 7);
+                for (const Particle &p : particles) {
+                    point_data.insert(point_data.end(), {p.pos.x, p.pos.y, p.pos.z, p.color.r, p.color.g, p.color.b,
+                                                         p.color.a});
+                }
+                glDepthMask(GL_FALSE);
+                particle_shader.use();
+                glUniformMatrix4fv(particle_shader.uniform_location("u_mvp"), 1, GL_FALSE, &mvp[0][0]);
+                glUniform1f(particle_shader.uniform_location("u_point_px"), 7.0f * static_cast<float>(fb_height) / 720.0f);
+                particle_vao.bind();
+                particle_vbo.bind();
+                glBufferData(GL_ARRAY_BUFFER, static_cast<GLsizeiptr>(point_data.size() * sizeof(float)),
+                             point_data.data(), GL_STREAM_DRAW);
+                glDrawArrays(GL_POINTS, 0, static_cast<GLsizei>(particles.size()));
+                glDepthMask(GL_TRUE);
+            }
+        }
+
         // ── selection wireframe + crack overlay ─────────────────────────────
         if (has_target) {
             wire_shader.use();
@@ -879,6 +1141,35 @@ int main() {
         }
         glDepthMask(GL_TRUE);
 
+        // ── held block with swing animation (T009) ──────────────────────────
+        // Drawn last against cleared depth so it always sits over the world.
+        // The crack shader does the textured-cube job: per-face tile uniform,
+        // so the top/bottom/side faces get three draw calls.
+        {
+            double swing_t = (glfwGetTime() - swing_start) / 0.25;
+            if (swing_t >= 1.0) {
+                swing_t = 0.0;
+                swinging = false;
+            }
+            const float s = swinging ? std::sin(static_cast<float>(swing_t) * 3.14159265f) : 0.0f;
+            glClear(GL_DEPTH_BUFFER_BIT);
+            glDisable(GL_CULL_FACE);
+            crack_shader.use();
+            glUniformMatrix4fv(crack_shader.uniform_location("u_mvp"), 1, GL_FALSE, &projection[0][0]);
+            glUniform3f(crack_shader.uniform_location("u_offset"), 0.42f - s * 0.16f, -0.42f - s * 0.14f,
+                        -0.80f - s * 0.12f);
+            glUniform1f(crack_shader.uniform_location("u_scale"), 0.32f);
+            crack_vao.bind();
+            // build_cube_geometry face order: f0 top, f1 bottom, f2..f5 sides.
+            glUniform1f(crack_shader.uniform_location("u_tile"), static_cast<float>(selected_block * 3 + 1));
+            glDrawArrays(GL_TRIANGLES, 12, 24); // 4 side faces
+            glUniform1f(crack_shader.uniform_location("u_tile"), static_cast<float>(selected_block * 3 + 0));
+            glDrawArrays(GL_TRIANGLES, 0, 6); // top
+            glUniform1f(crack_shader.uniform_location("u_tile"), static_cast<float>(selected_block * 3 + 2));
+            glDrawArrays(GL_TRIANGLES, 6, 6); // bottom
+            glEnable(GL_CULL_FACE);
+        }
+
         // ── crosshair ───────────────────────────────────────────────────────
         glDisable(GL_DEPTH_TEST);
         wire_shader.use();
@@ -890,6 +1181,178 @@ int main() {
         crosshair_vao.bind();
         glDrawArrays(GL_LINES, 0, 4);
         glEnable(GL_DEPTH_TEST);
+
+        // ── HUD: hotbar (9 slots + block name) and health hearts (T009) ─────
+        {
+            glDisable(GL_DEPTH_TEST);
+
+            constexpr int kHotbarSlots = 9;
+            constexpr float kSlotPx = 24.0f;
+            constexpr float kSlotGap = 2.0f;
+            const float bar_w = kHotbarSlots * kSlotPx + (kHotbarSlots - 1) * kSlotGap;
+            const float bar_x0 = static_cast<float>(fb_width) / 2.0f - bar_w / 2.0f;
+            const float bar_y0 = static_cast<float>(fb_height) - kSlotPx - 10.0f;
+
+            // Slot backdrops (one flat-color draw call for all of them).
+            {
+                std::vector<glm::vec2> flat;
+                for (int i = 0; i < kHotbarSlots; ++i) {
+                    const float x0 = bar_x0 + static_cast<float>(i) * (kSlotPx + kSlotGap);
+                    draw_rect(x0, bar_y0, x0 + kSlotPx, bar_y0 + kSlotPx, fb_width, fb_height, flat);
+                }
+                ui_flat_shader.use();
+                render::VertexArray vao;
+                vao.bind();
+                render::Buffer vbo(render::Buffer::Target::Vertex, flat.data(),
+                                   static_cast<std::size_t>(flat.size()) * sizeof(glm::vec2),
+                                   render::Buffer::Usage::Static);
+                vbo.bind();
+                vao.set_attribute(0, 2, GL_FLOAT, sizeof(glm::vec2), 0);
+                glUniform4f(ui_flat_shader.uniform_location("u_color"), 0.0f, 0.0f, 0.0f, 0.55f);
+                glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(flat.size()));
+            }
+            // Selected slot highlight: 2 px white frame (4 thin rects).
+            {
+                std::vector<glm::vec2> flat;
+                const float fx0 = bar_x0 + static_cast<float>(selected_slot) * (kSlotPx + kSlotGap);
+                const float fx1 = fx0 + kSlotPx;
+                const float fy0 = bar_y0;
+                const float fy1 = bar_y0 + kSlotPx;
+                draw_rect(fx0 - 2.0f, fy0 - 2.0f, fx1 + 2.0f, fy0, fb_width, fb_height, flat);
+                draw_rect(fx0 - 2.0f, fy1, fx1 + 2.0f, fy1 + 2.0f, fb_width, fb_height, flat);
+                draw_rect(fx0 - 2.0f, fy0, fx0, fy1, fb_width, fb_height, flat);
+                draw_rect(fx1, fy0, fx1 + 2.0f, fy1, fb_width, fb_height, flat);
+                ui_flat_shader.use();
+                render::VertexArray vao;
+                vao.bind();
+                render::Buffer vbo(render::Buffer::Target::Vertex, flat.data(),
+                                   static_cast<std::size_t>(flat.size()) * sizeof(glm::vec2),
+                                   render::Buffer::Usage::Static);
+                vbo.bind();
+                vao.set_attribute(0, 2, GL_FLOAT, sizeof(glm::vec2), 0);
+                glUniform4f(ui_flat_shader.uniform_location("u_color"), 0.95f, 0.95f, 0.95f, 1.0f);
+                glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(flat.size()));
+            }
+            // Slot icons: atlas side tiles sampled through the text shader
+            // (u_font = unit 1; the atlas is fully opaque so no discard hits).
+            {
+                std::vector<glm::vec2> icon_verts;
+                std::vector<glm::vec2> icon_uvs;
+                const float inset = 0.5f;
+                const float pad = 3.0f;
+                for (int i = 0; i < kHotbarSlots; ++i) {
+                    const int tile = hotbar[i] * 3 + 1; // side tile
+                    const float tx = static_cast<float>(tile % atlas_image.tiles_per_row) * 16.0f;
+                    const float ty = static_cast<float>(tile / atlas_image.tiles_per_row) * 16.0f;
+                    const float u0 = (tx + inset) / static_cast<float>(atlas_image.width);
+                    const float u1 = (tx + 16.0f - inset) / static_cast<float>(atlas_image.width);
+                    const float v0 = (ty + inset) / static_cast<float>(atlas_image.height);
+                    const float v1 = (ty + 16.0f - inset) / static_cast<float>(atlas_image.height);
+                    const float x0 = bar_x0 + static_cast<float>(i) * (kSlotPx + kSlotGap) + pad;
+                    const float y0 = bar_y0 + pad;
+                    const float x1 = x0 + kSlotPx - pad * 2.0f;
+                    const float y1 = y0 + kSlotPx - pad * 2.0f;
+                    const auto ndc = [&](float x, float y) {
+                        return glm::vec2((x / static_cast<float>(fb_width)) * 2.0f - 1.0f,
+                                         1.0f - (y / static_cast<float>(fb_height)) * 2.0f);
+                    };
+                    const glm::vec2 p0 = ndc(x0, y0);
+                    const glm::vec2 p1 = ndc(x1, y1);
+                    // Two triangles per icon: (tl, br) quad corners.
+                    icon_verts.insert(icon_verts.end(), {p0, {p1.x, p0.y}, p1, p0, {p0.x, p1.y}, p1});
+                    icon_uvs.insert(icon_uvs.end(),
+                                    {{u0, v0}, {u1, v0}, {u1, v1}, {u0, v0}, {u0, v1}, {u1, v1}});
+                }
+                ui_text_shader.use();
+                atlas.bind(1);
+                render::VertexArray vao;
+                vao.bind();
+                render::Buffer vbo(render::Buffer::Target::Vertex, icon_verts.data(),
+                                   static_cast<std::size_t>(icon_verts.size()) * sizeof(glm::vec2),
+                                   render::Buffer::Usage::Static);
+                vbo.bind();
+                vao.set_attribute(0, 2, GL_FLOAT, sizeof(glm::vec2), 0);
+                render::Buffer uvbo(render::Buffer::Target::Vertex, icon_uvs.data(),
+                                    static_cast<std::size_t>(icon_uvs.size()) * sizeof(glm::vec2),
+                                    render::Buffer::Usage::Static);
+                uvbo.bind();
+                vao.set_attribute(1, 2, GL_FLOAT, sizeof(glm::vec2), 0);
+                glUniform4f(ui_text_shader.uniform_location("u_color"), 1.0f, 1.0f, 1.0f, 1.0f);
+                glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(icon_verts.size()));
+            }
+            // Selected block name (uppercase) above the hotbar.
+            {
+                std::string name = world.registry().string_of(selected_block);
+                std::transform(name.begin(), name.end(), name.begin(),
+                               [](unsigned char c) { return static_cast<char>(std::toupper(c)); });
+                std::vector<glm::vec2> tverts;
+                std::vector<glm::vec2> tuvs;
+                draw_text(name, static_cast<float>(fb_width) / 2.0f - static_cast<float>(name.size()) * 7.0f,
+                          bar_y0 - 22.0f, 16.0f, fb_width, fb_height, tverts, tuvs);
+                ui_text_shader.use();
+                font.bind(1);
+                render::VertexArray vao;
+                vao.bind();
+                render::Buffer vbo(render::Buffer::Target::Vertex, tverts.data(),
+                                   static_cast<std::size_t>(tverts.size()) * sizeof(glm::vec2),
+                                   render::Buffer::Usage::Static);
+                vbo.bind();
+                vao.set_attribute(0, 2, GL_FLOAT, sizeof(glm::vec2), 0);
+                render::Buffer uvbo(render::Buffer::Target::Vertex, tuvs.data(),
+                                    static_cast<std::size_t>(tuvs.size()) * sizeof(glm::vec2),
+                                    render::Buffer::Usage::Static);
+                uvbo.bind();
+                vao.set_attribute(1, 2, GL_FLOAT, sizeof(glm::vec2), 0);
+                glUniform4f(ui_text_shader.uniform_location("u_color"), 1.0f, 1.0f, 1.0f, 1.0f);
+                glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(tverts.size()));
+            }
+            // Health: 10 hearts driven by PlayerState::health (T007), 2 hp per
+            // heart. Red pass (full + half), then a dim pass for empty ones.
+            {
+                const int full = static_cast<int>(curr_state.health) / 2;
+                const bool half = static_cast<int>(curr_state.health) % 2 != 0;
+                std::string hearts_red;
+                hearts_red.reserve(10);
+                for (int i = 0; i < full; ++i) {
+                    hearts_red += '\x01';
+                }
+                if (half && full < 10) {
+                    hearts_red += '\x02';
+                }
+                const int empties = 10 - full - (half && full < 10 ? 1 : 0);
+                std::string hearts_empty(static_cast<std::size_t>(std::max(empties, 0)), '\x03');
+                const float heart_px = 14.0f;
+                const float hearts_y = bar_y0 - 22.0f;
+                auto draw_hearts = [&](const std::string &text, float r, float g, float b, float a) {
+                    if (text.empty()) {
+                        return;
+                    }
+                    std::vector<glm::vec2> tverts;
+                    std::vector<glm::vec2> tuvs;
+                    draw_text(text, bar_x0, hearts_y, heart_px, fb_width, fb_height, tverts, tuvs);
+                    ui_text_shader.use();
+                    font.bind(1);
+                    render::VertexArray vao;
+                    vao.bind();
+                    render::Buffer vbo(render::Buffer::Target::Vertex, tverts.data(),
+                                       static_cast<std::size_t>(tverts.size()) * sizeof(glm::vec2),
+                                       render::Buffer::Usage::Static);
+                    vbo.bind();
+                    vao.set_attribute(0, 2, GL_FLOAT, sizeof(glm::vec2), 0);
+                    render::Buffer uvbo(render::Buffer::Target::Vertex, tuvs.data(),
+                                        static_cast<std::size_t>(tuvs.size()) * sizeof(glm::vec2),
+                                        render::Buffer::Usage::Static);
+                    uvbo.bind();
+                    vao.set_attribute(1, 2, GL_FLOAT, sizeof(glm::vec2), 0);
+                    glUniform4f(ui_text_shader.uniform_location("u_color"), r, g, b, a);
+                    glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(tverts.size()));
+                };
+                draw_hearts(hearts_empty, 0.25f, 0.25f, 0.25f, 0.9f);
+                draw_hearts(hearts_red, 0.85f, 0.15f, 0.15f, 1.0f);
+            }
+
+            glEnable(GL_DEPTH_TEST);
+        }
 
         // ── pause menu (drawn over the live scene; no ticks while paused) ───
         if (paused) {
@@ -993,6 +1456,13 @@ int main() {
     }
 
     glfwDestroyWindow(window);
+
+    // ── exit: force flush (T009: 退出时强制 flush，QUIT 与窗口关闭共用此路径) ──
+    world.autosave_pass();
+    save.write_level_now(make_level_data());
+    save.flush();
+    OC_LOG_INFO("save: flushed on exit (ticks={}, chunks cached={})", game_ticks, save.cached_region_count());
+
     glfwTerminate();
     OC_LOG_INFO("clean shutdown");
     return 0;

@@ -69,6 +69,10 @@ public:
 
     [[nodiscard]] std::vector<std::pair<int, int>> take_dirty();
 
+    // True when the chunk has unsaved modifications (set since the last
+    // store/flush of that chunk).
+    [[nodiscard]] bool is_dirty(int cx, int cz) const;
+
     [[nodiscard]] std::size_t pending_dirty_count() const;
 
     // Queues one chunk's serialized payload for the async writer; also clears

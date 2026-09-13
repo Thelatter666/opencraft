@@ -114,6 +114,11 @@ std::size_t WorldSave::pending_dirty_count() const {
     return dirty_.size();
 }
 
+bool WorldSave::is_dirty(int cx, int cz) const {
+    std::lock_guard<std::mutex> lock(io_mutex_);
+    return dirty_.contains({cx, cz});
+}
+
 void WorldSave::store_chunk_sync(int cx, int cz, const std::uint8_t *data, std::size_t size) {
     std::lock_guard<std::mutex> lock(io_mutex_);
     dirty_.erase({cx, cz});
