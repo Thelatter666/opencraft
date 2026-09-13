@@ -21,10 +21,11 @@
 | 开发模式 | PM-开发者多对话模式，用户转发；STATE.md 双写；agentmemory 作外置记忆 | docs/05 |
 
 ## 下一步
-1. 等待 T005/T006/T007 回贴报告（各自 worktree：/private/tmp/opencraft-t005、opencraft-T006、T007 待确认）
-2. **并行硬规则（2026-09-13 起）**：任何任务开工前必须 `git worktree add ../opencraft-<task>`，禁止在共享主工作区改文件；主工作区只留给 PM 做合并与簿记
-3. T005/T006/T007 齐后派 T008（依赖 T005+T007）
-4. T009 备忘：core 补 u16/u64 标量读写；spawn 逻辑做 5×5 安全地面扫描（T004 未做出生点搜索）；近地表 6 格空腔封石是 T004 的既定取舍；`opencraft_server` INTERFACE 目标已链 worldgen 可直接取用
+1. 用户将 T008 任务卡转发给开发者对话（act_mtzspupw_7ae441cf7872）——M1 并行线全部收口，进入串行集成段
+2. T008 验收后派 T009（M1 收口卡：HUD/暂停/存读档）
+3. T008 集成要点（已并入卡面）：ChunkManager 坐标语义修复（T005 报告）；渲染接光照（T006 备忘）；第一人称控制器替换轨道相机（T005 备忘）；破坏方块触发光照更新（T006 on_block_changed）；BlockDef 建议加 liquid 字段（T007 建议）；疾跑跳位移增益未做（对齐 7.127 m/s 可作后续小任务）
+4. T009 备忘：core 补 u16/u64 标量读写；spawn 逻辑做 5×5 安全地面扫描（T004 未做出生点搜索）；近地表 6 格空腔封石是 T004 既定取舍；`opencraft_server` INTERFACE 已链 worldgen；区块卸载钩子补齐（T006 留）
+5. **并行硬规则（常设）**：任何任务开工先 `git worktree add ../opencraft-<task>`，主工作区只归 PM 做合并与簿记；PM 验收合并一律先在干净 worktree 以 merge commit 复验
 5. T006 集成备忘（写 T008/T009 卡时用）：光照消费入口=ChunkLightWorld 适配器（ChunkManager&+BlockRegistry+EmissionFn→ILightWorld）；LightEngine 非线程安全，须由 worker 池串行调度；init_chunk 1.3–8.8ms/区块（发射体全格扫描是大头，可加"含光源"提示优化）；区块卸载钩子未做，集成任务补
 6. **ChunkManager 语义缺陷（T005 报告，T008 必修）**：`get_or_load(int,int)`/`find(int,int)` 形参名为区块坐标、实现却按世界坐标 floor_div 16 解析（T005 已用 int64 key 重载绕开）。T008 卡须统一修正（改实现或改名 world 语义）并更新全部调用方与测试
 7. T005 报备：`is_translucent_block(u16)` 暂硬编码默认注册表（leaves/glass/water），有逐 id 对账测试；注册表转数据驱动后换调用方注入的 style provider。主树 T005 残留 WIP 已清理（备份 /tmp/t005-main-tree-wip-backup）
@@ -39,7 +40,7 @@
 | T004 | M1 噪声地形生成 | done（01da8a5，合并 272437b；PM 复核 56/56） | act_mtzspn83_c1216d9d31bf | 黄金文件+语义抽查全过 |
 | T005 | M1 culled meshing+图集+GL 渲染 | done（2f0c158，合并 62b3838；PM 复核 82/82+截图视觉验收） | act_mtzspn9e_dcc3964163b4 | mesh 0.74ms/区块；水半透明；ESC 退出码 0 |
 | T006 | M1 双通道光照引擎初版 | done（eddc014，合并 552dfd7；PM 复核 73/73） | act_mtzspn9p_40311fd8cf03 | 光照单测+跨区块顺序无关全过 |
-| T007 | M1 第一人称控制器+物理 | in progress（worktree 待确认） | act_mtzspna1_dfae45044fdf | 物理回放黄金测试 |
+| T007 | M1 第一人称控制器+物理 | done（d183dd4，合并 74be451；PM 复核 108/108+常数对账） | act_mtzspna1_dfae45044fdf | 物理黄金回放+跳高 1.2522 精确命中 |
 | T008 | M1 DDA 选取+挖掘/放置 | blocked(T005,T007) | act_mtzspupw_7ae441cf7872 | 挖掘公式单测+手测 |
 | T009 | M1 HUD/暂停/存读档 | blocked(T008) | act_mtzsq3hn_0b919c433c62 | 存读档不丢档 |
 
