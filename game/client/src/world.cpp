@@ -8,9 +8,9 @@
 
 namespace opencraft::client {
 
-WorldSource::WorldSource()
+WorldSource::WorldSource(const std::uint64_t seed)
     : registry_(voxel::BlockRegistry::create_default()), light_world_(chunks_, registry_, {}), light_(light_world_),
-      generator_(kSeed, registry_) {
+      generator_(seed, registry_) {
 }
 
 bool WorldSource::ensure_chunk(int cx, int cz) {
@@ -19,6 +19,19 @@ bool WorldSource::ensure_chunk(int cx, int cz) {
     // (A generated chunk is never empty - bedrock floor is always present.)
     if (!chunk.empty()) {
         return false;
+    }
+    // Disk-first (T009): persisted blocks win over regeneration. Light is
+    // NOT persisted (the documented choice) - init_chunk recomputes it.
+    if (save_ != nullptr) {
+        if (const std::optional<std::vector<std::uint8_t>> payload = save_->load_chunk(cx, cz); payload.has_value()) {
+            core::ByteBuffer buffer;
+            buffer.write_bytes(payload->data(), payload->size());
+            buffer.rewind();
+            chunk = voxel::Chunk::deserialize(buffer);
+            light_.init_chunk(cx, cz);
+            OC_LOG_INFO("chunk ({}, {}) loaded from disk", cx, cz);
+            return true;
+        }
     }
     generator_.generate_chunk(cx, cz, chunk);
     light_.init_chunk(cx, cz);
@@ -44,6 +57,9 @@ void WorldSource::set_block(int wx, int wy, int wz, std::uint16_t id, std::vecto
     }
     chunk->set_block(lx, wy, lz, id);
     light_.on_block_changed(wx, wy, wz, old_id, id);
+    if (save_ != nullptr) {
+        save_->mark_dirty(cx, cz);
+    }
 
     // Own chunk plus every side neighbor within light reach of the changed
     // cell (light spreads up to 15 cells horizontally, so a change at lx
@@ -96,6 +112,85 @@ int WorldSource::surface_height(int wx, int wz) const {
         }
     }
     return 0;
+}
+
+glm::dvec3 WorldSource::find_spawn() {
+    // 5x5 column scan around the origin, center-out (T009 card item: spawn
+    // on the surface's highest solid block). All 25 columns live in chunk
+    // (0, 0), which the caller generated first.
+    static constexpr std::pair<int, int> kOffsets[25] = {
+        {0, 0},  {1, 0},  {-1, 0},  {0, 1},  {0, -1}, {1, 1},  {1, -1},  {-1, 1},  {-1, -1},
+        {2, 0},  {-2, 0}, {0, 2},   {0, -2}, {2, 1},  {2, -1}, {-2, 1},  {-2, -1}, {1, 2},
+        {-1, 2}, {1, -2}, {-1, -2}, {2, 2},  {2, -2}, {-2, 2}, {-2, -2},
+    };
+    for (const auto &[dx, dz] : kOffsets) {
+        const int wx = dx;
+        const int wz = dz;
+        const int surface = surface_height(wx, wz);
+        if (surface <= 0 || surface + 1 >= voxel::Chunk::kSizeY) {
+            continue;
+        }
+        const std::uint16_t ground = block_at(wx, surface - 1, wz);
+        if (!registry_.def_of(ground).solid || registry_.def_of(ground).liquid) {
+            continue;
+        }
+        // Two air cells above the ground: feet and head.
+        if (block_at(wx, surface, wz) != 0 || block_at(wx, surface + 1, wz) != 0) {
+            continue;
+        }
+        return {wx + 0.5, static_cast<double>(surface), wz + 0.5};
+    }
+    // Scan failed (e.g. the whole area is water): fall back to the legacy
+    // spawn column; physics will handle whatever is there.
+    return {8.5, static_cast<double>(surface_height(8, 8)), 8.5};
+}
+
+bool WorldSource::unload_chunk(int cx, int cz) {
+    if (chunks_.find(cx, cz) == nullptr) {
+        return false;
+    }
+    // Persistence before release (T009 card: 卸载时若有脏数据先落盘再释放).
+    // Untouched chunks regenerate deterministically, so only modified ones
+    // hit the disk (card: 未修改的区块不落盘).
+    if (save_ != nullptr && save_->is_dirty(cx, cz)) {
+        core::ByteBuffer payload;
+        if (serialize_chunk(cx, cz, payload)) {
+            save_->store_chunk_sync(cx, cz, payload.data(), payload.size());
+        }
+    }
+    light_.forget_chunk(cx, cz);
+    static_cast<void>(chunks_.unload(voxel::Chunk::chunk_coord(cx * voxel::Chunk::kSizeX, cz * voxel::Chunk::kSizeZ)));
+    return true;
+}
+
+std::size_t WorldSource::autosave_pass() {
+    if (save_ == nullptr) {
+        return 0;
+    }
+    std::size_t written = 0;
+    for (const auto &[cx, cz] : save_->take_dirty()) {
+        core::ByteBuffer payload;
+        if (serialize_chunk(cx, cz, payload)) {
+            // Snapshot copied on the main thread; the IO thread only ever
+            // sees the byte vector (T009 card concurrency rule).
+            save_->store_chunk_async(cx, cz,
+                                     std::vector<std::uint8_t>(payload.data(), payload.data() + payload.size()));
+            ++written;
+        }
+        // A dirty-but-unloaded chunk (should not happen: set_block only marks
+        // loaded chunks) is simply dropped from the set; its data is whatever
+        // disk already holds.
+    }
+    return written;
+}
+
+bool WorldSource::serialize_chunk(int cx, int cz, core::ByteBuffer &out) const {
+    const voxel::Chunk *chunk = chunks_.find(cx, cz);
+    if (chunk == nullptr) {
+        return false;
+    }
+    chunk->serialize(out);
+    return true;
 }
 
 std::uint16_t WorldSource::block_at(int wx, int wy, int wz) const {

@@ -1,0 +1,15 @@
+MODE=DISABLED raw_motion_supported=0
+READY
+[  3.106] KEY CALLBACK  key=ESC scancode=53 action=PRESS
+[  3.110] KEY CALLBACK  key=ESC scancode=53 action=RELEASE
+[  4.696] KEY CALLBACK  key=ESC scancode=53 action=PRESS
+[  4.698] KEY CALLBACK  key=ESC scancode=53 action=RELEASE
+[  6.252] KEY CALLBACK  key=ESC scancode=53 action=PRESS
+[  6.253] POLL EDGE    esc=1
+[  6.339] KEY CALLBACK  key=ESC scancode=53 action=RELEASE
+[  6.339] POLL EDGE    esc=0
+[  7.896] KEY CALLBACK  key=ESC scancode=53 action=PRESS
+[  7.898] POLL EDGE    esc=1
+[  7.982] KEY CALLBACK  key=ESC scancode=53 action=RELEASE
+[  7.982] POLL EDGE    esc=0
+DONE mode=DISABLED esc_key_callbacks=8 esc_poll_edges=4

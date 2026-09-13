@@ -21,14 +21,16 @@ add_executable(opencraft_tests
     test_raycast.cpp
     test_mining.cpp
     test_placement.cpp
+    test_storage.cpp
 )
 
 # opencraft_worldgen PUBLIC-links opencraft_voxel and opencraft_noise;
 # opencraft_render PUBLIC-links opencraft_voxel, so all engine headers
 # propagate from here. opencraft_physics brings the T007 headless simulation;
-# opencraft_game the T008 interaction primitives.
+# opencraft_game the T008 interaction primitives; opencraft_storage the T009
+# persistence layer (PUBLIC zstd headers feed the compression-ratio test).
 target_link_libraries(opencraft_tests PRIVATE opencraft_worldgen opencraft_render opencraft_physics opencraft_game
-    doctest::doctest_with_main)
+    opencraft_storage doctest::doctest_with_main)
 
 # Golden chunk hashes live next to the tests; the path is baked in so the
 # test binary is location-independent.

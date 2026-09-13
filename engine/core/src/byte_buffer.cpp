@@ -9,7 +9,15 @@ void ByteBuffer::write_u8(std::uint8_t value) {
     data_.push_back(value);
 }
 
+void ByteBuffer::write_u16(std::uint16_t value) {
+    detail::put_le(data_, value);
+}
+
 void ByteBuffer::write_u32(std::uint32_t value) {
+    detail::put_le(data_, value);
+}
+
+void ByteBuffer::write_u64(std::uint64_t value) {
     detail::put_le(data_, value);
 }
 
@@ -35,10 +43,24 @@ std::uint8_t ByteBuffer::read_u8() {
     return data_[read_pos_++];
 }
 
+std::uint16_t ByteBuffer::read_u16() {
+    ensure_readable(2);
+    const std::uint16_t value = detail::get_le<std::uint16_t>(data_, read_pos_);
+    read_pos_ += 2;
+    return value;
+}
+
 std::uint32_t ByteBuffer::read_u32() {
     ensure_readable(4);
     const std::uint32_t value = detail::get_le<std::uint32_t>(data_, read_pos_);
     read_pos_ += 4;
+    return value;
+}
+
+std::uint64_t ByteBuffer::read_u64() {
+    ensure_readable(8);
+    const std::uint64_t value = detail::get_le<std::uint64_t>(data_, read_pos_);
+    read_pos_ += 8;
     return value;
 }
 

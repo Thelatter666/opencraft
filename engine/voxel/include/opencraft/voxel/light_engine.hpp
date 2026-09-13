@@ -69,6 +69,13 @@ public:
 
     [[nodiscard]] bool chunk_initialized(int chunk_x, int chunk_z) const;
 
+    // ── unload hook (T006 follow-up, wired by T009) ─────────────────────────
+    // Drops the chunk's light storage and any deferred cross-chunk offers
+    // targeting it. Call when a chunk leaves memory so a later re-init cannot
+    // trip over stale per-chunk light data or replay offers that no longer
+    // match a reloaded world.
+    void forget_chunk(int chunk_x, int chunk_z);
+
 private:
     struct Node {
         int x;
