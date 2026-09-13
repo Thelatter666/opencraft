@@ -25,6 +25,7 @@
 2. **并行硬规则（2026-09-13 起）**：任何任务开工前必须 `git worktree add ../opencraft-<task>`，禁止在共享主工作区改文件；主工作区只留给 PM 做合并与簿记
 3. T005/T006/T007 齐后派 T008（依赖 T005+T007）
 4. T009 备忘：core 补 u16/u64 标量读写；spawn 逻辑做 5×5 安全地面扫描（T004 未做出生点搜索）；近地表 6 格空腔封石是 T004 的既定取舍；`opencraft_server` INTERFACE 目标已链 worldgen 可直接取用
+5. T006 集成备忘（写 T008/T009 卡时用）：光照消费入口=ChunkLightWorld 适配器（ChunkManager&+BlockRegistry+EmissionFn→ILightWorld）；LightEngine 非线程安全，须由 worker 池串行调度；init_chunk 1.3–8.8ms/区块（发射体全格扫描是大头，可加"含光源"提示优化）；区块卸载钩子未做，集成任务补
 
 ## 任务表
 | ID | 任务 | 状态 | agentmemory ID | 验收 |
@@ -35,7 +36,7 @@
 | T003 | M1 区块存储+调色板+注册表 | done（7d8be75，合并 57a6712） | act_mtzsp34d_81fd4fd8b974 | 44/44 |
 | T004 | M1 噪声地形生成 | done（01da8a5，合并 272437b；PM 复核 56/56） | act_mtzspn83_c1216d9d31bf | 黄金文件+语义抽查全过 |
 | T005 | M1 culled meshing+图集+GL 渲染 | in progress（own worktree） | act_mtzspn9e_dcc3964163b4 | 多区块渲染；网格化<5ms |
-| T006 | M1 双通道光照引擎初版 | in progress（own worktree） | act_mtzspn9p_40311fd8cf03 | 光照单测+黄金测试 |
+| T006 | M1 双通道光照引擎初版 | done（eddc014，合并 552dfd7；PM 复核 73/73） | act_mtzspn9p_40311fd8cf03 | 光照单测+跨区块顺序无关全过 |
 | T007 | M1 第一人称控制器+物理 | in progress（worktree 待确认） | act_mtzspna1_dfae45044fdf | 物理回放黄金测试 |
 | T008 | M1 DDA 选取+挖掘/放置 | blocked(T005,T007) | act_mtzspupw_7ae441cf7872 | 挖掘公式单测+手测 |
 | T009 | M1 HUD/暂停/存读档 | blocked(T008) | act_mtzsq3hn_0b919c433c62 | 存读档不丢档 |
