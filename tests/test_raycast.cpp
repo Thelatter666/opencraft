@@ -56,9 +56,8 @@ TEST_CASE("dda raycast detects every face normal on axis-aligned approach") {
     world.set(block.x, block.y, block.z, 1);
 
     const std::vector<std::pair<glm::dvec3, glm::ivec3>> cases = {
-        {{1.0, 0.0, 0.0}, {-1, 0, 0}}, {{-1.0, 0.0, 0.0}, {1, 0, 0}},
-        {{0.0, 1.0, 0.0}, {0, -1, 0}}, {{0.0, -1.0, 0.0}, {0, 1, 0}},
-        {{0.0, 0.0, 1.0}, {0, 0, -1}}, {{0.0, 0.0, -1.0}, {0, 0, 1}},
+        {{1.0, 0.0, 0.0}, {-1, 0, 0}}, {{-1.0, 0.0, 0.0}, {1, 0, 0}}, {{0.0, 1.0, 0.0}, {0, -1, 0}},
+        {{0.0, -1.0, 0.0}, {0, 1, 0}}, {{0.0, 0.0, 1.0}, {0, 0, -1}}, {{0.0, 0.0, -1.0}, {0, 0, 1}},
     };
     for (const auto &[dir, expected_normal] : cases) {
         CAPTURE(dir.x);

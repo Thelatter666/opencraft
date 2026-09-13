@@ -43,8 +43,8 @@ constexpr int kWindowHeight = 720;
 
 // ── view / interaction constants ────────────────────────────────────────────
 constexpr double kMouseSensitivity = 0.0025;
-constexpr double kMaxPitch = 1.5533;    // ~89 degrees
-constexpr double kReachDistance = 4.5;  // ⚖ docs/01 §4: survival block reach
+constexpr double kMaxPitch = 1.5533;   // ~89 degrees
+constexpr double kReachDistance = 4.5; // ⚖ docs/01 §4: survival block reach
 constexpr float kBaseFov = 70.0f;
 constexpr float kSprintFovBoost = 8.0f; // docs/01 §2 feel item: sprint FOV stretch
 constexpr int kViewRadius = 6;          // meshed chunk radius around the player
@@ -260,8 +260,7 @@ struct CubeGeometry {
 
 CubeGeometry build_cube_geometry() {
     CubeGeometry geo;
-    const glm::vec3 c[8] = {{0, 0, 0}, {1, 0, 0}, {1, 0, 1}, {0, 0, 1},
-                            {0, 1, 0}, {1, 1, 0}, {1, 1, 1}, {0, 1, 1}};
+    const glm::vec3 c[8] = {{0, 0, 0}, {1, 0, 0}, {1, 0, 1}, {0, 0, 1}, {0, 1, 0}, {1, 1, 0}, {1, 1, 1}, {0, 1, 1}};
     static constexpr int kEdges[12][2] = {{0, 1}, {1, 2}, {2, 3}, {3, 0}, {4, 5}, {5, 6},
                                           {6, 7}, {7, 4}, {0, 4}, {1, 5}, {2, 6}, {3, 7}};
     for (int e = 0; e < 12; ++e) {
@@ -327,8 +326,7 @@ FontImage build_font_texture() {
 void draw_text(const std::string &text, float x_px, float y_px, float px_height, int fb_w, int fb_h,
                std::vector<glm::vec2> &verts, std::vector<glm::vec2> &uvs) {
     const auto to_ndc = [&](float x, float y) {
-        return glm::vec2((x / static_cast<float>(fb_w)) * 2.0f - 1.0f,
-                         1.0f - (y / static_cast<float>(fb_h)) * 2.0f);
+        return glm::vec2((x / static_cast<float>(fb_w)) * 2.0f - 1.0f, 1.0f - (y / static_cast<float>(fb_h)) * 2.0f);
     };
     const float scale = px_height / static_cast<float>(kGlyphHeight);
     const int count = static_cast<int>(std::size(kGlyphs));
@@ -359,8 +357,7 @@ void draw_text(const std::string &text, float x_px, float y_px, float px_height,
 // Appends one flat NDC quad from a screen-pixel rect.
 void draw_rect(float x0, float y0, float x1, float y1, int fb_w, int fb_h, std::vector<glm::vec2> &verts) {
     const auto to_ndc = [&](float x, float y) {
-        return glm::vec2((x / static_cast<float>(fb_w)) * 2.0f - 1.0f,
-                         1.0f - (y / static_cast<float>(fb_h)) * 2.0f);
+        return glm::vec2((x / static_cast<float>(fb_w)) * 2.0f - 1.0f, 1.0f - (y / static_cast<float>(fb_h)) * 2.0f);
     };
     const glm::vec2 a = to_ndc(x0, y0);
     const glm::vec2 b = to_ndc(x1, y1);
@@ -626,8 +623,7 @@ int main() {
 
         // ── mining ───────────────────────────────────────────────────────────
         const bool left_held = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS;
-        const std::uint16_t target_id =
-            hit.hit ? world.block_at(hit.block_pos.x, hit.block_pos.y, hit.block_pos.z) : 0;
+        const std::uint16_t target_id = hit.hit ? world.block_at(hit.block_pos.x, hit.block_pos.y, hit.block_pos.z) : 0;
         const auto mining_tick = mining.tick(hit.block_pos, target_id, hit.hit, left_held);
         if (mining_tick.broke) {
             world.set_block(hit.block_pos.x, hit.block_pos.y, hit.block_pos.z, 0, dirty_chunks);
@@ -649,9 +645,8 @@ int main() {
         if (right_held && (place_cooldown == 0 || !prev_right)) {
             if (hit.hit) {
                 const glm::ivec3 cell = gam::placement_cell(hit);
-                const auto status =
-                    gam::check_placement(world.registry(), world, cell, curr_state.position, curr_state.height(),
-                                         phy::PlayerState::kHalfWidth);
+                const auto status = gam::check_placement(world.registry(), world, cell, curr_state.position,
+                                                         curr_state.height(), phy::PlayerState::kHalfWidth);
                 if (status == gam::PlacementStatus::Ok) {
                     world.set_block(cell.x, cell.y, cell.z, selected_block, dirty_chunks);
                     OC_LOG_INFO("placed {} at ({}, {}, {})", world.registry().string_of(selected_block), cell.x, cell.y,
@@ -827,9 +822,8 @@ int main() {
         }
 
         // ── streaming ───────────────────────────────────────────────────────
-        const auto [pcx, pcz] =
-            opencraft::voxel::Chunk::chunk_coords(static_cast<int>(std::floor(curr_state.position.x)),
-                                                  static_cast<int>(std::floor(curr_state.position.z)));
+        const auto [pcx, pcz] = opencraft::voxel::Chunk::chunk_coords(
+            static_cast<int>(std::floor(curr_state.position.x)), static_cast<int>(std::floor(curr_state.position.z)));
         int gen_left = kGenPerFrame;
         for (const auto &[dx, dz] : gen_offsets) {
             if (gen_left == 0) {
@@ -893,9 +887,7 @@ int main() {
         shader.use();
         glUniformMatrix4fv(shader.uniform_location("u_mvp"), 1, GL_FALSE, &mvp[0][0]);
 
-        const auto distance_sq = [&](const ChunkRenderable &r) {
-            return glm::dot(r.center - eye_f, r.center - eye_f);
-        };
+        const auto distance_sq = [&](const ChunkRenderable &r) { return glm::dot(r.center - eye_f, r.center - eye_f); };
 
         // Opaque pass: near -> far (early-Z friendly), depth writes on.
         glDisable(GL_BLEND);
@@ -983,9 +975,9 @@ int main() {
 
         ++fps_frames;
         if (now - fps_timer >= 2.0) {
-            OC_LOG_INFO("fps {:.1f} | pos ({:.2f}, {:.2f}, {:.2f}) | chunks {} | stream-meshed {}", fps_frames / (now - fps_timer),
-                        curr_state.position.x, curr_state.position.y, curr_state.position.z, renderables.size(),
-                        stream_meshed);
+            OC_LOG_INFO("fps {:.1f} | pos ({:.2f}, {:.2f}, {:.2f}) | chunks {} | stream-meshed {}",
+                        fps_frames / (now - fps_timer), curr_state.position.x, curr_state.position.y,
+                        curr_state.position.z, renderables.size(), stream_meshed);
             fps_frames = 0;
             fps_timer = now;
         }

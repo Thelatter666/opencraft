@@ -62,11 +62,9 @@ TEST_CASE("placement into the player body is rejected but flush blocks are allow
     const glm::dvec3 feet(3.5, 3.0, 3.5); // standing on the slab, in cell y=3..4
 
     // Cell the player stands in: overlaps the body.
-    CHECK(check_placement(world.registry(), world, {3, 3, 3}, feet, 1.8, 0.3) ==
-          PlacementStatus::IntersectsPlayer);
+    CHECK(check_placement(world.registry(), world, {3, 3, 3}, feet, 1.8, 0.3) == PlacementStatus::IntersectsPlayer);
     // Head-height cell: also overlaps (feet y 3.0 .. 4.8).
-    CHECK(check_placement(world.registry(), world, {3, 4, 3}, feet, 1.8, 0.3) ==
-          PlacementStatus::IntersectsPlayer);
+    CHECK(check_placement(world.registry(), world, {3, 4, 3}, feet, 1.8, 0.3) == PlacementStatus::IntersectsPlayer);
     // Block directly at head level top - touching the head plane but not
     // overlapping (strict inequality): allowed.
     CHECK(check_placement(world.registry(), world, {3, 5, 3}, feet, 1.8, 0.3) == PlacementStatus::Ok);
@@ -99,6 +97,6 @@ TEST_CASE("placement neighbor offset uses the entered face, not the hit block") 
     // The wrong-side face points back into the hit block itself: the cell is
     // the hit block, already occupied, and the placement is rejected.
     hit.face_normal = glm::ivec3(0, -1, 0);
-    CHECK(check_placement(world.registry(), world, opencraft::game::placement_cell(hit), {30.5, 3.0, 0.5}, 1.8,
-                          0.3) == PlacementStatus::CellOccupied);
+    CHECK(check_placement(world.registry(), world, opencraft::game::placement_cell(hit), {30.5, 3.0, 0.5}, 1.8, 0.3) ==
+          PlacementStatus::CellOccupied);
 }

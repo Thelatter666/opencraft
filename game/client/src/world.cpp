@@ -8,9 +8,8 @@
 
 namespace opencraft::client {
 
-WorldSource::WorldSource()
-    : light_world_(chunks_, registry_, {}), light_(light_world_),
-      generator_(kSeed, registry_) {}
+WorldSource::WorldSource() : light_world_(chunks_, registry_, {}), light_(light_world_), generator_(kSeed, registry_) {
+}
 
 bool WorldSource::ensure_chunk(int cx, int cz) {
     voxel::Chunk &chunk = chunks_.get_or_load(cx, cz);
@@ -29,8 +28,7 @@ bool WorldSource::neighbors_ready(int cx, int cz) const {
            chunk_ready(cx, cz + 1);
 }
 
-void WorldSource::set_block(int wx, int wy, int wz, std::uint16_t id,
-                            std::vector<std::pair<int, int>> &dirty) {
+void WorldSource::set_block(int wx, int wy, int wz, std::uint16_t id, std::vector<std::pair<int, int>> &dirty) {
     const auto [cx, cz] = voxel::Chunk::chunk_coords(wx, wz);
     voxel::Chunk *chunk = chunks_.find(cx, cz);
     if (chunk == nullptr) {
@@ -119,8 +117,7 @@ bool WorldSource::solid_at(int wx, int wy, int wz) const {
     if (wy < 0 || wy >= voxel::Chunk::kSizeY) {
         return false;
     }
-    return registry_.def_of(chunk->get_block(wx - cx * voxel::Chunk::kSizeX, wy, wz - cz * voxel::Chunk::kSizeZ))
-        .solid;
+    return registry_.def_of(chunk->get_block(wx - cx * voxel::Chunk::kSizeX, wy, wz - cz * voxel::Chunk::kSizeZ)).solid;
 }
 
 bool WorldSource::liquid_at(int wx, int wy, int wz) const {
@@ -182,9 +179,8 @@ void shade_mesh_with_light(render::MeshData &mesh, const WorldSource &world, int
                 sky = levels.sky;
                 block_light = levels.block;
             }
-            const float brightness =
-                std::max(kAmbientFloor, std::max(static_cast<float>(sky) * kDayFactor, static_cast<float>(block_light)) /
-                                            15.0f);
+            const float brightness = std::max(
+                kAmbientFloor, std::max(static_cast<float>(sky) * kDayFactor, static_cast<float>(block_light)) / 15.0f);
 
             for (int c = 0; c < 4; ++c) {
                 auto &v = bucket.vertices[quad + static_cast<std::size_t>(c)];

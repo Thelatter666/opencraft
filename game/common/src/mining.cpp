@@ -31,7 +31,8 @@ bool can_harvest_by_hand(const opencraft::voxel::BlockRegistry &registry, std::u
 }
 
 MiningTracker::MiningTracker(const opencraft::voxel::BlockRegistry &registry, MiningConfig config)
-    : registry_(&registry), config_(config) {}
+    : registry_(&registry), config_(config) {
+}
 
 MiningTickResult MiningTracker::tick(const glm::ivec3 &target, std::uint16_t block_id, bool targeting,
                                      bool mining_held) {
@@ -61,8 +62,8 @@ MiningTickResult MiningTracker::tick(const glm::ivec3 &target, std::uint16_t blo
         if (registry_->has_numeric(block_id)) {
             const auto &def = registry_->def_of(block_id);
             if (def.hardness > 0.0f) {
-                damage_per_tick_ = can_harvest_by_hand(*registry_, block_id) ? 1.0 / def.hardness / 30.0
-                                                                             : 1.0 / def.hardness / 100.0;
+                damage_per_tick_ =
+                    can_harvest_by_hand(*registry_, block_id) ? 1.0 / def.hardness / 30.0 : 1.0 / def.hardness / 100.0;
                 predicted_ticks_ = static_cast<int>(std::ceil(1.0 / damage_per_tick_));
             }
         }
@@ -79,8 +80,8 @@ MiningTickResult MiningTracker::tick(const glm::ivec3 &target, std::uint16_t blo
 
     // Instant mining: predicted time <= 0.05 s (1 tick), including hardness-0
     // blocks. Skips the crack overlay AND the between-blocks delay.
-    const bool instant = predicted_ticks_ <= 1 ||
-                         static_cast<double>(predicted_ticks_) / 20.0 <= config_.instant_threshold_seconds;
+    const bool instant =
+        predicted_ticks_ <= 1 || static_cast<double>(predicted_ticks_) / 20.0 <= config_.instant_threshold_seconds;
     if (instant && ticks_done_ == 0) {
         result.broke = true;
         result.instant = true;

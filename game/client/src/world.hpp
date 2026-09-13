@@ -33,7 +33,9 @@ public:
     WorldSource();
 
     [[nodiscard]] voxel::BlockRegistry &registry() { return registry_; }
+
     [[nodiscard]] voxel::LightEngine &light() { return light_; }
+
     [[nodiscard]] const voxel::LightEngine &light() const { return light_; }
 
     // Generates (if absent), light-initializes and stores chunk (cx, cz).

@@ -12,8 +12,8 @@ bool is_replaceable(const opencraft::voxel::BlockRegistry &registry, std::uint16
 }
 
 PlacementStatus check_placement(const opencraft::voxel::BlockRegistry &registry,
-                                const opencraft::render::IBlockSource &blocks, glm::ivec3 cell,
-                                glm::dvec3 player_feet, double player_height, double half_width) {
+                                const opencraft::render::IBlockSource &blocks, glm::ivec3 cell, glm::dvec3 player_feet,
+                                double player_height, double half_width) {
     const std::uint16_t occupant = blocks.block_at(cell.x, cell.y, cell.z);
     if (!is_replaceable(registry, occupant)) {
         return PlacementStatus::CellOccupied;

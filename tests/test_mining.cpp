@@ -6,8 +6,8 @@
 #include "opencraft/game/mining.hpp"
 
 using opencraft::game::can_harvest_by_hand;
-using opencraft::game::MiningTracker;
 using opencraft::game::MiningTickResult;
+using opencraft::game::MiningTracker;
 using opencraft::voxel::BlockRegistry;
 
 namespace {
@@ -15,9 +15,11 @@ namespace {
 // Registry with extra synthetic blocks for instant-break coverage.
 struct TestRegistry {
     BlockRegistry registry;
+
     TestRegistry() : registry(BlockRegistry::create_default()) {
         static_cast<void>(registry.register_block("torch_glow", {"Glow Wick", true, false, 0.0F}));
     }
+
     [[nodiscard]] std::uint16_t id(const char *name) const { return registry.id_of(name); }
 };
 
@@ -202,8 +204,8 @@ TEST_CASE("crack stage follows progress in ten steps") {
 
 TEST_CASE("unbreakable check and tool requirement table match the launch set") {
     TestRegistry fixtures;
-    for (const char *tool_required : {"stone", "cobblestone", "coal_ore", "copper_ore", "iron_ore", "gold_ore",
-                                      "diamond_ore", "obsidian"}) {
+    for (const char *tool_required :
+         {"stone", "cobblestone", "coal_ore", "copper_ore", "iron_ore", "gold_ore", "diamond_ore", "obsidian"}) {
         CHECK_FALSE(can_harvest_by_hand(fixtures.registry, fixtures.id(tool_required)));
     }
     for (const char *hand_ok :
