@@ -33,7 +33,7 @@ M1 收口段：T009（M1 最后一张卡）开发中；其余全部验收合入 
 | T006 | M1 双通道光照引擎初版 | done（eddc014，合并 552dfd7） | act_mtzspn9p_40311fd8cf03 | 73/73 跨区块顺序无关 |
 | T007 | M1 玩家物理（无头库） | done（d183dd4，合并 74be451） | act_mtzspna1_dfae45044fdf | 108/108 跳高 1.2522 精确 |
 | T008 | M1 DDA+挖放+集成 | done（tip ba626e5，合并 ffc37f1） | act_mtzspupw_7ae441cf7872 | 133/133；P2 缺陷移交 T009 |
-| T009 | M1 存读档+HUD 打磨+P2 修复 | **in progress**（worktree `~/Desktop/opencraft-t009`，分支 task/T009-persistence 尚无提交；在改：cmake/deps.cmake、core ByteBuffer u16/u64、新增 game/server/storage/） | act_mtzsq3hn_0b919c433c62 | 端到端存读档+kill -9 恢复+P2 双向 ESC |
+| T009 | M1 存读档+HUD 打磨+P2 修复 | **in progress**（worktree `/Users/happy/Desktop/opencraft-t009`，分支 task/T009-persistence 尚无提交；在改：cmake/deps.cmake、core ByteBuffer u16/u64、新增 game/server/storage/） | act_mtzsq3hn_0b919c433c62 | 端到端存读档+kill -9 恢复+P2 双向 ESC |
 
 ## 债务/backlog
 | ID | 项 | 来源 | 优先级 |

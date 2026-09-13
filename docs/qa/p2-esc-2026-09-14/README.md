@@ -9,7 +9,7 @@
 
 ## 环境
 
-- 构建：main `ffc37f1` 之后的 T008 分支 tip `ba626e5`（构建于 worktree `~/Desktop/opencraft-t008`）
+- 构建：main `ffc37f1` 之后的 T008 分支 tip `ba626e5`（构建于 worktree `/Users/happy/Desktop/opencraft-t008`）
 - 进程：`./build/opencraft`，pid 10159；窗口 windowID 3579（`CGWindowList` 查得，bounds 320,89 1280×748）
 - 系统：macOS 15，Apple Silicon
 
