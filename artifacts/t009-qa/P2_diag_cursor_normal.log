@@ -1,0 +1,11 @@
+MODE=NORMAL raw_motion_supported=0
+READY
+[  3.613] KEY CALLBACK  key=ESC scancode=53 action=PRESS
+[  3.618] KEY CALLBACK  key=ESC scancode=53 action=RELEASE
+[  4.906] KEY CALLBACK  key=ESC scancode=53 action=PRESS
+[  4.908] KEY CALLBACK  key=ESC scancode=53 action=RELEASE
+[  6.204] KEY CALLBACK  key=ESC scancode=53 action=PRESS
+[  6.205] POLL EDGE    esc=1
+[  6.207] KEY CALLBACK  key=ESC scancode=53 action=RELEASE
+[  6.207] POLL EDGE    esc=0
+DONE mode=NORMAL esc_key_callbacks=6 esc_poll_edges=2

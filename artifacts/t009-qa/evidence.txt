@@ -1,0 +1,21 @@
+=== E2E save/load evidence (excerpts) ===
+--- run1: new world ---
+[2026-09-14 05:49:10.188] [info] save: no level.ocd, new world with seed 0x4f50454e43524146
+[2026-09-14 05:49:10.196] [info] spawn scan: surface at (0.5, 132.0, 0.5)
+--- run2: level loaded ---
+[2026-09-14 05:49:32.072] [info] save: loaded level.ocd (seed=0x4f50454e43524146, ticks=4242, player=(0.50, 132.00, 0.50), hp=20.0)
+--- autosave with dirty chunks (after mining) ---
+[2026-09-14 05:57:21.664] [info] autosave: 0 chunk(s) queued for async write, level written (ticks=6388)
+[2026-09-14 05:57:31.747] [info] autosave: 1 chunk(s) queued for async write, level written (ticks=6588)
+--- clean exit flush ---
+[2026-09-14 05:56:27.317] [info] save: flushed on exit (ticks=5990, chunks cached=4)
+[2026-09-14 05:56:27.317] [info] clean shutdown
+--- after SIGKILL: reload ---
+[2026-09-14 05:57:38.956] [info] save: loaded level.ocd (seed=0x4f50454e43524146, ticks=6588, player=(0.50, 132.00, 0.50), hp=20.0)
+[2026-09-14 05:57:39.063] [info] chunk (0, -1) loaded from disk
+--- ESC toggle (HID, pixel-verified) sequence ---
+esc0_playing  white=0    bright=459990
+esc1_paused   white=919  bright=198067
+esc2_resumed  white=0    bright=459990
+esc3_paused   white=919  bright=198067
+esc4_resumed  white=0    bright=459990
