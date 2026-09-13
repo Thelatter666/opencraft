@@ -61,7 +61,8 @@ public:
     RegionFile() = default;
 
     // Parses an existing file; throws std::runtime_error on any corruption.
-    [[nodiscard]] static RegionFile open(const std::filesystem::path &path);
+    // (No [[nodiscard]]: calling it just to validate a file is legitimate.)
+    static RegionFile open(const std::filesystem::path &path);
 
     [[nodiscard]] bool chunk_exists(int local_x, int local_z) const;
 

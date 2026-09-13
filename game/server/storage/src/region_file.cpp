@@ -155,8 +155,10 @@ RegionFile RegionFile::open(const std::filesystem::path &path) {
     RegionFile region;
     for (int i = 0; i < kChunkCount; ++i) {
         const std::uint8_t *entry = header.data() + 16 + static_cast<std::size_t>(i) * 4;
-        const std::uint32_t sector = get_u32(entry) >> 8; // u24
-        const std::uint32_t sector_count = entry[3];
+        // LE u32 packing: u24 sector in bits 8..31, u8 sector count in the
+        // low byte (see serialize_image).
+        const std::uint32_t sector = get_u32(entry) >> 8;
+        const std::uint32_t sector_count = entry[0];
         if (sector == 0 || sector_count == 0) {
             continue;
         }
@@ -254,16 +256,16 @@ std::vector<std::uint8_t> RegionFile::serialize_image() const {
         if (image.size() < offset + static_cast<std::size_t>(sector_count) * kSectorSize) {
             image.resize(offset + static_cast<std::size_t>(sector_count) * kSectorSize, 0);
         }
-        std::uint8_t *block = image.data() + offset;
-        put_u32(block, kBlockMagic);
-        put_u32(block + 4, static_cast<std::uint32_t>(block.raw.size())); // uncompressed
-        block[8] = kCompressionZstd;
-        block[9] = 0;
-        block[10] = 0;
-        block[11] = 0;
-        put_u32(block + 12, compressed_len);
-        put_u32(block + 16, crc32(compressed.data(), compressed.size()));
-        std::memcpy(block + 20, compressed.data(), compressed.size());
+        std::uint8_t *block_header = image.data() + offset;
+        put_u32(block_header, kBlockMagic);
+        put_u32(block_header + 4, static_cast<std::uint32_t>(block.raw.size())); // uncompressed
+        block_header[8] = kCompressionZstd;
+        block_header[9] = 0;
+        block_header[10] = 0;
+        block_header[11] = 0;
+        put_u32(block_header + 12, compressed_len);
+        put_u32(block_header + 16, crc32(compressed.data(), compressed.size()));
+        std::memcpy(block_header + 20, compressed.data(), compressed.size());
 
         location[static_cast<std::size_t>(i)] =
             (next_sector << 8) | (sector_count & 0xFF);

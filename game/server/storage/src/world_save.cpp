@@ -67,8 +67,17 @@ RegionFile *WorldSave::region_for(int cx, int cz) {
             return &regions_.emplace(key, RegionFile::open(path)).first->second;
         } catch (const std::exception &error) {
             // Card policy: detect, refuse, keep running (chunks regenerate).
-            OC_LOG_ERROR("region file {} rejected ({}); its chunks will regenerate", path.string(), error.what());
-            return nullptr;
+            // Quarantine the bad file so the region can start fresh instead
+            // of being write-dead forever; the original stays for forensics.
+            OC_LOG_ERROR("region file {} rejected ({}); quarantining as .ocr.bad", path.string(), error.what());
+            std::error_code rename_error;
+            std::filesystem::remove(path.string() + ".bad", rename_error);
+            std::filesystem::rename(path, path.string() + ".bad", rename_error);
+            if (rename_error) {
+                OC_LOG_ERROR("quarantine rename failed: {}", rename_error.message());
+                return nullptr;
+            }
+            return &regions_.emplace(key, RegionFile()).first->second;
         }
     }
     return &regions_.emplace(key, RegionFile()).first->second;

@@ -12,7 +12,7 @@ namespace opencraft::storage {
 //
 //   u32 magic "OCLD" (0x4F434C44)
 //   u16 format version (= 1)
-//   u16 header size (= 16)
+//   u16 header size (= 12)
 //   u32 payload length in bytes
 //   payload (ByteBuffer-written, little-endian)
 //   u32 CRC-32 of the payload
@@ -62,8 +62,9 @@ struct LevelData {
 
 // Throws std::runtime_error on any structural problem (bad magic/version/
 // length/CRC, truncated file). Missing file also throws - callers decide
-// whether that means "new world" or an error.
-[[nodiscard]] LevelData read_level(const std::filesystem::path &path);
+// whether that means "new world" or an error. (No [[nodiscard]]: calling it
+// just to validate a file is legitimate.)
+LevelData read_level(const std::filesystem::path &path);
 
 // Atomic write: path.tmp -> fsync -> rename.
 void write_level(const std::filesystem::path &path, const LevelData &level);

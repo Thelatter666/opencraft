@@ -508,3 +508,40 @@ TEST_CASE("ChunkLightWorld adapter wires ChunkManager and registry") {
     CHECK(block_at(engine, 7, 2, 8) == 12);
     CHECK(block_at(engine, 6, 1, 8) == 10);
 }
+
+TEST_CASE("forget_chunk unloads light storage and drops deferred offers") {
+    // Part 1: storage drop and a clean second life. The world is bounded so
+    // the torch light spilling past chunk 0 becomes deferred offers.
+    FakeWorld world(-16, 32, 0, 16);
+    LightEngine engine(world);
+    world.set(8, 1, 8, kTorch); // chunk (0, 0)
+    engine.init_chunk(0, 0);
+    CHECK(engine.chunk_initialized(0, 0));
+    CHECK(block_at(engine, 8, 1, 8) == 14);
+
+    engine.forget_chunk(0, 0);
+    CHECK_FALSE(engine.chunk_initialized(0, 0));
+    CHECK(engine.light_at(8, 1, 8).block == 0);
+    CHECK(engine.light_at(8, 1, 8).sky == 0);
+
+    // Re-init from scratch behaves like a fresh chunk (the unload hook must
+    // not poison the second life of a chunk).
+    engine.init_chunk(0, 0);
+    CHECK(block_at(engine, 8, 1, 8) == 14);
+    engine.forget_chunk(0, 0); // back to uninitialized for part 2
+
+    // Part 2: offers are keyed by TARGET chunk - forgetting one chunk drops
+    // only the offers waiting for it, offers for other chunks survive.
+    // The part-1 torch spilled west into (-1, 0) as well (the world is open
+    // air, so both channels reach far); those offers must still be pending.
+    world.set(24, 1, 8, kTorch); // chunk (1, 0); spills into (0,0) and (2,0)
+    engine.init_chunk(1, 0);
+    CHECK(engine.pending_count() > 0);
+    const std::size_t before = engine.pending_count();
+    engine.forget_chunk(0, 0);
+    CHECK(engine.pending_count() < before);
+    engine.forget_chunk(0, 0); // idempotent
+    engine.forget_chunk(2, 0);
+    engine.forget_chunk(-1, 0); // part-1 spill target
+    CHECK(engine.pending_count() == 0);
+}

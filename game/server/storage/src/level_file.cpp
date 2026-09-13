@@ -33,7 +33,7 @@ std::uint32_t crc32(const std::uint8_t *data, std::size_t size) {
     return crc ^ 0xFFFFFFFFu;
 }
 
-double get_f64(const core::ByteBuffer &buffer) {
+double get_f64(core::ByteBuffer &buffer) {
     const std::uint64_t bits = buffer.read_u64();
     double value = 0.0;
     std::memcpy(&value, &bits, sizeof(value));
@@ -112,11 +112,11 @@ LevelData read_level(const std::filesystem::path &path) {
     }
     in.seekg(0, std::ios::end);
     const std::streamoff file_size = in.tellg();
-    if (file_size < 16) {
-        corrupt("file is " + std::to_string(file_size) + " bytes, smaller than the 16-byte header");
+    if (file_size < 12) {
+        corrupt("file is " + std::to_string(file_size) + " bytes, smaller than the 12-byte header");
     }
     in.seekg(0);
-    std::uint8_t header[16] = {};
+    std::uint8_t header[12] = {};
     in.read(reinterpret_cast<char *>(header), sizeof(header));
     if (!in) {
         corrupt("short read on header");
@@ -137,8 +137,11 @@ LevelData read_level(const std::filesystem::path &path) {
     if (get_u16(header + 4) != LevelData::kFormatVersion) {
         corrupt("unsupported format version " + std::to_string(get_u16(header + 4)));
     }
+    if (get_u16(header + 6) != 12) {
+        corrupt("unsupported header size " + std::to_string(get_u16(header + 6)));
+    }
     const std::uint32_t payload_len = get_u32(header + 8);
-    const std::size_t expected_size = 16 + payload_len + 4;
+    const std::size_t expected_size = 12 + payload_len + 4;
     if (static_cast<std::size_t>(file_size) < expected_size) {
         corrupt("file is " + std::to_string(file_size) + " bytes, payload needs " + std::to_string(expected_size));
     }
@@ -177,7 +180,7 @@ void write_level(const std::filesystem::path &path, const LevelData &level) {
     };
     push_u32(LevelData::kMagic);
     push_u16(LevelData::kFormatVersion);
-    push_u16(16); // header size
+    push_u16(12); // header size
     push_u32(static_cast<std::uint32_t>(payload.size()));
     image.insert(image.end(), payload.data(), payload.data() + payload.size());
     push_u32(crc32(payload.data(), payload.size()));

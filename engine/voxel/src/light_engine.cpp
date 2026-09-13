@@ -32,6 +32,12 @@ bool LightEngine::chunk_initialized(int chunk_x, int chunk_z) const {
     return storages_.find(Chunk::chunk_coord(chunk_base(chunk_x), chunk_base(chunk_z))) != storages_.end();
 }
 
+void LightEngine::forget_chunk(int chunk_x, int chunk_z) {
+    const std::int64_t key = Chunk::chunk_coord(chunk_base(chunk_x), chunk_base(chunk_z));
+    storages_.erase(key);
+    pending_.erase(key);
+}
+
 const LightStorage *LightEngine::storage_for(int world_x, int world_z) const {
     const auto it = storages_.find(Chunk::chunk_coord(world_x, world_z));
     return it == storages_.end() ? nullptr : &it->second;
