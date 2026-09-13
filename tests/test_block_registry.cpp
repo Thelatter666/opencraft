@@ -64,3 +64,18 @@ TEST_CASE("registry handles unknown ids on both directions") {
     CHECK_THROWS_AS([&] { static_cast<void>(registry.string_of(9999)); }(), std::out_of_range);
     CHECK_THROWS_AS([&] { static_cast<void>(registry.def_of(9999)); }(), std::out_of_range);
 }
+
+TEST_CASE("water is the default liquid and every other block defaults to non-liquid") {
+    const auto registry = opencraft::voxel::BlockRegistry::create_default();
+    CHECK(registry.def_of(registry.id_of("water")).liquid);
+    CHECK_FALSE(registry.def_of(registry.id_of("water")).solid); // semantics unchanged
+    for (std::uint16_t id = 0; id < registry.size(); ++id) {
+        if (registry.string_of(id) != "water") {
+            CHECK_FALSE(registry.def_of(id).liquid);
+        }
+    }
+    // New registrations default to liquid = false.
+    auto custom = opencraft::voxel::BlockRegistry::create_default();
+    const auto id = custom.register_block("magma_slurry", {"Magma Slurry", false, true, 1.0F});
+    CHECK_FALSE(custom.def_of(id).liquid);
+}

@@ -25,6 +25,10 @@ struct BlockDef {
     bool solid = true;        // participates in entity collision
     bool transparent = false; // does not block light / is meshed as see-through
     float hardness = 0.0f;    // seconds-scale break hardness; < 0 means unbreakable
+    // True for fluids (water). Distinct from solid: fluids are non-solid but
+    // also not place-through targets (raycast targeting skips them, swimming
+    // queries them). Added in T008; defaults false for every other block.
+    bool liquid = false;
 };
 
 // String-id to runtime numeric-id mapping (docs/03 §7). Numeric ids are

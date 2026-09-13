@@ -2,7 +2,7 @@ find_package(OpenGL REQUIRED)
 
 add_executable(opencraft
     src/main.cpp
-    src/terrain.cpp
+    src/world.cpp
     src/atlas.cpp
 )
 
@@ -11,9 +11,14 @@ target_include_directories(opencraft PRIVATE src)
 # Contract: the client is invoked as ./build/opencraft from the repo root.
 set_target_properties(opencraft PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
+# opencraft_game carries the T008 interaction primitives; opencraft_worldgen
+# the T004 terrain generator the client now streams with (both PUBLIC-link
+# the voxel layer).
 target_link_libraries(opencraft PRIVATE
+    opencraft_game
+    opencraft_worldgen
     opencraft_render
-    opencraft_common
+    opencraft_physics
     OpenGL::GL
     glfw
 )
