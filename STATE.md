@@ -31,6 +31,11 @@
 6. **ChunkManager 语义缺陷（T005 报告，T008 必修）**：`get_or_load(int,int)`/`find(int,int)` 形参名为区块坐标、实现却按世界坐标 floor_div 16 解析（T005 已用 int64 key 重载绕开）。T008 卡须统一修正（改实现或改名 world 语义）并更新全部调用方与测试
 7. T005 报备：`is_translucent_block(u16)` 暂硬编码默认注册表（leaves/glass/water），有逐 id 对账测试；注册表转数据驱动后换调用方注入的 style provider。主树 T005 残留 WIP 已清理（备份 /tmp/t005-main-tree-wip-backup）
 
+## 债务/backlog（非当前里程碑，防丢失）
+| ID | 项 | 来源 | 优先级 |
+|---|---|---|---|
+| T-D1 | **人物移动手感专项打磨**（用户 2026-09-14 实机反馈"很大瑕疵"，要求后期重点开发；已知短板：游泳出水笨拙/缺半砖碰撞形状/疾跑跳无位移增益/无梯子攀爬/InputState 缺 backward/水中物理简化版；具体指向待用户补充） | 用户反馈 | 高（M1 收口后立即拆卡） |
+
 ## 任务表
 | ID | 任务 | 状态 | agentmemory ID | 验收 |
 |---|---|---|---|---|
