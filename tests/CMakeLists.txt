@@ -16,12 +16,14 @@ add_executable(opencraft_tests
     test_light_storage.cpp
     test_light_engine.cpp
     test_mesher.cpp
+    test_player_physics.cpp
+    test_physics_golden.cpp
 )
 
 # opencraft_worldgen PUBLIC-links opencraft_voxel and opencraft_noise;
 # opencraft_render PUBLIC-links opencraft_voxel, so all engine headers
-# propagate from here.
-target_link_libraries(opencraft_tests PRIVATE opencraft_worldgen opencraft_render doctest::doctest_with_main)
+# propagate from here. opencraft_physics brings the T007 headless simulation.
+target_link_libraries(opencraft_tests PRIVATE opencraft_worldgen opencraft_render opencraft_physics doctest::doctest_with_main)
 
 # Golden chunk hashes live next to the tests; the path is baked in so the
 # test binary is location-independent.
