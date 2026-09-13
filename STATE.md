@@ -21,8 +21,9 @@
 | 开发模式 | PM-开发者多对话模式，用户转发；STATE.md 双写；agentmemory 作外置记忆 | docs/05 |
 
 ## 下一步
-1. 用户将 T008 任务卡转发给开发者对话（act_mtzspupw_7ae441cf7872）——M1 并行线全部收口，进入串行集成段
-2. T008 验收后派 T009（M1 收口卡：HUD/暂停/存读档）
+1. 用户将 T009 任务卡转发给开发者对话（act_mtzsq3hn_0b919c433c62）——M1 最后一张卡
+2. **T009 必含 P2 修复**：ESC 暂停态下再次 ESC 无法恢复（PM 实机复现：暂停方向可达、恢复方向真键盘不复现；frontmost 已确认 opencraft；main.cpp:697 切换逻辑看似对称）。修复后须真机验证 ESC↔暂停双向 + RESUME/QUIT 按钮
+3. T009 其余要点见下方备忘行
 3. T008 集成要点（已并入卡面）：ChunkManager 坐标语义修复（T005 报告）；渲染接光照（T006 备忘）；第一人称控制器替换轨道相机（T005 备忘）；破坏方块触发光照更新（T006 on_block_changed）；BlockDef 建议加 liquid 字段（T007 建议）；疾跑跳位移增益未做（对齐 7.127 m/s 可作后续小任务）
 4. T009 备忘：core 补 u16/u64 标量读写；spawn 逻辑做 5×5 安全地面扫描（T004 未做出生点搜索）；近地表 6 格空腔封石是 T004 既定取舍；`opencraft_server` INTERFACE 已链 worldgen；区块卸载钩子补齐（T006 留）
 5. **并行硬规则（常设）**：任何任务开工先 `git worktree add ../opencraft-<task>`，主工作区只归 PM 做合并与簿记；PM 验收合并一律先在干净 worktree 以 merge commit 复验
@@ -41,8 +42,8 @@
 | T005 | M1 culled meshing+图集+GL 渲染 | done（2f0c158，合并 62b3838；PM 复核 82/82+截图视觉验收） | act_mtzspn9e_dcc3964163b4 | mesh 0.74ms/区块；水半透明；ESC 退出码 0 |
 | T006 | M1 双通道光照引擎初版 | done（eddc014，合并 552dfd7；PM 复核 73/73） | act_mtzspn9p_40311fd8cf03 | 光照单测+跨区块顺序无关全过 |
 | T007 | M1 第一人称控制器+物理 | done（d183dd4，合并 74be451；PM 复核 108/108+常数对账） | act_mtzspna1_dfae45044fdf | 物理黄金回放+跳高 1.2522 精确命中 |
-| T008 | M1 DDA 选取+挖掘/放置 | blocked(T005,T007) | act_mtzspupw_7ae441cf7872 | 挖掘公式单测+手测 |
-| T009 | M1 HUD/暂停/存读档 | blocked(T008) | act_mtzsq3hn_0b919c433c62 | 存读档不丢档 |
+| T008 | M1 DDA 选取+挖掘/放置+集成 | done（5 提交，tip ba626e5，合并 ffc37f1；PM 复核 133/133+实机截图；遗留 P2） | act_mtzspupw_7ae441cf7872 | 挖掘公式单测+第一人称闭环+真实地形 |
+| T009 | M1 HUD/暂停/存读档 | queued（已派发，含 P2 修复） | act_mtzsq3hn_0b919c433c62 | 存读档不丢档 |
 
 ## agentmemory 备注
 - 可用：actions（任务板/依赖）、lease、lessons、memory_save/recall、facet、snapshot、crystallize
