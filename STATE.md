@@ -21,21 +21,21 @@
 | 开发模式 | PM-开发者多对话模式，用户转发；STATE.md 双写；agentmemory 作外置记忆 | docs/05 |
 
 ## 下一步
-1. 用户将 T003 任务卡转发给开发者对话（agentmemory 任务板 ID：act_mtzsp34d_81fd4fd8b974）
-2. PM 审查 T003 结果；通过后 T004/T005/T006/T007 四线可并行派发
-3. T002 两处偏离裁决已记录：① main.cpp 白名单冲突系任务卡自相矛盾（验收5 vs 禁碰game/），按最小机械替换接受，后续任务卡避免此类冲突；② 300ms 大 dt 语义按"上限5执行+丢弃计数"为准（卡面"补6 tick"表述作废）
+1. 用户将 T004/T005/T006/T007 四张任务卡分别转发给四个开发者对话（可并行）
+2. 各任务回贴后 PM 逐卡审查；四线齐后派 T008（依赖 T005+T007）
+3. T009 备注：届时在 core 补 write_u16/read_u16/write_u64/read_u64 标量接口（T003 开发者建议）；网格化/光照如需"非空 section 快速遍历"用 section_empty() 组合，勿依赖 section_stats() 内部含义
 
 ## 任务表
 | ID | 任务 | 状态 | agentmemory ID | 验收 |
 |---|---|---|---|---|
 | T000 | 阶段0：调研+规格文档 | done | — | 本文件 |
 | T001 | M0 仓库初始化（CMake+CI+开窗） | done（458be6b） | act_mtzsn6tf_9e98ebfcc785 | 三平台构建绿；1280×720 开窗 |
-| T002 | M1 engine/core 基础库 | done（070257e，合并 5abcb87；PM 复核 23/23） | act_mtzsofnh_3a7cdf45a463 | 时钟/序列化/AABB/任务系统单测全绿 |
-| T003 | M1 区块存储+调色板+注册表 | queued（已派发） | act_mtzsp34d_81fd4fd8b974 | 调色板/序列化单测 |
-| T004 | M1 噪声地形生成 | blocked(T003) | act_mtzspn83_c1216d9d31bf | 种子确定性黄金测试 |
-| T005 | M1 culled meshing+图集+GL 渲染 | blocked(T003) | act_mtzspn9e_dcc3964163b4 | 多区块渲染；网格化<5ms |
-| T006 | M1 双通道光照引擎初版 | blocked(T003) | act_mtzspn9p_40311fd8cf03 | 光照单测+黄金测试 |
-| T007 | M1 第一人称控制器+物理 | blocked(T002,T003) | act_mtzspna1_dfae45044fdf | 物理回放黄金测试 |
+| T002 | M1 engine/core 基础库 | done（070257e，合并 5abcb87） | act_mtzsofnh_3a7cdf45a463 | 23/23 |
+| T003 | M1 区块存储+调色板+注册表 | done（7d8be75，合并 57a6712；PM 复核 44/44） | act_mtzsp34d_81fd4fd8b974 | 调色板/序列化/负坐标单测全绿 |
+| T004 | M1 噪声地形生成 | queued（已派发） | act_mtzspn83_c1216d9d31bf | 种子确定性黄金测试 |
+| T005 | M1 culled meshing+图集+GL 渲染 | queued（已派发） | act_mtzspn9e_dcc3964163b4 | 多区块渲染；网格化<5ms |
+| T006 | M1 双通道光照引擎初版 | queued（已派发） | act_mtzspn9p_40311fd8cf03 | 光照单测+黄金测试 |
+| T007 | M1 第一人称控制器+物理 | queued（已派发） | act_mtzspna1_dfae45044fdf | 物理回放黄金测试 |
 | T008 | M1 DDA 选取+挖掘/放置 | blocked(T005,T007) | act_mtzspupw_7ae441cf7872 | 挖掘公式单测+手测 |
 | T009 | M1 HUD/暂停/存读档 | blocked(T008) | act_mtzsq3hn_0b919c433c62 | 存读档不丢档 |
 
