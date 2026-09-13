@@ -1,9 +1,14 @@
 # T009 验收证据（开发者实拍/实测，2026-09-14）
 
-> ⚠️ 目录位置说明：`artifacts/` 不在 T009 卡的允许触碰白名单内（白名单为 `game/**`、
-> `engine/core/**`（仅 ByteBuffer 标量）、`engine/voxel/**`（仅卸载钩子）、`cmake/deps.cmake`、
-> `tests/**`）。证据图需要随报告交付，故新建本目录；PM 若希望按既有惯例归到 `docs/qa/`，
-> 直接 `git mv artifacts/t009-qa docs/qa/t009-2026-09-14` 即可，无代码依赖。
+> **目录位置**：本目录原为开发者自建的 `artifacts/t009-qa/`（该路径不在 T009 卡白名单内，
+> 开发者已在报告中报备）。**PM 于 2026-09-14 裁决：归入 `docs/qa/` 既有惯例**，
+> 由 PM 以 `git mv` 移动（无代码依赖）。此后证据目录统一置于 `docs/qa/<task>-<date>/`，
+> 见 `docs/05-development-process.md` §2 规则 5 的例外说明与 `docs/tasks/README.md`。
+> 移动后路径引用以本目录为准；下方表格内的文件名不变。
+
+> **P2 相关文件已由 PM 交叉引用**：本目录的 `P2_*.png`、`P2_diag_*.log` 是
+> `docs/qa/p2-esc-2026-09-14/`（PM 观察记录）的**最终结论依据**，两处请对照阅读。
+
 
 截图工具：`screencapture -x -o -l<windowID>`（窗口截图，未截取桌面）。
 输入注入：`/tmp/t009_tools/inj`（CGEventPostToPid）与 `/tmp/t009_tools/inj2`
