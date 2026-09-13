@@ -71,16 +71,15 @@ std::vector<std::uint8_t> zstd_compress(const std::uint8_t *data, std::size_t si
     return out;
 }
 
-std::vector<std::uint8_t> zstd_decompress(const std::uint8_t *data, std::size_t size,
-                                          std::size_t uncompressed_size) {
+std::vector<std::uint8_t> zstd_decompress(const std::uint8_t *data, std::size_t size, std::size_t uncompressed_size) {
     std::vector<std::uint8_t> out(uncompressed_size);
     const std::size_t written = ZSTD_decompress(out.data(), uncompressed_size, data, size);
     if (ZSTD_isError(written) != 0) {
         throw std::runtime_error(std::string("zstd decompress failed: ") + ZSTD_getErrorName(written));
     }
     if (written != uncompressed_size) {
-        throw std::runtime_error("zstd decompress size mismatch: header says " +
-                                 std::to_string(uncompressed_size) + ", got " + std::to_string(written));
+        throw std::runtime_error("zstd decompress size mismatch: header says " + std::to_string(uncompressed_size) +
+                                 ", got " + std::to_string(written));
     }
     return out;
 }
@@ -249,8 +248,7 @@ std::vector<std::uint8_t> RegionFile::serialize_image() const {
         const std::vector<std::uint8_t> compressed = zstd_compress(block.raw.data(), block.raw.size());
         const std::uint32_t compressed_len = static_cast<std::uint32_t>(compressed.size());
         const std::size_t span_bytes = 16 + compressed_len;
-        const std::uint32_t sector_count =
-            static_cast<std::uint32_t>((span_bytes + kSectorSize - 1) / kSectorSize);
+        const std::uint32_t sector_count = static_cast<std::uint32_t>((span_bytes + kSectorSize - 1) / kSectorSize);
 
         const std::size_t offset = static_cast<std::size_t>(next_sector) * kSectorSize;
         if (image.size() < offset + static_cast<std::size_t>(sector_count) * kSectorSize) {
@@ -267,8 +265,7 @@ std::vector<std::uint8_t> RegionFile::serialize_image() const {
         put_u32(block_header + 16, crc32(compressed.data(), compressed.size()));
         std::memcpy(block_header + 20, compressed.data(), compressed.size());
 
-        location[static_cast<std::size_t>(i)] =
-            (next_sector << 8) | (sector_count & 0xFF);
+        location[static_cast<std::size_t>(i)] = (next_sector << 8) | (sector_count & 0xFF);
         put_u32(image.data() + 4096 + static_cast<std::size_t>(i) * 4, block.timestamp);
         next_sector += sector_count;
     }
@@ -315,7 +312,7 @@ void RegionFile::save(const std::filesystem::path &target) const {
     // Persist the rename itself.
     std::FILE *dir = std::fopen(parent.c_str(), "rb");
     if (dir != nullptr) {
-        (void)::fsync(::fileno(dir));
+        (void) ::fsync(::fileno(dir));
         std::fclose(dir);
     }
 }

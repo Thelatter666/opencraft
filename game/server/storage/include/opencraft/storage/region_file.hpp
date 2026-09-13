@@ -46,8 +46,8 @@ namespace opencraft::storage {
 // later task, research/03 §5.3). Milestone-scale worlds fit comfortably.
 class RegionFile {
 public:
-    static constexpr int kSide = 32;                    // chunks per file edge
-    static constexpr int kChunkCount = kSide * kSide;   // 1024
+    static constexpr int kSide = 32;                  // chunks per file edge
+    static constexpr int kChunkCount = kSide * kSide; // 1024
     static constexpr std::uint32_t kSectorSize = 4096;
     static constexpr std::uint32_t kHeaderSize = 8 * kSectorSize; // 8 KiB
     static constexpr std::uint32_t kMagic = 0x4F435246;           // "OCRF"
@@ -72,8 +72,7 @@ public:
 
     // Compresses with zstd and stores (appends). No effect for out-of-range
     // local coordinates (the 1024-slot table cannot address them anyway).
-    void write_chunk(int local_x, int local_z, const std::uint8_t *data, std::size_t size,
-                     std::uint32_t timestamp);
+    void write_chunk(int local_x, int local_z, const std::uint8_t *data, std::size_t size, std::uint32_t timestamp);
 
     // Writes the full on-disk image atomically: target.tmp -> fsync -> rename
     // -> fsync parent directory. Creates parent directories as needed.

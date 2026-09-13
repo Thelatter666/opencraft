@@ -51,6 +51,7 @@ public:
     WorldSave &operator=(const WorldSave &) = delete;
 
     [[nodiscard]] const std::filesystem::path &world_dir() const { return world_dir_; }
+
     [[nodiscard]] const std::filesystem::path &level_path() const { return level_path_; }
 
     // --- level -----------------------------------------------------------------

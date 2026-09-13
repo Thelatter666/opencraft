@@ -24,8 +24,7 @@ std::pair<int, int> local_key(int cx, int cz) {
 } // namespace
 
 WorldSave::WorldSave(std::filesystem::path saves_root, std::string world_name)
-    : world_dir_(std::move(saves_root) / std::move(world_name)),
-      region_dir_(world_dir_ / "region"),
+    : world_dir_(std::move(saves_root) / std::move(world_name)), region_dir_(world_dir_ / "region"),
       level_path_(world_dir_ / "level.ocd") {
 }
 
@@ -138,9 +137,8 @@ void WorldSave::store_chunk_sync(int cx, int cz, const std::uint8_t *data, std::
 void WorldSave::store_chunk_async(int cx, int cz, std::vector<std::uint8_t> payload) {
     std::lock_guard<std::mutex> lock(io_mutex_);
     dirty_.erase({cx, cz});
-    futures_.push_back(io_pool_.submit([this, cx, cz, payload = std::move(payload)] {
-        store_chunk_sync(cx, cz, payload.data(), payload.size());
-    }));
+    futures_.push_back(io_pool_.submit(
+        [this, cx, cz, payload = std::move(payload)] { store_chunk_sync(cx, cz, payload.data(), payload.size()); }));
 }
 
 bool WorldSave::maybe_autosave_tick() {

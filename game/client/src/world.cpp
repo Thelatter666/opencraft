@@ -23,8 +23,7 @@ bool WorldSource::ensure_chunk(int cx, int cz) {
     // Disk-first (T009): persisted blocks win over regeneration. Light is
     // NOT persisted (the documented choice) - init_chunk recomputes it.
     if (save_ != nullptr) {
-        if (const std::optional<std::vector<std::uint8_t>> payload = save_->load_chunk(cx, cz);
-            payload.has_value()) {
+        if (const std::optional<std::vector<std::uint8_t>> payload = save_->load_chunk(cx, cz); payload.has_value()) {
             core::ByteBuffer buffer;
             buffer.write_bytes(payload->data(), payload->size());
             buffer.rewind();
@@ -120,9 +119,9 @@ glm::dvec3 WorldSource::find_spawn() {
     // on the surface's highest solid block). All 25 columns live in chunk
     // (0, 0), which the caller generated first.
     static constexpr std::pair<int, int> kOffsets[25] = {
-        {0, 0}, {1, 0}, {-1, 0}, {0, 1}, {0, -1}, {1, 1}, {1, -1}, {-1, 1}, {-1, -1},
-        {2, 0}, {-2, 0}, {0, 2}, {0, -2}, {2, 1}, {2, -1}, {-2, 1}, {-2, -1},
-        {1, 2}, {-1, 2}, {1, -2}, {-1, -2}, {2, 2}, {2, -2}, {-2, 2}, {-2, -2},
+        {0, 0},  {1, 0},  {-1, 0},  {0, 1},  {0, -1}, {1, 1},  {1, -1},  {-1, 1},  {-1, -1},
+        {2, 0},  {-2, 0}, {0, 2},   {0, -2}, {2, 1},  {2, -1}, {-2, 1},  {-2, -1}, {1, 2},
+        {-1, 2}, {1, -2}, {-1, -2}, {2, 2},  {2, -2}, {-2, 2}, {-2, -2},
     };
     for (const auto &[dx, dz] : kOffsets) {
         const int wx = dx;
@@ -173,7 +172,8 @@ void WorldSource::autosave_pass() {
         if (serialize_chunk(cx, cz, payload)) {
             // Snapshot copied on the main thread; the IO thread only ever
             // sees the byte vector (T009 card concurrency rule).
-            save_->store_chunk_async(cx, cz, std::vector<std::uint8_t>(payload.data(), payload.data() + payload.size()));
+            save_->store_chunk_async(cx, cz,
+                                     std::vector<std::uint8_t>(payload.data(), payload.data() + payload.size()));
         }
         // A dirty-but-unloaded chunk (should not happen: set_block only marks
         // loaded chunks) is simply dropped from the set; its data is whatever

@@ -47,7 +47,7 @@ TEST_CASE("region file roundtrip: multiple chunks survive save and reopen") {
     const fs::path dir = temp_dir("roundtrip");
     RegionFile region;
     const std::vector<std::uint8_t> a = make_payload(1000, 1);
-    const std::vector<std::uint8_t> b = make_payload(9000, 2); // > 1 sector
+    const std::vector<std::uint8_t> b = make_payload(9000, 2);  // > 1 sector
     const std::vector<std::uint8_t> c = make_payload(20000, 3); // > 5 sectors
     region.write_chunk(0, 0, a.data(), a.size(), 100);
     region.write_chunk(31, 31, b.data(), b.size(), 200);
@@ -334,13 +334,12 @@ TEST_CASE("zstd compression ratio of a typical generated chunk") {
     const std::size_t raw_size = raw.size();
 
     std::vector<std::uint8_t> compressed(ZSTD_compressBound(raw_size));
-    const std::size_t compressed_size =
-        ZSTD_compress(compressed.data(), compressed.size(), raw.data(), raw_size, 3);
+    const std::size_t compressed_size = ZSTD_compress(compressed.data(), compressed.size(), raw.data(), raw_size, 3);
     REQUIRE(!ZSTD_isError(compressed_size));
 
     const double ratio = static_cast<double>(compressed_size) / static_cast<double>(raw_size);
-    MESSAGE("typical chunk raw=" << raw_size << " bytes (T003 reference: 8253), zstd(level 3)="
-                                 << compressed_size << " bytes, ratio=" << ratio);
+    MESSAGE("typical chunk raw=" << raw_size << " bytes (T003 reference: 8253), zstd(level 3)=" << compressed_size
+                                 << " bytes, ratio=" << ratio);
     CHECK(compressed_size < raw_size);
     CHECK(ratio < 0.5); // palette-packed terrain should compress well past 2x
 }

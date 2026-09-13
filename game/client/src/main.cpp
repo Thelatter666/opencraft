@@ -436,8 +436,7 @@ std::vector<glm::vec3> block_main_colors(const opencraft::client::AtlasImage &at
         int count = 0;
         for (int y = 0; y < tile_px; ++y) {
             for (int x = 0; x < tile_px; ++x) {
-                const std::uint32_t pixel =
-                    atlas.pixels[static_cast<std::size_t>((ty + y) * atlas.width + tx + x)];
+                const std::uint32_t pixel = atlas.pixels[static_cast<std::size_t>((ty + y) * atlas.width + tx + x)];
                 const float alpha = static_cast<float>((pixel >> 24) & 0xFF);
                 if (alpha < 128.0f) {
                     continue;
@@ -459,7 +458,7 @@ std::vector<glm::vec3> block_main_colors(const opencraft::client::AtlasImage &at
 struct Particle {
     glm::vec3 pos;
     glm::vec3 vel;
-    float life;    // seconds until removal
+    float life;      // seconds until removal
     glm::vec4 color; // rgb + current alpha (fades with life)
 };
 
@@ -474,9 +473,9 @@ void update_particles(std::vector<Particle> &particles, float dt) {
         p.life -= dt;
         p.color.a = std::clamp(p.life / 0.5f, 0.0f, 1.0f);
     }
-    particles.erase(std::remove_if(particles.begin(), particles.end(),
-                                   [](const Particle &p) { return p.life <= 0.0f; }),
-                    particles.end());
+    particles.erase(
+        std::remove_if(particles.begin(), particles.end(), [](const Particle &p) { return p.life <= 0.0f; }),
+        particles.end());
 }
 
 } // namespace
@@ -523,7 +522,8 @@ int main() {
     // the working directory (./build/opencraft -> build/saves/world).
     opencraft::storage::WorldSave save("saves", "world");
     const std::optional<opencraft::storage::LevelData> stored_level = save.try_read_level();
-    const std::uint64_t world_seed = stored_level.has_value() ? stored_level->seed : opencraft::client::WorldSource::kSeed;
+    const std::uint64_t world_seed =
+        stored_level.has_value() ? stored_level->seed : opencraft::client::WorldSource::kSeed;
     std::uint64_t game_ticks = stored_level.has_value() ? stored_level->tick_count : 0;
     if (stored_level.has_value()) {
         OC_LOG_INFO("save: loaded level.ocd (seed={:#x}, ticks={}, player=({:.2f}, {:.2f}, {:.2f}), hp={:.1f})",
@@ -682,8 +682,8 @@ int main() {
     int place_cooldown = 0;
 
     // ── hotbar (9 slots, keys 1..9; creative palette, real inventory is M2) ─
-    static constexpr std::array<const char *, 9> kHotbarNames = {
-        "stone", "cobblestone", "dirt", "planks", "log", "leaves", "glass", "sand", "gravel"};
+    static constexpr std::array<const char *, 9> kHotbarNames = {"stone",  "cobblestone", "dirt", "planks", "log",
+                                                                 "leaves", "glass",       "sand", "gravel"};
     std::array<std::uint16_t, 9> hotbar{};
     for (int slot = 0; slot < 9; ++slot) {
         hotbar[slot] = world.registry().id_of(kHotbarNames[slot]);
@@ -712,7 +712,7 @@ int main() {
     double last_mesh_ms = 0.0;
 
     // Hand swing + break particles (T009 mining feedback).
-    double swing_start = -10.0;   // glfwGetTime() of the last swing start
+    double swing_start = -10.0; // glfwGetTime() of the last swing start
     bool swinging = false;
     std::vector<Particle> particles;
 
@@ -1098,13 +1098,14 @@ int main() {
                 std::vector<float> point_data;
                 point_data.reserve(particles.size() * 7);
                 for (const Particle &p : particles) {
-                    point_data.insert(point_data.end(), {p.pos.x, p.pos.y, p.pos.z, p.color.r, p.color.g, p.color.b,
-                                                         p.color.a});
+                    point_data.insert(point_data.end(),
+                                      {p.pos.x, p.pos.y, p.pos.z, p.color.r, p.color.g, p.color.b, p.color.a});
                 }
                 glDepthMask(GL_FALSE);
                 particle_shader.use();
                 glUniformMatrix4fv(particle_shader.uniform_location("u_mvp"), 1, GL_FALSE, &mvp[0][0]);
-                glUniform1f(particle_shader.uniform_location("u_point_px"), 7.0f * static_cast<float>(fb_height) / 720.0f);
+                glUniform1f(particle_shader.uniform_location("u_point_px"),
+                            7.0f * static_cast<float>(fb_height) / 720.0f);
                 particle_vao.bind();
                 particle_vbo.bind();
                 glBufferData(GL_ARRAY_BUFFER, static_cast<GLsizeiptr>(point_data.size() * sizeof(float)),
@@ -1260,8 +1261,7 @@ int main() {
                     const glm::vec2 p1 = ndc(x1, y1);
                     // Two triangles per icon: (tl, br) quad corners.
                     icon_verts.insert(icon_verts.end(), {p0, {p1.x, p0.y}, p1, p0, {p0.x, p1.y}, p1});
-                    icon_uvs.insert(icon_uvs.end(),
-                                    {{u0, v0}, {u1, v0}, {u1, v1}, {u0, v0}, {u0, v1}, {u1, v1}});
+                    icon_uvs.insert(icon_uvs.end(), {{u0, v0}, {u1, v0}, {u1, v1}, {u0, v0}, {u0, v1}, {u1, v1}});
                 }
                 ui_text_shader.use();
                 atlas.bind(1);
