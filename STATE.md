@@ -21,17 +21,17 @@
 | 开发模式 | PM-开发者多对话模式，用户转发；STATE.md 双写；agentmemory 作外置记忆 | docs/05 |
 
 ## 下一步
-1. 用户将下方 T001 任务卡转发给开发者对话（agentmemory 任务板 ID：act_mtzsn6tf_9e98ebfcc785）
-2. PM 审查 T001 结果 → 验收通过则派 T002；M0 收口
-3. M1 任务链 T002→T003→(T004/T005/T006/T007 并行)→T008→T009 已入板
+1. 用户将 T003 任务卡转发给开发者对话（agentmemory 任务板 ID：act_mtzsp34d_81fd4fd8b974）
+2. PM 审查 T003 结果；通过后 T004/T005/T006/T007 四线可并行派发
+3. T002 两处偏离裁决已记录：① main.cpp 白名单冲突系任务卡自相矛盾（验收5 vs 禁碰game/），按最小机械替换接受，后续任务卡避免此类冲突；② 300ms 大 dt 语义按"上限5执行+丢弃计数"为准（卡面"补6 tick"表述作废）
 
 ## 任务表
 | ID | 任务 | 状态 | agentmemory ID | 验收 |
 |---|---|---|---|---|
 | T000 | 阶段0：调研+规格文档 | done | — | 本文件 |
-| T001 | M0 仓库初始化（CMake+CI+开窗） | queued（待转发） | act_mtzsn6tf_9e98ebfcc785 | 三平台构建绿；1280×720 开窗 |
-| T002 | M1 engine/core 基础库 | blocked(T001) | act_mtzsofnh_3a7cdf45a463 | 时钟/ByteBuffer 单测 |
-| T003 | M1 区块存储+调色板+注册表 | blocked(T002) | act_mtzsp34d_81fd4fd8b974 | 调色板/序列化单测 |
+| T001 | M0 仓库初始化（CMake+CI+开窗） | done（458be6b） | act_mtzsn6tf_9e98ebfcc785 | 三平台构建绿；1280×720 开窗 |
+| T002 | M1 engine/core 基础库 | done（070257e，合并 5abcb87；PM 复核 23/23） | act_mtzsofnh_3a7cdf45a463 | 时钟/序列化/AABB/任务系统单测全绿 |
+| T003 | M1 区块存储+调色板+注册表 | queued（已派发） | act_mtzsp34d_81fd4fd8b974 | 调色板/序列化单测 |
 | T004 | M1 噪声地形生成 | blocked(T003) | act_mtzspn83_c1216d9d31bf | 种子确定性黄金测试 |
 | T005 | M1 culled meshing+图集+GL 渲染 | blocked(T003) | act_mtzspn9e_dcc3964163b4 | 多区块渲染；网格化<5ms |
 | T006 | M1 双通道光照引擎初版 | blocked(T003) | act_mtzspn9p_40311fd8cf03 | 光照单测+黄金测试 |
