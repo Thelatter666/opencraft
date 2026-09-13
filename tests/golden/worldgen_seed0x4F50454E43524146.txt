@@ -1,0 +1,10 @@
+# OpenCraft worldgen golden chunk hashes (T004)
+# seed: 0x4F50454E43524146 ("OPENCRAF" ASCII)
+# hash: FNV-1a 64 over the 98304 block ids, order y-major then z then x,
+#       2 little-endian bytes per id. Regenerate only when worldgen changes
+#       deterministically and the new terrain is reviewed.
+# cx cz hash
+0 0 f1ac07d50b4a2190
+0 3 56e5f2fe884745ed
+17 -9 9db7e952894b3a1e
+-10 -10 5392897cfa7e6864

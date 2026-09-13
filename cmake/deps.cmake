@@ -37,3 +37,15 @@ FetchContent_Declare(
 )
 
 FetchContent_MakeAvailable(glfw glm spdlog doctest)
+
+# FastNoiseLite (T004): single-header portable noise library, MIT license.
+# Source: https://github.com/Auburn/FastNoiseLite (tag v1.1.1); the C++ header
+# lives at Cpp/FastNoiseLite.h. The repo has no CMakeLists, so MakeAvailable
+# only populates the source directory; engine/noise consumes the header.
+FetchContent_Declare(
+    fastnoise_lite
+    GIT_REPOSITORY https://github.com/Auburn/FastNoiseLite.git
+    GIT_TAG v1.1.1
+)
+
+FetchContent_MakeAvailable(fastnoise_lite)

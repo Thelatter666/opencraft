@@ -11,10 +11,19 @@ add_executable(opencraft_tests
     test_block_registry.cpp
     test_chunk.cpp
     test_chunk_manager.cpp
+    test_noise.cpp
+    test_worldgen.cpp
 )
 
-# opencraft_voxel PUBLIC-links opencraft_core, so headers propagate from here.
-target_link_libraries(opencraft_tests PRIVATE opencraft_voxel doctest::doctest_with_main)
+# opencraft_worldgen PUBLIC-links opencraft_voxel and opencraft_noise, so all
+# engine headers propagate from here.
+target_link_libraries(opencraft_tests PRIVATE opencraft_worldgen doctest::doctest_with_main)
+
+# Golden chunk hashes live next to the tests; the path is baked in so the
+# test binary is location-independent.
+target_compile_definitions(opencraft_tests
+    PRIVATE OPENCRAFT_GOLDEN_DIR="${CMAKE_CURRENT_SOURCE_DIR}/golden"
+)
 
 include(${doctest_SOURCE_DIR}/scripts/cmake/doctest.cmake)
 doctest_discover_tests(opencraft_tests)
