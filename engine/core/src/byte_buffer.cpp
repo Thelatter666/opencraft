@@ -2,52 +2,32 @@
 
 #include <cstring>
 #include <stdexcept>
-#include <type_traits>
 
 namespace opencraft::core {
-
-namespace {
-
-template <typename T>
-void put_trivial(std::vector<std::uint8_t> &out, T value) {
-    static_assert(std::is_trivially_copyable_v<T>);
-    std::uint8_t bytes[sizeof(T)] = {};
-    // Little-endian regardless of host byte order.
-    for (std::size_t i = 0; i < sizeof(T); ++i) {
-        bytes[i] = static_cast<std::uint8_t>((value >> (8 * i)) & 0xFF);
-    }
-    out.insert(out.end(), bytes, bytes + sizeof(T));
-}
-
-template <typename T>
-T get_trivial(const std::vector<std::uint8_t> &in, std::size_t &pos) {
-    T value = 0;
-    for (std::size_t i = 0; i < sizeof(T); ++i) {
-        value |= static_cast<T>(in.at(pos + i)) << (8 * i);
-    }
-    pos += sizeof(T);
-    return value;
-}
-
-} // namespace
 
 void ByteBuffer::write_u8(std::uint8_t value) {
     data_.push_back(value);
 }
 
 void ByteBuffer::write_u32(std::uint32_t value) {
-    put_trivial(data_, value);
+    detail::put_le(data_, value);
 }
 
 void ByteBuffer::write_float(float value) {
-    static_assert(sizeof(float) == sizeof(std::uint32_t));
-    std::uint32_t bits = 0;
-    std::memcpy(&bits, &value, sizeof(bits));
-    write_u32(bits);
+    detail::put_le(data_, value);
 }
 
 void ByteBuffer::write_bytes(const std::uint8_t *bytes, std::size_t size) {
     data_.insert(data_.end(), bytes, bytes + size);
+}
+
+void ByteBuffer::write_version(std::uint32_t version) {
+    write_u32(version);
+}
+
+void ByteBuffer::write_string(std::string_view value) {
+    write_u32(static_cast<std::uint32_t>(value.size()));
+    data_.insert(data_.end(), value.begin(), value.end());
 }
 
 std::uint8_t ByteBuffer::read_u8() {
@@ -57,14 +37,15 @@ std::uint8_t ByteBuffer::read_u8() {
 
 std::uint32_t ByteBuffer::read_u32() {
     ensure_readable(4);
-    return get_trivial<std::uint32_t>(data_, read_pos_);
+    const std::uint32_t value = detail::get_le<std::uint32_t>(data_, read_pos_);
+    read_pos_ += 4;
+    return value;
 }
 
 float ByteBuffer::read_float() {
-    static_assert(sizeof(float) == sizeof(std::uint32_t));
-    const std::uint32_t bits = read_u32();
-    float value = 0.0F;
-    std::memcpy(&value, &bits, sizeof(value));
+    ensure_readable(4);
+    const float value = detail::get_le<float>(data_, read_pos_);
+    read_pos_ += 4;
     return value;
 }
 
@@ -72,6 +53,27 @@ void ByteBuffer::read_bytes(std::uint8_t *out, std::size_t size) {
     ensure_readable(size);
     std::memcpy(out, data_.data() + read_pos_, size);
     read_pos_ += size;
+}
+
+std::uint32_t ByteBuffer::read_version() {
+    return read_u32();
+}
+
+std::uint32_t ByteBuffer::read_version(std::uint32_t expected) {
+    const std::uint32_t actual = read_u32();
+    if (actual != expected) {
+        throw std::runtime_error("ByteBuffer version mismatch: expected " + std::to_string(expected) + ", got " +
+                                 std::to_string(actual));
+    }
+    return actual;
+}
+
+std::string ByteBuffer::read_string() {
+    const std::uint32_t length = read_u32();
+    ensure_readable(length);
+    std::string value(reinterpret_cast<const char *>(data_.data() + read_pos_), length);
+    read_pos_ += length;
+    return value;
 }
 
 void ByteBuffer::ensure_readable(std::size_t count) const {
