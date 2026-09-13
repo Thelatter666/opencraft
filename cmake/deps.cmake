@@ -49,3 +49,19 @@ FetchContent_Declare(
 )
 
 FetchContent_MakeAvailable(fastnoise_lite)
+
+# zstd (T009): region-file chunk compression (docs/03 §7, research/03 §5.2).
+# Static lib only; we consume the C API. SOURCE_SUBDIR points at the bundled
+# CMake project (the repo root is plain Makefiles).
+set(ZSTD_BUILD_PROGRAMS OFF CACHE BOOL "" FORCE)
+set(ZSTD_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+set(ZSTD_BUILD_SHARED OFF CACHE BOOL "" FORCE)
+set(ZSTD_BUILD_STATIC ON CACHE BOOL "" FORCE)
+set(ZSTD_BUILD_CONTRIB OFF CACHE BOOL "" FORCE)
+FetchContent_Declare(
+    zstd
+    GIT_REPOSITORY https://github.com/facebook/zstd.git
+    GIT_TAG v1.5.6
+    SOURCE_SUBDIR build/cmake
+)
+FetchContent_MakeAvailable(zstd)

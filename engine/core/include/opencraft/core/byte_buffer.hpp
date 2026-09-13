@@ -65,12 +65,16 @@ class ByteBuffer {
 public:
     // --- fixed-width scalars -------------------------------------------------
     void write_u8(std::uint8_t value);
+    void write_u16(std::uint16_t value);
     void write_u32(std::uint32_t value);
+    void write_u64(std::uint64_t value);
     void write_float(float value);
     void write_bytes(const std::uint8_t *data, std::size_t size);
 
     [[nodiscard]] std::uint8_t read_u8();
+    [[nodiscard]] std::uint16_t read_u16();
     [[nodiscard]] std::uint32_t read_u32();
+    [[nodiscard]] std::uint64_t read_u64();
     [[nodiscard]] float read_float();
 
     void read_bytes(std::uint8_t *out, std::size_t size);
