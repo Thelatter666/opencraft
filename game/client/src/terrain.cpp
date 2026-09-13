@@ -27,14 +27,6 @@ int ground_height_impl(int wx, int wz) {
     return std::clamp(static_cast<int>(h), 1, 24);
 }
 
-// ChunkManager's (int, int) overloads pass their inputs through
-// Chunk::chunk_coord, which floor-divides *world* coordinates - so with chunk
-// coordinates in hand we address chunks by key instead (world coord of the
-// chunk origin round-trips exactly).
-[[nodiscard]] std::int64_t chunk_key(int cx, int cz) {
-    return voxel::Chunk::chunk_coord(cx * voxel::Chunk::kSizeX, cz * voxel::Chunk::kSizeZ);
-}
-
 // Deterministic hash of a block position, used for ore specks.
 std::uint32_t block_hash(int wx, int wy, int wz) {
     return mix_hash(static_cast<std::uint32_t>(wx) * 73856093U + static_cast<std::uint32_t>(wy) * 19349663U +
@@ -47,7 +39,7 @@ TestTerrain::TestTerrain() {
     registry_ = voxel::BlockRegistry::create_default();
     for (int cx = -kRadius; cx <= kRadius; ++cx) {
         for (int cz = -kRadius; cz <= kRadius; ++cz) {
-            static_cast<void>(chunks_.get_or_load(chunk_key(cx, cz)));
+            static_cast<void>(chunks_.get_or_load(cx, cz));
         }
     }
     for (int wx = -kRadius * voxel::Chunk::kSizeX; wx < kRadius * voxel::Chunk::kSizeX + voxel::Chunk::kSizeX; ++wx) {
@@ -134,7 +126,7 @@ int TestTerrain::ground_height(int wx, int wz) const {
 
 void TestTerrain::build_column(int wx, int wz) {
     const auto [cx, cz] = voxel::Chunk::chunk_coords(wx, wz);
-    voxel::Chunk &chunk = chunks_.get_or_load(chunk_key(cx, cz));
+    voxel::Chunk &chunk = chunks_.get_or_load(cx, cz);
     const int lx = wx - cx * voxel::Chunk::kSizeX;
     const int lz = wz - cz * voxel::Chunk::kSizeZ;
     const int h = ground_height_impl(wx, wz);
@@ -182,7 +174,7 @@ void TestTerrain::build_column(int wx, int wz) {
 // Replaces a block at world coordinates if the owning chunk is loaded.
 void TestTerrain::set_world_block(int wx, int wy, int wz, std::uint16_t id) {
     const auto [cx, cz] = voxel::Chunk::chunk_coords(wx, wz);
-    voxel::Chunk *chunk = chunks_.find(chunk_key(cx, cz));
+    voxel::Chunk *chunk = chunks_.find(cx, cz);
     if (chunk == nullptr) {
         return; // outside the 5x5 demo area
     }
@@ -196,7 +188,7 @@ std::uint16_t ChunkSource::block_at(int wx, int wy, int wz) const {
     const auto [cx, cz] = voxel::Chunk::chunk_coords(wx, wz);
     const std::int64_t key = voxel::Chunk::chunk_coord(wx, wz);
     if (key != cached_key_ || cached_chunk_ == nullptr) {
-        cached_chunk_ = chunks_.find(chunk_key(cx, cz));
+        cached_chunk_ = chunks_.find(cx, cz);
         cached_key_ = key;
         if (cached_chunk_ == nullptr) {
             return 0; // unloaded chunk: air

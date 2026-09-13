@@ -57,3 +57,41 @@ TEST_CASE("chunk manager unload drops only the targeted chunk") {
     CHECK(fresh.empty());
     CHECK(manager.loaded_count() == 2);
 }
+
+TEST_CASE("chunk manager integer overloads take chunk coordinates directly") {
+    ChunkManager manager;
+
+    // Chunk (1, 0) is the chunk covering world x in [16, 32); the packed key
+    // of that chunk equals Chunk::chunk_coord of any block inside it.
+    Chunk &c10 = manager.get_or_load(1, 0);
+    CHECK(manager.find(Chunk::chunk_coord(16, 0)) == &c10);
+    CHECK(manager.find(Chunk::chunk_coord(31, 15)) == &c10);
+    CHECK(manager.find_world(31, 15) == &c10);
+    CHECK(manager.find_world(16, 0) == &c10);
+    CHECK(manager.find(0, 0) == nullptr); // distinct from chunk (1, 0)
+
+    // Negative chunk coordinates are their own key, no floor division.
+    Chunk &cnn = manager.get_or_load(-1, -1);
+    CHECK(&manager.get_or_load_world(-16, -16) == &cnn);
+    CHECK(&manager.get_or_load_world(-1, -1) == &cnn); // world x=-1 lives in chunk -1
+    CHECK(&manager.get_or_load(Chunk::chunk_coord(-16, -16)) == &cnn);
+    CHECK(manager.find(-1, -1) == &cnn);
+    CHECK(manager.find(-1, 0) == nullptr);
+
+    // Round trip of the pack layout through unpack_chunk_coord, and agreement
+    // with chunk_coord applied to the chunk's own origin.
+    const auto [cx, cz] = Chunk::unpack_chunk_coord(Chunk::chunk_coord(-5 * 16, 7 * 16));
+    CHECK(cx == -5);
+    CHECK(cz == 7);
+    CHECK(&manager.get_or_load(cx, cz) == &manager.get_or_load_world(-5 * 16, 7 * 16));
+}
+
+TEST_CASE("chunk manager get_or_load_world creates the chunk holding the block") {
+    ChunkManager manager;
+    Chunk &chunk = manager.get_or_load_world(-200, 700);
+    const auto [cx, cz] = Chunk::chunk_coords(-200, 700);
+    CHECK(manager.find(cx, cz) == &chunk);
+    CHECK(chunk.empty());
+    chunk.set_block(0, 0, 0, 5);
+    CHECK(manager.find_world(-200, 700)->get_block(0, 0, 0) == 5);
+}

@@ -34,7 +34,7 @@ BlockRegistry BlockRegistry::create_default() {
     registry.register_block("leaves", {"Leaves", true, true, 0.2f});
     registry.register_block("planks", {"Planks", true, false, 2.0f});
     registry.register_block("glass", {"Glass", true, true, 0.3f});
-    registry.register_block("water", {"Water", false, true, 100.0f});
+    registry.register_block("water", {"Water", false, true, 100.0f, true});
     registry.register_block("bedrock", {"Bedrock", true, false, kHardnessUnbreakable});
     registry.register_block("coal_ore", {"Coal Ore", true, false, 3.0f});
     registry.register_block("copper_ore", {"Copper Ore", true, false, 3.0f});
