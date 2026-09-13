@@ -1,8 +1,12 @@
-# Voxel data layer: chunk storage, section palettes, block registry (T003).
+# Voxel data layer: chunk storage, section palettes, block registry (T003),
+# dual-channel lighting (T006).
 add_library(opencraft_voxel STATIC
     src/block_registry.cpp
     src/chunk.cpp
     src/chunk_manager.cpp
+    src/light_storage.cpp
+    src/light_engine.cpp
+    src/light_world_adapter.cpp
 )
 
 target_include_directories(opencraft_voxel PUBLIC include)

@@ -13,6 +13,8 @@ add_executable(opencraft_tests
     test_chunk_manager.cpp
     test_noise.cpp
     test_worldgen.cpp
+    test_light_storage.cpp
+    test_light_engine.cpp
 )
 
 # opencraft_worldgen PUBLIC-links opencraft_voxel and opencraft_noise, so all
