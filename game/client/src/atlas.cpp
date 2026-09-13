@@ -184,6 +184,14 @@ void paint_crack_tile(AtlasImage &atlas, int tx0, int ty0, int stage) {
     const std::uint32_t crack_color = rgba(24, 20, 18, 210);
     const std::uint32_t seed = 0xC4AC7AEEU + static_cast<std::uint32_t>(stage) * 0x9E3779B9U;
 
+    // Overlay tile: fully transparent background, only the fracture lines are
+    // opaque (the crack shader discards alpha < 0.5).
+    for (int py = 0; py < kTileSize; ++py) {
+        for (int px = 0; px < kTileSize; ++px) {
+            atlas.pixels[static_cast<std::size_t>((ty0 + py) * atlas.width + tx0 + px)] = 0;
+        }
+    }
+
     for (int branch = 0; branch <= stage + 1; ++branch) {
         // Deterministic walk start + direction from the branch index.
         const std::uint32_t h = hash2(branch, stage, seed);

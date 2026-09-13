@@ -8,7 +8,9 @@
 
 namespace opencraft::client {
 
-WorldSource::WorldSource() : light_world_(chunks_, registry_, {}), light_(light_world_), generator_(kSeed, registry_) {
+WorldSource::WorldSource()
+    : registry_(voxel::BlockRegistry::create_default()), light_world_(chunks_, registry_, {}), light_(light_world_),
+      generator_(kSeed, registry_) {
 }
 
 bool WorldSource::ensure_chunk(int cx, int cz) {
@@ -157,14 +159,16 @@ void shade_mesh_with_light(render::MeshData &mesh, const WorldSource &world, int
             // Block cell: on the normal axis the face plane sits at the
             // block's outer boundary (plane-1 for a positive normal, plane
             // for a negative one); on the tangent axes it is the min corner.
-            const int plane = axis == 0 ? v0.x : (axis == 1 ? v0.y : v0.z);
+            const auto comp = [](const render::MeshVertex &v, int a) { return a == 0 ? v.x : (a == 1 ? v.y : v.z); };
+            const int plane = comp(v0, axis);
             int block_cell[3] = {v0.x, v0.y, v0.z};
             for (int a = 0; a < 3; ++a) {
                 if (a == axis) {
                     block_cell[a] = sign > 0 ? plane - 1 : plane;
                 } else {
-                    block_cell[a] = std::min({bucket.vertices[quad].x, bucket.vertices[quad + 1].x,
-                                              bucket.vertices[quad + 2].x, bucket.vertices[quad + 3].x});
+                    // Tangent axis: the min corner over the quad's 4 vertices.
+                    block_cell[a] = std::min({comp(bucket.vertices[quad], a), comp(bucket.vertices[quad + 1], a),
+                                              comp(bucket.vertices[quad + 2], a), comp(bucket.vertices[quad + 3], a)});
                 }
             }
             const int air[3] = {block_cell[0] + (axis == 0 ? sign : 0), block_cell[1] + (axis == 1 ? sign : 0),

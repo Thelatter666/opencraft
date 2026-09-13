@@ -254,8 +254,8 @@ ChunkLayer upload_layer(const render::MeshBucket &bucket) {
 // uv corners (crack overlay), all in [0,1]^3.
 struct CubeGeometry {
     std::array<glm::vec3, 24> edge_vertices;
-    std::array<glm::vec3, 24> face_vertices;
-    std::array<glm::vec2, 24> face_uv;
+    std::array<glm::vec3, 36> face_vertices;
+    std::array<glm::vec2, 36> face_uv;
 };
 
 CubeGeometry build_cube_geometry() {
@@ -270,10 +270,13 @@ CubeGeometry build_cube_geometry() {
     static constexpr int kFaces[6][4] = {{4, 5, 6, 7}, {0, 3, 2, 1}, {1, 5, 6, 2},
                                          {3, 7, 6, 2}, {0, 4, 7, 3}, {0, 1, 5, 4}};
     static constexpr glm::vec2 kQuadUv[4] = {{0, 0}, {1, 0}, {1, 1}, {0, 1}};
+    // Two triangles per face (non-indexed): 6 faces x 6 verts = 36, matching
+    // the glDrawArrays(GL_TRIANGLES, 0, 36) crack overlay call.
     for (int f = 0; f < 6; ++f) {
-        for (int v = 0; v < 4; ++v) {
-            geo.face_vertices[f * 4 + v] = c[kFaces[f][v]];
-            geo.face_uv[f * 4 + v] = kQuadUv[v];
+        static constexpr int kTriOrder[6] = {0, 1, 2, 0, 2, 3};
+        for (int v = 0; v < 6; ++v) {
+            geo.face_vertices[f * 6 + v] = c[kFaces[f][kTriOrder[v]]];
+            geo.face_uv[f * 6 + v] = kQuadUv[kTriOrder[v]];
         }
     }
     return geo;
@@ -348,8 +351,9 @@ void draw_text(const std::string &text, float x_px, float y_px, float px_height,
         const glm::vec2 p1 = to_ndc(cursor + static_cast<float>(kGlyphWidth) * scale, y_px + px_height);
         const float u0 = static_cast<float>(glyph) * (kGlyphWidth + 1) * u_span;
         const float u1 = u0 + static_cast<float>(kGlyphWidth) * u_span;
+        // Texture v=0 is the FIRST uploaded row = the glyph's top row.
         verts.insert(verts.end(), {p0, {p1.x, p0.y}, p1, p0, {p0.x, p1.y}, p1});
-        uvs.insert(uvs.end(), {{u0, 1.0f}, {u1, 1.0f}, {u1, 0.0f}, {u0, 1.0f}, {u0, 0.0f}, {u1, 0.0f}});
+        uvs.insert(uvs.end(), {{u0, 0.0f}, {u1, 0.0f}, {u1, 1.0f}, {u0, 0.0f}, {u0, 1.0f}, {u1, 1.0f}});
         cursor += static_cast<float>(kGlyphWidth + 2) * scale;
     }
 }
@@ -704,164 +708,77 @@ int main() {
         }
         prev_esc = esc_down;
 
-        if (paused) {
-            glfwGetFramebufferSize(window, &fb_width, &fb_height);
-            glViewport(0, 0, fb_width, fb_height);
-            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-            glDisable(GL_DEPTH_TEST);
-            glDisable(GL_CULL_FACE);
-            glEnable(GL_BLEND);
-            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-            double mx = 0.0;
-            double my = 0.0;
-            glfwGetCursorPos(window, &mx, &my);
-            const bool clicked = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS;
-
-            const float bx0 = static_cast<float>(fb_width) * 0.5f - 90.0f;
-            const float bx1 = static_cast<float>(fb_width) * 0.5f + 90.0f;
-            const float cy = static_cast<float>(fb_height) * 0.5f;
-            const bool resume_hover = mx >= bx0 && mx <= bx1 && my >= cy - 64.0 && my <= cy - 28.0;
-            const bool quit_hover = mx >= bx0 && mx <= bx1 && my >= cy + 8.0 && my <= cy + 44.0;
-
-            std::vector<glm::vec2> flat;
-            draw_rect(0.0f, 0.0f, static_cast<float>(fb_width), static_cast<float>(fb_height), fb_width, fb_height,
-                      flat);
-            draw_rect(bx0, cy - 64.0f, bx1, cy - 28.0f, fb_width, fb_height, flat);
-            draw_rect(bx0, cy + 8.0f, bx1, cy + 44.0f, fb_width, fb_height, flat);
-            ui_flat_shader.use();
-            // One color per draw would need separate buffers; draw backdrop
-            // first, then the two buttons with a hover-dependent color.
-            {
-                render::VertexArray vao;
-                vao.bind();
-                render::Buffer vbo(render::Buffer::Target::Vertex, flat.data(),
-                                   static_cast<std::size_t>(flat.size()) * sizeof(glm::vec2),
-                                   render::Buffer::Usage::Static);
-                vbo.bind();
-                vao.set_attribute(0, 2, GL_FLOAT, sizeof(glm::vec2), 0);
-                glUniform4f(ui_flat_shader.uniform_location("u_color"), 0.0f, 0.0f, 0.0f, 0.55f);
-                glDrawArrays(GL_TRIANGLES, 0, 6); // backdrop only
-                flat.erase(flat.begin(), flat.begin() + 6);
-                glBufferData(GL_ARRAY_BUFFER, static_cast<GLsizeiptr>(flat.size() * sizeof(glm::vec2)), flat.data(),
-                             GL_STATIC_DRAW);
-                glUniform4f(ui_flat_shader.uniform_location("u_color"), resume_hover ? 0.34f : 0.22f, 0.24f,
-                            quit_hover ? 0.60f : 0.22f, 0.9f);
-                glDrawArrays(GL_TRIANGLES, 0, 6); // resume button
-                flat.erase(flat.begin(), flat.begin() + 6);
-                glBufferData(GL_ARRAY_BUFFER, static_cast<GLsizeiptr>(flat.size() * sizeof(glm::vec2)), flat.data(),
-                             GL_STATIC_DRAW);
-                glUniform4f(ui_flat_shader.uniform_location("u_color"), quit_hover ? 0.34f : 0.22f, 0.24f, 0.24f, 0.9f);
-                glDrawArrays(GL_TRIANGLES, 0, 6); // quit button
-            }
-
-            std::vector<glm::vec2> tverts;
-            std::vector<glm::vec2> tuvs;
-            draw_text("PAUSED", static_cast<float>(fb_width) / 2.0f - 60.0f, cy - 110.0f, 22.0f, fb_width, fb_height,
-                      tverts, tuvs);
-            draw_text("RESUME", bx0 + 52.0f, cy - 54.0f, 16.0f, fb_width, fb_height, tverts, tuvs);
-            draw_text("QUIT", bx0 + 62.0f, cy + 18.0f, 16.0f, fb_width, fb_height, tverts, tuvs);
-            ui_text_shader.use();
-            glUniform4f(ui_text_shader.uniform_location("u_color"), 1.0f, 1.0f, 1.0f, 1.0f);
-            font.bind(1);
-            {
-                render::VertexArray vao;
-                vao.bind();
-                render::Buffer vbo(render::Buffer::Target::Vertex, tverts.data(),
-                                   static_cast<std::size_t>(tverts.size()) * sizeof(glm::vec2),
-                                   render::Buffer::Usage::Static);
-                vbo.bind();
-                vao.set_attribute(0, 2, GL_FLOAT, sizeof(glm::vec2), 0);
-                render::Buffer uvbo(render::Buffer::Target::Vertex, tuvs.data(),
-                                    static_cast<std::size_t>(tuvs.size()) * sizeof(glm::vec2),
-                                    render::Buffer::Usage::Static);
-                uvbo.bind();
-                vao.set_attribute(1, 2, GL_FLOAT, sizeof(glm::vec2), 0);
-                glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(tverts.size()));
-            }
-
-            if (clicked && resume_hover) {
-                paused = false;
-                glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-                tick_clock.reset();
-                cursor_anchored = false;
-            }
-            if (clicked && quit_hover) {
-                glfwSetWindowShouldClose(window, GLFW_TRUE);
-            }
-
-            glEnable(GL_DEPTH_TEST);
-            glEnable(GL_CULL_FACE);
-            glDisable(GL_BLEND);
-            glfwSwapBuffers(window);
-            last_frame = glfwGetTime();
-            continue;
-        }
+        prev_esc = esc_down;
 
         // ── mouse look ──────────────────────────────────────────────────────
-        if (!cursor_anchored) {
-            glfwGetCursorPos(window, &last_cursor_x, &last_cursor_y);
-            cursor_anchored = true;
-        } else {
-            double x = 0.0;
-            double y = 0.0;
-            glfwGetCursorPos(window, &x, &y);
-            view_yaw -= (x - last_cursor_x) * kMouseSensitivity;
-            view_pitch += (y - last_cursor_y) * kMouseSensitivity;
-            view_pitch = std::clamp(view_pitch, -kMaxPitch, kMaxPitch);
-            last_cursor_x = x;
-            last_cursor_y = y;
-        }
-
-        // ── fixed-step simulation ───────────────────────────────────────────
-        const double now = glfwGetTime();
-        const int ticks = tick_clock.advance((now - last_frame) * 1000.0);
-        last_frame = now;
-        for (int i = 0; i < ticks; ++i) {
-            run_tick();
-        }
-
-        // ── streaming ───────────────────────────────────────────────────────
-        const auto [pcx, pcz] = opencraft::voxel::Chunk::chunk_coords(
-            static_cast<int>(std::floor(curr_state.position.x)), static_cast<int>(std::floor(curr_state.position.z)));
-        int gen_left = kGenPerFrame;
-        for (const auto &[dx, dz] : gen_offsets) {
-            if (gen_left == 0) {
-                break;
+        if (!paused) {
+            if (!cursor_anchored) {
+                glfwGetCursorPos(window, &last_cursor_x, &last_cursor_y);
+                cursor_anchored = true;
+            } else {
+                double x = 0.0;
+                double y = 0.0;
+                glfwGetCursorPos(window, &x, &y);
+                view_yaw -= (x - last_cursor_x) * kMouseSensitivity;
+                view_pitch += (y - last_cursor_y) * kMouseSensitivity;
+                view_pitch = std::clamp(view_pitch, -kMaxPitch, kMaxPitch);
+                last_cursor_x = x;
+                last_cursor_y = y;
             }
-            if (world.ensure_chunk(pcx + dx, pcz + dz)) {
-                --gen_left;
-            }
-        }
 
-        if (!dirty_chunks.empty()) {
-            const auto t0 = std::chrono::steady_clock::now();
-            for (const auto &[cx, cz] : dirty_chunks) {
-                if (world.chunk_ready(cx, cz)) {
-                    mesh_chunk(cx, cz);
+            // ── fixed-step simulation ───────────────────────────────────────────
+            const double now = glfwGetTime();
+            const int ticks = tick_clock.advance((now - last_frame) * 1000.0);
+            last_frame = now;
+            for (int i = 0; i < ticks; ++i) {
+                run_tick();
+            }
+
+            // ── streaming ───────────────────────────────────────────────────────
+            const auto [pcx, pcz] =
+                opencraft::voxel::Chunk::chunk_coords(static_cast<int>(std::floor(curr_state.position.x)),
+                                                      static_cast<int>(std::floor(curr_state.position.z)));
+            int gen_left = kGenPerFrame;
+            for (const auto &[dx, dz] : gen_offsets) {
+                if (gen_left == 0) {
+                    break;
+                }
+                if (world.ensure_chunk(pcx + dx, pcz + dz)) {
+                    --gen_left;
                 }
             }
-            OC_LOG_INFO("remeshed {} chunk(s) in {:.2f} ms (last mesh {:.2f} ms)", dirty_chunks.size(),
-                        std::chrono::duration<double, std::milli>(std::chrono::steady_clock::now() - t0).count(),
-                        last_mesh_ms);
-            dirty_chunks.clear();
-        }
-        int mesh_left = kNewMeshPerFrame;
-        for (const auto &[dx, dz] : gen_offsets) {
-            if (mesh_left == 0) {
-                break;
+
+            if (!dirty_chunks.empty()) {
+                const auto t0 = std::chrono::steady_clock::now();
+                for (const auto &[cx, cz] : dirty_chunks) {
+                    if (world.chunk_ready(cx, cz)) {
+                        mesh_chunk(cx, cz);
+                    }
+                }
+                OC_LOG_INFO("remeshed {} chunk(s) in {:.2f} ms (last mesh {:.2f} ms)", dirty_chunks.size(),
+                            std::chrono::duration<double, std::milli>(std::chrono::steady_clock::now() - t0).count(),
+                            last_mesh_ms);
+                dirty_chunks.clear();
             }
-            if (dx * dx + dz * dz > kViewRadius * kViewRadius) {
-                continue; // mesh only within the view radius
+            int mesh_left = kNewMeshPerFrame;
+            for (const auto &[dx, dz] : gen_offsets) {
+                if (mesh_left == 0) {
+                    break;
+                }
+                if (dx * dx + dz * dz > kViewRadius * kViewRadius) {
+                    continue; // mesh only within the view radius
+                }
+                const int cx = pcx + dx;
+                const int cz = pcz + dz;
+                if (world.neighbors_ready(cx, cz) && renderables.find(chunk_key(cx, cz)) == renderables.end()) {
+                    mesh_chunk(cx, cz);
+                    ++stream_meshed;
+                    --mesh_left;
+                }
             }
-            const int cx = pcx + dx;
-            const int cz = pcz + dz;
-            if (world.neighbors_ready(cx, cz) && renderables.find(chunk_key(cx, cz)) == renderables.end()) {
-                mesh_chunk(cx, cz);
-                ++stream_meshed;
-                --mesh_left;
-            }
-        }
+        } // !paused
+        const double now = glfwGetTime();
+        last_frame = now;
 
         // ── camera (partial-tick interpolation) ─────────────────────────────
         const double alpha = tick_clock.alpha();
@@ -953,8 +870,12 @@ int main() {
                         static_cast<float>(crack_pos.y) - 0.001f, static_cast<float>(crack_pos.z) - 0.001f);
             glUniform1f(crack_shader.uniform_location("u_scale"), 1.002f);
             glUniform1f(crack_shader.uniform_location("u_tile"), static_cast<float>(crack_base + crack_stage));
+            // Overlay cube winding is mirrored vs the mesher's CCW convention;
+            // draw double-sided so culling cannot swallow the overlay.
+            glDisable(GL_CULL_FACE);
             crack_vao.bind();
             glDrawArrays(GL_TRIANGLES, 0, 36);
+            glEnable(GL_CULL_FACE);
         }
         glDepthMask(GL_TRUE);
 
@@ -969,6 +890,94 @@ int main() {
         crosshair_vao.bind();
         glDrawArrays(GL_LINES, 0, 4);
         glEnable(GL_DEPTH_TEST);
+
+        // ── pause menu (drawn over the live scene; no ticks while paused) ───
+        if (paused) {
+            glEnable(GL_BLEND);
+            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+            glDisable(GL_DEPTH_TEST);
+            glDisable(GL_CULL_FACE);
+
+            double mx = 0.0;
+            double my = 0.0;
+            glfwGetCursorPos(window, &mx, &my);
+            const bool clicked = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS;
+
+            const float bx0 = static_cast<float>(fb_width) * 0.5f - 90.0f;
+            const float bx1 = static_cast<float>(fb_width) * 0.5f + 90.0f;
+            const float cy = static_cast<float>(fb_height) * 0.5f;
+            const bool resume_hover = mx >= bx0 && mx <= bx1 && my >= cy - 64.0 && my <= cy - 28.0;
+            const bool quit_hover = mx >= bx0 && mx <= bx1 && my >= cy + 8.0 && my <= cy + 44.0;
+
+            std::vector<glm::vec2> flat;
+            draw_rect(0.0f, 0.0f, static_cast<float>(fb_width), static_cast<float>(fb_height), fb_width, fb_height,
+                      flat);
+            draw_rect(bx0, cy - 64.0f, bx1, cy - 28.0f, fb_width, fb_height, flat);
+            draw_rect(bx0, cy + 8.0f, bx1, cy + 44.0f, fb_width, fb_height, flat);
+            ui_flat_shader.use();
+            // One color per draw call: backdrop first, then each button with a
+            // hover-dependent color.
+            {
+                render::VertexArray vao;
+                vao.bind();
+                render::Buffer vbo(render::Buffer::Target::Vertex, flat.data(),
+                                   static_cast<std::size_t>(flat.size()) * sizeof(glm::vec2),
+                                   render::Buffer::Usage::Static);
+                vbo.bind();
+                vao.set_attribute(0, 2, GL_FLOAT, sizeof(glm::vec2), 0);
+                glUniform4f(ui_flat_shader.uniform_location("u_color"), 0.0f, 0.0f, 0.0f, 0.55f);
+                glDrawArrays(GL_TRIANGLES, 0, 6); // backdrop only
+                flat.erase(flat.begin(), flat.begin() + 6);
+                glBufferData(GL_ARRAY_BUFFER, static_cast<GLsizeiptr>(flat.size() * sizeof(glm::vec2)), flat.data(),
+                             GL_STATIC_DRAW);
+                glUniform4f(ui_flat_shader.uniform_location("u_color"), 0.22f, 0.24f, 0.22f, 0.9f);
+                glDrawArrays(GL_TRIANGLES, 0, 6); // resume button
+                flat.erase(flat.begin(), flat.begin() + 6);
+                glBufferData(GL_ARRAY_BUFFER, static_cast<GLsizeiptr>(flat.size() * sizeof(glm::vec2)), flat.data(),
+                             GL_STATIC_DRAW);
+                glUniform4f(ui_flat_shader.uniform_location("u_color"), 0.22f, 0.24f, 0.24f, 0.9f);
+                glDrawArrays(GL_TRIANGLES, 0, 6); // quit button
+            }
+
+            std::vector<glm::vec2> tverts;
+            std::vector<glm::vec2> tuvs;
+            draw_text("PAUSED", static_cast<float>(fb_width) / 2.0f - 60.0f, cy - 110.0f, 22.0f, fb_width, fb_height,
+                      tverts, tuvs);
+            draw_text("RESUME", bx0 + 52.0f, cy - 54.0f, 16.0f, fb_width, fb_height, tverts, tuvs);
+            draw_text("QUIT", bx0 + 62.0f, cy + 18.0f, 16.0f, fb_width, fb_height, tverts, tuvs);
+            ui_text_shader.use();
+            glUniform4f(ui_text_shader.uniform_location("u_color"), 1.0f, 1.0f, 1.0f, 1.0f);
+            font.bind(1);
+            {
+                render::VertexArray vao;
+                vao.bind();
+                render::Buffer vbo(render::Buffer::Target::Vertex, tverts.data(),
+                                   static_cast<std::size_t>(tverts.size()) * sizeof(glm::vec2),
+                                   render::Buffer::Usage::Static);
+                vbo.bind();
+                vao.set_attribute(0, 2, GL_FLOAT, sizeof(glm::vec2), 0);
+                render::Buffer uvbo(render::Buffer::Target::Vertex, tuvs.data(),
+                                    static_cast<std::size_t>(tuvs.size()) * sizeof(glm::vec2),
+                                    render::Buffer::Usage::Static);
+                uvbo.bind();
+                vao.set_attribute(1, 2, GL_FLOAT, sizeof(glm::vec2), 0);
+                glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(tverts.size()));
+            }
+
+            if (clicked && resume_hover) {
+                paused = false;
+                glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+                tick_clock.reset();
+                cursor_anchored = false;
+            }
+            if (clicked && quit_hover) {
+                glfwSetWindowShouldClose(window, GLFW_TRUE);
+            }
+
+            glEnable(GL_DEPTH_TEST);
+            glEnable(GL_CULL_FACE);
+            glDisable(GL_BLEND);
+        }
         glDisable(GL_BLEND);
 
         glfwSwapBuffers(window);
