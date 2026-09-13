@@ -34,6 +34,19 @@ Chunk *ChunkManager::find_world(int world_x, int world_z) {
     return find(Chunk::chunk_coord(world_x, world_z));
 }
 
+const Chunk *ChunkManager::find(std::int64_t key) const {
+    const auto it = chunks_.find(key);
+    return it == chunks_.end() ? nullptr : it->second.get();
+}
+
+const Chunk *ChunkManager::find(int cx, int cz) const {
+    return find(pack(cx, cz));
+}
+
+const Chunk *ChunkManager::find_world(int world_x, int world_z) const {
+    return find(Chunk::chunk_coord(world_x, world_z));
+}
+
 bool ChunkManager::unload(std::int64_t key) {
     return chunks_.erase(key) > 0;
 }

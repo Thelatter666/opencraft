@@ -176,10 +176,49 @@ void paint_tile(AtlasImage &atlas, int tx0, int ty0, std::uint16_t block_id, int
     }
 }
 
+// Paints one 16x16 crack overlay tile (mining progress stage 0..9): opaque
+// dark fracture lines growing from the tile center, deterministic per stage.
+// Stage s paints (s + 1) random-walk branches whose length grows with s, so
+// the damage reads as spreading cracks rather than noise.
+void paint_crack_tile(AtlasImage &atlas, int tx0, int ty0, int stage) {
+    const std::uint32_t crack_color = rgba(24, 20, 18, 210);
+    const std::uint32_t seed = 0xC4AC7AEEU + static_cast<std::uint32_t>(stage) * 0x9E3779B9U;
+
+    for (int branch = 0; branch <= stage + 1; ++branch) {
+        // Deterministic walk start + direction from the branch index.
+        const std::uint32_t h = hash2(branch, stage, seed);
+        int x = 8 + static_cast<int>(h % 3) - 1;
+        int y = 8 + static_cast<int>((h >> 4) % 3) - 1;
+        int dx = static_cast<int>((h >> 8) % 3) - 1;
+        int dy = static_cast<int>((h >> 12) % 3) - 1;
+        if (dx == 0 && dy == 0) {
+            dx = 1;
+        }
+        const int length = 3 + stage + static_cast<int>((h >> 16) % 3);
+        for (int step = 0; step < length; ++step) {
+            if (x >= 0 && x < kTileSize && y >= 0 && y < kTileSize) {
+                atlas.pixels[static_cast<std::size_t>((ty0 + y) * atlas.width + tx0 + x)] = crack_color;
+            }
+            // Occasionally fork the walk for a jagged look.
+            const std::uint32_t turn = hash2(x * 31 + step, y * 17 + branch, seed);
+            if (turn % 4 == 0) {
+                dx = static_cast<int>(turn % 3) - 1;
+            } else if (turn % 4 == 1) {
+                dy = static_cast<int>((turn >> 8) % 3) - 1;
+            }
+            if (dx == 0 && dy == 0) {
+                dx = turn % 2 == 0 ? 1 : -1;
+            }
+            x += dx;
+            y += dy;
+        }
+    }
+}
+
 } // namespace
 
 AtlasImage generate_atlas(const voxel::BlockRegistry &registry) {
-    const std::size_t tile_count = registry.size() * 3; // top/side/bottom per block
+    const std::size_t tile_count = registry.size() * 3 + 10; // blocks + 10 crack stages
     const int side = static_cast<int>(std::ceil(std::sqrt(static_cast<double>(tile_count))));
     const int tiles_per_row = std::max(1, side);
 
@@ -197,6 +236,12 @@ AtlasImage generate_atlas(const voxel::BlockRegistry &registry) {
             const int ty = (tile / static_cast<std::uint16_t>(tiles_per_row)) * kTileSize;
             paint_tile(atlas, tx, ty, id, slot, registry.string_of(id));
         }
+    }
+    for (int stage = 0; stage < 10; ++stage) {
+        const std::uint16_t tile = crack_tile_base(registry.size()) + static_cast<std::uint16_t>(stage);
+        const int tx = (tile % static_cast<std::uint16_t>(tiles_per_row)) * kTileSize;
+        const int ty = (tile / static_cast<std::uint16_t>(tiles_per_row)) * kTileSize;
+        paint_crack_tile(atlas, tx, ty, stage);
     }
     return atlas;
 }

@@ -38,6 +38,11 @@ public:
     // World-block-coordinate entry point, see get_or_load_world.
     [[nodiscard]] Chunk *find_world(int world_x, int world_z);
 
+    // Const lookups for read-only consumers (rendering, physics queries).
+    [[nodiscard]] const Chunk *find(std::int64_t key) const;
+    [[nodiscard]] const Chunk *find(int cx, int cz) const;
+    [[nodiscard]] const Chunk *find_world(int world_x, int world_z) const;
+
     // Drops the chunk from memory if present. Returns true when a chunk was
     // removed (persistence to region files is a later task).
     bool unload(std::int64_t key);
