@@ -3,6 +3,11 @@
 add_executable(opencraft_tests
     test_version.cpp
     test_byte_buffer.cpp
+    test_serialization.cpp
+    test_tick_clock.cpp
+    test_math.cpp
+    test_task_system.cpp
+    test_log.cpp
 )
 
 target_link_libraries(opencraft_tests PRIVATE opencraft_core doctest::doctest_with_main)

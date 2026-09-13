@@ -1,6 +1,7 @@
 add_library(opencraft_core STATIC
     src/version.cpp
     src/byte_buffer.cpp
+    src/tick_clock.cpp
 )
 
 target_include_directories(opencraft_core PUBLIC include)

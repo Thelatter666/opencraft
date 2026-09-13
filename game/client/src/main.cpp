@@ -1,11 +1,11 @@
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
-#include <spdlog/spdlog.h>
 
 #include <cmath>
 #include <exception>
 
 #include "gl.hpp"
+#include "opencraft/core/log.hpp"
 #include "opencraft/core/version.hpp"
 
 namespace {
@@ -14,17 +14,18 @@ constexpr int kWindowWidth = 1280;
 constexpr int kWindowHeight = 720;
 
 void error_callback(int error_code, const char *description) {
-    spdlog::error("GLFW error {}: {}", error_code, description);
+    OC_LOG_ERROR("GLFW error {}: {}", error_code, description);
 }
 
 } // namespace
 
 int main() {
-    spdlog::info("{} starting", opencraft::core::version_string());
+    opencraft::core::log::init();
+    OC_LOG_INFO("{} starting", opencraft::core::version_string());
 
     glfwSetErrorCallback(error_callback);
     if (glfwInit() != GLFW_TRUE) {
-        spdlog::critical("glfwInit failed");
+        OC_LOG_CRITICAL("glfwInit failed");
         return 1;
     }
 
@@ -39,7 +40,7 @@ int main() {
 
     GLFWwindow *window = glfwCreateWindow(kWindowWidth, kWindowHeight, "OpenCraft", nullptr, nullptr);
     if (window == nullptr) {
-        spdlog::critical("glfwCreateWindow failed");
+        OC_LOG_CRITICAL("glfwCreateWindow failed");
         glfwTerminate();
         return 1;
     }
@@ -65,6 +66,6 @@ int main() {
 
     glfwDestroyWindow(window);
     glfwTerminate();
-    spdlog::info("clean shutdown");
+    OC_LOG_INFO("clean shutdown");
     return 0;
 }
