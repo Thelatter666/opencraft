@@ -381,6 +381,9 @@ FontImage build_font_texture() {
 }
 
 // Appends one textured string (screen pixels in, y = top, NDC quads out).
+// Quads are emitted counter-clockwise in NDC (y up) so they are front-facing
+// under the default GL_CCW/M_LESS state - the HUD draws text with back-face
+// culling still enabled (T009 fix: CW quads lost their upper triangle there).
 void draw_text(const std::string &text, float x_px, float y_px, float px_height, int fb_w, int fb_h,
                std::vector<glm::vec2> &verts, std::vector<glm::vec2> &uvs) {
     const auto to_ndc = [&](float x, float y) {
@@ -402,25 +405,27 @@ void draw_text(const std::string &text, float x_px, float y_px, float px_height,
             cursor += 3.0f * scale;
             continue;
         }
-        const glm::vec2 p0 = to_ndc(cursor, y_px);
-        const glm::vec2 p1 = to_ndc(cursor + static_cast<float>(kGlyphWidth) * scale, y_px + px_height);
+        const glm::vec2 p0 = to_ndc(cursor, y_px);                                                       // top-left
+        const glm::vec2 p1 = to_ndc(cursor + static_cast<float>(kGlyphWidth) * scale, y_px + px_height); // bottom-right
         const float u0 = static_cast<float>(glyph) * (kGlyphWidth + 1) * u_span;
         const float u1 = u0 + static_cast<float>(kGlyphWidth) * u_span;
         // Texture v=0 is the FIRST uploaded row = the glyph's top row.
-        verts.insert(verts.end(), {p0, {p1.x, p0.y}, p1, p0, {p0.x, p1.y}, p1});
-        uvs.insert(uvs.end(), {{u0, 0.0f}, {u1, 0.0f}, {u1, 1.0f}, {u0, 0.0f}, {u0, 1.0f}, {u1, 1.0f}});
+        // CCW order: (tl, bl, br) then (tl, br, tr).
+        verts.insert(verts.end(), {p0, {p0.x, p1.y}, p1, p0, p1, {p1.x, p0.y}});
+        uvs.insert(uvs.end(), {{u0, 0.0f}, {u0, 1.0f}, {u1, 1.0f}, {u0, 0.0f}, {u1, 1.0f}, {u1, 0.0f}});
         cursor += static_cast<float>(kGlyphWidth + 2) * scale;
     }
 }
 
-// Appends one flat NDC quad from a screen-pixel rect.
+// Appends one flat NDC quad from a screen-pixel rect. CCW winding, see
+// draw_text.
 void draw_rect(float x0, float y0, float x1, float y1, int fb_w, int fb_h, std::vector<glm::vec2> &verts) {
     const auto to_ndc = [&](float x, float y) {
         return glm::vec2((x / static_cast<float>(fb_w)) * 2.0f - 1.0f, 1.0f - (y / static_cast<float>(fb_h)) * 2.0f);
     };
-    const glm::vec2 a = to_ndc(x0, y0);
-    const glm::vec2 b = to_ndc(x1, y1);
-    verts.insert(verts.end(), {a, {b.x, a.y}, b, a, {a.x, b.y}, b});
+    const glm::vec2 a = to_ndc(x0, y0); // top-left
+    const glm::vec2 b = to_ndc(x1, y1); // bottom-right
+    verts.insert(verts.end(), {a, {a.x, b.y}, b, a, b, {b.x, a.y}});
 }
 
 // Average color of each block's side tile (slot 1) - the "main color" used
@@ -1234,51 +1239,56 @@ int main() {
                 glUniform4f(ui_flat_shader.uniform_location("u_color"), 0.95f, 0.95f, 0.95f, 1.0f);
                 glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(flat.size()));
             }
-            // Slot icons: atlas side tiles sampled through the text shader
-            // (u_font = unit 1; the atlas is fully opaque so no discard hits).
+            // Slot icons: reuse the terrain shader's tile math (proven path)
+            // with a pixel-space ortho projection; one quad per slot.
             {
-                std::vector<glm::vec2> icon_verts;
-                std::vector<glm::vec2> icon_uvs;
-                const float inset = 0.5f;
+                const glm::mat4 hud_ortho =
+                    glm::ortho(0.0f, static_cast<float>(fb_width), static_cast<float>(fb_height), 0.0f);
+                std::vector<render::MeshVertex> icon_verts;
+                icon_verts.reserve(kHotbarSlots * 4);
+                std::vector<std::uint32_t> icon_indices;
+                icon_indices.reserve(kHotbarSlots * 6);
                 const float pad = 3.0f;
                 for (int i = 0; i < kHotbarSlots; ++i) {
-                    const int tile = hotbar[i] * 3 + 1; // side tile
-                    const float tx = static_cast<float>(tile % atlas_image.tiles_per_row) * 16.0f;
-                    const float ty = static_cast<float>(tile / atlas_image.tiles_per_row) * 16.0f;
-                    const float u0 = (tx + inset) / static_cast<float>(atlas_image.width);
-                    const float u1 = (tx + 16.0f - inset) / static_cast<float>(atlas_image.width);
-                    const float v0 = (ty + inset) / static_cast<float>(atlas_image.height);
-                    const float v1 = (ty + 16.0f - inset) / static_cast<float>(atlas_image.height);
                     const float x0 = bar_x0 + static_cast<float>(i) * (kSlotPx + kSlotGap) + pad;
                     const float y0 = bar_y0 + pad;
                     const float x1 = x0 + kSlotPx - pad * 2.0f;
                     const float y1 = y0 + kSlotPx - pad * 2.0f;
-                    const auto ndc = [&](float x, float y) {
-                        return glm::vec2((x / static_cast<float>(fb_width)) * 2.0f - 1.0f,
-                                         1.0f - (y / static_cast<float>(fb_height)) * 2.0f);
-                    };
-                    const glm::vec2 p0 = ndc(x0, y0);
-                    const glm::vec2 p1 = ndc(x1, y1);
-                    // Two triangles per icon: (tl, br) quad corners.
-                    icon_verts.insert(icon_verts.end(), {p0, {p1.x, p0.y}, p1, p0, {p0.x, p1.y}, p1});
-                    icon_uvs.insert(icon_uvs.end(), {{u0, v0}, {u1, v0}, {u1, v1}, {u0, v0}, {u0, v1}, {u1, v1}});
+                    const std::uint16_t tile = static_cast<std::uint16_t>(hotbar[i] * 3 + 1); // side tile
+                    const std::uint16_t base = static_cast<std::uint16_t>(icon_verts.size());
+                    // uv corner codes: 0=(0,0) tl, 1=(1,0) tr, 2=(0,1) bl, 3=(1,1) br.
+                    icon_verts.push_back(
+                        {static_cast<std::uint16_t>(x0), static_cast<std::uint16_t>(y0), 0, tile, 0, 235});
+                    icon_verts.push_back(
+                        {static_cast<std::uint16_t>(x1), static_cast<std::uint16_t>(y0), 0, tile, 1, 235});
+                    icon_verts.push_back(
+                        {static_cast<std::uint16_t>(x1), static_cast<std::uint16_t>(y1), 0, tile, 3, 235});
+                    icon_verts.push_back(
+                        {static_cast<std::uint16_t>(x0), static_cast<std::uint16_t>(y1), 0, tile, 2, 235});
+                    icon_indices.insert(icon_indices.end(),
+                                        {static_cast<std::uint32_t>(base), static_cast<std::uint32_t>(base + 1),
+                                         static_cast<std::uint32_t>(base + 2), static_cast<std::uint32_t>(base),
+                                         static_cast<std::uint32_t>(base + 2), static_cast<std::uint32_t>(base + 3)});
                 }
-                ui_text_shader.use();
-                atlas.bind(1);
+                shader.use();
+                glUniformMatrix4fv(shader.uniform_location("u_mvp"), 1, GL_FALSE, &hud_ortho[0][0]);
+                glUniform3f(shader.uniform_location("u_chunk_origin"), 0.0f, 0.0f, 0.0f);
                 render::VertexArray vao;
                 vao.bind();
                 render::Buffer vbo(render::Buffer::Target::Vertex, icon_verts.data(),
-                                   static_cast<std::size_t>(icon_verts.size()) * sizeof(glm::vec2),
-                                   render::Buffer::Usage::Static);
+                                   icon_verts.size() * sizeof(render::MeshVertex), render::Buffer::Usage::Static);
                 vbo.bind();
-                vao.set_attribute(0, 2, GL_FLOAT, sizeof(glm::vec2), 0);
-                render::Buffer uvbo(render::Buffer::Target::Vertex, icon_uvs.data(),
-                                    static_cast<std::size_t>(icon_uvs.size()) * sizeof(glm::vec2),
-                                    render::Buffer::Usage::Static);
-                uvbo.bind();
-                vao.set_attribute(1, 2, GL_FLOAT, sizeof(glm::vec2), 0);
-                glUniform4f(ui_text_shader.uniform_location("u_color"), 1.0f, 1.0f, 1.0f, 1.0f);
-                glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(icon_verts.size()));
+                constexpr std::size_t kIconStride = sizeof(render::MeshVertex);
+                vao.set_attribute(0, 3, GL_UNSIGNED_SHORT, kIconStride, offsetof(render::MeshVertex, x));
+                vao.set_attribute(1, 1, GL_UNSIGNED_SHORT, kIconStride, offsetof(render::MeshVertex, tile));
+                vao.set_attribute(2, 1, GL_UNSIGNED_BYTE, kIconStride, offsetof(render::MeshVertex, uv));
+                vao.set_attribute(3, 1, GL_UNSIGNED_BYTE, kIconStride, offsetof(render::MeshVertex, shade));
+                render::Buffer ebo(render::Buffer::Target::Index, icon_indices.data(),
+                                   icon_indices.size() * sizeof(std::uint32_t), render::Buffer::Usage::Static);
+                ebo.bind();
+                glDisable(GL_CULL_FACE);
+                glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(icon_indices.size()), GL_UNSIGNED_INT, nullptr);
+                glEnable(GL_CULL_FACE);
             }
             // Selected block name (uppercase) above the hotbar.
             {
@@ -1287,8 +1297,10 @@ int main() {
                                [](unsigned char c) { return static_cast<char>(std::toupper(c)); });
                 std::vector<glm::vec2> tverts;
                 std::vector<glm::vec2> tuvs;
+                // Own line above the hearts row (bar_y0-24); drawing both at
+                // the same y made the name collide with the hearts.
                 draw_text(name, static_cast<float>(fb_width) / 2.0f - static_cast<float>(name.size()) * 7.0f,
-                          bar_y0 - 22.0f, 16.0f, fb_width, fb_height, tverts, tuvs);
+                          bar_y0 - 46.0f, 16.0f, fb_width, fb_height, tverts, tuvs);
                 ui_text_shader.use();
                 font.bind(1);
                 render::VertexArray vao;
