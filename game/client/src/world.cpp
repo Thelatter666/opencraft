@@ -163,10 +163,11 @@ bool WorldSource::unload_chunk(int cx, int cz) {
     return true;
 }
 
-void WorldSource::autosave_pass() {
+std::size_t WorldSource::autosave_pass() {
     if (save_ == nullptr) {
-        return;
+        return 0;
     }
+    std::size_t written = 0;
     for (const auto &[cx, cz] : save_->take_dirty()) {
         core::ByteBuffer payload;
         if (serialize_chunk(cx, cz, payload)) {
@@ -174,11 +175,13 @@ void WorldSource::autosave_pass() {
             // sees the byte vector (T009 card concurrency rule).
             save_->store_chunk_async(cx, cz,
                                      std::vector<std::uint8_t>(payload.data(), payload.data() + payload.size()));
+            ++written;
         }
         // A dirty-but-unloaded chunk (should not happen: set_block only marks
         // loaded chunks) is simply dropped from the set; its data is whatever
         // disk already holds.
     }
+    return written;
 }
 
 bool WorldSource::serialize_chunk(int cx, int cz, core::ByteBuffer &out) const {

@@ -660,6 +660,9 @@ int main() {
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
     glCullFace(GL_BACK);
+    // gl_PointSize only takes effect in a core profile when this is enabled;
+    // without it the break particles collapse to single pixels (T009).
+    glEnable(GL_PROGRAM_POINT_SIZE);
     glClearColor(0.52f, 0.62f, 0.72f, 1.0f);
 
     // ── player + simulation state ───────────────────────────────────────────
@@ -914,10 +917,9 @@ int main() {
 
         // ── autosave cadence: 200 ticks = ~10 s of game time (T009) ──────────
         if (save.maybe_autosave_tick()) {
-            world.autosave_pass();
+            const std::size_t chunks = world.autosave_pass();
             save.write_level_now(make_level_data());
-            OC_LOG_INFO("autosave: {} dirty chunk(s) queued, level written (ticks={})", save.pending_dirty_count(),
-                        game_ticks);
+            OC_LOG_INFO("autosave: {} chunk(s) queued for async write, level written (ticks={})", chunks, game_ticks);
         }
     };
 

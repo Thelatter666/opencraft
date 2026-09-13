@@ -84,8 +84,9 @@ public:
     // Autosave pass (call once per cadence window from the main thread):
     // drains the save's dirty set and submits serialized snapshots of every
     // still-loaded chunk to the save's IO thread (bytes copied here - the IO
-    // thread never touches chunk state, per the T009 card).
-    void autosave_pass();
+    // thread never touches chunk state, per the T009 card). Returns how many
+    // chunks were handed to the writer.
+    std::size_t autosave_pass();
 
     // Serializes one loaded chunk into `out` (Chunk format v1). Returns false
     // when the chunk is not loaded.
