@@ -9,6 +9,9 @@ M1 判据达成：新档可走/挖/建闭环 + 退出重进不丢档（含 `kill
 
 ## 已交付
 - 阶段0：调研笔记 4 份 + 规格文档 00–06
+- 2026-09-15 补充：调研笔记 5–6 份（`research/05` 移动手感、`research/06` 移动物理白皮书、
+  `research/07` 物理知识库白皮书：调度/执行序、下落方块、载具速度谱、Minestom/Carpet 参照、
+  体素刚体对照系 + 许可证台账）
 - M0：T000（文档）/ T001（仓库骨架+开窗）
 - M1（全部 done）：T002 core / T003 区块存储 / T004 地形 / T005 网格化渲染 / T006 光照 / T007 物理 / T008 交互集成 / T009 存读档+HUD
 
@@ -46,18 +49,26 @@ M1 判据达成：新档可走/挖/建闭环 + 退出重进不丢档（含 `kill
 | T-D4 | 区块卸载策略未实现（`LightEngine::forget_chunk` 钩子已实现+单测，但客户端无"出视野即卸载"逻辑，故在游戏内未被驱动） | T009 报告 | 中（M3 流式加载） |
 | T-D5 | 输入用每帧轮询（`glfwGetKey`），短于一帧的脉冲会丢——对真人无影响（按键 50–150ms ≫ 帧间隔 11ms），属 P2 观感根因；可选加固：边沿类动作改 `glfwSetKeyCallback` | T009 报告 | 低 |
 | T-D6 | QUIT 按钮未经真实鼠标点击验证（开发者用 AX 关闭窗口走同一 `glfwSetWindowShouldClose` 路径验证了退出 flush；合成鼠标在本机仅启动瞬间可达） | T009 报告 | 低（待真人一次点击确认） |
+| T-D8 | `research/06` 附录的"跳跃冷却 10 tick"无官方来源支撑（2026-09-15 核验未找到）→ 须补官方来源或从规格删除，**不得写进 `docs/01`** | research/07 附录 A-1 | 低（阻塞=该数值入规格） |
+| T-D9 | 潜行速度口径不一致：`docs/01 §2` 写 1.295 m/s，官方 wiki Transportation 表为 1.3 m/s（差 0.4%） | research/07 附录 A-2 | 低（M2 建卡时核） |
+| T-D10 | 缺"高速防穿透"回归测试：船在蓝冰 72.73 m/s = 3.64 b/tick，分析表明 `max_substep=0.5` 可覆盖（≈8 子步）但**未实测** | research/07 §7.4 | 中（M2 载具卡前） |
 
 ## 任务表（补充：M1 后新卡）
 | ID | 任务 | 状态 | agentmemory ID | 验收 |
 |---|---|---|---|---|
 | T-D1 | 移动手感专项（网络调研 + 数值对齐） | **done（已合入 main，8c983ad）** | act_mu0tsw0x_36a221341545 | 163/163 全绿；裁决见 `docs/tasks/T-D1.ruling.md` + `T-D1.ruling2.md` |
-| T-D7 | 水平移动管线迁移 MC 摩擦模型（含 slipperiness 钩子，**entity-agnostic**） | blocked（待 T-D1 合入即解封） | act_mu150nqx_859f21c1df2b | 迁移后 +0.2 自然命中 7.127；冰面钩子可断言；M2 生物/船/箭共用 |
+| T-D7 | 水平移动管线迁移 MC 摩擦模型（含 slipperiness 钩子，**entity-agnostic**） | blocked（T-D1 已合入，**现已解封，待派发**） | act_mu150nqx_859f21c1df2b | 迁移后 +0.2 自然命中 7.127；冰面钩子可断言；M2 生物/船/箭共用 |
 
 ## 下一步（只放当前有效动作）
 1. **M1 手感清单人工验收**（`docs/01-gameplay-spec.md` §8，需真人实机；游戏已可运行）。
    同批待真人确认：走/跑/跳/潜行/挖/放的观感、真键盘双击 ESC、QUIT 鼠标点击（T-D6）。
-2. **派发 T-D7**（已 blocked → T-D1 合入后自动解封）：摩擦管线 + slipperiness +
+2. **派发 T-D7**（T-D1 已合入 → **已解封**）：摩擦管线 + slipperiness +
    entity-agnostic 地基。这是**唯一的地基决策**，拖到 M2 每张生物/载具卡都要改一遍。
+   **派卡前须把 `research/07 §7.2 / §7.3` 三条并入卡面**：① `IBlockSource` 加碰撞形状/摩擦查询
+   （先只返回整方块，接口先立）；② 加可选出参 `MoveResult`（避免 M2 每加交互就改签名）；
+   ③ 摩擦用**乘性解耦** `block.friction × entity.airResistance`（非硬编码 0.91×S）。
+   ⚠ 卡面须写明**不要照搬 Minestom 的 EPSILON=1e-6**（会抹平 1.8/1.9 跳高差）。
+   T-D7 的 "entity-agnostic" 须包含**参数按实体类型实例化**（research/07 §7.3）。
 3. T-D1 gap 清单（18 项，报告 §7）转卡：**#5 自动上台阶（step height 0.6）优先**——
    玩家被 1 格高坎卡住、水平速度归零，需手动跳，观感影响明显。
    其余按 M2 归属分批：游泳/梯子/半砖碰撞形状 → 移动类；饥饿耗竭 → M2 饥饿系统。
@@ -85,6 +96,13 @@ M1 判据达成：新档可走/挖/建闭环 + 退出重进不丢档（含 `kill
 - **卡面归档机制已落地（2026-09-14）**：T003–T009 原文入库 `docs/tasks/`，T001/T002 标注"原文缺失"另作事后摘录——索引与来源等级见 `docs/tasks/README.md`；规则（先落盘再派发/卡面不写状态/正文不可改只追加变更记录/报告落 `T<ID>.report.md`）写入 `docs/05-development-process.md` §2，自 T010 起生效。T009 卡面中"spawn 5×5 安全扫描"一句的原文依据现为该归档文件（此前仅有 PM 自述）
 - **跨 agent 派发已开通（2026-09-14）**：agentmemory 后端监听 `127.0.0.1:3111`、无鉴权、单一数据文件，任何本机 agent 挂 `npx -y @agentmemory/mcp` 即共享任务板与 lessons。规则进 `docs/05` §5（权威位/单写者）§7（跨 agent）。**约束**：开发者不得写 STATE.md/docs/规格/记忆；接入新 agent 前须确认其不会把会话自动抽取进记忆层（否则 P-001 漂移复发）
 - T005 报备有效项：`is_translucent_block(u16)` 硬编码默认注册表（leaves/glass/water），注册表转数据驱动后换调用方注入的 style provider
+- **物理知识库已补齐（2026-09-15）**：`docs/research/07-physics-knowledge-base.md`（调度与执行序、
+  下落方块、载具/游泳速度谱、Minestom/Carpet 参照、VS2/Teardown 对照系、许可证台账、`docs/03 §6`
+  已补执行序与"参数按实体类型实例化"两条）。**核验结论**：用户给的 15 条链接中 1 条不可达
+  （physicsmod.com，已剔除）、2 条描述与实测不符（GDC 讲稿实为 Smash Hit 破坏而非体素；
+  VS2 后端核验只见 Krunch，Jolt/PhysX 未证实）、1 条已重定向（tuxedolabs → voxagon.se）。
+  **边界已定稿（research/07 §7.6）**：不做多刚体/6-DoF 船、不做程序化破碎、不引 Jolt/PhysX/Bullet、
+  不复用 VS2 代码（LGPL-3.0）。新增债务 T-D8/T-D9/T-D10。
 - 已解决备忘的处置记录：ChunkManager 坐标语义缺陷 → T008 `c1f3403` 修复（int,int=区块坐标、*_world=世界坐标）；T008 集成清单（渲染接光照/控制器替换相机/破坏触发光照更新/BlockDef.liquid）→ 全部完成；TickClock"300ms 补 6 tick"卡面表述 → 以"执行上限 5+丢弃计数"为准
 
 ## agentmemory 备注
