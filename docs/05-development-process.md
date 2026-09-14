@@ -124,3 +124,20 @@ PM：拆任务卡 ──► 用户转发 ──► 开发者：实现+自测 ─
 - 仓库单 `main` 分支 + 任务短分支（`task/<ID>-<slug>`），验收通过后合入；禁止未验收合入。
 - 提交信息格式 `task<ID>: 摘要`；每个任务至少一个提交，保证可回滚。
 - `assets/` 单独提交并在提交说明注明来源许可（CC0 来源/自制）。
+
+### 并行任务必须独立 worktree（硬规则）
+
+多个开发者对话**不得共用同一个工作目录**——曾发生并行任务互相切分支、未提交改动混入他人
+分支堆的事故（T004/T005/T006 实测）。开工第一条命令：
+
+```bash
+git worktree add /Users/happy/Desktop/opencraft_worktree/opencraft-<task> task/T<ID>-<slug>
+```
+
+- **worktree 根目录固定为 `/Users/happy/Desktop/opencraft_worktree/`**（不要建在仓库旁或 `/tmp`，
+  避免污染桌面与临时目录被清）。
+- 全部工作（构建/测试/提交）只在 worktree 内进行；**主工作区 `opencraft/` 只归 PM 做验收合并与簿记**。
+- PM 验收合并前，先在干净环境以 merge commit 复验，再动主树。
+- 任务验收后由 PM 清理：`git worktree remove <dir>`（只删工作目录，**分支与历史保留**）。
+- 卡面必须写明本规则（见 `docs/tasks/README.md` 规则 5：路径写完整绝对路径）。
+

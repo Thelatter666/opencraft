@@ -51,7 +51,7 @@ M1 判据达成：新档可走/挖/建闭环 + 退出重进不丢档（含 `kill
 1. **M1 里程碑收口**：① 整仓构建+全量测试（本机已过：145/145）② 手感清单人工验收（`docs/01-gameplay-spec.md` §8，需真人实机过一遍）③ `memory_snapshot_create` 里程碑快照 ④ M1 复盘（`memory_crystallize`）
 2. 用户补充 T-D1"移动瑕疵"的具体指向 → 拆 T-D1 卡（M2 前专项修一轮）
 3. 进入 M2（生存规则：库存/合成/饥饿/战斗/生物/刷怪），届时按 docs/05 逐卡拆分
-4. 派卡硬规则：开工先 `git worktree add ../opencraft-<task>`；卡面先落 `docs/tasks/Txxx.md` 再转发；开发者报告整体放单个 markdown 代码块；发卡前自查验收标准与白名单不相交；路径写完整绝对路径
+4. 派卡硬规则：开工先 `git worktree add /Users/happy/Desktop/opencraft_worktree/opencraft-<task> task/T<ID>-<slug>`（worktree 根固定该目录，规则见 `docs/05-development-process.md` §6）；卡面先落 `docs/tasks/Txxx.md` 再转发；开发者报告整体放单个 markdown 代码块；发卡前自查验收标准与白名单不相交；路径写完整绝对路径
 
 ## 备忘（有效临时项；收口时删除过期条目）
 - ~~P2 待证~~ → **已结案（2026-09-14）**：非代码缺陷，是合成输入脉冲（`osascript` 2–5ms）短于每帧轮询周期（≈11ms）的采样盲区；HID 层（86ms）在两个构建上双向正常，ESC 逻辑未变。结论与证据见 `docs/qa/p2-esc-2026-09-14/` + `docs/qa/t009-2026-09-14/`；可选加固见债务 T-D5。**GUI 键盘脚本化验收此后一律用 HID 层或按住 ≥50ms，禁止用 `osascript key code`**
