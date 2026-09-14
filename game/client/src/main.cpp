@@ -19,6 +19,7 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include "atlas.hpp"
+#include "camera_spring.hpp"
 #include "fov.hpp"
 #include "opencraft/core/log.hpp"
 #include "opencraft/core/tick_clock.hpp"
@@ -978,6 +979,20 @@ int main() {
     float fov = client::kBaseFov;
     int stream_meshed = 0;
 
+    // T-D13: render-camera vertical spring. The camera's Y follows the eye
+    // target through a critically damped filter while X/Z pass through exactly,
+    // so the single-tick step-assist lift stops reading as a teleport. Seeded
+    // from the same position the physics starts at, so frame 1 has no transient.
+    client::CameraFilter camera;
+    camera.reset(curr_state.position.x, curr_state.position.y, curr_state.position.z,
+                 curr_state.pose == phy::Pose::Sneaking ? kEyeSneaking : kEyeStanding);
+    double camera_last_time = last_frame;
+    // Physics ticks executed by the frame currently being rendered. The spring
+    // uses these to bend its per-frame ramp where the physics tick landed.
+    int ticks_this_frame = 0;
+    double tick_kink_dt = 0.0;
+    double tick_kink_eye_y = 0.0;
+
     while (glfwWindowShouldClose(window) == GLFW_FALSE) {
         glfwPollEvents();
 
@@ -1014,8 +1029,22 @@ int main() {
 
             // ── fixed-step simulation ───────────────────────────────────────────
             const double now = glfwGetTime();
+            // T-D13: the partial-tick LERP's ramp bends where this frame's tick
+            // lands. alpha_before is how far into the pending tick we already
+            // are, and the eye target at the bend is the one the player state
+            // holds *before* step_player runs; both are read here, before
+            // advance()/run_tick() consume them.
+            const double alpha_before = tick_clock.alpha();
             const int ticks = tick_clock.advance((now - last_frame) * 1000.0);
             last_frame = now;
+            ticks_this_frame = ticks;
+            if (ticks > 0) {
+                tick_kink_dt = (1.0 - alpha_before) * (opencraft::core::TickClock::kTickDurationMs / 1000.0);
+                tick_kink_eye_y =
+                    curr_state.position.y + (curr_state.pose == phy::Pose::Sneaking ? kEyeSneaking : kEyeStanding);
+            } else {
+                tick_kink_dt = 0.0;
+            }
             for (int i = 0; i < ticks; ++i) {
                 run_tick();
                 ++game_ticks;
@@ -1068,10 +1097,26 @@ int main() {
         last_frame = now;
 
         // ── camera (partial-tick interpolation) ─────────────────────────────
+        // X/Z are the interpolated physics position, unfiltered. Only the Y
+        // component runs through the T-D13 vertical spring, which turns the
+        // step-assist's single-tick 0.6 lift into a ~0.2 s S-curve instead of a
+        // one-frame jump. `now - camera_last_time` is the real frame duration;
+        // the spring clamps it internally.
         const double alpha = tick_clock.alpha();
         const glm::dvec3 cam_pos = prev_state.position + (curr_state.position - prev_state.position) * alpha;
         const double eye_height = curr_state.pose == phy::Pose::Sneaking ? kEyeSneaking : kEyeStanding;
-        const glm::dvec3 eye = cam_pos + glm::dvec3(0.0, eye_height, 0.0);
+        const double frame_dt = std::max(0.0, now - camera_last_time);
+        camera_last_time = now;
+        // The LERP ramp bends where this frame's tick landed (see the kink
+        // capture above). Only inside a simulated frame is it a real bend;
+        // otherwise the single-piece path applies. A paused frame runs no ticks,
+        // so any captured kink is stale and must not be used.
+        if (!paused && ticks_this_frame > 0 && tick_kink_dt > 0.0 && tick_kink_dt < frame_dt) {
+            camera.update(cam_pos.x, cam_pos.y, cam_pos.z, eye_height, frame_dt, tick_kink_eye_y, tick_kink_dt);
+        } else {
+            camera.update(cam_pos.x, cam_pos.y, cam_pos.z, eye_height, frame_dt);
+        }
+        const glm::dvec3 eye(camera.x(), camera.y(), camera.z());
 
         glfwGetFramebufferSize(window, &fb_width, &fb_height);
         glViewport(0, 0, fb_width, fb_height);
