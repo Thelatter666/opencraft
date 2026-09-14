@@ -35,6 +35,15 @@ struct MoveResult {
     // query was consulted without re-deriving the pipeline.
     double friction = 0.0;
     double slipperiness = 0.0;
+
+    // T-D8: true when step-assist walked the entity up an obstacle this tick.
+    // Distinct from `hit_x`/`hit_z`: a successful step is NOT a collision — the
+    // obstacle was climbed, so horizontal speed is retained.
+    bool stepped = false;
+    // Height the step lifted the entity by, in blocks (0 when `stepped` is
+    // false). Report-only: lets a consumer tell a carpet from a bed without
+    // re-deriving the terrain query.
+    double step_height_used = 0.0;
 };
 
 // Advances the simulation by EXACTLY one tick (50 ms at 20 TPS). Pure function

@@ -17,6 +17,9 @@ namespace opencraft::physics {
 enum class EntityKind : std::uint8_t {
     Player = 0,
     FallingBlock = 1,
+    // T-D8: ordinary mobs step onto a full block (1.0) where the player (0.6)
+    // has to jump.
+    Mob = 2,
 };
 
 // Central knob board for the tick-level movement simulation. Units: positions
@@ -142,6 +145,18 @@ struct PhysicsConfig {
     // locating the block whose slipperiness drives this tick's friction.
     double ground_probe_depth = 0.01;
 
+    // ── Step-assist (T-D8; docs/research/06 §6.3) ───────────────────────────
+    // Largest obstacle height walked up automatically, in blocks, without a
+    // jump and WITHOUT losing horizontal speed. MC's maximum step height is
+    // 0.6 b for the player — enough for carpets, slabs and beds, deliberately
+    // NOT enough for a full 1.0 block, which still requires a jump. Mobs use
+    // 1.0 (see `for_entity`), which is why they walk up a full block.
+    //
+    // Per-entity rather than global: this is exactly the "parameters are
+    // instantiated per entity type" contract T-D7 established for horizontal
+    // drag and gravity.
+    double step_height = 0.6;
+
     // Instantiate the parameter set for an entity type. Returns a fresh value on
     // every call; callers keep their own instance per entity type.
     [[nodiscard]] static PhysicsConfig for_entity(EntityKind kind) {
@@ -158,6 +173,12 @@ struct PhysicsConfig {
             c.gravity = 0.04;
             c.vertical_drag = 0.98;
             c.horizontal_drag = 0.98;
+            break;
+        case EntityKind::Mob:
+            // Mobs walk up a full block (docs/research/06 §6.3). Everything
+            // else stays at the player's values: a mob is a walking entity, so
+            // it shares the player's acceleration and friction pipeline.
+            c.step_height = 1.0;
             break;
         case EntityKind::Player:
             break; // defaults ARE the player
