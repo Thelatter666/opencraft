@@ -37,7 +37,7 @@ struct Box {
         for (int by = y0; by <= y1; ++by) {
             for (int bz = z0; bz <= z1; ++bz) {
                 if (b.max_x > bx && b.min_x < bx + 1 && b.max_y > by && b.min_y < by + 1 && b.max_z > bz &&
-                    b.min_z < bz + 1 && world.solid_at(bx, by, bz)) {
+                    b.min_z < bz + 1 && world.shape_at(bx, by, bz) != BlockShape::Empty) {
                     return true;
                 }
             }
@@ -47,7 +47,7 @@ struct Box {
 }
 
 // True when some solid block overlaps the box footprint one probe-layer below
-// the feet (i.e. the player would still stand after shifting horizontally).
+// the feet (i.e. the entity would still stand after shifting horizontally).
 [[nodiscard]] bool has_support_at(const PlayerState &s, const IBlockSource &world, double offset_x, double offset_z,
                                   double probe_depth) {
     const int layer = static_cast<int>(std::floor(s.position.y - probe_depth));
@@ -61,7 +61,8 @@ struct Box {
     const int z1 = static_cast<int>(std::floor(max_z));
     for (int bx = x0; bx <= x1; ++bx) {
         for (int bz = z0; bz <= z1; ++bz) {
-            if (max_x > bx && min_x < bx + 1 && max_z > bz && min_z < bz + 1 && world.solid_at(bx, layer, bz)) {
+            if (max_x > bx && min_x < bx + 1 && max_z > bz && min_z < bz + 1 &&
+                world.shape_at(bx, layer, bz) != BlockShape::Empty) {
                 return true;
             }
         }
@@ -95,6 +96,16 @@ void back_off_from_edge(const PlayerState &s, const IBlockSource &world, const P
     return world.liquid_at(x, feet, z) || world.liquid_at(x, mid, z);
 }
 
+// Slipperiness of the block the entity is standing on — the block half of the
+// friction product (docs/research/07 §7.2). Sampled one probe-layer below the
+// feet so a full-cube floor reports its own value.
+[[nodiscard]] double slipperiness_below(const IBlockSource &world, const PlayerState &s, const PhysicsConfig &cfg) {
+    const int x = static_cast<int>(std::floor(s.position.x));
+    const int z = static_cast<int>(std::floor(s.position.z));
+    const int y = static_cast<int>(std::floor(s.position.y - cfg.ground_probe_depth));
+    return world.slipperiness_at(x, y, z);
+}
+
 // Yaw → normalized horizontal input direction. forward = (-sin, -cos);
 // right = forward × up; backward contributes -forward. Components under
 // 1e-12 are snapped to zero so axis-aligned yaws (the golden replay only
@@ -121,6 +132,37 @@ void back_off_from_edge(const PlayerState &s, const IBlockSource &world, const P
         dz *= inv;
     }
     return {dx, dz};
+}
+
+// MC's input geometry (docs/research/06 §3.2) — the entire origin of 45°
+// Strafe. The raw ±1 forward/strafe axes are:
+//   1. pre-scaled by `input_scale` (0.98), and by `sneak_multiplier` (0.3)
+//      while sneaking — BOTH act on the input vector, unlike sprint;
+//   2. combined into n = hypot(strafe, forward);
+//   3. clamped UP to 1 when n < 1 — single-axis input (0.98, 0) has n = 0.98
+//      and is therefore clamped, so it only reaches 0.98 of full acceleration;
+//   4. scaled to the acceleration magnitude, preserving the input direction.
+// A diagonal input (0.98, 0.98) has n = 1.386 > 1 and is NOT clamped, which is
+// precisely why diagonal movement is 1/0.98 ≈ 2% faster. Because sneak acts on
+// the input vector and sprint on the scalar magnitude, a sneak diagonal gains
+// √2 (both axes halved, then the clamp applies to the tiny 0.42 magnitude)
+// while a sprint diagonal gains only 1/0.98.
+//
+// Returns the scalar the acceleration magnitude must be multiplied by. The
+// direction is unaffected by any of the above, since both axes are scaled
+// equally.
+[[nodiscard]] double input_magnitude_scale(const InputState &in, const PhysicsConfig &cfg) {
+    const double fwd = (in.forward ? 1.0 : 0.0) - (in.backward ? 1.0 : 0.0);
+    const double strafe = (in.right ? 1.0 : 0.0) - (in.left ? 1.0 : 0.0);
+    const double sneak = in.sneak ? cfg.sneak_multiplier : 1.0;
+    const double s = strafe * cfg.input_scale * sneak;
+    const double f = fwd * cfg.input_scale * sneak;
+    const double n = std::hypot(s, f);
+    if (n < 1e-4) {
+        return 0.0; // no input: the acceleration term drops out entirely
+    }
+    const double clamped_n = n < 1.0 ? 1.0 : n;
+    return n / clamped_n;
 }
 
 // Per-axis clamped moves (docs/research/03 §6.1: Y → X → Z). Each returns
@@ -189,9 +231,29 @@ double move_axis_z(PlayerState &s, const IBlockSource &world, double dz, bool &h
     return s.position.z - before;
 }
 
+// Per-component momentum cut-off (docs/research/06 §2.4/§4.4). This is what
+// makes the glide tail finite; 0.003 is the value the ⚖ 1.2522 apex is derived
+// from. Judged PER COMPONENT like MC — a magnitude test would alter the
+// diagonal-drift behaviour.
+void apply_momentum_threshold(PlayerState &s, const PhysicsConfig &cfg) {
+    if (std::abs(s.velocity.x) < cfg.momentum_threshold) {
+        s.velocity.x = 0.0;
+    }
+    if (std::abs(s.velocity.y) < cfg.momentum_threshold) {
+        s.velocity.y = 0.0;
+    }
+    if (std::abs(s.velocity.z) < cfg.momentum_threshold) {
+        s.velocity.z = 0.0;
+    }
+}
+
 } // namespace
 
-void step_player(PlayerState &s, const InputState &in, const IBlockSource &world, const PhysicsConfig &cfg) {
+void step_player(PlayerState &s, const InputState &in, const IBlockSource &world, const PhysicsConfig &cfg,
+                 MoveResult *result) {
+    if (result != nullptr) {
+        *result = MoveResult{};
+    }
     s.last_input_sequence = in.sequence;
 
     // Pose: crouch immediately; standing up requires headroom for the taller
@@ -217,9 +279,16 @@ void step_player(PlayerState &s, const InputState &in, const IBlockSource &world
     // ── Sprint state machine (docs/research/05 §1; explicit state per the
     // T-D1 interface contract so headless replay tests can assert it).
     // Stop conditions first (MC checks them every tick): forward released,
-    // backward pressed, hunger at or below the gate, or a wall hit recorded
-    // by the previous tick's move.
-    if (s.sprinting && (!in.forward || in.backward || s.hunger <= cfg.sprint_min_hunger || s.collided_horizontally)) {
+    // backward pressed, sneak held, hunger at or below the gate, or a wall hit
+    // recorded by the previous tick's move.
+    //
+    // Sneak is a stop condition because MC gates sprinting on
+    // moveForward ≥ 0.8, and sneaking scales the input axes by 0.3 → 0.294,
+    // which is below the gate. Without this the two multipliers would stack
+    // (sprint ×1.3 on a sneak-scaled input) and the player would SNEAK FASTER
+    // than they walk.
+    if (s.sprinting &&
+        (!in.forward || in.backward || in.sneak || s.hunger <= cfg.sprint_min_hunger || s.collided_horizontally)) {
         s.sprinting = false;
     }
     // Activation. Key path: sprint key held + forward held (works on ground
@@ -232,9 +301,9 @@ void step_player(PlayerState &s, const InputState &in, const IBlockSource &world
     // key is NOT among them, so once engaged the sprint persists while
     // forward is held.
     if (!s.sprinting && s.hunger > cfg.sprint_min_hunger) {
-        if (in.sprint && in.forward && !in.backward) {
+        if (in.sprint && in.forward && !in.backward && !in.sneak) {
             s.sprinting = true;
-        } else if (in.forward_press && in.forward && s.on_ground && !in.sprint) {
+        } else if (in.forward_press && in.forward && s.on_ground && !in.sprint && !in.sneak) {
             if (s.sprint_toggle_timer > 0) {
                 s.sprinting = true;
             } else {
@@ -248,26 +317,49 @@ void step_player(PlayerState &s, const InputState &in, const IBlockSource &world
         --s.sprint_toggle_timer;
     }
 
-    // Horizontal integration: v = v·drag + dir·accel. On ground/water the
-    // steady state is exactly the mode's target speed (T007 construction).
-    // Airborne the acceleration is the fixed MC air accel (docs/research/05
-    // §4): momentum decays toward ≈4.444 m/s, so a sprint jump keeps most of
-    // its speed instead of bleeding down to walking pace.
-    const auto [dir_x, dir_z] = input_direction(in);
-    const double target = in.sneak ? cfg.sneak_speed : (s.sprinting ? cfg.sprint_speed : cfg.walk_speed);
-    const double water_target = target * cfg.water_speed_mult;
-    const double drag = water ? cfg.water_drag : (s.on_ground ? cfg.ground_drag : cfg.air_drag);
-    double accel_source = target;
-    if (water) {
-        accel_source = water_target;
-    } else if (!s.on_ground) {
-        // Air: fixed accel (air_accel = 0.02), expressed through the same
-        // "steady state" formulation so the pipeline stays uniform.
-        accel_source = cfg.air_accel / (1.0 - cfg.air_drag);
+    // ── Friction factor for this tick ───────────────────────────────────────
+    // Slipperiness comes from the block below (the block half) and multiplies
+    // the entity's own air resistance (the entity half), per docs/research/07
+    // §7.2. Airborne the block term is 1.0 — MC's rule, and the reason a jump
+    // carries speed instead of braking.
+    const double slipperiness = s.on_ground ? slipperiness_below(world, s, cfg) : 1.0;
+    const double friction = cfg.horizontal_drag * slipperiness;
+    if (result != nullptr) {
+        result->friction = friction;
+        result->slipperiness = slipperiness;
     }
-    const double accel = accel_source * (1.0 - drag);
-    s.velocity.x = s.velocity.x * drag + dir_x * accel;
-    s.velocity.z = s.velocity.z * drag + dir_z * accel;
+
+    // ── Horizontal acceleration, accumulated but NOT yet damped ─────────────
+    // The stored velocity is the post-damping value from the previous tick.
+    // This tick's DISPLACEMENT is (stored velocity + this tick's acceleration),
+    // and the damping is applied only AFTER the move (docs/research/06 §1.1
+    // step 4 vs 6 — the ordering is what the apex and jump distances are
+    // derived from).
+    if (water) {
+        // DEFERRED (out of T-D7 scope): swimming keeps the pre-T-D7
+        // stored-target formulation verbatim, where the steady state is exactly
+        // `water_cruise_speed` and is therefore independent of `water_drag`.
+        const auto [dir_x, dir_z] = input_direction(in);
+        const double accel = cfg.water_cruise_speed * (1.0 - cfg.water_drag);
+        s.velocity.x = s.velocity.x * cfg.water_drag + dir_x * accel;
+        s.velocity.z = s.velocity.z * cfg.water_drag + dir_z * accel;
+    } else {
+        const double mode = s.sprinting ? cfg.sprint_multiplier : 1.0;
+        double magnitude;
+        if (s.on_ground) {
+            // The CUBE of (0.6/S) is load-bearing: it is what makes ice slow to
+            // accelerate but slow to stop, rather than simply faster
+            // (docs/research/06 §7.1). A linear term gets the ice feel wrong.
+            const double skid = kDefaultSlipperiness / slipperiness;
+            magnitude = cfg.ground_accel * mode * skid * skid * skid;
+        } else {
+            magnitude = cfg.air_accel * mode;
+        }
+        magnitude *= input_magnitude_scale(in, cfg);
+        const auto [dir_x, dir_z] = input_direction(in);
+        s.velocity.x += dir_x * magnitude;
+        s.velocity.z += dir_z * magnitude;
+    }
 
     double dx = s.velocity.x;
     double dz = s.velocity.z;
@@ -278,7 +370,8 @@ void step_player(PlayerState &s, const InputState &in, const IBlockSource &world
     // Ground jump sets the velocity BEFORE the move (MC order: the first
     // tick's displacement is the full 0.42, which is what makes the apex
     // come out at exactly 1.2522 with the gravity/drag pair). Sprinting adds
-    // the calibrated facing impulse (docs/research/05 §3) on the jump tick.
+    // MC's RAW +0.2 facing impulse (docs/research/06 §5.1) on the jump tick;
+    // under this pipeline it hits ⚖ 7.127 m/s by itself.
     if (in.jump && s.on_ground && !water) {
         s.velocity.y = cfg.jump_velocity;
         s.on_ground = false;
@@ -288,6 +381,8 @@ void step_player(PlayerState &s, const InputState &in, const IBlockSource &world
             s.velocity.x += fx * cfg.sprint_jump_boost;
             s.velocity.z += fz * cfg.sprint_jump_boost;
         }
+        dx = s.velocity.x;
+        dz = s.velocity.z;
     }
 
     // Substeps of at most max_substep blocks prevent tunneling
@@ -298,12 +393,17 @@ void step_player(PlayerState &s, const InputState &in, const IBlockSource &world
         substeps = 1;
     }
 
-    bool hit_wall = false;
+    bool hit_x = false;
+    bool hit_z = false;
+    bool hit_ground = false;
+    bool hit_ceiling = false;
     for (int i = 0; i < substeps; ++i) {
-        bool hit_ground = false;
-        bool hit_ceiling = false;
-        move_axis_y(s, world, s.velocity.y / substeps, hit_ground, hit_ceiling);
-        if (hit_ground) {
+        bool sub_ground = false;
+        bool sub_ceiling = false;
+        move_axis_y(s, world, s.velocity.y / substeps, sub_ground, sub_ceiling);
+        hit_ground = hit_ground || sub_ground;
+        hit_ceiling = hit_ceiling || sub_ceiling;
+        if (sub_ground) {
             s.on_ground = true;
             s.velocity.y = 0.0;
             // Fall damage (docs/01 §2 ⚖): floor(fall_distance − 3) HP,
@@ -314,13 +414,13 @@ void step_player(PlayerState &s, const InputState &in, const IBlockSource &world
                 s.health -= std::floor(fallen - cfg.fall_damage_offset);
             }
         }
-        if (hit_ceiling) {
+        if (sub_ceiling) {
             s.velocity.y = 0.0;
         }
-        move_axis_x(s, world, dx / substeps, hit_wall);
-        move_axis_z(s, world, dz / substeps, hit_wall);
+        move_axis_x(s, world, dx / substeps, hit_x);
+        move_axis_z(s, world, dz / substeps, hit_z);
     }
-    s.collided_horizontally = hit_wall;
+    s.collided_horizontally = hit_x || hit_z;
 
     // Fall-distance bookkeeping, measured against the arc apex so whole-block
     // drops land on exact values (no per-tick accumulation drift).
@@ -339,17 +439,32 @@ void step_player(PlayerState &s, const InputState &in, const IBlockSource &world
         }
     }
 
-    // Vertical integration happens AFTER the move (this ordering is what the
-    // ⚖ 1.2522 apex and the 78.4 m/s terminal velocity are derived from).
+    // ── Damping AFTER the displacement (docs/research/06 §10 point 1) ───────
     if (water) {
         s.velocity.y = s.velocity.y * cfg.water_drag + (in.jump ? cfg.swim_up_accel : -cfg.water_gravity);
         if (s.velocity.y > cfg.water_max_up_speed) {
             s.velocity.y = cfg.water_max_up_speed;
         }
-    } else if (!s.on_ground) {
-        s.velocity.y = (s.velocity.y - cfg.gravity) * cfg.vertical_drag;
     } else {
-        s.velocity.y = 0.0;
+        if (s.on_ground) {
+            s.velocity.y = 0.0;
+        } else {
+            s.velocity.y = (s.velocity.y - cfg.gravity) * cfg.vertical_drag;
+        }
+        s.velocity.x *= friction;
+        s.velocity.z *= friction;
+    }
+    // The cut-off runs after the damping, so the tick's own acceleration is
+    // never truncated — only the decaying remainder of past momentum.
+    apply_momentum_threshold(s, cfg);
+
+    if (result != nullptr) {
+        result->hit_x = hit_x;
+        result->hit_y = hit_ground || hit_ceiling;
+        result->hit_z = hit_z;
+        result->hit_ceiling = hit_ceiling;
+        result->landed = hit_ground;
+        result->fall_distance = s.fall_distance;
     }
 }
 

@@ -18,6 +18,7 @@ add_executable(opencraft_tests
     test_mesher.cpp
     test_player_physics.cpp
     test_sprint_feel.cpp
+    test_friction_pipeline.cpp
     test_physics_golden.cpp
     test_raycast.cpp
     test_mining.cpp
