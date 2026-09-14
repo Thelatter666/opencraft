@@ -57,6 +57,19 @@ struct IBlockSource {
     [[nodiscard]] virtual BlockShape shape_at(int wx, int wy, int wz) const {
         return solid_at(wx, wy, wz) ? BlockShape::FullCube : BlockShape::Empty;
     }
+
+    // Height of the block's collision top face above that block's own bottom
+    // face, in blocks: 1.0 for a full cube, 0.5 for a bottom slab, 0.0 for
+    // anything that does not collide. Derived from `shape_at` by default, so a
+    // solid-only adapter is behaviourally unchanged.
+    //
+    // This is the seam step-assist needs (T-D8): a sub-block obstacle has to be
+    // representable before a 0.6 step can ever fire. It is NOT the slab/stair
+    // shape system — that is M2 content and arrives with its own card. Adapters
+    // that model partial heights override this single method.
+    [[nodiscard]] virtual double shape_top_at(int wx, int wy, int wz) const {
+        return shape_at(wx, wy, wz) != BlockShape::Empty ? 1.0 : 0.0;
+    }
 };
 
 } // namespace opencraft::physics
