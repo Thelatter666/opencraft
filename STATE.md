@@ -50,7 +50,7 @@ M1 判据达成：新档可走/挖/建闭环 + 退出重进不丢档（含 `kill
 ## 任务表（补充：M1 后新卡）
 | ID | 任务 | 状态 | agentmemory ID | 验收 |
 |---|---|---|---|---|
-| T-D1 | 移动手感专项（网络调研 + 数值对齐） | queued（卡面已建 `docs/tasks/T-D1.md`，待派发） | act_mu06lrou_d7083120b228 | 疾跑跳 7.127±1%、双击 W、FOV 对账、gap 清单 |
+| T-D1 | 移动手感专项（网络调研 + 数值对齐） | queued（卡面已建 `docs/tasks/T-D1.md`，待派发） | act_mu0tsw0x_36a221341545 | 疾跑跳 7.127±1%、双击 W、FOV 对账、gap 清单 |
 
 ## 下一步（只放当前有效动作）
 1. **派发 T-D1**：卡面 `docs/tasks/T-D1.md` 已落盘。这是**首张跨 agent 卡**（可在 opencode 等
@@ -77,4 +77,5 @@ M1 判据达成：新档可走/挖/建闭环 + 退出重进不丢档（含 `kill
 ## agentmemory 备注
 - 工具限制与对账方法（slots 500 / requires 只认 act_ ID / 无 hooks / REST 对账）见 lesson `lsn_43fe338b4dd1b48f`
 - 记忆分工权威协议（P-001）见 lesson `lsn_4c603462963ca635` 与 default 工作区记忆 `zcode-memory-vs-agentmemory.md`
-- 不使用 signals/sentinel/mesh；任务板现有 T001–T009 + T-D1 + 阶段0 共 11 张有效卡（另 2 张 cancelled 为 T003/T004 重建残留）
+- 不使用 signals/sentinel/mesh；任务板现有 T001–T009 + T-D1 + 阶段0 共 11 张有效卡（另 3 张 cancelled：T003/T004 重建残留 + T-D1 因 update 不支持改 description/title 而重建）
+- **工具限制**：`memory_action_update` 只能改 status/priority，**title/description 建卡后不可改**（返回 success 但字段不变）；`requires` 建卡后不可补。故建卡时须一次写准，description 只放摘要 + 指向 `docs/tasks/T<ID>.md`（卡面正文以仓库为准）。详见 lesson `lsn_5b000c37d47bc784`
