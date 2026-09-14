@@ -1,0 +1,443 @@
+[2026-09-14 02:48:21.382] [info] OpenCraft 0.1.0 starting
+[2026-09-14 02:48:21.559] [info] GL 4.1 Metal - 89.4 / glad loaded
+[2026-09-14 02:48:21.569] [info] spawn surface at storage y=136
+[2026-09-14 02:48:21.797] [info] startup gen: 24 chunks, total 227.3 ms, avg 9.47 ms/chunk, max 11.21 ms
+[2026-09-14 02:48:21.797] [info] atlas: 144x144 px, 9 tiles/row, crack tiles at 63
+[2026-09-14 02:48:23.840] [info] fps 36.7 | pos (8.50, 136.00, 8.50) | chunks 113 | stream-meshed 104
+[2026-09-14 02:48:25.854] [info] fps 65.9 | pos (8.50, 136.00, 8.50) | chunks 113 | stream-meshed 104
+[2026-09-14 02:48:27.861] [info] fps 72.3 | pos (8.50, 136.00, 8.50) | chunks 113 | stream-meshed 104
+[2026-09-14 02:48:29.868] [info] fps 72.2 | pos (8.50, 136.00, 8.50) | chunks 113 | stream-meshed 104
+[2026-09-14 02:48:31.874] [info] fps 72.2 | pos (8.50, 136.00, 8.50) | chunks 113 | stream-meshed 104
+[2026-09-14 02:48:33.875] [info] fps 72.0 | pos (8.50, 136.00, 8.50) | chunks 113 | stream-meshed 104
+[2026-09-14 02:48:35.888] [info] fps 72.0 | pos (8.50, 136.00, 8.50) | chunks 113 | stream-meshed 104
+[2026-09-14 02:48:37.903] [info] fps 72.0 | pos (8.50, 136.00, 8.50) | chunks 113 | stream-meshed 104
+[2026-09-14 02:48:39.903] [info] fps 72.0 | pos (8.50, 136.00, 8.50) | chunks 113 | stream-meshed 104
+[2026-09-14 02:48:41.916] [info] fps 72.0 | pos (8.50, 136.00, 8.50) | chunks 113 | stream-meshed 104
+[2026-09-14 02:48:43.930] [info] fps 72.0 | pos (8.50, 136.00, 8.50) | chunks 113 | stream-meshed 104
+[2026-09-14 02:48:45.929] [info] fps 72.0 | pos (8.50, 136.00, 8.50) | chunks 113 | stream-meshed 104
+[2026-09-14 02:48:47.937] [info] fps 72.2 | pos (8.50, 136.00, 8.50) | chunks 113 | stream-meshed 104
+[2026-09-14 02:48:49.950] [info] fps 72.0 | pos (8.50, 136.00, 8.50) | chunks 113 | stream-meshed 104
+[2026-09-14 02:48:51.965] [info] fps 72.0 | pos (8.50, 136.00, 8.50) | chunks 113 | stream-meshed 104
+[2026-09-14 02:48:53.965] [info] fps 72.0 | pos (8.50, 136.00, 8.50) | chunks 113 | stream-meshed 104
+[2026-09-14 02:48:55.971] [info] fps 72.2 | pos (8.50, 136.00, 8.50) | chunks 113 | stream-meshed 104
+[2026-09-14 02:48:57.986] [info] fps 72.0 | pos (8.50, 136.00, 8.50) | chunks 113 | stream-meshed 104
+[2026-09-14 02:48:59.992] [info] fps 72.2 | pos (8.50, 136.00, 8.50) | chunks 113 | stream-meshed 104
+[2026-09-14 02:49:01.992] [info] fps 72.0 | pos (8.50, 136.00, 8.50) | chunks 113 | stream-meshed 104
+[2026-09-14 02:49:04.007] [info] fps 72.0 | pos (8.50, 136.00, 8.50) | chunks 113 | stream-meshed 104
+[2026-09-14 02:49:06.006] [info] fps 72.0 | pos (8.50, 136.00, 8.50) | chunks 113 | stream-meshed 104
+[2026-09-14 02:49:08.007] [info] fps 72.0 | pos (8.50, 136.00, 8.50) | chunks 113 | stream-meshed 104
+[2026-09-14 02:49:10.007] [info] fps 72.0 | pos (8.50, 136.00, 8.50) | chunks 113 | stream-meshed 104
+[2026-09-14 02:49:12.020] [info] fps 72.0 | pos (8.50, 136.00, 8.50) | chunks 113 | stream-meshed 104
+[2026-09-14 02:49:14.034] [info] fps 72.0 | pos (8.50, 136.00, 8.50) | chunks 113 | stream-meshed 104
+[2026-09-14 02:49:16.033] [info] fps 72.0 | pos (8.50, 136.00, 8.50) | chunks 113 | stream-meshed 104
+[2026-09-14 02:49:18.049] [info] fps 72.0 | pos (8.50, 136.00, 8.50) | chunks 113 | stream-meshed 104
+[2026-09-14 02:49:20.048] [info] fps 72.0 | pos (8.50, 136.00, 8.50) | chunks 113 | stream-meshed 104
+[2026-09-14 02:49:22.062] [info] fps 72.0 | pos (8.50, 136.00, 8.50) | chunks 113 | stream-meshed 104
+[2026-09-14 02:49:24.077] [info] fps 72.0 | pos (8.50, 136.00, 8.50) | chunks 113 | stream-meshed 104
+[2026-09-14 02:49:26.077] [info] fps 72.0 | pos (8.50, 136.00, 8.50) | chunks 113 | stream-meshed 104
+[2026-09-14 02:49:28.090] [info] fps 72.0 | pos (8.50, 136.00, 8.50) | chunks 113 | stream-meshed 104
+[2026-09-14 02:49:30.103] [info] fps 72.0 | pos (8.50, 136.00, 8.50) | chunks 113 | stream-meshed 104
+[2026-09-14 02:49:32.104] [info] fps 72.0 | pos (8.50, 136.00, 8.50) | chunks 113 | stream-meshed 104
+[2026-09-14 02:49:34.118] [info] fps 72.0 | pos (8.50, 136.00, 8.50) | chunks 113 | stream-meshed 104
+[2026-09-14 02:49:36.118] [info] fps 72.0 | pos (8.50, 136.00, 8.50) | chunks 113 | stream-meshed 104
+[2026-09-14 02:49:38.131] [info] fps 72.0 | pos (8.50, 136.00, 8.50) | chunks 113 | stream-meshed 104
+[2026-09-14 02:49:40.139] [info] fps 71.8 | pos (8.50, 136.00, 8.50) | chunks 113 | stream-meshed 104
+[2026-09-14 02:49:42.152] [info] fps 72.0 | pos (8.50, 136.00, 8.50) | chunks 113 | stream-meshed 104
+[2026-09-14 02:49:44.166] [info] fps 72.0 | pos (8.50, 136.00, 8.50) | chunks 113 | stream-meshed 104
+[2026-09-14 02:49:46.181] [info] fps 72.0 | pos (8.50, 136.00, 8.50) | chunks 113 | stream-meshed 104
+[2026-09-14 02:49:48.188] [info] fps 72.2 | pos (8.50, 136.00, 8.50) | chunks 113 | stream-meshed 104
+[2026-09-14 02:49:50.188] [info] fps 72.0 | pos (8.50, 136.00, 8.50) | chunks 113 | stream-meshed 104
+[2026-09-14 02:49:52.201] [info] fps 72.0 | pos (8.50, 136.00, 8.50) | chunks 113 | stream-meshed 104
+[2026-09-14 02:49:54.201] [info] fps 72.0 | pos (8.50, 136.00, 8.50) | chunks 113 | stream-meshed 104
+[2026-09-14 02:49:56.214] [info] fps 72.1 | pos (8.50, 136.00, 8.50) | chunks 113 | stream-meshed 104
+[2026-09-14 02:49:58.214] [info] fps 72.0 | pos (8.50, 136.00, 8.50) | chunks 113 | stream-meshed 104
+[2026-09-14 02:50:00.229] [info] fps 72.0 | pos (8.50, 136.00, 8.50) | chunks 113 | stream-meshed 104
+[2026-09-14 02:50:02.229] [info] fps 72.0 | pos (8.50, 136.00, 8.50) | chunks 113 | stream-meshed 104
+[2026-09-14 02:50:04.230] [info] fps 72.0 | pos (8.50, 136.00, 8.50) | chunks 113 | stream-meshed 104
+[2026-09-14 02:50:06.243] [info] fps 72.0 | pos (8.50, 136.00, 8.50) | chunks 113 | stream-meshed 104
+[2026-09-14 02:50:08.243] [info] fps 72.0 | pos (8.50, 136.00, 8.50) | chunks 113 | stream-meshed 104
+[2026-09-14 02:50:10.256] [info] fps 72.0 | pos (8.50, 136.00, 8.50) | chunks 113 | stream-meshed 104
+[2026-09-14 02:50:12.271] [info] fps 72.5 | pos (8.50, 136.00, 8.50) | chunks 113 | stream-meshed 104
+[2026-09-14 02:50:14.271] [info] fps 72.0 | pos (8.50, 136.00, 8.50) | chunks 113 | stream-meshed 104
+[2026-09-14 02:50:16.271] [info] fps 72.0 | pos (8.50, 136.00, 8.50) | chunks 113 | stream-meshed 104
+[2026-09-14 02:50:18.278] [info] fps 72.2 | pos (8.50, 136.00, 8.50) | chunks 113 | stream-meshed 104
+[2026-09-14 02:50:20.291] [info] fps 72.0 | pos (8.50, 136.00, 8.50) | chunks 113 | stream-meshed 104
+[2026-09-14 02:50:22.291] [info] fps 72.0 | pos (8.50, 136.00, 8.50) | chunks 113 | stream-meshed 104
+[2026-09-14 02:50:24.292] [info] fps 72.0 | pos (8.50, 136.00, 8.50) | chunks 113 | stream-meshed 104
+[2026-09-14 02:50:26.291] [info] fps 72.0 | pos (8.50, 136.00, 8.50) | chunks 113 | stream-meshed 104
+[2026-09-14 02:50:28.304] [info] fps 72.0 | pos (8.50, 136.00, 8.50) | chunks 113 | stream-meshed 104
+[2026-09-14 02:50:30.320] [info] fps 72.0 | pos (8.50, 136.00, 8.50) | chunks 113 | stream-meshed 104
+[2026-09-14 02:50:32.325] [info] fps 72.2 | pos (8.50, 136.00, 8.50) | chunks 113 | stream-meshed 104
+[2026-09-14 02:50:34.334] [info] fps 72.2 | pos (8.50, 136.00, 8.50) | chunks 113 | stream-meshed 104
+[2026-09-14 02:50:36.346] [info] fps 72.1 | pos (8.50, 136.00, 8.50) | chunks 113 | stream-meshed 104
+[2026-09-14 02:50:38.346] [info] fps 72.0 | pos (8.50, 136.00, 8.50) | chunks 113 | stream-meshed 104
+[2026-09-14 02:50:40.361] [info] fps 72.0 | pos (8.50, 136.00, 8.50) | chunks 113 | stream-meshed 104
+[2026-09-14 02:50:42.375] [info] fps 72.0 | pos (8.50, 136.00, 8.50) | chunks 113 | stream-meshed 104
+[2026-09-14 02:50:44.388] [info] fps 72.0 | pos (8.50, 136.00, 8.50) | chunks 113 | stream-meshed 104
+[2026-09-14 02:50:46.403] [info] fps 72.0 | pos (8.50, 136.00, 8.50) | chunks 113 | stream-meshed 104
+[2026-09-14 02:50:48.403] [info] fps 71.9 | pos (8.50, 136.00, 8.50) | chunks 113 | stream-meshed 104
+[2026-09-14 02:50:50.417] [info] fps 72.0 | pos (8.50, 136.00, 8.50) | chunks 113 | stream-meshed 104
+[2026-09-14 02:50:52.431] [info] fps 72.1 | pos (8.50, 136.00, 8.50) | chunks 113 | stream-meshed 104
+[2026-09-14 02:50:54.431] [info] fps 72.0 | pos (8.50, 136.00, 8.50) | chunks 113 | stream-meshed 104
+[2026-09-14 02:50:56.444] [info] fps 72.0 | pos (8.50, 136.00, 8.50) | chunks 113 | stream-meshed 104
+[2026-09-14 02:50:58.444] [info] fps 72.0 | pos (8.50, 136.00, 8.50) | chunks 113 | stream-meshed 104
+[2026-09-14 02:51:00.451] [info] fps 72.3 | pos (8.50, 136.00, 8.50) | chunks 113 | stream-meshed 104
+[2026-09-14 02:51:02.457] [info] fps 72.2 | pos (8.50, 136.00, 8.50) | chunks 113 | stream-meshed 104
+[2026-09-14 02:51:04.472] [info] fps 72.5 | pos (8.50, 136.00, 8.50) | chunks 113 | stream-meshed 104
+[2026-09-14 02:51:06.486] [info] fps 72.0 | pos (8.50, 136.00, 8.50) | chunks 113 | stream-meshed 104
+[2026-09-14 02:51:08.486] [info] fps 79.3 | pos (8.50, 136.00, 8.50) | chunks 113 | stream-meshed 104
+[2026-09-14 02:51:10.485] [info] fps 94.5 | pos (8.50, 136.00, 8.50) | chunks 113 | stream-meshed 104
+[2026-09-14 02:51:12.499] [info] fps 95.2 | pos (8.50, 136.00, 8.50) | chunks 113 | stream-meshed 104
+[2026-09-14 02:51:14.499] [info] fps 94.0 | pos (8.50, 136.00, 8.50) | chunks 113 | stream-meshed 104
+[2026-09-14 02:51:16.505] [info] fps 94.9 | pos (8.50, 136.00, 8.50) | chunks 113 | stream-meshed 104
+[2026-09-14 02:51:18.514] [info] fps 91.4 | pos (8.50, 136.00, 8.50) | chunks 113 | stream-meshed 104
+[2026-09-14 02:51:20.521] [info] fps 83.7 | pos (8.50, 136.00, 8.50) | chunks 113 | stream-meshed 104
+[2026-09-14 02:51:22.521] [info] fps 83.0 | pos (8.50, 136.00, 8.50) | chunks 113 | stream-meshed 104
+[2026-09-14 02:51:24.520] [info] fps 87.8 | pos (8.50, 136.00, 8.50) | chunks 113 | stream-meshed 104
+[2026-09-14 02:51:26.534] [info] fps 94.7 | pos (8.50, 136.00, 8.50) | chunks 113 | stream-meshed 104
+[2026-09-14 02:51:28.541] [info] fps 85.4 | pos (8.50, 136.00, 8.50) | chunks 113 | stream-meshed 104
+[2026-09-14 02:51:30.556] [info] fps 84.7 | pos (8.50, 136.00, 8.50) | chunks 113 | stream-meshed 104
+[2026-09-14 02:51:32.548] [info] fps 80.0 | pos (8.50, 136.00, 8.50) | chunks 113 | stream-meshed 104
+[2026-09-14 02:51:34.174] [info] remeshed 9 chunk(s) in 28.41 ms (last mesh 2.18 ms)
+[2026-09-14 02:51:34.562] [info] fps 93.7 | pos (8.50, 136.00, 8.50) | chunks 113 | stream-meshed 104
+2026-09-14 02:51:35.551 opencraft[10159:2939247] error messaging the mach port for IMKCFRunLoopWakeUpReliable
+[2026-09-14 02:51:36.574] [info] fps 85.0 | pos (8.04, 137.17, 5.77) | chunks 113 | stream-meshed 104
+[2026-09-14 02:51:37.927] [info] remeshed 9 chunk(s) in 24.82 ms (last mesh 2.15 ms)
+[2026-09-14 02:51:38.582] [info] fps 90.8 | pos (8.26, 137.00, 3.45) | chunks 113 | stream-meshed 104
+[2026-09-14 02:51:39.607] [info] remeshed 9 chunk(s) in 24.20 ms (last mesh 2.15 ms)
+[2026-09-14 02:51:40.166] [info] placed stone at (10, 137, 3)
+[2026-09-14 02:51:40.191] [info] remeshed 9 chunk(s) in 25.44 ms (last mesh 2.15 ms)
+[2026-09-14 02:51:40.541] [info] placed stone at (9, 137, 3)
+[2026-09-14 02:51:40.564] [info] remeshed 9 chunk(s) in 23.12 ms (last mesh 2.16 ms)
+[2026-09-14 02:51:40.589] [info] fps 83.2 | pos (8.08, 137.00, 4.16) | chunks 113 | stream-meshed 104
+[2026-09-14 02:51:41.971] [info] placed stone at (9, 138, 3)
+[2026-09-14 02:51:41.995] [info] remeshed 9 chunk(s) in 24.04 ms (last mesh 2.15 ms)
+[2026-09-14 02:51:42.451] [info] placed stone at (9, 139, 3)
+[2026-09-14 02:51:42.473] [info] remeshed 9 chunk(s) in 21.45 ms (last mesh 2.13 ms)
+[2026-09-14 02:51:42.597] [info] fps 88.0 | pos (9.86, 140.25, 3.39) | chunks 113 | stream-meshed 104
+[2026-09-14 02:51:43.535] [info] placed stone at (10, 138, 3)
+[2026-09-14 02:51:43.570] [info] remeshed 9 chunk(s) in 35.43 ms (last mesh 3.49 ms)
+[2026-09-14 02:51:43.812] [info] placed stone at (11, 139, 3)
+[2026-09-14 02:51:43.838] [info] remeshed 9 chunk(s) in 25.79 ms (last mesh 2.16 ms)
+[2026-09-14 02:51:44.610] [info] fps 82.3 | pos (10.70, 139.54, 3.18) | chunks 113 | stream-meshed 104
+[2026-09-14 02:51:46.642] [info] fps 92.0 | pos (16.06, 141.42, 1.25) | chunks 117 | stream-meshed 108
+[2026-09-14 02:51:48.659] [info] fps 82.5 | pos (21.46, 144.25, -2.60) | chunks 135 | stream-meshed 126
+[2026-09-14 02:51:48.735] [info] placed stone at (23, 144, -4)
+[2026-09-14 02:51:48.758] [info] remeshed 9 chunk(s) in 22.87 ms (last mesh 2.49 ms)
+[2026-09-14 02:51:48.964] [info] placed stone at (23, 145, -4)
+[2026-09-14 02:51:48.988] [info] remeshed 9 chunk(s) in 23.70 ms (last mesh 2.46 ms)
+[2026-09-14 02:51:49.701] [info] placed stone at (23, 146, -4)
+[2026-09-14 02:51:49.724] [info] remeshed 9 chunk(s) in 22.69 ms (last mesh 2.47 ms)
+[2026-09-14 02:51:50.666] [info] fps 92.2 | pos (24.31, 145.02, -2.08) | chunks 135 | stream-meshed 126
+[2026-09-14 02:51:50.923] [info] placed stone at (24, 145, -4)
+[2026-09-14 02:51:50.945] [info] remeshed 9 chunk(s) in 21.94 ms (last mesh 2.47 ms)
+[2026-09-14 02:51:51.854] [info] placed stone at (25, 145, -4)
+[2026-09-14 02:51:51.886] [info] remeshed 9 chunk(s) in 31.75 ms (last mesh 4.53 ms)
+[2026-09-14 02:51:52.675] [info] fps 69.1 | pos (31.03, 144.00, -1.36) | chunks 135 | stream-meshed 126
+[2026-09-14 02:51:53.806] [info] placed stone at (31, 144, -4)
+[2026-09-14 02:51:53.823] [info] remeshed 6 chunk(s) in 17.50 ms (last mesh 2.34 ms)
+[2026-09-14 02:51:54.181] [info] placed stone at (32, 144, -4)
+[2026-09-14 02:51:54.197] [info] remeshed 6 chunk(s) in 16.77 ms (last mesh 2.56 ms)
+[2026-09-14 02:51:54.687] [info] fps 87.1 | pos (32.20, 144.00, -0.23) | chunks 144 | stream-meshed 135
+[2026-09-14 02:51:54.758] [info] placed stone at (30, 144, -4)
+[2026-09-14 02:51:54.803] [info] remeshed 9 chunk(s) in 45.07 ms (last mesh 4.47 ms)
+[2026-09-14 02:51:55.298] [info] placed stone at (31, 145, -4)
+[2026-09-14 02:51:55.315] [info] remeshed 6 chunk(s) in 16.56 ms (last mesh 2.30 ms)
+[2026-09-14 02:51:56.680] [info] placed stone at (31, 145, -3)
+[2026-09-14 02:51:56.698] [info] remeshed 6 chunk(s) in 17.68 ms (last mesh 2.32 ms)
+[2026-09-14 02:51:56.699] [info] fps 89.7 | pos (32.03, 145.25, -1.47) | chunks 144 | stream-meshed 135
+[2026-09-14 02:51:58.159] [info] placed stone at (32, 145, -4)
+[2026-09-14 02:51:58.176] [info] remeshed 6 chunk(s) in 16.87 ms (last mesh 2.60 ms)
+[2026-09-14 02:51:58.715] [info] fps 90.9 | pos (32.95, 144.00, -1.71) | chunks 144 | stream-meshed 135
+[2026-09-14 02:51:58.972] [info] placed stone at (32, 145, -3)
+[2026-09-14 02:51:58.990] [info] remeshed 6 chunk(s) in 17.18 ms (last mesh 2.56 ms)
+[2026-09-14 02:51:59.847] [info] placed stone at (31, 146, -3)
+[2026-09-14 02:51:59.864] [info] remeshed 6 chunk(s) in 16.77 ms (last mesh 2.36 ms)
+[2026-09-14 02:52:00.746] [info] fps 90.5 | pos (31.98, 145.00, -1.35) | chunks 144 | stream-meshed 135
+[2026-09-14 02:52:00.882] [info] placed stone at (32, 146, -4)
+[2026-09-14 02:52:00.901] [info] remeshed 6 chunk(s) in 18.95 ms (last mesh 2.59 ms)
+[2026-09-14 02:52:01.902] [info] placed stone at (30, 145, -4)
+[2026-09-14 02:52:01.929] [info] remeshed 9 chunk(s) in 26.25 ms (last mesh 2.47 ms)
+[2026-09-14 02:52:02.763] [info] fps 92.0 | pos (26.81, 145.02, 1.31) | chunks 144 | stream-meshed 135
+[2026-09-14 02:52:03.284] [info] placed stone at (26, 144, -1)
+[2026-09-14 02:52:03.301] [info] remeshed 6 chunk(s) in 17.39 ms (last mesh 2.05 ms)
+[2026-09-14 02:52:04.159] [info] placed stone at (25, 144, -4)
+[2026-09-14 02:52:04.183] [info] remeshed 9 chunk(s) in 23.75 ms (last mesh 2.43 ms)
+[2026-09-14 02:52:04.763] [info] fps 87.3 | pos (24.16, 144.75, -1.46) | chunks 144 | stream-meshed 135
+[2026-09-14 02:52:04.936] [info] placed stone at (23, 145, -3)
+[2026-09-14 02:52:04.961] [info] remeshed 9 chunk(s) in 24.36 ms (last mesh 2.45 ms)
+[2026-09-14 02:52:06.777] [info] fps 90.8 | pos (28.57, 144.80, 3.23) | chunks 144 | stream-meshed 135
+[2026-09-14 02:52:08.784] [info] fps 87.9 | pos (32.10, 143.00, 5.19) | chunks 149 | stream-meshed 140
+[2026-09-14 02:52:10.791] [info] fps 92.1 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:52:12.811] [info] fps 71.1 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:52:14.812] [info] fps 59.0 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:52:16.828] [info] fps 60.0 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:52:18.846] [info] fps 60.0 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:52:20.861] [info] fps 59.9 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:52:22.878] [info] fps 60.1 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:52:24.897] [info] fps 60.0 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:52:26.896] [info] fps 60.0 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:52:28.894] [info] fps 60.0 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:52:30.895] [info] fps 60.0 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:52:32.895] [info] fps 60.0 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:52:34.913] [info] fps 60.0 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:52:36.912] [info] fps 59.9 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:52:38.929] [info] fps 60.1 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:52:40.945] [info] fps 59.9 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:52:42.962] [info] fps 60.1 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:52:44.980] [info] fps 59.9 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:52:47.000] [info] fps 60.0 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:52:49.014] [info] fps 60.1 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:52:51.014] [info] fps 60.0 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:52:53.014] [info] fps 60.0 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:52:55.029] [info] fps 59.9 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:52:57.049] [info] fps 60.0 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:52:59.063] [info] fps 60.0 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:53:01.079] [info] fps 60.0 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:53:03.080] [info] fps 60.0 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:53:05.098] [info] fps 60.0 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:53:07.097] [info] fps 60.0 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:53:09.098] [info] fps 60.0 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:53:11.112] [info] fps 60.0 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:53:13.112] [info] fps 60.0 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:53:15.132] [info] fps 60.1 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:53:17.146] [info] fps 59.9 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:53:19.146] [info] fps 60.0 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:53:21.163] [info] fps 60.1 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:53:23.163] [info] fps 60.0 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:53:25.182] [info] fps 60.0 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:53:27.181] [info] fps 57.5 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:53:29.181] [info] fps 60.0 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:53:31.196] [info] fps 60.0 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:53:33.196] [info] fps 60.0 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:53:35.196] [info] fps 60.0 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:53:37.215] [info] fps 60.1 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:53:39.230] [info] fps 59.9 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:53:41.246] [info] fps 60.1 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:53:43.247] [info] fps 60.0 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:53:45.264] [info] fps 60.0 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:53:47.264] [info] fps 60.0 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:53:49.280] [info] fps 60.0 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:53:51.280] [info] fps 60.0 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:53:53.299] [info] fps 60.0 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:53:55.298] [info] fps 60.0 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:53:57.313] [info] fps 59.9 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:53:59.313] [info] fps 60.0 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:54:01.330] [info] fps 60.1 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:54:03.347] [info] fps 60.0 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:54:05.364] [info] fps 60.0 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:54:07.363] [info] fps 60.0 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:54:09.363] [info] fps 58.5 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:54:11.382] [info] fps 60.0 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:54:13.396] [info] fps 59.9 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:54:15.397] [info] fps 60.0 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:54:17.397] [info] fps 60.0 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:54:19.414] [info] fps 60.1 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:54:21.413] [info] fps 60.0 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:54:23.430] [info] fps 60.0 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:54:25.447] [info] fps 60.0 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:54:27.447] [info] fps 60.0 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:54:29.465] [info] fps 60.0 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:54:31.480] [info] fps 59.9 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:54:33.499] [info] fps 60.0 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:54:35.514] [info] fps 59.9 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:54:37.531] [info] fps 60.1 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:54:39.531] [info] fps 60.0 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:54:41.549] [info] fps 60.0 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:54:43.548] [info] fps 60.0 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:54:45.566] [info] fps 60.0 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:54:47.564] [info] fps 59.5 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:54:49.565] [info] fps 60.0 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:54:51.564] [info] fps 60.0 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:54:53.584] [info] fps 59.6 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:54:55.583] [info] fps 60.0 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:54:57.598] [info] fps 60.0 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:54:59.614] [info] fps 60.1 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:55:01.632] [info] fps 60.0 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:55:03.632] [info] fps 60.0 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:55:05.648] [info] fps 60.0 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:55:07.666] [info] fps 60.0 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:55:09.665] [info] fps 59.8 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:55:11.682] [info] fps 60.1 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:55:13.682] [info] fps 60.0 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:55:15.698] [info] fps 60.1 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:55:17.698] [info] fps 60.0 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:55:19.715] [info] fps 59.9 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:55:21.732] [info] fps 60.1 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:55:23.750] [info] fps 60.0 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:55:25.749] [info] fps 60.0 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:55:27.750] [info] fps 60.0 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:55:29.765] [info] fps 60.0 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:55:31.765] [info] fps 60.0 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:55:33.785] [info] fps 60.1 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:55:35.785] [info] fps 60.0 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:55:37.786] [info] fps 60.0 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:55:39.782] [info] fps 60.0 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:55:41.799] [info] fps 59.9 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:55:43.799] [info] fps 60.0 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:55:45.798] [info] fps 60.0 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:55:47.815] [info] fps 60.1 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:55:49.815] [info] fps 60.0 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:55:51.815] [info] fps 60.0 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:55:53.834] [info] fps 60.0 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:55:55.849] [info] fps 60.0 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:55:57.868] [info] fps 60.1 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:55:59.882] [info] fps 59.9 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:56:01.882] [info] fps 60.0 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:56:03.899] [info] fps 60.1 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:56:05.899] [info] fps 60.0 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:56:07.899] [info] fps 59.5 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:56:09.917] [info] fps 60.0 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:56:11.932] [info] fps 60.0 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:56:13.932] [info] fps 60.0 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:56:15.933] [info] fps 60.0 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:56:17.951] [info] fps 60.1 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:56:19.952] [info] fps 60.0 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:56:21.951] [info] fps 60.0 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:56:23.978] [info] fps 59.0 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:56:25.983] [info] fps 60.0 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:56:27.999] [info] fps 60.0 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:56:29.999] [info] fps 59.9 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:56:31.999] [info] fps 60.0 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:56:34.016] [info] fps 60.1 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:56:36.016] [info] fps 60.0 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:56:38.034] [info] fps 60.0 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:56:40.049] [info] fps 60.0 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:56:42.069] [info] fps 60.1 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:56:44.069] [info] fps 60.0 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:56:46.083] [info] fps 59.9 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:56:48.084] [info] fps 60.0 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:56:50.084] [info] fps 60.0 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:56:52.100] [info] fps 60.1 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:56:54.118] [info] fps 60.0 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:56:56.134] [info] fps 60.0 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:56:58.133] [info] fps 60.0 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:57:00.152] [info] fps 60.0 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:57:02.168] [info] fps 59.9 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:57:04.183] [info] fps 60.1 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:57:06.184] [info] fps 60.0 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:57:08.201] [info] fps 60.0 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:57:10.217] [info] fps 60.0 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:57:12.235] [info] fps 60.0 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:57:14.250] [info] fps 59.9 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:57:16.267] [info] fps 60.1 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:57:18.284] [info] fps 60.0 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:57:20.284] [info] fps 60.0 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:57:22.300] [info] fps 60.0 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:57:24.300] [info] fps 60.0 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:57:26.320] [info] fps 60.0 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:57:28.320] [info] fps 60.0 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:57:30.340] [info] fps 59.9 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:57:32.351] [info] fps 60.1 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:57:34.369] [info] fps 59.9 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:57:36.384] [info] fps 60.1 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:57:38.385] [info] fps 60.0 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:57:40.403] [info] fps 60.0 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:57:42.417] [info] fps 59.9 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:57:44.434] [info] fps 60.1 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:57:46.434] [info] fps 60.0 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:57:48.452] [info] fps 60.0 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:57:50.452] [info] fps 60.0 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:57:52.452] [info] fps 59.9 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:57:54.452] [info] fps 60.0 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:57:56.468] [info] fps 60.1 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:57:58.486] [info] fps 60.0 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:58:00.501] [info] fps 59.9 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:58:02.520] [info] fps 60.1 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:58:04.520] [info] fps 60.0 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:58:06.535] [info] fps 59.9 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:58:08.551] [info] fps 60.1 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:58:10.551] [info] fps 60.0 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:58:12.552] [info] fps 60.0 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:58:14.569] [info] fps 60.0 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:58:16.569] [info] fps 60.0 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:58:18.585] [info] fps 60.0 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:58:20.605] [info] fps 60.0 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:58:22.605] [info] fps 60.0 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:58:24.604] [info] fps 60.0 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:58:26.618] [info] fps 59.9 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:58:28.635] [info] fps 60.1 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:58:30.635] [info] fps 60.0 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:58:32.652] [info] fps 60.0 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:58:34.668] [info] fps 60.0 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:58:36.688] [info] fps 60.0 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:58:38.688] [info] fps 60.0 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:58:40.688] [info] fps 60.0 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:58:42.702] [info] fps 59.9 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:58:44.717] [info] fps 60.1 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:58:46.716] [info] fps 60.0 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:58:48.715] [info] fps 60.0 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:58:50.730] [info] fps 60.0 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:58:52.730] [info] fps 60.0 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:58:54.729] [info] fps 60.0 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:58:56.745] [info] fps 60.0 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:58:58.744] [info] fps 60.0 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:59:00.762] [info] fps 60.0 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:59:02.777] [info] fps 59.9 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:59:04.794] [info] fps 60.0 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:59:06.810] [info] fps 59.9 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:59:08.826] [info] fps 60.1 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:59:10.842] [info] fps 60.0 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:59:12.843] [info] fps 60.0 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:59:14.859] [info] fps 60.0 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:59:16.878] [info] fps 59.1 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:59:18.891] [info] fps 59.9 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:59:20.909] [info] fps 60.1 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:59:22.908] [info] fps 60.0 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:59:24.926] [info] fps 60.0 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:59:26.926] [info] fps 60.0 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:59:28.940] [info] fps 60.0 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:59:30.954] [info] fps 61.1 | pos (32.73, 143.00, 5.46) | chunks 149 | stream-meshed 140
+[2026-09-14 02:59:32.953] [info] fps 72.5 | pos (32.86, 143.00, 5.51) | chunks 149 | stream-meshed 140
+[2026-09-14 02:59:34.977] [info] fps 60.9 | pos (35.07, 143.00, 3.18) | chunks 149 | stream-meshed 140
+[2026-09-14 02:59:36.995] [info] fps 48.4 | pos (40.95, 142.00, -2.66) | chunks 149 | stream-meshed 140
+[2026-09-14 02:59:39.008] [info] fps 71.5 | pos (47.02, 141.00, -8.78) | chunks 149 | stream-meshed 140
+[2026-09-14 02:59:41.033] [info] remeshed 9 chunk(s) in 24.49 ms (last mesh 3.41 ms)
+[2026-09-14 02:59:41.036] [info] fps 68.7 | pos (49.43, 141.00, -11.13) | chunks 158 | stream-meshed 149
+[2026-09-14 02:59:42.112] [info] remeshed 9 chunk(s) in 21.40 ms (last mesh 2.42 ms)
+[2026-09-14 02:59:43.050] [info] fps 71.4 | pos (49.33, 140.00, -11.28) | chunks 158 | stream-meshed 149
+[2026-09-14 02:59:43.188] [info] remeshed 9 chunk(s) in 26.06 ms (last mesh 2.52 ms)
+[2026-09-14 02:59:44.269] [info] remeshed 9 chunk(s) in 21.85 ms (last mesh 2.48 ms)
+[2026-09-14 02:59:45.064] [info] fps 68.5 | pos (49.30, 137.00, -11.55) | chunks 158 | stream-meshed 149
+[2026-09-14 02:59:47.064] [info] fps 72.0 | pos (49.30, 137.00, -11.53) | chunks 158 | stream-meshed 149
+[2026-09-14 02:59:49.078] [info] fps 72.0 | pos (49.30, 137.00, -11.53) | chunks 158 | stream-meshed 149
+[2026-09-14 02:59:51.093] [info] fps 72.0 | pos (49.30, 137.00, -11.53) | chunks 158 | stream-meshed 149
+[2026-09-14 02:59:52.115] [info] remeshed 9 chunk(s) in 22.79 ms (last mesh 2.48 ms)
+[2026-09-14 02:59:53.091] [info] fps 71.5 | pos (49.30, 136.00, -11.53) | chunks 158 | stream-meshed 149
+[2026-09-14 02:59:54.436] [info] remeshed 9 chunk(s) in 24.61 ms (last mesh 2.68 ms)
+[2026-09-14 02:59:55.098] [info] fps 71.7 | pos (49.30, 136.00, -11.53) | chunks 158 | stream-meshed 149
+[2026-09-14 02:59:55.917] [info] remeshed 9 chunk(s) in 26.55 ms (last mesh 2.63 ms)
+[2026-09-14 02:59:57.113] [info] fps 68.1 | pos (49.30, 136.00, -10.53) | chunks 158 | stream-meshed 149
+[2026-09-14 02:59:59.119] [info] fps 70.7 | pos (49.30, 136.00, -11.65) | chunks 158 | stream-meshed 149
+[2026-09-14 02:59:59.425] [info] placed stone at (49, 136, -12)
+[2026-09-14 02:59:59.448] [info] remeshed 9 chunk(s) in 22.83 ms (last mesh 2.41 ms)
+[2026-09-14 03:00:00.161] [info] placed stone at (49, 137, -12)
+[2026-09-14 03:00:00.183] [info] remeshed 9 chunk(s) in 21.76 ms (last mesh 2.46 ms)
+[2026-09-14 03:00:01.126] [info] fps 72.2 | pos (49.30, 138.00, -11.70) | chunks 158 | stream-meshed 149
+[2026-09-14 03:00:02.085] [info] placed stone at (49, 138, -12)
+[2026-09-14 03:00:02.110] [info] remeshed 9 chunk(s) in 25.30 ms (last mesh 3.03 ms)
+[2026-09-14 03:00:02.606] [info] placed stone at (49, 139, -12)
+[2026-09-14 03:00:02.632] [info] remeshed 9 chunk(s) in 26.07 ms (last mesh 2.83 ms)
+[2026-09-14 03:00:03.133] [info] fps 70.3 | pos (49.36, 140.00, -11.59) | chunks 158 | stream-meshed 149
+[2026-09-14 03:00:05.139] [info] fps 70.7 | pos (52.41, 141.00, -11.70) | chunks 158 | stream-meshed 149
+[2026-09-14 03:00:07.139] [info] fps 72.0 | pos (47.68, 141.00, -9.70) | chunks 158 | stream-meshed 149
+[2026-09-14 03:00:09.155] [info] fps 71.1 | pos (45.44, 143.00, -3.64) | chunks 158 | stream-meshed 149
+[2026-09-14 03:00:11.154] [info] fps 71.5 | pos (51.16, 145.00, 1.35) | chunks 163 | stream-meshed 154
+[2026-09-14 03:00:13.161] [info] fps 71.3 | pos (51.67, 142.00, 9.14) | chunks 163 | stream-meshed 154
+[2026-09-14 03:00:15.175] [info] fps 60.1 | pos (51.03, 141.18, 16.60) | chunks 170 | stream-meshed 161
+[2026-09-14 03:00:17.175] [info] fps 72.0 | pos (51.41, 140.80, 25.17) | chunks 170 | stream-meshed 161
+[2026-09-14 03:00:19.189] [info] fps 72.5 | pos (56.33, 135.54, 31.96) | chunks 170 | stream-meshed 161
+[2026-09-14 03:00:21.189] [info] fps 66.0 | pos (61.25, 132.00, 37.06) | chunks 181 | stream-meshed 172
+[2026-09-14 03:00:23.196] [info] fps 69.3 | pos (64.84, 133.18, 42.37) | chunks 188 | stream-meshed 179
+[2026-09-14 03:00:25.195] [info] fps 68.0 | pos (67.05, 132.00, 49.04) | chunks 197 | stream-meshed 188
+[2026-09-14 03:00:27.195] [info] fps 71.6 | pos (71.63, 129.50, 55.70) | chunks 197 | stream-meshed 188
+[2026-09-14 03:00:29.216] [info] fps 72.6 | pos (67.81, 129.00, 60.82) | chunks 197 | stream-meshed 188
+[2026-09-14 03:00:31.223] [info] fps 72.2 | pos (61.65, 126.45, 61.22) | chunks 201 | stream-meshed 192
+[2026-09-14 03:00:33.236] [info] fps 70.5 | pos (58.01, 126.53, 62.34) | chunks 201 | stream-meshed 192
+[2026-09-14 03:00:35.244] [info] fps 70.7 | pos (54.47, 128.29, 64.06) | chunks 209 | stream-meshed 200
+[2026-09-14 03:00:37.251] [info] fps 73.3 | pos (49.75, 127.57, 66.21) | chunks 209 | stream-meshed 200
+[2026-09-14 03:00:39.247] [info] fps 68.2 | pos (46.01, 123.50, 68.24) | chunks 214 | stream-meshed 205
+[2026-09-14 03:00:41.265] [info] fps 72.8 | pos (42.55, 126.31, 70.77) | chunks 214 | stream-meshed 205
+[2026-09-14 03:00:43.265] [info] fps 72.5 | pos (40.53, 125.56, 72.00) | chunks 214 | stream-meshed 205
+[2026-09-14 03:00:45.278] [info] fps 72.0 | pos (40.52, 122.00, 72.00) | chunks 214 | stream-meshed 205
+[2026-09-14 03:00:46.989] [info] clean shutdown
