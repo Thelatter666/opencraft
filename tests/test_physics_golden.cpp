@@ -171,7 +171,7 @@ std::string golden_path() {
 
 } // namespace
 
-TEST_CASE("golden replay: fixed 660-tick input sequence on the fixed world") {
+TEST_CASE("golden replay: fixed 762-tick input sequence on the fixed world") {
     const std::vector<std::string> actual = run_golden_replay();
     const std::uint64_t hash = fnv1a64(actual);
     char hash_buf[32];
@@ -181,8 +181,12 @@ TEST_CASE("golden replay: fixed 660-tick input sequence on the fixed world") {
     if (update) {
         FILE *f = std::fopen(golden_path().c_str(), "w");
         REQUIRE(f != nullptr);
+        // NOTE (T-D7 report S-7): the "660 ticks" figure was a historical
+        // inaccuracy carried since T007 — the script actually runs 762 ticks
+        // (snapshot grid t=0..760). The header is generated from this literal,
+        // so correcting it here (and regenerating) keeps file and truth aligned.
         std::fprintf(
-            f, "# opencraft physics golden replay v1 (T007): 660 ticks, world+script in test_physics_golden.cpp\n");
+            f, "# opencraft physics golden replay v1 (T007): 762 ticks, world+script in test_physics_golden.cpp\n");
         for (const std::string &line : actual) {
             std::fprintf(f, "%s\n", line.c_str());
         }
