@@ -50,35 +50,35 @@ PlayerState double_tap_run(const BoxWorld &world, int first_press, int second_pr
     return s;
 }
 
-// Runs one continuous sprint script on one world: sprint engaged from tick
-// 0, single jump pulses every `jump_period` ticks, returns the
-// center-to-center distance of each complete arc. The arc is 12 moves: the
-// jump tick plus 11 airborne ticks (measured, see the T-D1 report §3 — R3
-// fixed this from a 13-move window that was swallowing the first
-// post-landing ground tick). Ground gaps between jumps are long enough that
-// ground_drag = 0.9 restores the cruise speed before every takeoff
-// (residual deficit < 0.2% at 37 ground ticks), so all sampled arcs are
-// statistically identical.
-std::vector<double> arc_distances(int jump_period, int total_ticks) {
+// T-D7: a sustained sprint-jump CHAIN — re-jump on the tick the entity lands.
+// This is the cadence the wiki's 7.127 m/s describes: the table's row is
+// "Sprint-jumping, Flat terrain" under a column headed "Average speed" with
+// "Running start effective? No", and its footnote reads "assuming the jump key
+// is released then held mid-air EVERY JUMP" — i.e. a repeated cycle, which is
+// what makes sprint-jumping a mode of transport rather than a single leap.
+// Returns the centre-to-centre displacement of each complete arc (12 moves).
+std::vector<double> chain_arc_distances(int total_ticks) {
     BoxWorld world = flat_world();
     PlayerState s = spawn_on(0.5, 64.0, 0.5);
     InputState in;
     in.yaw = kYawEast;
     in.forward = true;
-    in.sprint = true; // key path engages and holds sprint
+    in.sprint = true;
     std::vector<double> distances;
     double x_at_takeoff = 0.0;
-    int takeoff_tick = -1;
+    bool airborne = false;
     for (int t = 0; t < total_ticks; ++t) {
-        const bool jump_here = (t % jump_period == 0 && t > 0);
-        in.jump = jump_here;
-        if (jump_here) {
+        const bool grounded_at_start = s.on_ground;
+        in.jump = grounded_at_start && t > 20;
+        if (in.jump) {
             x_at_takeoff = s.position.x;
-            takeoff_tick = t;
         }
         step_player(s, in, world);
-        if (takeoff_tick >= 0 && t == takeoff_tick + 11) { // 12th move: landing tick
+        if (grounded_at_start && !s.on_ground) {
+            airborne = true;
+        } else if (airborne && s.on_ground) {
             distances.push_back(s.position.x - x_at_takeoff);
+            airborne = false;
         }
     }
     return distances;
@@ -229,66 +229,96 @@ TEST_CASE("colliding with a wall disengages sprint on the next tick") {
 // ── Sprint jump (docs/01 §2 ⚖: arc average 7.127 m/s, ≈4 block clearance) ───
 
 TEST_CASE("sprint jump arc average speed is 7.127 m/s within one percent") {
-    // Window justification: the wiki's 7.127 m/s is the average speed of a
-    // sprint-jump arc. We sample complete arcs from the middle of a fixed
-    // script, skipping the first jump so the takeoff acceleration ramp is
-    // excluded. Each arc launches from restored cruise speed (see
-    // arc_distances), so every sample is drawn from the same distribution.
+    // T-D7 rewrote this assertion's SAMPLING CADENCE. The ⚖ target is
+    // unchanged; what changed is which motion it is measured on.
     //
-    // Arc length is 12 moves (jump tick + 11 airborne), MEASURED per the R3
-    // ruling — the previous 13-move window appended the first post-landing
-    // ground tick (≈0.293 blocks of ground speed) and systematically pulled
-    // the average down by ~0.9%.
-    const std::vector<double> arcs = arc_distances(50, 400); // jumps at 50,100,...; skip first
-    REQUIRE(arcs.size() >= 4);
+    // The wiki's 7.127 m/s is the average speed of "Sprint-jumping" as a
+    // MOVEMENT METHOD: its table lists the row under a column headed "Average
+    // speed in m/s", answers "Running start effective? No", and footnotes the
+    // elevation variants with "assuming the jump key is released then held
+    // mid-air EVERY JUMP" — a repeated cycle. So the measurement is a sustained
+    // chain of jumps, each launched the tick the previous one lands.
+    //
+    // T-D1 instead sampled an ISOLATED jump every 50 ticks (38 cruise ticks
+    // between leaps) and calibrated sprint_jump_boost = 0.1842 to drag that
+    // average up to 7.127. That cadence mostly measures SPRINTING with the odd
+    // jump in it: under the migrated pipeline it reads 6.05 m/s, and no raw MC
+    // constant reproduces 7.127 there (it would need ~0.33, i.e. 65% above
+    // MC's). Over the chain cadence MC's RAW +0.2 gives 7.1268 m/s — 0.003%
+    // off the ⚖ value, with no calibration at all (T-D7 acceptance item 4).
+    const std::vector<double> arcs = chain_arc_distances(4000);
+    REQUIRE(arcs.size() >= 8);
+    // Drop the ramp-in arcs; the chain converges within ~10 jumps.
+    const std::size_t from = arcs.size() / 2;
     double sum = 0.0;
-    for (std::size_t i = 1; i < arcs.size(); ++i) {
+    for (std::size_t i = from; i < arcs.size(); ++i) {
         sum += arcs[i];
     }
-    const double avg_mps = sum / static_cast<double>(arcs.size() - 1) * 20.0 / 12.0;
+    const double avg_mps = sum / static_cast<double>(arcs.size() - from) * 20.0 / 12.0;
     CHECK_MESSAGE(std::abs(avg_mps - 7.127) <= 7.127 * 0.01, "arc average " << avg_mps);
+    CHECK_MESSAGE(std::abs(avg_mps - 7.127) <= 7.127 * 0.005, "raw MC +0.2 should land far closer: " << avg_mps);
 }
 
-TEST_CASE("sprint jump clears about four blocks against two for a walk jump") {
-    // Wiki metric "jump across up to four blocks" is gap clearance =
-    // center-to-center displacement minus the 0.6-block hitbox width, over
-    // the same 12-move arc as the average-speed assertion above.
-    //
-    // NOTE (T-D1 report §3): over a fixed 12-move window the arc average and
-    // the clearance are affinely locked — clearance = 0.6 * avg − 0.6. Hitting
-    // the ⚖ average of 7.127 exactly would give 3.676 clearance, just under
-    // the ⚖ 3.7 floor; conversely "4.03 clearance" demands avg 7.717, i.e.
-    // +8.3% and well outside the 1% average band. The calibrated constant is
-    // therefore placed to satisfy BOTH ⚖ bands simultaneously rather than
-    // either one exactly (measured: avg 7.1845, clearance 3.7107).
-    const std::vector<double> arcs = arc_distances(50, 400);
-    REQUIRE(arcs.size() >= 2);
-    const double sprint_clearance = arcs.back() - 0.6;
-    CHECK_MESSAGE(sprint_clearance > 3.7, "sprint clearance " << sprint_clearance);
-    CHECK_MESSAGE(sprint_clearance < 4.3, "sprint clearance " << sprint_clearance);
+TEST_CASE("sprint jump clears well past a walk jump over the same window") {
+    // T-D7 note: the absolute clearance assertion is no longer a separate ⚖
+    // band. Over a fixed 12-move window the clearance is AFFINELY LOCKED to the
+    // average (clearance = 0.6 × avg − 0.6, docs/01 §2 "仿射锁定"), so the
+    // wiki's own 7.127 mathematically IMPLIES 3.6762 — just under the 3.7 floor
+    // that the same spec line carries. The two cannot both hold, and T-D7's
+    // card instructs reproducing 7.127 rather than retuning to flatter a
+    // number. The clearance is therefore asserted as the lock plus a sanity
+    // band, and the conflict is reported to the PM (T-D7 report §5).
+    const std::vector<double> arcs = chain_arc_distances(4000);
+    REQUIRE(arcs.size() >= 8);
+    const std::size_t from = arcs.size() / 2;
+    double sum = 0.0;
+    for (std::size_t i = from; i < arcs.size(); ++i) {
+        sum += arcs[i];
+    }
+    const double disp = sum / static_cast<double>(arcs.size() - from);
+    const double avg_mps = disp * 20.0 / 12.0;
+    const double sprint_clearance = disp - 0.6;
+    CHECK_MESSAGE(std::abs(sprint_clearance - (0.6 * avg_mps - 0.6)) < 1e-9, "affine lock violated");
+    CHECK_MESSAGE(sprint_clearance > 3.60, "sprint clearance " << sprint_clearance);
+    CHECK_MESSAGE(sprint_clearance < 3.75, "sprint clearance " << sprint_clearance);
 
-    // Walk jump: same script without the sprint key.
+    // Walk jump: same script without the sprint key, same chain cadence and
+    // same 12-move window.
     BoxWorld world = flat_world();
     PlayerState s = spawn_on(0.5, 64.0, 0.5);
     InputState in;
     in.yaw = kYawEast;
     in.forward = true;
-    double x0 = 0.0;
-    double x1 = 0.0;
-    for (int t = 0; t < 200; ++t) {
-        in.jump = (t == 60);
-        if (t == 60) {
-            x0 = s.position.x;
+    double walk_displacement = 0.0;
+    {
+        std::vector<double> walk_arcs;
+        double x0 = 0.0;
+        bool airborne = false;
+        for (int t = 0; t < 4000; ++t) {
+            const bool grounded_at_start = s.on_ground;
+            in.jump = grounded_at_start && t > 20;
+            if (in.jump) {
+                x0 = s.position.x;
+            }
+            step_player(s, in, world);
+            if (grounded_at_start && !s.on_ground) {
+                airborne = true;
+            } else if (airborne && s.on_ground) {
+                walk_arcs.push_back(s.position.x - x0);
+                airborne = false;
+            }
         }
-        step_player(s, in, world);
-        if (t == 71) { // 12th move, same window as the sprint arc
-            x1 = s.position.x;
+        REQUIRE(walk_arcs.size() >= 8);
+        double wsum = 0.0;
+        for (std::size_t i = walk_arcs.size() / 2; i < walk_arcs.size(); ++i) {
+            wsum += walk_arcs[i];
         }
+        walk_displacement = wsum / static_cast<double>(walk_arcs.size() - walk_arcs.size() / 2);
     }
     CHECK_FALSE(s.sprinting);
-    const double walk_clearance = (x1 - x0) - 0.6;
-    CHECK_MESSAGE(walk_clearance > 1.9, "walk clearance " << walk_clearance);
-    CHECK_MESSAGE(walk_clearance < 2.5, "walk clearance " << walk_clearance);
+    const double walk_clearance = walk_displacement - 0.6;
+    CHECK_MESSAGE(walk_clearance > 1.5, "walk clearance " << walk_clearance);
+    CHECK_MESSAGE(walk_clearance < 2.1, "walk clearance " << walk_clearance);
     const bool clears_much_further = sprint_clearance > walk_clearance + 1.3;
     CHECK_MESSAGE(clears_much_further, "sprint must reach well past a walk jump");
 }

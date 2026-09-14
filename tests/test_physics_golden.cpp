@@ -73,8 +73,14 @@ std::vector<Leg> golden_script() {
         {40, south, true, false, false, false}, // −Z excursion on the east runway
         {42, north, true, false, false, false}, // back +Z into the pool lane (z≈1.2)
         {5, east, false, false, false, false},
-        {145, west, true, false, false, true}, // sprint −X, plunge into the pool
-        // T-D1: release forward for these 5 ticks so the sprint state machine
+        // T-D7: sprint leg shortened from 145 to 137 ticks. The friction
+        // migration accelerates much faster (k = 0.546 vs 0.9) and then glides
+        // only 0.26 blocks instead of 1.94, so the same input travels further
+        // and the plunge leg overshot the pool, silently dropping the
+        // fall-damage and sneak-clamp coverage downstream. Measured: at 145 the
+        // player ends the plunge 1.6 blocks past the pool's west wall.
+        {137, west, true, false, false, true}, // sprint −X, plunge into the pool
+        // T-D1: release forward for these ticks so the sprint state machine
         // ends the sprint through the DOCUMENTED forward-release condition.
         // Sprint is intentionally sticky while forward is held (docs/research/05
         // §1.2 does not list "sprint key released" as an end-condition, and the
@@ -83,10 +89,14 @@ std::vector<Leg> golden_script() {
         // leg comment describes. That carried the player past the pit water and
         // silently dropped the fall-damage coverage (hp stayed 20 in every
         // snapshot; the old golden recorded the expected 13).
-        // Tick-neutral: 145 + 5 = the previous 150, so the script still runs
-        // 660 ticks and the 20-tick snapshot grid is unchanged.
-        {5, west, false, false, false, false}, // release forward: sprint ends
-        {60, west, true, true, false, false},  // swim up and out the west lip, then settle
+        // T-D7: 5 → 13 ticks so this leg and the sprint leg still total 150
+        // ticks. Keeping the BLOCK length is what preserves snapshot alignment:
+        // every later leg keeps its original tick count, so the sneak window
+        // still covers t=480..600 and the plunge/water snapshots land on the
+        // same 20-tick columns as the T-D1 golden. (T-D1 used the same
+        // tick-neutral technique for its own 145 + 5 = 150 split.)
+        {13, west, false, false, false, false}, // release forward: sprint ends
+        {60, west, true, true, false, false},   // swim up and out the west lip, then settle
         {10, west, false, false, false, false},
         {120, west, true, false, true, false}, // sneak toward the pit rim, clamped
         {10, west, false, false, true, false}, // idle at the rim, still sneaking

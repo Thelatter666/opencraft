@@ -30,10 +30,10 @@ PlayerState spawn_on(double x, double y, double z) {
 }
 
 // Holds the given input for `ticks` steps and returns the average horizontal
-// speed in m/s over the cruise window [ticks/2, ticks) — the acceleration
-// ramp (ground_drag = 0.9 → ~99% of target by tick 44) is excluded so the
-// measured value converges to the steady state (see T007 report, window
-// choice).
+// speed in m/s over the cruise window [ticks/2, ticks) — the acceleration ramp
+// is excluded so the measured value converges to the steady state (T-D7: with
+// MC friction k = 0.91 × 0.6 = 0.546 the ramp reaches 95% in ~5 ticks, so half
+// the window is far more than enough).
 double cruise_speed_mps(bool sprint, bool sneak, int ticks = 120) {
     BoxWorld world = flat_world();
     PlayerState s = spawn_on(0.5, 64.0, 0.5);
