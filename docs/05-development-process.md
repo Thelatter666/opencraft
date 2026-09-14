@@ -109,15 +109,27 @@ PM：拆任务卡 ──► 用户转发 ──► 开发者：实现+自测 ─
 ```
 若运行环境没有 agentmemory MCP，则退化为只读规格文档——因此**任务卡必须自包含**，记忆只是加速器不是依赖项。
 
-## 5. 状态双写
+## 5. 状态与记忆的权威位（P-001 协议，2026-09-14 定）
 
-| 层 | 载体 | 谁写 |
+曾经的做法是"STATE.md（权威）+ memory_save（冗余）双写"。**该协议已作废**：实践发现双写的记忆
+半边只会漂移（项目状态在四处各存一份、出现三种互相矛盾的内容，详见 P-001 审计）。
+
+现行协议——**每类信息只有一个权威位**：
+
+| 信息类别 | 唯一权威位 | 写入者 |
 |---|---|---|
-| 权威状态 | `opencraft/STATE.md`：当前里程碑、任务表（ID/状态/负责人/验收结果）、接口变更日志 | PM 每轮必更 |
-| 记忆冗余 | agentmemory actions/lessons/memories | PM 与开发者随手写 |
-| 代码真相 | git 历史 + 规格 docs/ | 开发者提交，PM 审查 |
+| 进度/任务表/决策/债务（会变） | `opencraft/STATE.md` | **仅 PM** |
+| 接口契约/规格/流程规则 | `docs/`（含本文件、`docs/tasks/`） | **仅 PM** |
+| 任务板/依赖/认领 | agentmemory `memory_action_*` | PM 建卡，开发者置 done |
+| 方法论/环境坑/教训（很少变） | agentmemory `memory_lesson_*` + PM 记忆文件 | PM（开发者可读不可写） |
+| 代码真相 | git 历史 | 开发者提交，PM 审查 |
 
-规则：**STATE.md 与 agentmemory 冲突时以 STATE.md 为准**；发现不同步，PM 下一轮先修复再派活。
+规则：
+- **绝不把进度写进记忆层**（内置记忆或 agentmemory 的 memory/lesson 都算）——记忆层只放
+  「指针 + 方法论 + 无法从仓库推出的裁决」。
+- **开发者不写 STATE.md、不写 `docs/` 规格、不写记忆文件**；只写自己的分支与卡面指定的报告文件。
+- 收口轮写入顺序固定：先落 STATE.md（事实）→ 再写记忆/lesson（方法论）→ 最后核对 `MEMORY.md` 索引。
+- 每次收口做三方对账：git ⇄ STATE.md ⇄ agentmemory actions，不一致**以 git 为准**。
 
 ## 6. 分支与提交纪律
 
@@ -140,4 +152,29 @@ git worktree add /Users/happy/Desktop/opencraft_worktree/opencraft-<task> task/T
 - PM 验收合并前，先在干净环境以 merge commit 复验，再动主树。
 - 任务验收后由 PM 清理：`git worktree remove <dir>`（只删工作目录，**分支与历史保留**）。
 - 卡面必须写明本规则（见 `docs/tasks/README.md` 规则 5：路径写完整绝对路径）。
+
+## 7. 跨 agent 派发（2026-09-14 起）
+
+开发者不必在同一个 agent 里跑。实测环境事实：agentmemory 后端（`iii` + `/Users/happy/data/iii-config.yaml`）
+监听 **`127.0.0.1:3111`、无鉴权**，数据在单一 `state_store.db`；任何本机 agent 只要挂
+`npx -y @agentmemory/mcp`（或直连该 REST）即共享同一份任务板、lessons 与 memories。
+
+跨 agent 的关键**不是**记忆共享，而是**交接契约是否文件化**——本项目已具备：
+
+- **派发**：开发者直接读 `docs/tasks/T<ID>.md`，**无需口述或粘贴提示词**。
+- **验收**：报告落 `docs/tasks/T<ID>.report.md`（见 `docs/tasks/README.md` 规则 4），
+  PM 读文件验收，用户不必搬运。
+- **状态**：`STATE.md` 是唯一权威，任何 agent 可读。
+
+跨 agent 派发时的额外约束：
+
+1. **单写者原则不放松**：跨 agent 的开发者**不得写** `STATE.md`、`docs/` 规格、任何记忆文件；
+   只写自己的分支 + 卡面指定的报告文件（见 §5）。
+2. **接入新 agent 前先确认它不会自动写记忆**：若该 agent 有 lifecycle hooks 且启用 agentmemory
+   自动捕获，会话内容会被自动抽取进记忆层 → P-001 漂移复发（正是我们明确设计要避免的）。
+   只允许"可读（lesson recall）不可写"的接入；写 lesson 由 PM 复核后执行。
+3. **并发仍用独立 worktree**（§6），根目录固定。
+4. **卡面必须自包含**：对方读不到 PM 的记忆文件与对话上下文，卡面即全部依据。
+5. **禁止逐字复制 Minecraft Wiki 文本**（CC BY-NC-SA 限制）——只提炼事实与数值，
+   用自己的话写，并附来源 URL 与访问日期（见 `docs/04-legal-compliance.md` 红线 4）。
 
