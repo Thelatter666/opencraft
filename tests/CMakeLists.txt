@@ -25,6 +25,7 @@ add_executable(opencraft_tests
     test_mining.cpp
     test_placement.cpp
     test_storage.cpp
+    test_camera_spring.cpp
 )
 
 # opencraft_worldgen PUBLIC-links opencraft_voxel and opencraft_noise;
@@ -36,7 +37,8 @@ target_link_libraries(opencraft_tests PRIVATE opencraft_worldgen opencraft_rende
     opencraft_storage doctest::doctest_with_main)
 
 # test_sprint_feel.cpp asserts the sprint FOV easing declared in the
-# client's header-only fov.hpp (T-D1); the path makes that header visible.
+# client's header-only fov.hpp (T-D1), and test_camera_spring.cpp the T-D13
+# vertical spring in camera_spring.hpp; the path makes both headers visible.
 target_include_directories(opencraft_tests PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../game/client/src)
 
 # Golden chunk hashes live next to the tests; the path is baked in so the
