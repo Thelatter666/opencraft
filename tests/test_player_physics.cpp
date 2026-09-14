@@ -403,11 +403,11 @@ TEST_CASE("identical input sequences simulate bit-identically twice") {
     BoxWorld world = flat_world();
     world.solid(24, 24, 64, 67, -8, 8);
     const InputState legs[] = {
-        {kYawEast, 0.0, true, false, false, false, false, false, 0},
-        {kYawEast, 0.0, true, false, false, true, false, true, 1},
-        {kPi / 2.0, 0.0, true, false, false, true, false, true, 2},
-        {kPi / 2.0, 0.0, false, false, false, false, true, false, 3},
-        {kYawEast, 0.0, true, false, false, true, true, false, 4},
+        InputState{.yaw = kYawEast, .forward = true, .sequence = 0},
+        InputState{.yaw = kYawEast, .forward = true, .jump = true, .sprint = true, .sequence = 1},
+        InputState{.yaw = kPi / 2.0, .forward = true, .jump = true, .sprint = true, .sequence = 2},
+        InputState{.yaw = kPi / 2.0, .sneak = true, .sequence = 3},
+        InputState{.yaw = kYawEast, .forward = true, .sneak = true, .sequence = 4},
     };
     PlayerState a = spawn_on(0.5, 64.0, 0.5);
     PlayerState b = spawn_on(0.5, 64.0, 0.5);

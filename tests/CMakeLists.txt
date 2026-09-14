@@ -17,6 +17,7 @@ add_executable(opencraft_tests
     test_light_engine.cpp
     test_mesher.cpp
     test_player_physics.cpp
+    test_sprint_feel.cpp
     test_physics_golden.cpp
     test_raycast.cpp
     test_mining.cpp
@@ -31,6 +32,10 @@ add_executable(opencraft_tests
 # persistence layer (PUBLIC zstd headers feed the compression-ratio test).
 target_link_libraries(opencraft_tests PRIVATE opencraft_worldgen opencraft_render opencraft_physics opencraft_game
     opencraft_storage doctest::doctest_with_main)
+
+# test_sprint_feel.cpp asserts the sprint FOV easing declared in the
+# client's header-only fov.hpp (T-D1); the path makes that header visible.
+target_include_directories(opencraft_tests PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../game/client/src)
 
 # Golden chunk hashes live next to the tests; the path is baked in so the
 # test binary is location-independent.

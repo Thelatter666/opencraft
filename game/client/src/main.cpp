@@ -19,6 +19,7 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include "atlas.hpp"
+#include "fov.hpp"
 #include "opencraft/core/log.hpp"
 #include "opencraft/core/tick_clock.hpp"
 #include "opencraft/core/version.hpp"
@@ -37,6 +38,7 @@
 namespace render = opencraft::render; // short alias used by the GPU glue below
 namespace phy = opencraft::physics;
 namespace gam = opencraft::game;
+namespace client = opencraft::client;
 
 namespace {
 
@@ -47,11 +49,10 @@ constexpr int kWindowHeight = 720;
 constexpr double kMouseSensitivity = 0.0025;
 constexpr double kMaxPitch = 1.5533;   // ~89 degrees
 constexpr double kReachDistance = 4.5; // ⚖ docs/01 §4: survival block reach
-constexpr float kBaseFov = 70.0f;
-constexpr float kSprintFovBoost = 8.0f; // docs/01 §2 feel item: sprint FOV stretch
-constexpr int kViewRadius = 6;          // meshed chunk radius around the player
-constexpr int kGenPerFrame = 2;         // sync-generation budget (docs: <= 2/frame)
-constexpr int kNewMeshPerFrame = 4;     // new-chunk meshing budget/frame
+// Base FOV and sprint multiplier live in fov.hpp (T-D1, unit-tested).
+constexpr int kViewRadius = 6;      // meshed chunk radius around the player
+constexpr int kGenPerFrame = 2;     // sync-generation budget (docs: <= 2/frame)
+constexpr int kNewMeshPerFrame = 4; // new-chunk meshing budget/frame
 
 constexpr double kEyeStanding = 1.62;
 constexpr double kEyeSneaking = 1.27;
@@ -687,7 +688,16 @@ int main() {
     bool paused = false;
     bool prev_esc = false;
     bool prev_right = false;
+    bool prev_w = false;
     int place_cooldown = 0;
+
+    // T-D1 QA evidence (acceptance 6c): measure each sprint-jump arc so the
+    // on-machine distance can be compared against the headless ⚖ assertions
+    // (arc average 7.127 ±1%, gap clearance ≈4 blocks). An arc opens on the
+    // tick a grounded sprint jump leaves the ground and closes on landing.
+    bool jump_arc_open = false;
+    glm::dvec3 jump_arc_start{0.0, 0.0, 0.0};
+    int jump_arc_ticks = 0;
 
     // ── hotbar (9 slots, keys 1..9; creative palette, real inventory is M2) ─
     static constexpr std::array<const char *, 9> kHotbarNames = {"stone",  "cobblestone", "dirt", "planks", "log",
@@ -803,10 +813,11 @@ int main() {
     // One 20 TPS logic tick: physics -> targeting -> mining -> placement.
     auto run_tick = [&] {
         // ── input mapping (WASD + space + shift + ctrl) ──────────────────────
-        // InputState (T007) has no backward flag; backing up is simulated
-        // exactly client-side: a backward+strafe move vector at view yaw θ
-        // equals a forward move vector at θ+π with A/D swapped (180° rotation
-        // of the move vector), so no physics change is needed.
+        // T-D1: S maps to the explicit InputState::backward field (T007 had
+        // no backward flag and simulated it as a 180° yaw flip; the physics
+        // input direction now handles backward directly, and sprint requires
+        // forward + not-backward per MC). forward_press is the one-tick W
+        // keydown edge that drives the physics double-tap sprint window.
         const bool w = key_pressed(GLFW_KEY_W);
         const bool s = key_pressed(GLFW_KEY_S);
         const bool a = key_pressed(GLFW_KEY_A);
@@ -814,22 +825,55 @@ int main() {
         phy::InputState in;
         in.yaw = view_yaw;
         in.pitch = view_pitch;
-        if (s && !w) {
-            in.yaw = view_yaw + 3.14159265358979323846;
-            in.forward = true;
-            in.right = a;
-            in.left = d;
-        } else {
-            in.forward = w;
-            in.left = a;
-            in.right = d;
-        }
+        in.forward = w && !s;
+        in.backward = s && !w;
+        in.left = a;
+        in.right = d;
+        in.forward_press = w && !prev_w;
+        prev_w = w;
         in.jump = key_pressed(GLFW_KEY_SPACE) != 0;
         in.sneak = key_pressed(GLFW_KEY_LEFT_SHIFT) != 0;
         in.sprint = key_pressed(GLFW_KEY_LEFT_CONTROL) != 0;
 
         prev_state = curr_state;
         phy::step_player(curr_state, in, world);
+
+        // Sprint transitions come from the physics state machine (explicit
+        // state per the T-D1 contract) — log them for QA evidence.
+        if (curr_state.sprinting != prev_state.sprinting) {
+            OC_LOG_INFO("sprint {} at tick {} (pos {:.2f}, {:.2f}, {:.2f})", curr_state.sprinting ? "start" : "stop",
+                        game_ticks, curr_state.position.x, curr_state.position.y, curr_state.position.z);
+        }
+
+        // Sprint-jump arc measurement (acceptance 6c). A sprint jump takes off
+        // from the ground while sprinting; the arc closes when the player is
+        // grounded again, and the horizontal centre-to-centre distance and the
+        // tick count give an on-machine average speed comparable to the
+        // headless ⚖ figure (12-move arc, see test_sprint_feel.cpp).
+        // NOTE: take-off is detected from prev_state.on_ground — step_player
+        // applies the jump, so curr_state is already airborne on this tick.
+        if (!jump_arc_open && curr_state.sprinting && prev_state.on_ground && in.jump) {
+            jump_arc_open = true;
+            jump_arc_start = curr_state.position;
+            jump_arc_ticks = 0;
+        } else if (jump_arc_open) {
+            ++jump_arc_ticks;
+            if (curr_state.on_ground) {
+                const double dx = curr_state.position.x - jump_arc_start.x;
+                const double dz = curr_state.position.z - jump_arc_start.z;
+                const double dist = std::sqrt(dx * dx + dz * dz);
+                // Move count includes the take-off tick itself, matching the
+                // headless 12-move arc convention in test_sprint_feel.cpp.
+                const int moves = jump_arc_ticks + 1;
+                OC_LOG_INFO("sprint-jump arc: {} moves, horizontal {:.3f} blocks, clearance {:.3f}, "
+                            "avg {:.3f} m/s (from ({:.2f}, {:.2f}, {:.2f}))",
+                            moves, dist, dist - 0.6, dist * 20.0 / moves, jump_arc_start.x, jump_arc_start.y,
+                            jump_arc_start.z);
+                jump_arc_open = false;
+            } else if (jump_arc_ticks > 60) {
+                jump_arc_open = false; // safety: never let a stuck arc log forever
+            }
+        }
 
         // ── targeting ────────────────────────────────────────────────────────
         const double eye_height = curr_state.pose == phy::Pose::Sneaking ? kEyeSneaking : kEyeStanding;
@@ -931,7 +975,7 @@ int main() {
     double last_cursor_x = 0.0;
     double last_cursor_y = 0.0;
     bool cursor_anchored = false;
-    float fov = kBaseFov;
+    float fov = client::kBaseFov;
     int stream_meshed = 0;
 
     while (glfwWindowShouldClose(window) == GLFW_FALSE) {
@@ -1032,10 +1076,10 @@ int main() {
         glfwGetFramebufferSize(window, &fb_width, &fb_height);
         glViewport(0, 0, fb_width, fb_height);
 
-        // Sprint FOV stretch (docs/01 §2 feel item), smoothed.
-        const bool sprinting = key_pressed(GLFW_KEY_LEFT_CONTROL) && key_pressed(GLFW_KEY_W);
-        const float fov_target = sprinting ? kBaseFov + kSprintFovBoost : kBaseFov;
-        fov += (fov_target - fov) * 0.18f;
+        // Sprint FOV (T-D1): driven by the physics sprint state — double-tap
+        // and Ctrl both stretch the view. Constants and easing live in
+        // fov.hpp so the transition is unit-testable.
+        fov = client::fov_step(fov, curr_state.sprinting);
 
         const glm::mat4 projection = glm::perspective(
             glm::radians(fov), static_cast<float>(fb_width) / static_cast<float>(fb_height), 0.05f, 600.0f);
