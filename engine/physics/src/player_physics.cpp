@@ -96,9 +96,9 @@ void back_off_from_edge(const PlayerState &s, const IBlockSource &world, const P
 }
 
 // Yaw → normalized horizontal input direction. forward = (-sin, -cos);
-// right = forward × up. Components under 1e-12 are snapped to zero so
-// axis-aligned yaws (the golden replay only uses those) are bit-stable
-// across libm implementations.
+// right = forward × up; backward contributes -forward. Components under
+// 1e-12 are snapped to zero so axis-aligned yaws (the golden replay only
+// uses those) are bit-stable across libm implementations.
 [[nodiscard]] std::pair<double, double> input_direction(const InputState &in) {
     double fx = -std::sin(in.yaw);
     double fz = -std::cos(in.yaw);
@@ -110,8 +110,10 @@ void back_off_from_edge(const PlayerState &s, const IBlockSource &world, const P
     }
     const double rx = -fz;
     const double rz = fx;
-    double dx = fx * (in.forward ? 1.0 : 0.0) + rx * ((in.right ? 1.0 : 0.0) - (in.left ? 1.0 : 0.0));
-    double dz = fz * (in.forward ? 1.0 : 0.0) + rz * ((in.right ? 1.0 : 0.0) - (in.left ? 1.0 : 0.0));
+    const double fwd = (in.forward ? 1.0 : 0.0) - (in.backward ? 1.0 : 0.0);
+    const double strafe = (in.right ? 1.0 : 0.0) - (in.left ? 1.0 : 0.0);
+    double dx = fx * fwd + rx * strafe;
+    double dz = fz * fwd + rz * strafe;
     const double len_sq = dx * dx + dz * dz;
     if (len_sq > 0.0) {
         const double inv = 1.0 / std::sqrt(len_sq);
@@ -145,7 +147,7 @@ double move_axis_y(PlayerState &s, const IBlockSource &world, double dy, bool &h
     return s.position.y - before;
 }
 
-double move_axis_x(PlayerState &s, const IBlockSource &world, double dx) {
+double move_axis_x(PlayerState &s, const IBlockSource &world, double dx, bool &hit_wall) {
     if (dx == 0.0) {
         return 0.0;
     }
@@ -162,10 +164,11 @@ double move_axis_x(PlayerState &s, const IBlockSource &world, double dx) {
         s.position.x = static_cast<double>(bx) + 1.0 + PlayerState::kHalfWidth;
     }
     s.velocity.x = 0.0;
+    hit_wall = true;
     return s.position.x - before;
 }
 
-double move_axis_z(PlayerState &s, const IBlockSource &world, double dz) {
+double move_axis_z(PlayerState &s, const IBlockSource &world, double dz, bool &hit_wall) {
     if (dz == 0.0) {
         return 0.0;
     }
@@ -182,6 +185,7 @@ double move_axis_z(PlayerState &s, const IBlockSource &world, double dz) {
         s.position.z = static_cast<double>(bz) + 1.0 + PlayerState::kHalfWidth;
     }
     s.velocity.z = 0.0;
+    hit_wall = true;
     return s.position.z - before;
 }
 
@@ -210,20 +214,57 @@ void step_player(PlayerState &s, const InputState &in, const IBlockSource &world
 
     const bool water = is_in_water(world, s);
 
-    // Horizontal integration: v = v·drag + dir·accel with accel chosen so
-    // the steady state is exactly the mode's target speed. Airborne control
-    // is weaker (research/01 §1.2); water additionally scales the target.
-    const auto [dir_x, dir_z] = input_direction(in);
-    const bool sprinting = in.sprint && in.forward && !in.sneak;
-    double target = in.sneak ? cfg.sneak_speed : (sprinting ? cfg.sprint_speed : cfg.walk_speed);
-    if (water) {
-        target *= cfg.water_speed_mult;
+    // ── Sprint state machine (docs/research/05 §1; explicit state per the
+    // T-D1 interface contract so headless replay tests can assert it).
+    // Stop conditions first (MC checks them every tick): forward released,
+    // backward pressed, hunger at or below the gate, or a wall hit recorded
+    // by the previous tick's move.
+    if (s.sprinting && (!in.forward || in.backward || s.hunger <= cfg.sprint_min_hunger || s.collided_horizontally)) {
+        s.sprinting = false;
     }
+    // Activation. Key path: sprint key held + forward held (works on ground
+    // and in air). Double-tap path: a forward press edge while grounded arms
+    // a 7-tick window; a second press inside the window engages sprint
+    // (requires onGround). MC details not reproduced (documented in the T-D1
+    // report): the 1-tick activation delay in air, and the pre-1.9 30-second
+    // auto-stop. Per docs/research/05 §1.2 the documented end-conditions are
+    // forward-release / backward / hunger / collision — releasing the sprint
+    // key is NOT among them, so once engaged the sprint persists while
+    // forward is held.
+    if (!s.sprinting && s.hunger > cfg.sprint_min_hunger) {
+        if (in.sprint && in.forward && !in.backward) {
+            s.sprinting = true;
+        } else if (in.forward_press && in.forward && s.on_ground && !in.sprint) {
+            if (s.sprint_toggle_timer > 0) {
+                s.sprinting = true;
+            } else {
+                s.sprint_toggle_timer = cfg.sprint_toggle_window_ticks;
+            }
+        }
+    }
+    // Window countdown (MC decrements sprintToggleTimer every tick, before
+    // the press check — a press exactly 7 ticks after the first re-arms).
+    if (s.sprint_toggle_timer > 0) {
+        --s.sprint_toggle_timer;
+    }
+
+    // Horizontal integration: v = v·drag + dir·accel. On ground/water the
+    // steady state is exactly the mode's target speed (T007 construction).
+    // Airborne the acceleration is the fixed MC air accel (docs/research/05
+    // §4): momentum decays toward ≈4.444 m/s, so a sprint jump keeps most of
+    // its speed instead of bleeding down to walking pace.
+    const auto [dir_x, dir_z] = input_direction(in);
+    const double target = in.sneak ? cfg.sneak_speed : (s.sprinting ? cfg.sprint_speed : cfg.walk_speed);
+    const double water_target = target * cfg.water_speed_mult;
     const double drag = water ? cfg.water_drag : (s.on_ground ? cfg.ground_drag : cfg.air_drag);
-    // Airborne acceleration is anchored to WALK speed, not the mode speed:
-    // the air steady state is walk_speed, so jumps carry their takeoff speed
-    // (a sprint decays toward walk mid-air) without being able to gain.
-    const double accel_source = (!s.on_ground && !water) ? cfg.walk_speed * cfg.air_control : target;
+    double accel_source = target;
+    if (water) {
+        accel_source = water_target;
+    } else if (!s.on_ground) {
+        // Air: fixed accel (air_accel = 0.02), expressed through the same
+        // "steady state" formulation so the pipeline stays uniform.
+        accel_source = cfg.air_accel / (1.0 - cfg.air_drag);
+    }
     const double accel = accel_source * (1.0 - drag);
     s.velocity.x = s.velocity.x * drag + dir_x * accel;
     s.velocity.z = s.velocity.z * drag + dir_z * accel;
@@ -236,10 +277,17 @@ void step_player(PlayerState &s, const InputState &in, const IBlockSource &world
 
     // Ground jump sets the velocity BEFORE the move (MC order: the first
     // tick's displacement is the full 0.42, which is what makes the apex
-    // come out at exactly 1.2522 with the gravity/drag pair).
+    // come out at exactly 1.2522 with the gravity/drag pair). Sprinting adds
+    // the calibrated facing impulse (docs/research/05 §3) on the jump tick.
     if (in.jump && s.on_ground && !water) {
         s.velocity.y = cfg.jump_velocity;
         s.on_ground = false;
+        if (s.sprinting) {
+            const double fx = -std::sin(in.yaw);
+            const double fz = -std::cos(in.yaw);
+            s.velocity.x += fx * cfg.sprint_jump_boost;
+            s.velocity.z += fz * cfg.sprint_jump_boost;
+        }
     }
 
     // Substeps of at most max_substep blocks prevent tunneling
@@ -250,6 +298,7 @@ void step_player(PlayerState &s, const InputState &in, const IBlockSource &world
         substeps = 1;
     }
 
+    bool hit_wall = false;
     for (int i = 0; i < substeps; ++i) {
         bool hit_ground = false;
         bool hit_ceiling = false;
@@ -268,9 +317,10 @@ void step_player(PlayerState &s, const InputState &in, const IBlockSource &world
         if (hit_ceiling) {
             s.velocity.y = 0.0;
         }
-        move_axis_x(s, world, dx / substeps);
-        move_axis_z(s, world, dz / substeps);
+        move_axis_x(s, world, dx / substeps, hit_wall);
+        move_axis_z(s, world, dz / substeps, hit_wall);
     }
+    s.collided_horizontally = hit_wall;
 
     // Fall-distance bookkeeping, measured against the arc apex so whole-block
     // drops land on exact values (no per-tick accumulation drift).

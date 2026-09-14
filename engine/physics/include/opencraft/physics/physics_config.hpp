@@ -26,16 +26,54 @@ struct PhysicsConfig {
     // Per-tick horizontal velocity retention while on ground (chosen, see
     // struct comment). Steady state is drag-independent by construction.
     double ground_drag = 0.9;
-    // Airborne horizontal retention (chosen after docs/research/01 §1.2:
-    // MC air momentum 0.91/tick — jumps carry speed, they don't brake).
+    // Airborne horizontal retention (docs/research/05 §4, mcpk.wiki
+    // Horizontal Movement Formulas, accessed 2026-09-14): MC air momentum is
+    // 0.91/tick — jumps carry speed, they don't brake.
     double air_drag = 0.91;
-    // Multiplier on the walking acceleration available while airborne. With
-    // accel = walk_speed * (1 - air_drag) * air_control the AIR steady state
-    // is exactly walk_speed: airborne you can maintain walking pace but not
-    // gain on it, and a sprint decays toward walk speed mid-jump (MC-like).
-    // The acceleration magnitude itself is ~10x weaker than ground (drag 0.91
-    // vs 0.9 but target walked from walk_speed, not the mode speed).
-    double air_control = 1.0;
+    // Airborne acceleration, FIXED per tick regardless of walk/sprint mode
+    // (docs/research/05 §4: mcpk.wiki Horizontal Movement Formulas, accessed
+    // 2026-09-14 — air accel is 0.02 blocks/tick² in MC, not tied to the
+    // speed attribute). Air steady state = 0.02 / (1 − 0.91) = 0.2222
+    // blocks/tick ≈ 4.444 m/s, slightly ABOVE walk speed: a sprint jump
+    // decays toward 4.444 m/s mid-air instead of down to walking pace
+    // (T007's walk-anchored air model, replaced here per T-D1 research).
+    double air_accel = 0.02;
+
+    // Sprint-jump impulse added to horizontal velocity along the FACING
+    // direction at the jump tick when sprinting (docs/research/05 §3: MC
+    // applies +0.2 blocks/tick, mcpk.wiki Sprinting, accessed 2026-09-14).
+    //
+    // ── CALIBRATION VALUE for this engine's simplified pipeline ───────────
+    // 0.1842 is NOT MC's raw constant; it is the value that makes the ⚖
+    // observables come out right through OUR pipeline (ground_drag 0.9 instead
+    // of MC's 0.546 friction, and a fixed air_accel expressed in the uniform
+    // "steady state" form). Chosen as the 4-decimal value maximising the
+    // smaller of the two normalised ⚖ margins on a measured scan; it yields:
+    //     arc average 7.1867 m/s (+0.84%, inside the ⚖ 7.127 ±1% band)
+    //     gap clearance 3.7120 blocks (inside the ⚖ 3.7–4.3 band; a
+    //     walk jump clears 2.016 by the same measure)
+    // The two bands are affinely locked over a 12-move window
+    // (clearance = 0.6·avg − 0.6), so 7.127 and "4.03 clearance" cannot both
+    // be hit; the measured feasible band on this constant is
+    // [0.18237, 0.18525]. Full scan, feasible interval and the lock algebra:
+    // docs/tasks/T-D1.report.md §3.
+    //
+    // ── RETIREMENT CONDITION ─────────────────────────────────────────────
+    // This constant retires in T-D7 (MC friction-pipeline migration, RG-R5).
+    // Once friction is 0.546/0.91 with input decay 0.98 and the 0.005
+    // momentum threshold, MC's RAW +0.2 blocks/tick must hit 7.127 ±1% by
+    // itself; T-D7's acceptance criterion is exactly that. Do not carry
+    // 0.1840 across that migration.
+    double sprint_jump_boost = 0.1842;
+
+    // Sprint state machine constants (docs/research/05 §1):
+    // double-tap-forward window in ticks (MC arms sprintToggleTimer = 7,
+    // mcpk.wiki Sprinting, accessed 2026-09-14; a second press inside the
+    // window engages sprint, one tick later re-arms instead).
+    int sprint_toggle_window_ticks = 7;
+    // ⚖ docs/research/01 §1.1 + wiki Sprinting (accessed 2026-09-14):
+    // sprinting requires hunger > 6 (cannot engage or maintain at ≤ 6).
+    double sprint_min_hunger = 6.0;
 
     // ⚖ docs/01 §2: jump initial velocity 0.42 blocks/tick, apex 1.2522
     // blocks with the gravity/drag pair below (move-then-integrate order).

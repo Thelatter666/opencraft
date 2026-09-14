@@ -45,6 +45,19 @@ struct PlayerState {
     // no combat system exists yet, nothing decrements it (T007 card).
     double invulnerability_ticks = 0.0;
 
+    // ── T-D1: explicit sprint state (interface contract: sprint must be
+    // assertable in headless replay tests, not buried in the client input
+    // layer). hunger defaults to full (20); the full hunger model lands in
+    // M2 — for now tests inject values to verify the sprint gate.
+    bool sprinting = false;
+    // Ticks remaining in the double-tap-forward window (MC arms 7, decrements
+    // each tick, a second forward press inside the window engages sprint).
+    int sprint_toggle_timer = 0;
+    double hunger = 20.0;
+    // Set when the move this tick clamped against a wall (X or Z); MC stops
+    // sprinting on horizontal collision (isCollidedHorizontally).
+    bool collided_horizontally = false;
+
     // Echo of the last applied InputState::sequence (network prediction
     // groundwork; pure pass-through today).
     std::uint32_t last_input_sequence = 0;

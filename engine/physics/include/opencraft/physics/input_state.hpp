@@ -15,11 +15,20 @@ struct InputState {
     double pitch = 0.0;
 
     bool forward = false;
+    // T-D1: explicit backward input (T007 report suggested the field). The
+    // client no longer simulates S as a 180-degree yaw flip; sprint requires
+    // forward and is disengaged by backward, matching MC.
+    bool backward = false;
     bool left = false;
     bool right = false;
     bool jump = false;
     bool sneak = false;
     bool sprint = false;
+    // T-D1: one-tick edge, set only on the tick the forward key goes down
+    // (the client detects the GLFW keydown edge). Drives the double-tap
+    // sprint window in step_player; defaults false so existing callers
+    // compile unchanged.
+    bool forward_press = false;
 
     std::uint32_t sequence = 0;
 };
