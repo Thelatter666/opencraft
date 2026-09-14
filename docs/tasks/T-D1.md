@@ -7,11 +7,14 @@
 
 ## 开工前（硬规则 + 冷启动）
 
-1. **先建独立 worktree**（固定目录，勿建在仓库旁或 `/tmp`；分支尚不存在，故用 `-b` 新建）：
+1. **先建独立 worktree**（固定目录，勿建在仓库旁或 `/tmp`）。分支 `task/T-D1-movement-feel`
+   已由 PM 预建，故**不加 `-b`**：
    ```bash
    cd /Users/happy/Desktop/opencraft
-   git worktree add -b task/T-D1-movement-feel /Users/happy/Desktop/opencraft_worktree/opencraft-td1 main
+   git worktree add /Users/happy/Desktop/opencraft_worktree/opencraft-td1 task/T-D1-movement-feel
    ```
+   （若报 "branch already checked out"：说明该分支已被别处占用，先在主仓库
+   `git worktree list` 查看并回报 PM，不要强删。）
    全部工作（构建/测试/提交）只在 worktree 内；**不要碰主工作区 `/Users/happy/Desktop/opencraft`**。
 2. 若有 agentmemory MCP：`memory_lesson_recall "opencraft 物理"`、`memory_lesson_recall "opencraft 构建"`
    （只读；**不要写 lesson 或 memory**，写权归 PM）。
