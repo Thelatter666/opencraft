@@ -20,6 +20,7 @@ add_executable(opencraft_tests
     test_sprint_feel.cpp
     test_friction_pipeline.cpp
     test_step_assist.cpp
+    test_auto_jump.cpp
     test_physics_golden.cpp
     test_raycast.cpp
     test_mining.cpp

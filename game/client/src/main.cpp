@@ -27,6 +27,7 @@
 #include "opencraft/game/mining.hpp"
 #include "opencraft/game/placement.hpp"
 #include "opencraft/game/raycast.hpp"
+#include "opencraft/physics/auto_jump.hpp"
 #include "opencraft/physics/input_state.hpp"
 #include "opencraft/physics/player_physics.hpp"
 #include "opencraft/physics/player_state.hpp"
@@ -687,6 +688,12 @@ int main() {
     double view_yaw = stored_level.has_value() && stored_level->has_player ? stored_level->yaw : 0.0;
     double view_pitch = stored_level.has_value() && stored_level->has_player ? stored_level->pitch : 0.0;
     bool paused = false;
+    // T-D14: Auto-Jump master switch. In-memory only (card §4: 不要求落盘);
+    // default ON, matching MC's client option. Toggled from the pause menu.
+    bool auto_jump_enabled = true;
+    // Last frame's primary-button state, for click-EDGE detection in the
+    // pause menu (the non-idempotent AUTO-JUMP toggle button).
+    bool prev_menu_clicked = false;
     bool prev_esc = false;
     bool prev_right = false;
     bool prev_w = false;
@@ -835,6 +842,21 @@ int main() {
         in.jump = key_pressed(GLFW_KEY_SPACE) != 0;
         in.sneak = key_pressed(GLFW_KEY_LEFT_SHIFT) != 0;
         in.sprint = key_pressed(GLFW_KEY_LEFT_CONTROL) != 0;
+
+        // ── T-D14 Auto-Jump (card §4): input-stage injection ────────────────
+        // Decide BEFORE the physics step (docs/research/08 §2: the mechanism
+        // lives in the input stage of the tick). When the pure predicate says
+        // the forward move ends against a 0.6–1.25-block obstacle with
+        // headroom, set in.jump so the EXISTING jump branch in step_player
+        // runs — manual-jump semantics (incl. the sprint +0.2 boost) come
+        // free, and the golden numbers stay shared. The player's own jump
+        // input short-circuits the call (nothing to inject).
+        if (!in.jump && auto_jump_enabled) {
+            phy::AutoJumpConfig aj_cfg; // defaults = card §1: ON, 1.0 scan, 1.8 clearance
+            if (phy::should_auto_jump(curr_state, in, world, phy::PhysicsConfig{}, aj_cfg)) {
+                in.jump = true;
+            }
+        }
 
         prev_state = curr_state;
         phy::step_player(curr_state, in, world);
@@ -1467,18 +1489,34 @@ int main() {
             double mx = 0.0;
             double my = 0.0;
             glfwGetCursorPos(window, &mx, &my);
+            // glfwGetCursorPos reports CONTENT pixels; the UI ortho projection
+            // below spans the FRAMEBUFFER size. On a HiDPI display the two
+            // differ by the backing-store scale, so convert once for every
+            // hit-test in this menu.
+            int win_w = 0;
+            int win_h = 0;
+            glfwGetWindowSize(window, &win_w, &win_h);
+            if (win_w > 0 && win_h > 0 && (win_w != fb_width || win_h != fb_height)) {
+                mx *= static_cast<double>(fb_width) / static_cast<double>(win_w);
+                my *= static_cast<double>(fb_height) / static_cast<double>(win_h);
+            }
             const bool clicked = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS;
 
             const float bx0 = static_cast<float>(fb_width) * 0.5f - 90.0f;
             const float bx1 = static_cast<float>(fb_width) * 0.5f + 90.0f;
             const float cy = static_cast<float>(fb_height) * 0.5f;
             const bool resume_hover = mx >= bx0 && mx <= bx1 && my >= cy - 64.0 && my <= cy - 28.0;
+            // T-D14: AUTO-JUMP sits in the 44 px gap between RESUME and QUIT
+            // (cy-28..cy+8): 30 px band [cy-24, cy+4], 4 px breathing room on
+            // each side, same 18 px pitch as the existing rows.
+            const bool autojump_hover = mx >= bx0 && mx <= bx1 && my >= cy - 24.0 && my <= cy + 4.0;
             const bool quit_hover = mx >= bx0 && mx <= bx1 && my >= cy + 8.0 && my <= cy + 44.0;
 
             std::vector<glm::vec2> flat;
             draw_rect(0.0f, 0.0f, static_cast<float>(fb_width), static_cast<float>(fb_height), fb_width, fb_height,
                       flat);
             draw_rect(bx0, cy - 64.0f, bx1, cy - 28.0f, fb_width, fb_height, flat);
+            draw_rect(bx0, cy - 24.0f, bx1, cy + 4.0f, fb_width, fb_height, flat);
             draw_rect(bx0, cy + 8.0f, bx1, cy + 44.0f, fb_width, fb_height, flat);
             ui_flat_shader.use();
             // One color per draw call: backdrop first, then each button with a
@@ -1501,6 +1539,12 @@ int main() {
                 flat.erase(flat.begin(), flat.begin() + 6);
                 glBufferData(GL_ARRAY_BUFFER, static_cast<GLsizeiptr>(flat.size() * sizeof(glm::vec2)), flat.data(),
                              GL_STATIC_DRAW);
+                glUniform4f(ui_flat_shader.uniform_location("u_color"), autojump_hover ? 0.34f : 0.22f,
+                            autojump_hover ? 0.36f : 0.24f, 0.24f, 0.9f);
+                glDrawArrays(GL_TRIANGLES, 0, 6); // auto-jump button
+                flat.erase(flat.begin(), flat.begin() + 6);
+                glBufferData(GL_ARRAY_BUFFER, static_cast<GLsizeiptr>(flat.size() * sizeof(glm::vec2)), flat.data(),
+                             GL_STATIC_DRAW);
                 glUniform4f(ui_flat_shader.uniform_location("u_color"), 0.22f, 0.24f, 0.24f, 0.9f);
                 glDrawArrays(GL_TRIANGLES, 0, 6); // quit button
             }
@@ -1510,6 +1554,10 @@ int main() {
             draw_text("PAUSED", static_cast<float>(fb_width) / 2.0f - 60.0f, cy - 110.0f, 22.0f, fb_width, fb_height,
                       tverts, tuvs);
             draw_text("RESUME", bx0 + 52.0f, cy - 54.0f, 16.0f, fb_width, fb_height, tverts, tuvs);
+            // Label carries the live state so the toggle is observable
+            // (MC shows ON/OFF on its accessibility options, not a bare name).
+            draw_text(auto_jump_enabled ? "AUTO-JUMP ON" : "AUTO-JUMP OFF", bx0 + 19.0f, cy - 14.0f, 16.0f, fb_width,
+                      fb_height, tverts, tuvs);
             draw_text("QUIT", bx0 + 62.0f, cy + 18.0f, 16.0f, fb_width, fb_height, tverts, tuvs);
             ui_text_shader.use();
             glUniform4f(ui_text_shader.uniform_location("u_color"), 1.0f, 1.0f, 1.0f, 1.0f);
@@ -1536,6 +1584,14 @@ int main() {
                 tick_clock.reset();
                 cursor_anchored = false;
             }
+            // Auto-jump toggle is the only button whose action is NOT
+            // idempotent (RESUME/QUIT are state-setters), so it needs a click
+            // EDGE: holding the button must flip the option once, not every
+            // frame it is pressed.
+            if (clicked && !prev_menu_clicked && autojump_hover) {
+                auto_jump_enabled = !auto_jump_enabled;
+            }
+            prev_menu_clicked = clicked;
             if (clicked && quit_hover) {
                 glfwSetWindowShouldClose(window, GLFW_TRUE);
             }
