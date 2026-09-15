@@ -296,6 +296,10 @@ cmake --build build -j8                            # 不接管道
 
 ## 11. 复现命令
 
+> **关于 `docs/qa/tf1-fluid-2026-09-16/`（越界申报）**：卡面白名单只给 `docs/tasks/T-F1.report.md` 这一处
+> `docs/**` 例外，但验收 12 要求实机证据、项目既有惯例是落 `docs/qa/<task>-<date>/`（T009/T-D13/T-D14/T-D6 同）。
+> 本卡按惯例归档；**若 PM 认为应收进报告正文或改放他处，请直接移动/删除该目录**——它不含任何构建输入。
+
 ```bash
 # 构建与测试
 cd /Users/happy/Desktop/opencraft_worktree/opencraft-T-F1
