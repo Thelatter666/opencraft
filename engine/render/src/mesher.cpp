@@ -75,17 +75,109 @@ bool face_visible(std::uint16_t self, std::uint16_t neighbor) {
     return is_translucent_block(neighbor) && neighbor != self;
 }
 
+// ── fluid surfaces (T-F1) ───────────────────────────────────────────────────
+//
+// The block id the fluid layer uses as its placeholder: the launch registry's
+// "water" (id 12, the same table is_translucent_block() hard-codes). A voxel
+// with a fluid surface renders from the fluid bucket instead of the block cube.
+constexpr std::uint16_t kFluidWaterBlockId = 12;
+// Water is not fed through the T008 light sampling (that path walks the block
+// buckets); a fixed brightness keeps it readable until water lighting lands.
+constexpr std::uint8_t kFluidShade = 220;
+
+// Four corners of one quad, flattened to keep the aggregate initialisers
+// readable: corner[c * 3 + 0/1/2] is the (x, y, z) of corner c.
+struct FluidQuad {
+    float corner[12]; // chunk-local, y already resolved to the water surface
+    std::uint8_t corner_uv[4];
+};
+
+// Top surface at y = h. Corner order and uv codes follow the block mesher's
+// kFaces convention; culling is off in the translucent pass, so winding only
+// has to stay consistent for future passes.
+[[nodiscard]] FluidQuad make_top_quad(float x, float y, float z, float h) {
+    const float top = y + h;
+    return FluidQuad{{x, top, z, x, top, z + 1.0f, x + 1.0f, top, z + 1.0f, x + 1.0f, top, z}, {0, 2, 3, 1}};
+}
+
+// One side wall spanning the visible band [h_low, h_high]: for an air
+// neighbour h_low is 0, for a shallower water neighbour it is that surface, so
+// a level step shows as a step instead of a gap.
+[[nodiscard]] FluidQuad make_side_quad(int direction, float x, float y, float z, float h_low, float h_high) {
+    const float low = y + h_low;
+    const float high = y + h_high;
+    switch (direction) {
+    case 0: // +X
+        return FluidQuad{{x + 1.0f, low, z + 1.0f, x + 1.0f, low, z, x + 1.0f, high, z, x + 1.0f, high, z + 1.0f},
+                         {1, 0, 2, 3}};
+    case 1: // -X
+        return FluidQuad{{x, low, z, x, low, z + 1.0f, x, high, z + 1.0f, x, high, z}, {0, 1, 3, 2}};
+    case 2: // +Z
+        return FluidQuad{{x, low, z + 1.0f, x + 1.0f, low, z + 1.0f, x + 1.0f, high, z + 1.0f, x, high, z + 1.0f},
+                         {0, 1, 3, 2}};
+    default: // -Z
+        return FluidQuad{{x + 1.0f, low, z, x, low, z, x, high, z, x + 1.0f, high, z}, {1, 0, 2, 3}};
+    }
+}
+
+void append_fluid_quad(FluidBucket &bucket, const FluidQuad &quad, std::uint16_t tile) {
+    const auto base = static_cast<std::uint32_t>(bucket.vertices.size());
+    for (int c = 0; c < 4; ++c) {
+        FluidVertex v;
+        v.x = quad.corner[c * 3 + 0];
+        v.y = quad.corner[c * 3 + 1];
+        v.z = quad.corner[c * 3 + 2];
+        v.tile = tile;
+        v.uv = quad.corner_uv[c];
+        v.shade = kFluidShade;
+        bucket.vertices.push_back(v);
+    }
+    bucket.indices.insert(bucket.indices.end(), {base, base + 1, base + 2, base, base + 2, base + 3});
+}
+
 } // namespace
 
-MeshData build_chunk_mesh(const IBlockSource &blocks, ChunkPos pos) {
+MeshData build_chunk_mesh(const IBlockSource &blocks, ChunkPos pos, const IFluidSource *fluid) {
     MeshData mesh;
     const int base_x = pos.cx * kChunkSizeX;
     const int base_z = pos.cz * kChunkSizeZ;
 
+    constexpr int kSideOffsets[4][2] = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
+
     for (int y = 0; y < kChunkSizeY; ++y) {
         for (int z = 0; z < kChunkSizeZ; ++z) {
             for (int x = 0; x < kChunkSizeX; ++x) {
-                const std::uint16_t id = blocks.block_at(base_x + x, y, base_z + z);
+                const int world_x = base_x + x;
+                const int world_z = base_z + z;
+                const std::uint16_t id = blocks.block_at(world_x, y, world_z);
+
+                if (fluid != nullptr) {
+                    const float height = fluid->fluid_height_at(world_x, y, world_z);
+                    if (height > 0.0f) {
+                        const float fx = static_cast<float>(x);
+                        const float fy = static_cast<float>(y);
+                        const float fz = static_cast<float>(z);
+                        // The surface is exposed only when no fluid of the
+                        // same body sits directly above.
+                        if (fluid->fluid_height_at(world_x, y + 1, world_z) <= 0.0f) {
+                            append_fluid_quad(mesh.fluid, make_top_quad(fx, fy, fz, height),
+                                              tile_index(kFluidWaterBlockId, 0));
+                        }
+                        for (int direction = 0; direction < 4; ++direction) {
+                            const float neighbour = fluid->fluid_height_at(world_x + kSideOffsets[direction][0], y,
+                                                                           world_z + kSideOffsets[direction][1]);
+                            if (neighbour >= height) {
+                                continue; // level neighbour (or taller): no wall of ours
+                            }
+                            append_fluid_quad(mesh.fluid, make_side_quad(direction, fx, fy, fz, neighbour, height),
+                                              tile_index(kFluidWaterBlockId, 1));
+                        }
+                        if (id == kFluidWaterBlockId) {
+                            continue; // the fluid bucket already drew this voxel
+                        }
+                    }
+                }
+
                 if (id == 0) {
                     continue;
                 }
@@ -96,8 +188,7 @@ MeshData build_chunk_mesh(const IBlockSource &blocks, ChunkPos pos) {
                     if (translucent && face.dy < 0) {
                         continue; // translucent blocks skip their bottom face
                     }
-                    const std::uint16_t neighbor =
-                        blocks.block_at(base_x + x + face.dx, y + face.dy, base_z + z + face.dz);
+                    const std::uint16_t neighbor = blocks.block_at(world_x + face.dx, y + face.dy, world_z + face.dz);
                     if (!face_visible(id, neighbor)) {
                         continue;
                     }

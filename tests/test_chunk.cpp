@@ -156,17 +156,18 @@ TEST_CASE("serialization skips fully air sections") {
         chunk.serialize(buffer);
         return buffer;
     };
-    // Fully air chunk: version (4) + non-empty count (1). Every air section
-    // contributes zero bytes on the wire.
-    CHECK(buffer_for(Chunk{}).size() == 4 + 1);
+    // Fully air chunk: version (4) + non-empty block count (1) + non-empty
+    // fluid count (1, T-F1 v2). Every air section contributes zero bytes on
+    // the wire, and so does the fluid layer when it is empty.
+    CHECK(buffer_for(Chunk{}).size() == 4 + 1 + 1);
 
     // One non-air block materializes section 0 into a 4-bit packed array:
     // version + count + (index 1 + bits 1 + palette size 2 + palette 2x2 +
-    // word count 4 + 4096 entries x 4 bits = 2048).
+    // word count 4 + 4096 entries x 4 bits = 2048) + the empty fluid count (1).
     Chunk one_uniform;
     one_uniform.set_block(0, 0, 0, 5);
     const auto one_size = buffer_for(one_uniform).size();
-    CHECK(one_size == 4 + 1 + 1 + 1 + 2 + 4 + 4 + 2048);
+    CHECK(one_size == 4 + 1 + 1 + 1 + 2 + 4 + 4 + 2048 + 1);
 
     // A second non-empty section adds its own payload; the 22 air sections
     // add nothing beyond their absence.

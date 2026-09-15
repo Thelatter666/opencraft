@@ -8,9 +8,34 @@
 
 namespace opencraft::client {
 
+namespace {
+
+// Visits every fluid cell of a chunk, skipping sections without fluid storage.
+template <typename Fn>
+void for_each_fluid_cell(const voxel::Chunk &chunk, Fn &&visit) {
+    for (int section = 0; section < voxel::Chunk::kSectionCount; ++section) {
+        if (chunk.fluid_section_empty(section)) {
+            continue;
+        }
+        const int base_y = section * voxel::Chunk::kSectionSize;
+        for (int ly = 0; ly < voxel::Chunk::kSectionSize; ++ly) {
+            for (int lz = 0; lz < voxel::Chunk::kSizeZ; ++lz) {
+                for (int lx = 0; lx < voxel::Chunk::kSizeX; ++lx) {
+                    if (!chunk.get_fluid(lx, base_y + ly, lz).empty()) {
+                        visit(lx, base_y + ly, lz);
+                    }
+                }
+            }
+        }
+    }
+}
+
+} // namespace
+
 WorldSource::WorldSource(const std::uint64_t seed)
     : registry_(voxel::BlockRegistry::create_default()), light_world_(chunks_, registry_, {}), light_(light_world_),
-      generator_(seed, registry_) {
+      generator_(seed, registry_), fluid_(*this) {
+    water_block_id_ = registry_.id_of("water");
 }
 
 bool WorldSource::ensure_chunk(int cx, int cz) {
@@ -29,12 +54,14 @@ bool WorldSource::ensure_chunk(int cx, int cz) {
             buffer.rewind();
             chunk = voxel::Chunk::deserialize(buffer);
             light_.init_chunk(cx, cz);
+            wake_fluid_at_chunk_border(cx, cz);
             OC_LOG_INFO("chunk ({}, {}) loaded from disk", cx, cz);
             return true;
         }
     }
     generator_.generate_chunk(cx, cz, chunk);
     light_.init_chunk(cx, cz);
+    wake_fluid_at_chunk_border(cx, cz);
     return true;
 }
 
@@ -57,6 +84,10 @@ void WorldSource::set_block(int wx, int wy, int wz, std::uint16_t id, std::vecto
     }
     chunk->set_block(lx, wy, lz, id);
     light_.on_block_changed(wx, wy, wz, old_id, id);
+    // A block edit is a block update for the fluid too: the cell and its
+    // neighbours re-evaluate on the fluid's own schedule, which is what lets
+    // water pour into a freshly mined hole (docs/research/10 §7.2).
+    fluid_.on_block_changed(wx, wy, wz);
     if (save_ != nullptr) {
         save_->mark_dirty(cx, cz);
     }
@@ -225,6 +256,192 @@ bool WorldSource::liquid_at(int wx, int wy, int wz) const {
     }
     return registry_.def_of(chunk->get_block(wx - cx * voxel::Chunk::kSizeX, wy, wz - cz * voxel::Chunk::kSizeZ))
         .liquid;
+}
+
+// --- fluid layer (T-F1) -----------------------------------------------------
+
+float WorldSource::fluid_height_at(int wx, int wy, int wz) const {
+    if (wy < 0 || wy >= voxel::Chunk::kSizeY) {
+        return 0.0f;
+    }
+    const voxel::Chunk *chunk = chunks_.find_world(wx, wz);
+    if (chunk == nullptr) {
+        return 0.0f;
+    }
+    const auto [cx, cz] = voxel::Chunk::chunk_coords(wx, wz);
+    const voxel::FluidCell cell = chunk->get_fluid(wx - cx * voxel::Chunk::kSizeX, wy, wz - cz * voxel::Chunk::kSizeZ);
+    if (cell.empty()) {
+        return 0.0f;
+    }
+    return voxel::fluid_render_height(cell.level);
+}
+
+std::uint16_t WorldSource::fluid_at(int wx, int wy, int wz) const {
+    if (wy < 0 || wy >= voxel::Chunk::kSizeY) {
+        return 0;
+    }
+    const voxel::Chunk *chunk = chunks_.find_world(wx, wz);
+    if (chunk == nullptr) {
+        return 0;
+    }
+    const auto [cx, cz] = voxel::Chunk::chunk_coords(wx, wz);
+    return voxel::pack_fluid(chunk->get_fluid(wx - cx * voxel::Chunk::kSizeX, wy, wz - cz * voxel::Chunk::kSizeZ));
+}
+
+void WorldSource::set_fluid_at(int wx, int wy, int wz, std::uint16_t cell) {
+    if (wy < 0 || wy >= voxel::Chunk::kSizeY) {
+        return;
+    }
+    const auto [cx, cz] = voxel::Chunk::chunk_coords(wx, wz);
+    voxel::Chunk *chunk = chunks_.find(cx, cz);
+    if (chunk == nullptr) {
+        return; // unloaded: the simulation treats it as a wall anyway
+    }
+    const int lx = wx - cx * voxel::Chunk::kSizeX;
+    const int lz = wz - cz * voxel::Chunk::kSizeZ;
+    const voxel::FluidCell unpacked = voxel::unpack_fluid(cell);
+    chunk->set_fluid(lx, wy, lz, unpacked);
+
+    // Keep the block layer in step so targeting, mining, physics and
+    // persistence all see the water. A cell that loses its fluid only reverts
+    // to air when it actually held the placeholder block (a player-placed
+    // block on top of water must not be deleted).
+    const std::uint16_t old_id = chunk->get_block(lx, wy, lz);
+    const std::uint16_t new_id = !unpacked.empty() ? water_block_id_ : (old_id == water_block_id_ ? 0 : old_id);
+    if (old_id != new_id) {
+        chunk->set_block(lx, wy, lz, new_id);
+        light_.on_block_changed(wx, wy, wz, old_id, new_id);
+    }
+    if (save_ != nullptr) {
+        save_->mark_dirty(cx, cz);
+    }
+    mark_mesh_dirty(wx, wz);
+}
+
+bool WorldSource::fluid_may_enter(int wx, int wy, int wz) const {
+    if (wy < 0 || wy >= voxel::Chunk::kSizeY) {
+        return false;
+    }
+    const voxel::Chunk *chunk = chunks_.find_world(wx, wz);
+    if (chunk == nullptr) {
+        return false; // unloaded chunks are walls for fluid (§4.7 / R-5)
+    }
+    const auto [cx, cz] = voxel::Chunk::chunk_coords(wx, wz);
+    const std::uint16_t id = chunk->get_block(wx - cx * voxel::Chunk::kSizeX, wy, wz - cz * voxel::Chunk::kSizeZ);
+    if (id == 0) {
+        return true; // air
+    }
+    return registry_.has_numeric(id) && registry_.def_of(id).liquid;
+}
+
+void WorldSource::mark_mesh_dirty(int wx, int wz) {
+    const auto [cx, cz] = voxel::Chunk::chunk_coords(wx, wz);
+    const int lx = wx - cx * voxel::Chunk::kSizeX;
+    const int lz = wz - cz * voxel::Chunk::kSizeZ;
+    fluid_dirty_.emplace_back(cx, cz);
+    // A cell on a chunk border also changes the neighbour chunk's mesh: the
+    // water surface of the neighbour emits a wall against it.
+    if (lx == 0) {
+        fluid_dirty_.emplace_back(cx - 1, cz);
+    }
+    if (lx == voxel::Chunk::kSizeX - 1) {
+        fluid_dirty_.emplace_back(cx + 1, cz);
+    }
+    if (lz == 0) {
+        fluid_dirty_.emplace_back(cx, cz - 1);
+    }
+    if (lz == voxel::Chunk::kSizeZ - 1) {
+        fluid_dirty_.emplace_back(cx, cz + 1);
+    }
+}
+
+void WorldSource::wake_fluid_at_chunk_border(int cx, int cz) {
+    if (const voxel::Chunk *chunk = chunks_.find(cx, cz); chunk != nullptr) {
+        for_each_fluid_cell(*chunk, [&](int lx, int y, int lz) {
+            fluid_.wake(cx * voxel::Chunk::kSizeX + lx, y, cz * voxel::Chunk::kSizeZ + lz);
+        });
+    }
+    // Neighbours: only the column facing the new chunk changed neighbourhood.
+    static constexpr int kSides[4][2] = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
+    for (const auto &side : kSides) {
+        const int nx = cx + side[0];
+        const int nz = cz + side[1];
+        const voxel::Chunk *chunk = chunks_.find(nx, nz);
+        if (chunk == nullptr) {
+            continue;
+        }
+        for_each_fluid_cell(*chunk, [&](int lx, int y, int lz) {
+            const bool facing = side[0] != 0 ? lx == (side[0] > 0 ? 0 : voxel::Chunk::kSizeX - 1)
+                                             : lz == (side[1] > 0 ? 0 : voxel::Chunk::kSizeZ - 1);
+            if (!facing) {
+                return;
+            }
+            fluid_.wake(nx * voxel::Chunk::kSizeX + lx, y, nz * voxel::Chunk::kSizeZ + lz);
+        });
+    }
+}
+
+void WorldSource::fluid_step(std::vector<std::pair<int, int>> &dirty) {
+    fluid_.step();
+    if (fluid_dirty_.empty()) {
+        return;
+    }
+    std::sort(fluid_dirty_.begin(), fluid_dirty_.end());
+    fluid_dirty_.erase(std::unique(fluid_dirty_.begin(), fluid_dirty_.end()), fluid_dirty_.end());
+    dirty.insert(dirty.end(), fluid_dirty_.begin(), fluid_dirty_.end());
+    fluid_dirty_.clear();
+}
+
+bool WorldSource::place_water_source(int wx, int wy, int wz) {
+    if (wy < 0 || wy >= voxel::Chunk::kSizeY) {
+        return false;
+    }
+    const auto [cx, cz] = voxel::Chunk::chunk_coords(wx, wz);
+    if (chunks_.find(cx, cz) == nullptr) {
+        return false; // unloaded: the write would be dropped
+    }
+    fluid_.place_source(wx, wy, wz, voxel::FluidKind::Water);
+    return true;
+}
+
+bool WorldSource::is_water_source(int wx, int wy, int wz) const {
+    if (wy < 0 || wy >= voxel::Chunk::kSizeY) {
+        return false;
+    }
+    const voxel::Chunk *chunk = chunks_.find_world(wx, wz);
+    if (chunk == nullptr) {
+        return false;
+    }
+    const auto [cx, cz] = voxel::Chunk::chunk_coords(wx, wz);
+    const int lx = wx - cx * voxel::Chunk::kSizeX;
+    const int lz = wz - cz * voxel::Chunk::kSizeZ;
+    const voxel::FluidCell cell = chunk->get_fluid(lx, wy, lz);
+    if (!cell.empty()) {
+        return cell.source; // flowing water cannot be scooped up, as in MC
+    }
+    // Worldgen water is not in the fluid layer; treat it as a source so a
+    // bucket works on an ocean exactly like it does on a poured source.
+    return chunk->get_block(lx, wy, lz) == water_block_id_;
+}
+
+bool WorldSource::remove_water_source(int wx, int wy, int wz, std::vector<std::pair<int, int>> &dirty) {
+    if (!is_water_source(wx, wy, wz)) {
+        return false;
+    }
+    const auto [cx, cz] = voxel::Chunk::chunk_coords(wx, wz);
+    const voxel::Chunk *chunk = chunks_.find(cx, cz);
+    if (chunk == nullptr) {
+        return false;
+    }
+    const int lx = wx - cx * voxel::Chunk::kSizeX;
+    const int lz = wz - cz * voxel::Chunk::kSizeZ;
+    if (!chunk->get_fluid(lx, wy, lz).empty()) {
+        fluid_.clear_cell(wx, wy, wz); // clears the fluid cell and the placeholder block
+        return true;
+    }
+    set_block(wx, wy, wz, 0, dirty); // legacy static water block
+    fluid_.on_block_changed(wx, wy, wz);
+    return true;
 }
 
 void shade_mesh_with_light(render::MeshData &mesh, const WorldSource &world, int cx, int cz) {

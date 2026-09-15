@@ -7,6 +7,7 @@
 #include <vector>
 
 #include "opencraft/core/byte_buffer.hpp"
+#include "opencraft/voxel/fluid.hpp"
 
 namespace opencraft::voxel {
 
@@ -32,7 +33,13 @@ public:
     static constexpr std::size_t kSectionVolume =
         static_cast<std::size_t>(kSectionSize) * kSectionSize * kSectionSize; // 4096
 
-    static constexpr std::uint32_t kFormatVersion = 1;
+    // Format v2 (T-F1): v1 followed by the fluid layer.
+    //   u8 count of non-empty fluid sections, then per section: u8 section
+    //   index, then 4096 packed u16 cells (LE). A chunk without fluid emits
+    //   no fluid section at all, so its payload is the v1 payload plus a
+    //   version bump; deserialize() still accepts v1 (fluid layer empty).
+    static constexpr std::uint32_t kFormatVersion = 2;
+    static constexpr std::uint32_t kMinReadableFormatVersion = 1;
 
     Chunk() = default;
 
@@ -40,6 +47,20 @@ public:
     // Local chunk coordinates; throws std::out_of_range when out of bounds.
     [[nodiscard]] std::uint16_t get_block(int x, int y, int z) const;
     void set_block(int x, int y, int z, std::uint16_t block_id);
+
+    // --- fluid access (T-F1) -------------------------------------------------
+    // The parallel per-voxel fluid channel (docs/research/10 §8.2, path B).
+    // Also local coordinates; out-of-range cells read as "no fluid" instead of
+    // throwing because the simulation probes neighbours across chunk borders
+    // through its own world interface, not through Chunk directly.
+    [[nodiscard]] FluidCell get_fluid(int x, int y, int z) const;
+    void set_fluid(int x, int y, int z, FluidCell cell);
+
+    // True while the section holds no fluid at all; a fluid-free section
+    // allocates nothing and serializes to nothing.
+    [[nodiscard]] bool fluid_section_empty(int section_index) const;
+
+    [[nodiscard]] bool has_fluid() const;
 
     // A section is empty while it holds a single value equal to air (id 0).
     // Throws std::out_of_range for an invalid section index.
@@ -78,11 +99,13 @@ public:
     // section: u8 section index, u8 bits (0 = uniform, 4, 8 or 16), u16
     // palette size + palette entries (u16 each), and for bits > 0 a u32 word
     // count + packed words (u64 each, entries packed LSB-first). Empty
-    // sections occupy nothing on the wire.
+    // sections occupy nothing on the wire. v2 appends the fluid layer, see
+    // kFormatVersion above.
     void serialize(core::ByteBuffer &out) const;
 
-    // Reads a payload produced by serialize() (version-checked) and replaces
-    // all chunk content. Throws std::runtime_error on a malformed payload.
+    // Reads a payload produced by serialize() (versions 1 and 2 accepted) and
+    // replaces all chunk content. Throws std::runtime_error on a malformed
+    // payload.
     [[nodiscard]] static Chunk deserialize(core::ByteBuffer &in);
 
 private:
@@ -123,7 +146,27 @@ private:
     // YZX order inside a section: (y_local * 16 + z) * 16 + x.
     [[nodiscard]] static int local_index(int x, int y_local, int z);
 
+    // Fluid storage of one 16^3 section: a lazily allocated vector of 4096
+    // packed u16 cells. An untouched section owns no memory at all, which is
+    // what keeps fluid-free chunks cheap and lets them serialize as v1.
+    class FluidSection {
+    public:
+        static constexpr std::size_t kBytesPerCell = 2;
+
+        [[nodiscard]] FluidCell get(int index) const;
+        void set(int index, FluidCell cell);
+
+        [[nodiscard]] bool empty() const { return data_.empty(); }
+
+        void serialize(core::ByteBuffer &out) const;
+        static FluidSection deserialize(core::ByteBuffer &in);
+
+    private:
+        std::vector<std::uint8_t> data_;
+    };
+
     std::array<PaletteSection, kSectionCount> sections_;
+    std::array<FluidSection, kSectionCount> fluid_sections_;
 };
 
 } // namespace opencraft::voxel

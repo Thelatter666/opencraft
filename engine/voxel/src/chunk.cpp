@@ -175,6 +175,51 @@ Chunk::PaletteSection Chunk::PaletteSection::deserialize(core::ByteBuffer &in) {
     return section;
 }
 
+// --- Chunk::FluidSection ----------------------------------------------------
+
+FluidCell Chunk::FluidSection::get(int index) const {
+    if (data_.empty()) {
+        return FluidCell{};
+    }
+    const auto offset = static_cast<std::size_t>(index) * kBytesPerCell;
+    const auto packed = static_cast<std::uint16_t>(data_[offset] | static_cast<std::uint16_t>(data_[offset + 1]) << 8);
+    return unpack_fluid(packed);
+}
+
+void Chunk::FluidSection::set(int index, FluidCell cell) {
+    if (data_.empty()) {
+        if (cell.empty()) {
+            return; // stay unallocated: no fluid, no memory
+        }
+        data_.assign(kSectionVolume * kBytesPerCell, 0);
+    }
+    const auto offset = static_cast<std::size_t>(index) * kBytesPerCell;
+    const std::uint16_t packed = pack_fluid(cell);
+    data_[offset] = static_cast<std::uint8_t>(packed & 0xFF);
+    data_[offset + 1] = static_cast<std::uint8_t>((packed >> 8) & 0xFF);
+}
+
+void Chunk::FluidSection::serialize(core::ByteBuffer &out) const {
+    // Fixed 4096 cells, packed u16 LE. A section only ever reaches this call
+    // when it holds fluid, so the full-volume form costs no more than a
+    // dictionary would and keeps the payload trivially parseable.
+    out.write_bytes(data_.data(), data_.size());
+}
+
+Chunk::FluidSection Chunk::FluidSection::deserialize(core::ByteBuffer &in) {
+    FluidSection section;
+    section.data_.resize(kSectionVolume * kBytesPerCell);
+    in.read_bytes(section.data_.data(), section.data_.size());
+    for (std::size_t i = 0; i < kSectionVolume; ++i) {
+        const auto packed = static_cast<std::uint16_t>(
+            section.data_[i * kBytesPerCell] | static_cast<std::uint16_t>(section.data_[i * kBytesPerCell + 1]) << 8);
+        if (!valid_packed_fluid(packed)) {
+            throw std::runtime_error("chunk payload: invalid packed fluid cell");
+        }
+    }
+    return section;
+}
+
 // --- Chunk ------------------------------------------------------------------
 
 void Chunk::validate_xyz(int x, int y, int z) {
@@ -202,6 +247,34 @@ bool Chunk::section_empty(int section_index) const {
         throw std::out_of_range("section index out of range");
     }
     return sections_[static_cast<std::size_t>(section_index)].empty();
+}
+
+FluidCell Chunk::get_fluid(int x, int y, int z) const {
+    if (x < 0 || x >= kSizeX || y < 0 || y >= kSizeY || z < 0 || z >= kSizeZ) {
+        return FluidCell{}; // out of chunk: no fluid, no throw (border probes)
+    }
+    return fluid_sections_[static_cast<std::size_t>(y >> 4)].get(local_index(x, y & 15, z));
+}
+
+void Chunk::set_fluid(int x, int y, int z, FluidCell cell) {
+    validate_xyz(x, y, z);
+    fluid_sections_[static_cast<std::size_t>(y >> 4)].set(local_index(x, y & 15, z), cell);
+}
+
+bool Chunk::fluid_section_empty(int section_index) const {
+    if (section_index < 0 || section_index >= kSectionCount) {
+        throw std::out_of_range("section index out of range");
+    }
+    return fluid_sections_[static_cast<std::size_t>(section_index)].empty();
+}
+
+bool Chunk::has_fluid() const {
+    for (const FluidSection &section : fluid_sections_) {
+        if (!section.empty()) {
+            return true;
+        }
+    }
+    return false;
 }
 
 bool Chunk::empty() const {
@@ -263,10 +336,31 @@ void Chunk::serialize(core::ByteBuffer &out) const {
         out.write_u8(static_cast<std::uint8_t>(i));
         sections_[i].serialize(out);
     }
+
+    // Fluid layer (v2). A chunk without fluid writes a single zero count, so
+    // its payload stays byte-identical to a v1 payload apart from the leading
+    // version word.
+    std::uint8_t non_empty_fluid = 0;
+    for (const FluidSection &section : fluid_sections_) {
+        if (!section.empty()) {
+            ++non_empty_fluid;
+        }
+    }
+    out.write_u8(non_empty_fluid);
+    for (std::size_t i = 0; i < fluid_sections_.size(); ++i) {
+        if (fluid_sections_[i].empty()) {
+            continue;
+        }
+        out.write_u8(static_cast<std::uint8_t>(i));
+        fluid_sections_[i].serialize(out);
+    }
 }
 
 Chunk Chunk::deserialize(core::ByteBuffer &in) {
-    static_cast<void>(in.read_version(kFormatVersion));
+    const std::uint32_t version = in.read_version();
+    if (version < kMinReadableFormatVersion || version > kFormatVersion) {
+        throw std::runtime_error("chunk payload: unsupported format version " + std::to_string(version));
+    }
     Chunk chunk;
     const std::uint8_t non_empty = in.read_u8();
     if (non_empty > kSectionCount) {
@@ -278,6 +372,20 @@ Chunk Chunk::deserialize(core::ByteBuffer &in) {
             throw std::runtime_error("chunk payload: section index out of range");
         }
         chunk.sections_[index] = PaletteSection::deserialize(in);
+    }
+    if (version < 2) {
+        return chunk; // v1 predates the fluid layer: it is simply empty
+    }
+    const std::uint8_t non_empty_fluid = in.read_u8();
+    if (non_empty_fluid > kSectionCount) {
+        throw std::runtime_error("chunk payload: non-empty fluid section count exceeds chunk size");
+    }
+    for (std::uint8_t i = 0; i < non_empty_fluid; ++i) {
+        const std::uint8_t index = in.read_u8();
+        if (index >= kSectionCount) {
+            throw std::runtime_error("chunk payload: fluid section index out of range");
+        }
+        chunk.fluid_sections_[index] = FluidSection::deserialize(in);
     }
     return chunk;
 }

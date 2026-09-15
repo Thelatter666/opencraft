@@ -38,6 +38,22 @@ public:
     [[nodiscard]] virtual std::uint16_t block_at(int wx, int wy, int wz) const = 0;
 };
 
+// Fluid surface provider (task T-F1, docs/research/10 §1.3). Returns the
+// surface height of the fluid sitting in a cell: 0 means "no fluid here",
+// otherwise 0 < h <= 1 gives the surface height above the cell floor. Same
+// coordinate contract as IBlockSource: safe for any position, 0 for unloaded
+// chunks and out-of-world y.
+//
+// A cell whose block layer holds water while this answers 0 is legacy static
+// water (worldgen oceans predate the fluid layer); it still meshes as a full
+// cube, so both representations coexist in one world.
+class IFluidSource {
+public:
+    virtual ~IFluidSource() = default;
+
+    [[nodiscard]] virtual float fluid_height_at(int wx, int wy, int wz) const = 0;
+};
+
 // Packed mesh vertex, 10 bytes (task T005 contract: compact layout with a
 // reserved light byte).
 //
@@ -64,6 +80,23 @@ struct MeshVertex {
 
 static_assert(sizeof(MeshVertex) == 10, "MeshVertex must stay packed at 10 bytes");
 
+// Fluid surface vertex (task T-F1). Separate from MeshVertex because a water
+// surface sits at a fractional height while MeshVertex stores chunk-local
+// positions as integers (the T005 contract); keeping them apart means the
+// block geometry stays byte-identical. 16 bytes, same tile/uv/shade tail.
+struct FluidVertex {
+    float x = 0.0f; // chunk-local, may be fractional
+    float y = 0.0f;
+    float z = 0.0f;
+    std::uint16_t tile = 0;
+    std::uint8_t uv = 0;
+    std::uint8_t shade = 255;
+
+    friend bool operator==(const FluidVertex &a, const FluidVertex &b) {
+        return a.x == b.x && a.y == b.y && a.z == b.z && a.tile == b.tile && a.uv == b.uv && a.shade == b.shade;
+    }
+};
+
 // One drawable layer of a chunk mesh: vertices + triangle indices.
 struct MeshBucket {
     std::vector<MeshVertex> vertices;
@@ -74,15 +107,28 @@ struct MeshBucket {
     }
 };
 
+// Fluid surfaces, drawn in the translucent pass with the block translucent
+// bucket (docs/research/03 §1.5).
+struct FluidBucket {
+    std::vector<FluidVertex> vertices;
+    std::vector<std::uint32_t> indices;
+
+    friend bool operator==(const FluidBucket &a, const FluidBucket &b) {
+        return a.vertices == b.vertices && a.indices == b.indices;
+    }
+};
+
 // Mesh of one chunk, split into an opaque and a translucent bucket
 // (docs/research/03 §1.5: translucent water/glass is drawn in a separate
-// pass; sorting happens per chunk at draw time, never per face).
+// pass; sorting happens per chunk at draw time, never per face), plus the
+// fractional-height fluid surfaces of T-F1.
 struct MeshData {
     MeshBucket opaque;
     MeshBucket translucent;
+    FluidBucket fluid;
 
     friend bool operator==(const MeshData &a, const MeshData &b) {
-        return a.opaque == b.opaque && a.translucent == b.translucent;
+        return a.opaque == b.opaque && a.translucent == b.translucent && a.fluid == b.fluid;
     }
 };
 
@@ -113,6 +159,13 @@ struct MeshData {
 // no light sampling. Water emits its top and side faces; the bottom face of
 // translucent blocks is skipped (docs/research/03 §1.5) since water always
 // rests on solid ground in practice.
-[[nodiscard]] MeshData build_chunk_mesh(const IBlockSource &blocks, ChunkPos pos);
+//
+// T-F1: when `fluid` is supplied, cells whose fluid surface is above the floor
+// are meshed as fractional-height water instead of full cubes (the fluid
+// layer takes precedence over the block placeholder), and neighbouring blocks
+// keep their faces against such a cell as before. Cells without fluid - every
+// chunk in the T005 tests, and legacy worldgen oceans - mesh exactly as they
+// did before.
+[[nodiscard]] MeshData build_chunk_mesh(const IBlockSource &blocks, ChunkPos pos, const IFluidSource *fluid = nullptr);
 
 } // namespace opencraft::render

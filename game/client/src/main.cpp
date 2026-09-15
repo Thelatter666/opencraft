@@ -251,6 +251,9 @@ struct ChunkRenderable {
     render::ChunkPos pos;
     std::optional<ChunkLayer> opaque;
     std::optional<ChunkLayer> translucent;
+    // T-F1 water surfaces: fractional-height fluid quads, drawn in the same
+    // pass as the translucent bucket (float positions, so its own layer).
+    std::optional<ChunkLayer> fluid;
     glm::vec3 center; // chunk center in world space, for draw sorting
 };
 
@@ -268,6 +271,24 @@ ChunkLayer upload_layer(const render::MeshBucket &bucket) {
     auto ebo = render::Buffer(render::Buffer::Target::Index, bucket.indices.data(),
                               bucket.indices.size() * sizeof(std::uint32_t), render::Buffer::Usage::Static);
     ebo.bind(); // index buffer is captured by the bound VAO
+    return ChunkLayer(std::move(vao), std::move(vbo), std::move(ebo), static_cast<GLsizei>(bucket.indices.size()));
+}
+
+ChunkLayer upload_fluid_layer(const render::FluidBucket &bucket) {
+    auto vao = render::VertexArray();
+    vao.bind();
+    auto vbo = render::Buffer(render::Buffer::Target::Vertex, bucket.vertices.data(),
+                              bucket.vertices.size() * sizeof(render::FluidVertex), render::Buffer::Usage::Static);
+    vbo.bind();
+    constexpr std::size_t kStride = sizeof(render::FluidVertex);
+    // Float positions: a water surface sits at a fractional height.
+    vao.set_attribute(0, 3, GL_FLOAT, kStride, offsetof(render::FluidVertex, x));
+    vao.set_attribute(1, 1, GL_UNSIGNED_SHORT, kStride, offsetof(render::FluidVertex, tile));
+    vao.set_attribute(2, 1, GL_UNSIGNED_BYTE, kStride, offsetof(render::FluidVertex, uv));
+    vao.set_attribute(3, 1, GL_UNSIGNED_BYTE, kStride, offsetof(render::FluidVertex, shade));
+    auto ebo = render::Buffer(render::Buffer::Target::Index, bucket.indices.data(),
+                              bucket.indices.size() * sizeof(std::uint32_t), render::Buffer::Usage::Static);
+    ebo.bind();
     return ChunkLayer(std::move(vao), std::move(vbo), std::move(ebo), static_cast<GLsizei>(bucket.indices.size()));
 }
 
@@ -707,17 +728,31 @@ int main() {
     glm::dvec3 jump_arc_start{0.0, 0.0, 0.0};
     int jump_arc_ticks = 0;
 
-    // ── hotbar (9 slots, keys 1..9; creative palette, real inventory is M2) ─
+    // ── hotbar (10 slots: keys 1..9 pick blocks, 0 picks the bucket; creative
+    //    palette, real inventory is M2) ───────────────────────────────────────
     static constexpr std::array<const char *, 9> kHotbarNames = {"stone",  "cobblestone", "dirt", "planks", "log",
                                                                  "leaves", "glass",       "sand", "gravel"};
+    // T-F1: the bucket is the minimal item form the card allows - one extra
+    // hotbar slot plus a has-water flag, no item registry.
+    static constexpr int kBucketSlot = 9;
+    static constexpr int kHotbarSlots = 10;
     std::array<std::uint16_t, 9> hotbar{};
     for (int slot = 0; slot < 9; ++slot) {
         hotbar[slot] = world.registry().id_of(kHotbarNames[slot]);
     }
+    bool bucket_has_water = false;
+    // Mirrors selected_slot for the HUD and the render pass (the tick's
+    // targeting needs it before the hotbar keys are polled).
+    bool bucket_selected = false;
     int selected_slot = 0;
     if (stored_level.has_value() && stored_level->has_player &&
         stored_level->selected_block < world.registry().size()) {
         // Restore the persisted selection to its slot when it is on the bar.
+        // The bucket is not a block, so it persists as the water id it mashes
+        // to; nothing else on the bar has that id.
+        if (stored_level->selected_block == world.water_block_id()) {
+            selected_slot = kBucketSlot;
+        }
         for (int slot = 0; slot < 9; ++slot) {
             if (hotbar[slot] == stored_level->selected_block) {
                 selected_slot = slot;
@@ -725,7 +760,10 @@ int main() {
             }
         }
     }
-    std::uint16_t selected_block = hotbar[selected_slot];
+    // The id the held-item overlay and the placed block use; for the bucket it
+    // is the water placeholder (the bucket itself has no block form yet).
+    const auto slot_block = [&](int slot) { return slot == kBucketSlot ? world.water_block_id() : hotbar[slot]; };
+    std::uint16_t selected_block = slot_block(selected_slot);
 
     glm::ivec3 crack_pos{0, 0, 0};
     int crack_stage = -1; // -1 = no overlay
@@ -762,7 +800,7 @@ int main() {
 
     auto mesh_chunk = [&](int cx, int cz) {
         const auto t0 = std::chrono::steady_clock::now();
-        render::MeshData mesh = render::build_chunk_mesh(world, render::ChunkPos{cx, cz});
+        render::MeshData mesh = render::build_chunk_mesh(world, render::ChunkPos{cx, cz}, &world);
         opencraft::client::shade_mesh_with_light(mesh, world, cx, cz);
         last_mesh_ms = std::chrono::duration<double, std::milli>(std::chrono::steady_clock::now() - t0).count();
 
@@ -774,6 +812,9 @@ int main() {
         }
         if (!mesh.translucent.indices.empty()) {
             r.translucent.emplace(upload_layer(mesh.translucent));
+        }
+        if (!mesh.fluid.indices.empty()) {
+            r.fluid.emplace(upload_fluid_layer(mesh.fluid));
         }
         renderables[chunk_key(cx, cz)] = std::move(r);
     };
@@ -899,10 +940,18 @@ int main() {
         }
 
         // ── targeting ────────────────────────────────────────────────────────
+        bucket_selected = selected_slot == kBucketSlot;
+        // An empty bucket is aimed at water, so liquids become targetable for
+        // it; everything else keeps the T008 filter (aim through water).
+        const bool bucket_filling = bucket_selected && !bucket_has_water;
         const double eye_height = curr_state.pose == phy::Pose::Sneaking ? kEyeSneaking : kEyeStanding;
         const glm::dvec3 eye = curr_state.position + glm::dvec3(0.0, eye_height, 0.0);
         const auto filter = [&](std::uint16_t id) {
-            return id != 0 && !world.registry().def_of(id).liquid; // liquids are not targetable
+            const bool liquid = id != 0 && world.registry().def_of(id).liquid;
+            if (bucket_filling) {
+                return id != 0; // water surfaces are targetable
+            }
+            return id != 0 && !liquid; // liquids are not targetable
         };
         const gam::VoxelRayHit hit = gam::raycast_voxel(eye, view_dir(), kReachDistance, world, filter);
         has_target = hit.hit;
@@ -959,13 +1008,37 @@ int main() {
         }
         if (right_held && (place_cooldown == 0 || !prev_right)) {
             if (hit.hit) {
-                const glm::ivec3 cell = gam::placement_cell(hit);
-                const auto status = gam::check_placement(world.registry(), world, cell, curr_state.position,
-                                                         curr_state.height(), phy::PlayerState::kHalfWidth);
-                if (status == gam::PlacementStatus::Ok) {
-                    world.set_block(cell.x, cell.y, cell.z, selected_block, dirty_chunks);
-                    OC_LOG_INFO("placed {} at ({}, {}, {})", world.registry().string_of(selected_block), cell.x, cell.y,
-                                cell.z);
+                if (bucket_selected) {
+                    // ── bucket (T-F1) ────────────────────────────────────────
+                    // Filled: pour a source into the cell the hit face opens
+                    // onto. Empty: scoop a source block out of the world.
+                    // Placement skips check_placement's player-overlap test on
+                    // purpose: fluids are non-solid, so pouring water at your
+                    // own feet is legal (MC does the same); the replaceable
+                    // test is the same one the block path uses.
+                    if (bucket_has_water) {
+                        const glm::ivec3 cell = gam::placement_cell(hit);
+                        const std::uint16_t occupant = world.block_at(cell.x, cell.y, cell.z);
+                        if (gam::is_replaceable(world.registry(), occupant) &&
+                            world.place_water_source(cell.x, cell.y, cell.z)) {
+                            bucket_has_water = false;
+                            OC_LOG_INFO("bucket: poured water source at ({}, {}, {})", cell.x, cell.y, cell.z);
+                        }
+                    } else if (world.remove_water_source(hit.block_pos.x, hit.block_pos.y, hit.block_pos.z,
+                                                         dirty_chunks)) {
+                        bucket_has_water = true;
+                        OC_LOG_INFO("bucket: filled from ({}, {}, {})", hit.block_pos.x, hit.block_pos.y,
+                                    hit.block_pos.z);
+                    }
+                } else {
+                    const glm::ivec3 cell = gam::placement_cell(hit);
+                    const auto status = gam::check_placement(world.registry(), world, cell, curr_state.position,
+                                                             curr_state.height(), phy::PlayerState::kHalfWidth);
+                    if (status == gam::PlacementStatus::Ok) {
+                        world.set_block(cell.x, cell.y, cell.z, selected_block, dirty_chunks);
+                        OC_LOG_INFO("placed {} at ({}, {}, {})", world.registry().string_of(selected_block), cell.x,
+                                    cell.y, cell.z);
+                    }
                 }
             }
             place_cooldown = 4; // ⚖ retry rhythm whether or not the attempt succeeded
@@ -974,13 +1047,21 @@ int main() {
         }
         prev_right = right_held;
 
-        // ── hotbar selection (number keys 1..9) ──────────────────────────────
+        // ── hotbar selection (blocks on 1..9, the bucket on 0) ───────────────
         for (int slot = 0; slot < 9; ++slot) {
             if (key_pressed(GLFW_KEY_1 + slot)) {
                 selected_slot = slot;
                 selected_block = hotbar[slot];
             }
         }
+        if (key_pressed(GLFW_KEY_0)) {
+            selected_slot = kBucketSlot;
+            selected_block = world.water_block_id();
+        }
+
+        // ── fluid scheduled ticks (T-F1): one step per game tick, exactly like
+        //    the rest of the simulation. Changed chunks go to the remesh list.
+        world.fluid_step(dirty_chunks);
 
         // ── autosave cadence: 200 ticks = ~10 s of game time (T009) ──────────
         if (save.maybe_autosave_tick()) {
@@ -1087,6 +1168,10 @@ int main() {
             }
 
             if (!dirty_chunks.empty()) {
+                // The fluid simulation can name the same chunk hundreds of
+                // times in one frame; remesh each chunk once.
+                std::sort(dirty_chunks.begin(), dirty_chunks.end());
+                dirty_chunks.erase(std::unique(dirty_chunks.begin(), dirty_chunks.end()), dirty_chunks.end());
                 const auto t0 = std::chrono::steady_clock::now();
                 for (const auto &[cx, cz] : dirty_chunks) {
                     if (world.chunk_ready(cx, cz)) {
@@ -1190,7 +1275,7 @@ int main() {
         glDisable(GL_CULL_FACE);
         order.clear();
         for (const auto &entry : renderables) {
-            if (entry.second.translucent) {
+            if (entry.second.translucent || entry.second.fluid) {
                 order.push_back(&entry.second);
             }
         }
@@ -1198,11 +1283,26 @@ int main() {
             return distance_sq(*a) > distance_sq(*b);
         });
         for (const ChunkRenderable *r : order) {
+            if (!r->translucent) {
+                continue;
+            }
             const auto [cx, cz] = r->pos;
             glUniform3f(shader.uniform_location("u_chunk_origin"), static_cast<float>(cx) * 16.0f, 0.0f,
                         static_cast<float>(cz) * 16.0f);
             r->translucent->vao.bind();
             glDrawElements(GL_TRIANGLES, r->translucent->index_count, GL_UNSIGNED_INT, nullptr);
+        }
+        // Water surfaces ride in the same pass with the same shader; only the
+        // vertex layout differs (float heights).
+        for (const ChunkRenderable *r : order) {
+            if (!r->fluid) {
+                continue;
+            }
+            const auto [cx, cz] = r->pos;
+            glUniform3f(shader.uniform_location("u_chunk_origin"), static_cast<float>(cx) * 16.0f, 0.0f,
+                        static_cast<float>(cz) * 16.0f);
+            r->fluid->vao.bind();
+            glDrawElements(GL_TRIANGLES, r->fluid->index_count, GL_UNSIGNED_INT, nullptr);
         }
         glEnable(GL_CULL_FACE);
 
@@ -1301,11 +1401,10 @@ int main() {
         glDrawArrays(GL_LINES, 0, 4);
         glEnable(GL_DEPTH_TEST);
 
-        // ── HUD: hotbar (9 slots + block name) and health hearts (T009) ─────
+        // ── HUD: hotbar (10 slots + item name) and health hearts (T009) ─────
         {
             glDisable(GL_DEPTH_TEST);
 
-            constexpr int kHotbarSlots = 9;
             constexpr float kSlotPx = 24.0f;
             constexpr float kSlotGap = 2.0f;
             const float bar_w = kHotbarSlots * kSlotPx + (kHotbarSlots - 1) * kSlotGap;
@@ -1367,17 +1466,23 @@ int main() {
                     const float y0 = bar_y0 + pad;
                     const float x1 = x0 + kSlotPx - pad * 2.0f;
                     const float y1 = y0 + kSlotPx - pad * 2.0f;
-                    const std::uint16_t tile = static_cast<std::uint16_t>(hotbar[i] * 3 + 1); // side tile
+                    // The bucket borrows the water tile: bright while it holds
+                    // water, dimmed when empty (placeholder art; a real icon
+                    // belongs to the M2 item layer).
+                    const bool bucket = i == kBucketSlot;
+                    const std::uint16_t icon_block = bucket ? world.water_block_id() : hotbar[i];
+                    const std::uint8_t icon_shade = bucket && !bucket_has_water ? 70 : 235;
+                    const std::uint16_t tile = static_cast<std::uint16_t>(icon_block * 3 + 1); // side tile
                     const std::uint16_t base = static_cast<std::uint16_t>(icon_verts.size());
                     // uv corner codes: 0=(0,0) tl, 1=(1,0) tr, 2=(0,1) bl, 3=(1,1) br.
                     icon_verts.push_back(
-                        {static_cast<std::uint16_t>(x0), static_cast<std::uint16_t>(y0), 0, tile, 0, 235});
+                        {static_cast<std::uint16_t>(x0), static_cast<std::uint16_t>(y0), 0, tile, 0, icon_shade});
                     icon_verts.push_back(
-                        {static_cast<std::uint16_t>(x1), static_cast<std::uint16_t>(y0), 0, tile, 1, 235});
+                        {static_cast<std::uint16_t>(x1), static_cast<std::uint16_t>(y0), 0, tile, 1, icon_shade});
                     icon_verts.push_back(
-                        {static_cast<std::uint16_t>(x1), static_cast<std::uint16_t>(y1), 0, tile, 3, 235});
+                        {static_cast<std::uint16_t>(x1), static_cast<std::uint16_t>(y1), 0, tile, 3, icon_shade});
                     icon_verts.push_back(
-                        {static_cast<std::uint16_t>(x0), static_cast<std::uint16_t>(y1), 0, tile, 2, 235});
+                        {static_cast<std::uint16_t>(x0), static_cast<std::uint16_t>(y1), 0, tile, 2, icon_shade});
                     icon_indices.insert(icon_indices.end(),
                                         {static_cast<std::uint32_t>(base), static_cast<std::uint32_t>(base + 1),
                                          static_cast<std::uint32_t>(base + 2), static_cast<std::uint32_t>(base),
@@ -1403,9 +1508,10 @@ int main() {
                 glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(icon_indices.size()), GL_UNSIGNED_INT, nullptr);
                 glEnable(GL_CULL_FACE);
             }
-            // Selected block name (uppercase) above the hotbar.
+            // Selected item name (uppercase) above the hotbar.
             {
-                std::string name = world.registry().string_of(selected_block);
+                std::string name = bucket_selected ? (bucket_has_water ? "water bucket" : "bucket")
+                                                   : world.registry().string_of(selected_block);
                 std::transform(name.begin(), name.end(), name.begin(),
                                [](unsigned char c) { return static_cast<char>(std::toupper(c)); });
                 std::vector<glm::vec2> tverts;
