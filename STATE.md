@@ -48,7 +48,7 @@ M1 判据达成：新档可走/挖/建闭环 + 退出重进不丢档（含 `kill
 | T-D3 | `WorldSave` 单把互斥锁：快照写盘期间主线程 `load_chunk` 会短暂等待；M1 规模可接受，流式大世界前改为按区域加锁 | T009 报告 | 中 |
 | T-D4 | 区块卸载策略未实现（`LightEngine::forget_chunk` 钩子已实现+单测，但客户端无"出视野即卸载"逻辑，故在游戏内未被驱动） | T009 报告 | 中（M3 流式加载） |
 | T-D5 | 输入用每帧轮询（`glfwGetKey`），短于一帧的脉冲会丢——对真人无影响（按键 50–150ms ≫ 帧间隔 11ms），属 P2 观感根因；可选加固：边沿类动作改 `glfwSetKeyCallback` | T009 报告 | 低 |
-| T-D6 | QUIT 按钮未经真实鼠标点击验证（开发者用 AX 关闭窗口走同一 `glfwSetWindowShouldClose` 路径验证了退出 flush；合成鼠标在本机仅启动瞬间可达） | T009 报告 | 低（待真人一次点击确认） |
+| ~~T-D6~~ | ~~QUIT 按钮待真人鼠标点击验证~~ → **✅ 已结案（2026-09-16）**：用户真人「ESC → 鼠标点 QUIT」退出，`clean shutdown` + `flushed on exit (ticks=20047)`；QUIT 与窗口关闭按钮共用 `main.cpp:1596` 同一 `glfwSetWindowShouldClose` 分支。证据 `docs/qa/td6-quit-2026-09-16/`（⚠ 落点含用户陈述：日志无法区分 QUIT 与关闭按钮） | 用户实测 | done |
 | T-D8 | `research/06` 附录的"跳跃冷却 10 tick"无官方来源支撑（2026-09-15 核验未找到）→ 须补官方来源或从规格删除，**不得写进 `docs/01`** | research/07 附录 A-1 | 低（阻塞=该数值入规格） |
 | T-D9 | 潜行速度口径不一致：`docs/01 §2` 写 1.295 m/s，官方 wiki Transportation 表为 1.3 m/s（差 0.4%） | research/07 附录 A-2 | 低（M2 建卡时核） |
 | **T-D19** | **暂停菜单命中坐标 HiDPI 修正未经实机验证**（T-D14 §7.1/S-2）：1x 下真实鼠标点击**已通过**，Retina（backing scale 2）未验；不通过则回滚该独立 hunk。**不得**据此关闭 T-D6（二者病因不同） | T-D14 报告 S-2 | 低 |

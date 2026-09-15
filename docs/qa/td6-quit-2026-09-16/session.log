@@ -1,0 +1,36 @@
+[2026-09-16 00:24:55.075] [info] OpenCraft 0.1.0 starting
+[2026-09-16 00:24:55.314] [info] GL 4.1 Metal - 89.4 / glad loaded
+[2026-09-16 00:24:55.315] [info] save: loaded level.ocd (seed=0x4f50454e43524146, ticks=19626, player=(-73.04, 137.00, -45.27), hp=20.0)
+[2026-09-16 00:24:55.553] [info] startup gen: 24 chunks, total 228.5 ms, avg 9.52 ms/chunk, max 12.16 ms
+[2026-09-16 00:24:55.555] [info] atlas: 144x144 px, 9 tiles/row, crack tiles at 63
+2026-09-16 00:24:57.462 opencraft[12731:264845] error messaging the mach port for IMKCFRunLoopWakeUpReliable
+[2026-09-16 00:24:57.596] [info] fps 39.9 | pos (-72.95, 137.00, -45.23) | chunks 117 | stream-meshed 108
+[2026-09-16 00:24:58.757] [info] sprint start at tick 19646 (pos -74.05, 137.00, -45.16)
+[2026-09-16 00:24:59.611] [info] fps 62.9 | pos (-78.64, 138.17, -45.17) | chunks 117 | stream-meshed 108
+[2026-09-16 00:25:00.298] [info] sprint-jump arc: 15 moves, horizontal 4.001 blocks, clearance 3.401, avg 5.334 m/s (from (-77.77, 137.42, -45.17))
+[2026-09-16 00:25:01.015] [info] sprint-jump arc: 14 moves, horizontal 4.164 blocks, clearance 3.564, avg 5.948 m/s (from (-82.36, 135.42, -45.22))
+[2026-09-16 00:25:01.618] [info] fps 69.8 | pos (-90.21, 133.00, -45.89) | chunks 130 | stream-meshed 121
+[2026-09-16 00:25:02.207] [info] sprint-jump arc: 12 moves, horizontal 3.160 blocks, clearance 2.560, avg 5.267 m/s (from (-90.69, 133.42, -45.93))
+[2026-09-16 00:25:03.111] [info] sprint-jump arc: 12 moves, horizontal 2.987 blocks, clearance 2.387, avg 4.979 m/s (from (-95.06, 133.42, -46.38))
+[2026-09-16 00:25:03.617] [info] fps 68.0 | pos (-100.35, 134.02, -44.61) | chunks 143 | stream-meshed 134
+[2026-09-16 00:25:03.770] [info] sprint-jump arc: 12 moves, horizontal 3.047 blocks, clearance 2.447, avg 5.079 m/s (from (-98.79, 133.42, -45.84))
+[2026-09-16 00:25:04.715] [info] sprint stop at tick 19757 (pos -105.80, 132.68, -43.99)
+[2026-09-16 00:25:04.827] [info] sprint-jump arc: 14 moves, horizontal 3.112 blocks, clearance 2.512, avg 4.445 m/s (from (-103.10, 133.42, -43.26))
+[2026-09-16 00:25:05.624] [info] fps 69.2 | pos (-105.62, 133.17, -43.30) | chunks 143 | stream-meshed 134
+[2026-09-16 00:25:07.639] [info] fps 60.6 | pos (-102.79, 133.00, -40.07) | chunks 143 | stream-meshed 134
+[2026-09-16 00:25:07.696] [info] sprint start at tick 19816 (pos -102.96, 133.00, -40.05)
+[2026-09-16 00:25:08.140] [info] autosave: 0 chunk(s) queued for async write, level written (ticks=19825)
+[2026-09-16 00:25:09.639] [info] fps 53.5 | pos (-111.69, 130.92, -43.53) | chunks 143 | stream-meshed 134
+[2026-09-16 00:25:10.996] [info] sprint stop at tick 19878 (pos -116.82, 128.77, -46.29)
+[2026-09-16 00:25:11.638] [info] fps 67.5 | pos (-117.34, 128.00, -46.75) | chunks 156 | stream-meshed 147
+[2026-09-16 00:25:12.481] [info] remeshed 6 chunk(s) in 23.89 ms (last mesh 3.74 ms)
+[2026-09-16 00:25:13.644] [info] fps 72.2 | pos (-117.34, 128.00, -46.75) | chunks 156 | stream-meshed 147
+[2026-09-16 00:25:14.201] [info] remeshed 6 chunk(s) in 21.21 ms (last mesh 3.48 ms)
+[2026-09-16 00:25:15.652] [info] fps 69.3 | pos (-115.44, 128.00, -48.45) | chunks 163 | stream-meshed 154
+[2026-09-16 00:25:17.038] [info] remeshed 9 chunk(s) in 31.73 ms (last mesh 3.42 ms)
+[2026-09-16 00:25:17.659] [info] fps 72.8 | pos (-116.23, 128.00, -47.84) | chunks 163 | stream-meshed 154
+[2026-09-16 00:25:18.641] [info] autosave: 2 chunk(s) queued for async write, level written (ticks=20025)
+[2026-09-16 00:25:18.822] [info] remeshed 6 chunk(s) in 23.96 ms (last mesh 3.85 ms)
+[2026-09-16 00:25:19.665] [info] fps 72.3 | pos (-116.62, 128.00, -47.65) | chunks 163 | stream-meshed 154
+[2026-09-16 00:25:21.166] [info] save: flushed on exit (ticks=20047, chunks cached=4)
+[2026-09-16 00:25:21.166] [info] clean shutdown
