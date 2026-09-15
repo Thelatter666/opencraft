@@ -134,6 +134,7 @@ public:
     // 0 for a cell without fluid; worldgen water is not in the fluid layer and
     // therefore keeps meshing as a full cube.
     [[nodiscard]] float fluid_height_at(int wx, int wy, int wz) const override;
+    [[nodiscard]] render::FluidSpan fluid_span(int cx, int cz) const override;
 
     // --- voxel::IFluidWorld (the simulation's world view) --------------------
     [[nodiscard]] std::uint16_t fluid_at(int wx, int wy, int wz) const override;

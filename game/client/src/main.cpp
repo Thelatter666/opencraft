@@ -1006,8 +1006,14 @@ int main() {
         if (place_cooldown > 0) {
             --place_cooldown;
         }
+        // The block path repeats every 4 ticks while the button is held
+        // (docs/01 §4). The bucket must NOT: a placed source is immediately
+        // pickable again, so a held button alternates pour -> scoop (observed
+        // on-machine: pour then scoop 4 ticks later), which reads as a broken
+        // item. Item use is therefore edge-triggered.
+        const bool use_edge = !prev_right;
         if (right_held && (place_cooldown == 0 || !prev_right)) {
-            if (hit.hit) {
+            if (hit.hit && (!bucket_selected || use_edge)) {
                 if (bucket_selected) {
                     // ── bucket (T-F1) ────────────────────────────────────────
                     // Filled: pour a source into the cell the hit face opens

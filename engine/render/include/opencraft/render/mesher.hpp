@@ -11,6 +11,9 @@ namespace opencraft::render {
 inline constexpr int kChunkSizeX = 16;
 inline constexpr int kChunkSizeY = 384;
 inline constexpr int kChunkSizeZ = 16;
+// Side of one cubic storage section (mirrors voxel::Chunk::kSectionSize); the
+// fluid span below is expressed in these bands.
+inline constexpr int kSectionSize = 16;
 
 // Position of the chunk being meshed, in chunk coordinates.
 struct ChunkPos {
@@ -38,6 +41,15 @@ public:
     [[nodiscard]] virtual std::uint16_t block_at(int wx, int wy, int wz) const = 0;
 };
 
+// Half-open vertical span of a chunk, counted in 16-block sections. An empty
+// span (first == last) means "no fluid anywhere in this chunk".
+struct FluidSpan {
+    int first = 0;
+    int last = 0;
+
+    [[nodiscard]] bool empty() const { return first >= last; }
+};
+
 // Fluid surface provider (task T-F1, docs/research/10 §1.3). Returns the
 // surface height of the fluid sitting in a cell: 0 means "no fluid here",
 // otherwise 0 < h <= 1 gives the surface height above the cell floor. Same
@@ -52,6 +64,13 @@ public:
     virtual ~IFluidSource() = default;
 
     [[nodiscard]] virtual float fluid_height_at(int wx, int wy, int wz) const = 0;
+
+    // Sections of the chunk that can hold fluid, so the mesher can skip the
+    // per-voxel fluid query outside them. Every cell of a fluid-free chunk
+    // would otherwise cost a world-position lookup (measured 0.74 -> 6.25 ms
+    // per chunk before this hook existed, against the docs/03 §10 5 ms
+    // budget).
+    [[nodiscard]] virtual FluidSpan fluid_span(int cx, int cz) const = 0;
 };
 
 // Packed mesh vertex, 10 bytes (task T005 contract: compact layout with a

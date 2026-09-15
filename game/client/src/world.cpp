@@ -276,6 +276,24 @@ float WorldSource::fluid_height_at(int wx, int wy, int wz) const {
     return voxel::fluid_render_height(cell.level);
 }
 
+render::FluidSpan WorldSource::fluid_span(int cx, int cz) const {
+    const voxel::Chunk *chunk = chunks_.find(cx, cz);
+    if (chunk == nullptr) {
+        return {};
+    }
+    render::FluidSpan span{};
+    for (int section = 0; section < voxel::Chunk::kSectionCount; ++section) {
+        if (chunk->fluid_section_empty(section)) {
+            continue;
+        }
+        if (span.empty()) {
+            span.first = section;
+        }
+        span.last = section + 1;
+    }
+    return span;
+}
+
 std::uint16_t WorldSource::fluid_at(int wx, int wy, int wz) const {
     if (wy < 0 || wy >= voxel::Chunk::kSizeY) {
         return 0;

@@ -144,6 +144,16 @@ MeshData build_chunk_mesh(const IBlockSource &blocks, ChunkPos pos, const IFluid
 
     constexpr int kSideOffsets[4][2] = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
 
+    // Fluid-free chunks (the vast majority) skip the whole fluid scan: without
+    // this every cell of every chunk paid a world-position fluid lookup.
+    int fluid_y0 = 0;
+    int fluid_y1 = 0;
+    if (fluid != nullptr) {
+        const FluidSpan span = fluid->fluid_span(pos.cx, pos.cz);
+        fluid_y0 = span.empty() ? 0 : span.first * kSectionSize;
+        fluid_y1 = span.empty() ? 0 : span.last * kSectionSize;
+    }
+
     for (int y = 0; y < kChunkSizeY; ++y) {
         for (int z = 0; z < kChunkSizeZ; ++z) {
             for (int x = 0; x < kChunkSizeX; ++x) {
@@ -151,7 +161,7 @@ MeshData build_chunk_mesh(const IBlockSource &blocks, ChunkPos pos, const IFluid
                 const int world_z = base_z + z;
                 const std::uint16_t id = blocks.block_at(world_x, y, world_z);
 
-                if (fluid != nullptr) {
+                if (y >= fluid_y0 && y < fluid_y1) {
                     const float height = fluid->fluid_height_at(world_x, y, world_z);
                     if (height > 0.0f) {
                         const float fx = static_cast<float>(x);

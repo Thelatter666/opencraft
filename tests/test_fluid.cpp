@@ -557,6 +557,26 @@ public:
         const auto it = heights.find(pack_pos(wx, wy, wz));
         return it == heights.end() ? 0.0f : it->second;
     }
+
+    // Mirrors WorldSource: the span covers every section that holds a height.
+    [[nodiscard]] render::FluidSpan fluid_span(int cx, int cz) const override {
+        render::FluidSpan span{};
+        for (const auto &[packed, height] : heights) {
+            static_cast<void>(height);
+            const int wx = static_cast<int>(packed >> 40);
+            const int wz = static_cast<int>((packed >> 20) & 0xFFFFF);
+            if (static_cast<int>(std::floor(static_cast<double>(wx) / 16.0)) != cx ||
+                static_cast<int>(std::floor(static_cast<double>(wz) / 16.0)) != cz) {
+                continue;
+            }
+            const int section = static_cast<int>((packed & 0xFFFFF) / render::kSectionSize);
+            if (span.empty()) {
+                span.first = section;
+            }
+            span.last = section + 1;
+        }
+        return span;
+    }
 };
 
 constexpr std::uint16_t kWaterBlock = 12;
