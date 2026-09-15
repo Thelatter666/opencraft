@@ -22,6 +22,7 @@
 #include "bitmap_font.hpp"
 #include "block_colors.hpp"
 #include "camera_spring.hpp"
+#include "chunk_renderer.hpp"
 #include "cube_geometry.hpp"
 #include "fov.hpp"
 #include "opencraft/core/log.hpp"
@@ -66,69 +67,6 @@ constexpr double kEyeSneaking = 1.27;
 
 void error_callback(int error_code, const char *description) {
     OC_LOG_ERROR("GLFW error {}: {}", error_code, description);
-}
-
-// GPU-side mesh of one chunk layer (opaque or translucent).
-struct ChunkLayer {
-    render::VertexArray vao;
-    render::Buffer vbo;
-    render::Buffer ebo;
-    GLsizei index_count = 0;
-
-    ChunkLayer(render::VertexArray &&vao_, render::Buffer &&vbo_, render::Buffer &&ebo_, GLsizei count)
-        : vao(std::move(vao_)), vbo(std::move(vbo_)), ebo(std::move(ebo_)), index_count(count) {}
-};
-
-// Per-chunk renderable: nullopt when the bucket has no geometry.
-struct ChunkRenderable {
-    render::ChunkPos pos;
-    std::optional<ChunkLayer> opaque;
-    std::optional<ChunkLayer> translucent;
-    // T-F1 water surfaces: fractional-height fluid quads, drawn in the same
-    // pass as the translucent bucket (float positions, so its own layer).
-    std::optional<ChunkLayer> fluid;
-    glm::vec3 center; // chunk center in world space, for draw sorting
-};
-
-ChunkLayer upload_layer(const render::MeshBucket &bucket) {
-    auto vao = render::VertexArray();
-    vao.bind();
-    auto vbo = render::Buffer(render::Buffer::Target::Vertex, bucket.vertices.data(),
-                              bucket.vertices.size() * sizeof(render::MeshVertex), render::Buffer::Usage::Static);
-    vbo.bind();
-    constexpr std::size_t kStride = sizeof(render::MeshVertex);
-    vao.set_attribute(0, 3, GL_UNSIGNED_SHORT, kStride, offsetof(render::MeshVertex, x));
-    vao.set_attribute(1, 1, GL_UNSIGNED_SHORT, kStride, offsetof(render::MeshVertex, tile));
-    vao.set_attribute(2, 1, GL_UNSIGNED_BYTE, kStride, offsetof(render::MeshVertex, uv));
-    vao.set_attribute(3, 1, GL_UNSIGNED_BYTE, kStride, offsetof(render::MeshVertex, shade));
-    auto ebo = render::Buffer(render::Buffer::Target::Index, bucket.indices.data(),
-                              bucket.indices.size() * sizeof(std::uint32_t), render::Buffer::Usage::Static);
-    ebo.bind(); // index buffer is captured by the bound VAO
-    return ChunkLayer(std::move(vao), std::move(vbo), std::move(ebo), static_cast<GLsizei>(bucket.indices.size()));
-}
-
-ChunkLayer upload_fluid_layer(const render::FluidBucket &bucket) {
-    auto vao = render::VertexArray();
-    vao.bind();
-    auto vbo = render::Buffer(render::Buffer::Target::Vertex, bucket.vertices.data(),
-                              bucket.vertices.size() * sizeof(render::FluidVertex), render::Buffer::Usage::Static);
-    vbo.bind();
-    constexpr std::size_t kStride = sizeof(render::FluidVertex);
-    // Float positions: a water surface sits at a fractional height.
-    vao.set_attribute(0, 3, GL_FLOAT, kStride, offsetof(render::FluidVertex, x));
-    vao.set_attribute(1, 1, GL_UNSIGNED_SHORT, kStride, offsetof(render::FluidVertex, tile));
-    vao.set_attribute(2, 1, GL_UNSIGNED_BYTE, kStride, offsetof(render::FluidVertex, uv));
-    vao.set_attribute(3, 1, GL_UNSIGNED_BYTE, kStride, offsetof(render::FluidVertex, shade));
-    auto ebo = render::Buffer(render::Buffer::Target::Index, bucket.indices.data(),
-                              bucket.indices.size() * sizeof(std::uint32_t), render::Buffer::Usage::Static);
-    ebo.bind();
-    return ChunkLayer(std::move(vao), std::move(vbo), std::move(ebo), static_cast<GLsizei>(bucket.indices.size()));
-}
-
-[[nodiscard]] std::int64_t chunk_key(int cx, int cz) {
-    const auto ux = static_cast<std::uint64_t>(static_cast<std::uint32_t>(cx));
-    const auto uz = static_cast<std::uint32_t>(cz);
-    return static_cast<std::int64_t>((ux << 32) | uz);
 }
 
 } // namespace
@@ -396,7 +334,7 @@ int main() {
     gam::MiningTracker mining(world.registry());
     opencraft::core::TickClock tick_clock;
     std::vector<std::pair<int, int>> dirty_chunks;
-    std::unordered_map<std::int64_t, ChunkRenderable> renderables;
+    client::ChunkRenderableMap renderables;
     double last_mesh_ms = 0.0;
 
     // Hand swing + break particles (T009 mining feedback).
@@ -422,31 +360,10 @@ int main() {
         glfwSetInputMode(window, GLFW_RAW_MOUSE_MOTION, GLFW_RAW_MOUSE_MOTION);
     }
 
-    auto mesh_chunk = [&](int cx, int cz) {
-        const auto t0 = std::chrono::steady_clock::now();
-        render::MeshData mesh = render::build_chunk_mesh(world, render::ChunkPos{cx, cz}, &world);
-        opencraft::client::shade_mesh_with_light(mesh, world, cx, cz);
-        last_mesh_ms = std::chrono::duration<double, std::milli>(std::chrono::steady_clock::now() - t0).count();
-
-        ChunkRenderable r;
-        r.pos = render::ChunkPos{cx, cz};
-        r.center = glm::vec3(static_cast<float>(cx) * 16.0f + 8.0f, 8.0f, static_cast<float>(cz) * 16.0f + 8.0f);
-        if (!mesh.opaque.indices.empty()) {
-            r.opaque.emplace(upload_layer(mesh.opaque));
-        }
-        if (!mesh.translucent.indices.empty()) {
-            r.translucent.emplace(upload_layer(mesh.translucent));
-        }
-        if (!mesh.fluid.indices.empty()) {
-            r.fluid.emplace(upload_fluid_layer(mesh.fluid));
-        }
-        renderables[chunk_key(cx, cz)] = std::move(r);
-    };
-
     // Initial 3x3 meshes (5x5 generated above, so neighbors are lit).
     for (int cx = -1; cx <= 1; ++cx) {
         for (int cz = -1; cz <= 1; ++cz) {
-            mesh_chunk(cx, cz);
+            client::mesh_chunk(renderables, world, cx, cz, last_mesh_ms);
         }
     }
 
@@ -805,7 +722,7 @@ int main() {
                 const auto t0 = std::chrono::steady_clock::now();
                 for (const auto &[cx, cz] : dirty_chunks) {
                     if (world.chunk_ready(cx, cz)) {
-                        mesh_chunk(cx, cz);
+                        client::mesh_chunk(renderables, world, cx, cz, last_mesh_ms);
                     }
                 }
                 OC_LOG_INFO("remeshed {} chunk(s) in {:.2f} ms (last mesh {:.2f} ms)", dirty_chunks.size(),
@@ -823,8 +740,8 @@ int main() {
                 }
                 const int cx = pcx + dx;
                 const int cz = pcz + dz;
-                if (world.neighbors_ready(cx, cz) && renderables.find(chunk_key(cx, cz)) == renderables.end()) {
-                    mesh_chunk(cx, cz);
+                if (world.neighbors_ready(cx, cz) && renderables.find(client::chunk_key(cx, cz)) == renderables.end()) {
+                    client::mesh_chunk(renderables, world, cx, cz, last_mesh_ms);
                     ++stream_meshed;
                     --mesh_left;
                 }
@@ -873,68 +790,9 @@ int main() {
         shader.use();
         glUniformMatrix4fv(shader.uniform_location("u_mvp"), 1, GL_FALSE, &mvp[0][0]);
 
-        const auto distance_sq = [&](const ChunkRenderable &r) { return glm::dot(r.center - eye_f, r.center - eye_f); };
-
-        // Opaque pass: near -> far (early-Z friendly), depth writes on.
-        glDisable(GL_BLEND);
-        glEnable(GL_CULL_FACE);
-        glDepthMask(GL_TRUE);
-        std::vector<const ChunkRenderable *> order;
-        order.reserve(renderables.size());
-        for (const auto &entry : renderables) {
-            if (entry.second.opaque) {
-                order.push_back(&entry.second);
-            }
-        }
-        std::sort(order.begin(), order.end(), [&](const ChunkRenderable *a, const ChunkRenderable *b) {
-            return distance_sq(*a) < distance_sq(*b);
-        });
-        for (const ChunkRenderable *r : order) {
-            const auto [cx, cz] = r->pos;
-            glUniform3f(shader.uniform_location("u_chunk_origin"), static_cast<float>(cx) * 16.0f, 0.0f,
-                        static_cast<float>(cz) * 16.0f);
-            r->opaque->vao.bind();
-            glDrawElements(GL_TRIANGLES, r->opaque->index_count, GL_UNSIGNED_INT, nullptr);
-        }
-
-        // Translucent pass (water/leaves/glass): far -> near, no depth writes,
-        // double-sided (docs/research/03 §1.5; per-chunk sorting only).
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-        glDepthMask(GL_FALSE);
-        glDisable(GL_CULL_FACE);
-        order.clear();
-        for (const auto &entry : renderables) {
-            if (entry.second.translucent || entry.second.fluid) {
-                order.push_back(&entry.second);
-            }
-        }
-        std::sort(order.begin(), order.end(), [&](const ChunkRenderable *a, const ChunkRenderable *b) {
-            return distance_sq(*a) > distance_sq(*b);
-        });
-        for (const ChunkRenderable *r : order) {
-            if (!r->translucent) {
-                continue;
-            }
-            const auto [cx, cz] = r->pos;
-            glUniform3f(shader.uniform_location("u_chunk_origin"), static_cast<float>(cx) * 16.0f, 0.0f,
-                        static_cast<float>(cz) * 16.0f);
-            r->translucent->vao.bind();
-            glDrawElements(GL_TRIANGLES, r->translucent->index_count, GL_UNSIGNED_INT, nullptr);
-        }
-        // Water surfaces ride in the same pass with the same shader; only the
-        // vertex layout differs (float heights).
-        for (const ChunkRenderable *r : order) {
-            if (!r->fluid) {
-                continue;
-            }
-            const auto [cx, cz] = r->pos;
-            glUniform3f(shader.uniform_location("u_chunk_origin"), static_cast<float>(cx) * 16.0f, 0.0f,
-                        static_cast<float>(cz) * 16.0f);
-            r->fluid->vao.bind();
-            glDrawElements(GL_TRIANGLES, r->fluid->index_count, GL_UNSIGNED_INT, nullptr);
-        }
-        glEnable(GL_CULL_FACE);
+        std::vector<const client::ChunkRenderable *> order;
+        client::draw_chunk_opaque_pass(renderables, shader, eye_f, order);
+        client::draw_chunk_translucent_pass(renderables, shader, eye_f, order);
 
         // ── break particles (T009): depth-tested points, no depth writes ────
         {

@@ -9,6 +9,7 @@ add_executable(opencraft
     src/cube_geometry.cpp
     src/particles.cpp
     src/block_colors.cpp
+    src/chunk_renderer.cpp
 )
 
 target_include_directories(opencraft PRIVATE src)
