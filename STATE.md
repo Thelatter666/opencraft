@@ -65,7 +65,9 @@ M1 判据达成：新档可走/挖/建闭环 + 退出重进不丢档（含 `kill
 | T-D13 | 摄像机垂直弹簧阻尼（消除垂直突变瞬移感） | **done（已合入 main，225/225）** | act_mu1rsuc8_b511a2558449 | 物理层零 diff；ζ=1.0 **解析解**（欧拉在 30fps 发散）；过渡 0.214–0.233 s |
 | T-D14 | **Auto-Jump 机制（1 格坎自动跳，MC 1.10+）** | **done（已合入 main，243/243）** | act_mu2b9v46_66491e51c607 | PM **干净检出**（`git archive`）从零 configure+build 复验 **243/243**；跳跃顶点 **1.252203** 与
    ⚖ 1.2522 独立复现；门限/窗口/净空/贴墙 12 条断言 PM 逐条自测通过。报告 `docs/tasks/T-D14.report.md` |
-| ~~T-D17~~ | ~~WorldSource 未接 `shape_top_at` ⇒ step-assist 实机不可达~~ | **✗ 定性错误，该卡不可验收，已作废**（PM 2026-09-15 复核） | act_mu1ulil7_ac7dd414a8a6 | 真实原因是**内容缺口**（无部分高度方块），非适配器缺陷。重定为「部分高度方块地基」，降级待排 |
+| **T-D22** | **wiki 口径差异待实机校准**：坡度搜索半径 Fluid 页 5/3 vs Water 页 "four or fewer"；岩浆 flowdistance 正文 3/7 vs 模板 4/8。裁决取 5/3，须做成常量并标"待校准"，校准前不得声称逐格一致 | T-R1 裁决 2 | 中 |
+| **T-D23** | **水中重力 0.005 / 阻尼 0.20·0.50 / 推力 0.014 无法溯源**（wiki `Entity` 页无对应行）⇒ **禁止写入 `docs/01`/`docs/03`**；实现需参数时改用已核验的 `PhysicsConfig::water_*` 或实测 | T-R1 裁决 3 | 中 |
+| T-R1 | MC 流体系统调研白皮书（技术顾问/研究员） | **done（2026-09-16）** | act_mu2wexpf_a1e8fb003b68 | 产出 `docs/research/10-mc-fluid-dynamics.md`（722 行）；PM 合规扫描干净；裁决见 `T-R1.ruling.md`（4 项全采纳） |
 | T-D12 | 水的 MC 流体模型（含疾速游泳 3.918 m/s 档） | pending | act_mu1lx3du_1aa4fc5507a4 | 当前 2.16 m/s 只对应普通游泳 |
 
 ## 下一步（只放当前有效动作）
