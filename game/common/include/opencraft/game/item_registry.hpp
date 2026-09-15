@@ -49,12 +49,26 @@ inline constexpr int kStackLimitSingle = 1;
     return max_stack == kStackLimitLarge || max_stack == kStackLimitMedium || max_stack == kStackLimitSingle;
 }
 
+// ── Item -> block link (T-I2, T-I1 ruling S-2) ─────────────────────────────
+//
+// The sentinel for "this item is not placed as a block" (food, materials,
+// tools, armour, containers). Deliberately NOT 0: block id 0 is air, a legal
+// value, so 0 would make "places air" and "places nothing" indistinguishable.
+// Tests assert it differs from BlockRegistry::kAirId; this header stays free
+// of the block layer's header, exactly like StringHash above.
+inline constexpr std::uint16_t kNoBlock = 0xFFFF;
+
 // Static description of an item type. Data only: no per-stack state, no
 // components/NBT (M2c content cards add what they actually need).
 struct ItemDef {
     std::string display_name;
     int max_stack = kStackLimitLarge;
     EquipSlot equip = EquipSlot::None;
+    // The block this item places, or kNoBlock. Read-only: fixed when the item
+    // is registered, never written afterwards (S-2). These are BLOCK ids, so
+    // they are only meaningful against the block registry the item set was
+    // built for -- see ItemRegistry::create_default().
+    std::uint16_t block = kNoBlock;
 };
 
 // String-id to runtime numeric-id mapping (docs/03 §7), mirroring the

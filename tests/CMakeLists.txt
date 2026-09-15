@@ -31,6 +31,7 @@ add_executable(opencraft_tests
     test_item_registry.cpp
     test_item_stack.cpp
     test_inventory.cpp
+    test_inventory_wiring.cpp
 )
 
 # opencraft_worldgen PUBLIC-links opencraft_voxel and opencraft_noise;

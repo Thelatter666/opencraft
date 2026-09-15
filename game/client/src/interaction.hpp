@@ -1,31 +1,46 @@
 #pragma once
 
-// Client-side interaction/carry state: the hotbar selection, the held item, the
-// input edges that drive placement, the targeting + crack overlay and the swing
-// / sprint-jump QA counters. Moved out of main.cpp by T-M1 (pure code motion)
-// so a logic tick and the renderer share the same named state instead of
-// main()'s locals.
+// Client-side interaction/carry state: the player's inventory, the hotbar
+// selection, the input edges that drive placement, the targeting + crack
+// overlay and the swing / sprint-jump QA counters. Moved out of main.cpp by
+// T-M1 (pure code motion) so a logic tick and the renderer share the same
+// named state instead of main()'s locals.
 //
-// Every default is the value main.cpp initialised it to before the split.
+// T-I2 replaced the T-F1/T008 placeholders with the real model: the 9-item
+// hardcoded block array and the `bucket_has_water` bool are gone, and the held
+// item is whatever the selected inventory cell holds. Everything the renderer
+// and the tick need about it is cached in selected_stack / selected_block /
+// selected_use, refreshed by refresh_selection().
 
-#include <array>
 #include <cstdint>
 
 #include <glm/glm.hpp>
 
+#include "inventory_wiring.hpp"
+#include "opencraft/game/inventory.hpp"
+
 namespace opencraft::client {
 
 struct InteractionState {
+    // ── inventory (T-I2) ────────────────────────────────────────────────────
+    // The player's 41 cells. The hotbar the player sees is cells 0..8 of it,
+    // so "the selected hotbar cell" is a plain index into this same numbering
+    // (docs/01 §5 layout; game/inventory.hpp).
+    game::Inventory inventory;
+    // The T-F1 container pair as item ids (empty_vessel / water_vessel).
+    VesselIds vessels;
+
+    explicit InteractionState(const game::ItemRegistry &items) : inventory(items), vessels(resolve_vessel_ids(items)) {}
+
     // ── hotbar / held item ──────────────────────────────────────────────────
-    std::array<std::uint16_t, 9> hotbar{}; // keys 1..9; the bucket is kBucketSlot
     int selected_slot = 0;
-    // The id the held-item overlay and the placed block use; for the bucket it
-    // is the water placeholder (the bucket itself has no block form yet).
-    std::uint16_t selected_block = 0;
-    // Mirrors selected_slot for the HUD and the render pass (the tick's
-    // targeting needs it before the hotbar keys are polled).
-    bool bucket_selected = false;
-    bool bucket_has_water = false;
+    // Cache of the selected cell, so the renderer and the tick's targeting do
+    // not have to re-derive it. Only refresh_selection() writes these.
+    game::ItemStack selected_stack{};
+    // Block form of selected_stack; kNoBlock when the held item is not
+    // placeable (the sentinel is never a valid block id -- see item_registry).
+    std::uint16_t selected_block = game::kNoBlock;
+    ItemUse selected_use = ItemUse::None;
 
     // ── input edges / retry cooldown ────────────────────────────────────────
     bool prev_w = false;
@@ -48,6 +63,27 @@ struct InteractionState {
     bool jump_arc_open = false;
     glm::dvec3 jump_arc_start{0.0, 0.0, 0.0};
     int jump_arc_ticks = 0;
+
+    // Selects a hotbar cell (keys 1..9). Out-of-range values are ignored, so
+    // the caller never has to clamp.
+    void select_slot(int slot) {
+        if (slot < 0 || slot >= game::kHotbarSlots) {
+            return;
+        }
+        selected_slot = slot;
+        refresh_selection();
+    }
+
+    // Re-reads the cache from the inventory. Call after anything that can
+    // change the selected cell: a key, a placement, a vessel swap, load.
+    void refresh_selection() {
+        if (selected_slot < 0 || selected_slot >= game::kHotbarSlots) {
+            selected_slot = 0; // never point outside the bar
+        }
+        selected_stack = inventory.slot(selected_slot);
+        selected_block = placed_block_of(inventory.registry(), selected_stack);
+        selected_use = item_use_of(inventory.registry(), selected_stack, vessels);
+    }
 };
 
 } // namespace opencraft::client

@@ -268,39 +268,30 @@ int main() {
     // pause menu (the non-idempotent AUTO-JUMP toggle button).
     bool prev_menu_clicked = false;
     bool prev_esc = false;
-    // Input edges, carry state, targeting and the T-D1 sprint-jump QA counters
-    // live in one object; every default in it is the value this code used
-    // before the split (see interaction.hpp).
-    client::InteractionState interact;
+    // ── items + inventory (T-I2) ────────────────────────────────────────────
+    // One item registry per process, exactly like the block registry inside
+    // WorldSource. It owns the item -> block links, so it must outlive the
+    // interaction state that holds the inventory.
+    const gam::ItemRegistry item_registry = gam::ItemRegistry::create_default();
+    // Input edges, inventory, targeting and the T-D1 sprint-jump QA counters
+    // live in one object (see interaction.hpp). The launch kit gives the
+    // player something to see on the first frame.
+    client::InteractionState interact(item_registry);
+    client::fill_starting_inventory(interact.inventory);
+    interact.refresh_selection();
 
-    // ── hotbar (10 slots: keys 1..9 pick blocks, 0 picks the bucket; creative
-    //    palette, real inventory is M2) ───────────────────────────────────────
-    static constexpr std::array<const char *, 9> kHotbarNames = {"stone",  "cobblestone", "dirt", "planks", "log",
-                                                                 "leaves", "glass",       "sand", "gravel"};
-    for (int slot = 0; slot < 9; ++slot) {
-        interact.hotbar[slot] = world.registry().id_of(kHotbarNames[slot]);
-    }
-    if (stored_level.has_value() && stored_level->has_player &&
-        stored_level->selected_block < world.registry().size()) {
-        // Restore the persisted selection to its slot when it is on the bar.
-        // The bucket is not a block, so it persists as the water id it mashes
-        // to; nothing else on the bar has that id.
-        if (stored_level->selected_block == world.water_block_id()) {
-            interact.selected_slot = client::kBucketSlot;
-        }
-        for (int slot = 0; slot < 9; ++slot) {
-            if (interact.hotbar[slot] == stored_level->selected_block) {
-                interact.selected_slot = slot;
+    if (stored_level.has_value() && stored_level->has_player && stored_level->selected_block != 0) {
+        // Restore the persisted selection to the cell whose item places that
+        // block. The field is a block id, so it cannot name a vessel or any
+        // other non-placeable item; those fall back to the first cell.
+        const std::uint16_t saved_block = stored_level->selected_block;
+        for (int slot = 0; slot < client::kHotbarSlots; ++slot) {
+            if (client::placed_block_of(item_registry, interact.inventory.slot(slot)) == saved_block) {
+                interact.select_slot(slot);
                 break;
             }
         }
     }
-    // The id the held-item overlay and the placed block use; for the bucket it
-    // is the water placeholder (the bucket itself has no block form yet).
-    const auto slot_block = [&](int slot) {
-        return slot == client::kBucketSlot ? world.water_block_id() : interact.hotbar[slot];
-    };
-    interact.selected_block = slot_block(interact.selected_slot);
 
     gam::MiningTracker mining(world.registry());
     opencraft::core::TickClock tick_clock;
@@ -598,7 +589,10 @@ int main() {
         // ── held block with swing animation (T009) ──────────────────────────
         // Drawn last against cleared depth so it always sits over the world.
         // The crack shader does the textured-cube job: per-face tile uniform,
-        // so the top/bottom/side faces get three draw calls.
+        // so the top/bottom/side faces get three draw calls. T-I2: the cube is
+        // the held stack's stand-in block (a water vessel shows the water it
+        // carries), so an empty hand and the items with no cube yet draw
+        // nothing.
         {
             double swing_t = (glfwGetTime() - interact.swing_start) / 0.25;
             if (swing_t >= 1.0) {
@@ -606,22 +600,26 @@ int main() {
                 interact.swinging = false;
             }
             const float s = interact.swinging ? std::sin(static_cast<float>(swing_t) * 3.14159265f) : 0.0f;
-            glClear(GL_DEPTH_BUFFER_BIT);
-            glDisable(GL_CULL_FACE);
-            crack_shader.use();
-            glUniformMatrix4fv(crack_shader.uniform_location("u_mvp"), 1, GL_FALSE, &projection[0][0]);
-            glUniform3f(crack_shader.uniform_location("u_offset"), 0.42f - s * 0.16f, -0.42f - s * 0.14f,
-                        -0.80f - s * 0.12f);
-            glUniform1f(crack_shader.uniform_location("u_scale"), 0.32f);
-            crack_vao.bind();
-            // build_cube_geometry face order: f0 top, f1 bottom, f2..f5 sides.
-            glUniform1f(crack_shader.uniform_location("u_tile"), static_cast<float>(interact.selected_block * 3 + 1));
-            glDrawArrays(GL_TRIANGLES, 12, 24); // 4 side faces
-            glUniform1f(crack_shader.uniform_location("u_tile"), static_cast<float>(interact.selected_block * 3 + 0));
-            glDrawArrays(GL_TRIANGLES, 0, 6); // top
-            glUniform1f(crack_shader.uniform_location("u_tile"), static_cast<float>(interact.selected_block * 3 + 2));
-            glDrawArrays(GL_TRIANGLES, 6, 6); // bottom
-            glEnable(GL_CULL_FACE);
+            const client::StandInVisual held = client::stand_in_visual_of(item_registry, interact.selected_stack,
+                                                                          world.water_block_id(), interact.vessels);
+            if (held.block != gam::kNoBlock) {
+                glClear(GL_DEPTH_BUFFER_BIT);
+                glDisable(GL_CULL_FACE);
+                crack_shader.use();
+                glUniformMatrix4fv(crack_shader.uniform_location("u_mvp"), 1, GL_FALSE, &projection[0][0]);
+                glUniform3f(crack_shader.uniform_location("u_offset"), 0.42f - s * 0.16f, -0.42f - s * 0.14f,
+                            -0.80f - s * 0.12f);
+                glUniform1f(crack_shader.uniform_location("u_scale"), 0.32f);
+                crack_vao.bind();
+                // build_cube_geometry face order: f0 top, f1 bottom, f2..f5 sides.
+                glUniform1f(crack_shader.uniform_location("u_tile"), static_cast<float>(held.block * 3 + 1));
+                glDrawArrays(GL_TRIANGLES, 12, 24); // 4 side faces
+                glUniform1f(crack_shader.uniform_location("u_tile"), static_cast<float>(held.block * 3 + 0));
+                glDrawArrays(GL_TRIANGLES, 0, 6); // top
+                glUniform1f(crack_shader.uniform_location("u_tile"), static_cast<float>(held.block * 3 + 2));
+                glDrawArrays(GL_TRIANGLES, 6, 6); // bottom
+                glEnable(GL_CULL_FACE);
+            }
         }
 
         // ── crosshair ───────────────────────────────────────────────────────
@@ -636,15 +634,18 @@ int main() {
         glDrawArrays(GL_LINES, 0, 4);
         glEnable(GL_DEPTH_TEST);
 
-        // ── HUD: hotbar (10 slots + item name) and health hearts (T009) ─────
-        const client::HudState hud_state{fb_width,
-                                         fb_height,
-                                         interact.hotbar,
-                                         interact.selected_slot,
-                                         interact.bucket_selected,
-                                         interact.bucket_has_water,
-                                         interact.selected_block,
-                                         curr_state.health};
+        // ── HUD: hotbar (the inventory's 9 cells + item name + counts) and
+        //    health hearts (T009) ─────────────────────────────────────────
+        const client::HudState hud_state{
+            .fb_width = fb_width,
+            .fb_height = fb_height,
+            .hotbar = std::span<const gam::ItemStack, gam::kHotbarSlots>(interact.inventory.slots().data(),
+                                                                         gam::kHotbarSlots),
+            .items = &item_registry,
+            .vessels = interact.vessels,
+            .selected_slot = interact.selected_slot,
+            .health = curr_state.health,
+        };
         client::draw_hud(hud_res, hud_state);
 
         // ── pause menu (drawn over the live scene; no ticks while paused) ───

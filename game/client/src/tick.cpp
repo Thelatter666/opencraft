@@ -54,7 +54,12 @@ storage::LevelData make_level_data(const TickContext &ctx) {
     level.fall_distance = ctx.curr_state.fall_distance;
     level.pose = static_cast<std::uint8_t>(ctx.curr_state.pose);
     level.on_ground = ctx.curr_state.on_ground;
-    level.selected_block = ctx.state.selected_block;
+    // The saved field is the selected item's block form. An item without one
+    // (a vessel, food, a tool) has no block to record and saves as air; the
+    // selection is restored to the cell holding that block, or to the first
+    // cell when there is none. Persisting the selection itself is M2c, with
+    // the inventory.
+    level.selected_block = ctx.state.selected_block == gam::kNoBlock ? 0 : ctx.state.selected_block;
     return level;
 }
 
@@ -139,15 +144,15 @@ void run_tick(const TickContext &ctx) {
     }
 
     // ── targeting ────────────────────────────────────────────────────────
-    ctx.state.bucket_selected = ctx.state.selected_slot == kBucketSlot;
-    // An empty bucket is aimed at water, so liquids become targetable for
-    // it; everything else keeps the T008 filter (aim through water).
-    const bool bucket_filling = ctx.state.bucket_selected && !ctx.state.bucket_has_water;
+    // An empty vessel is aimed at water, so liquids become targetable for it
+    // (T-F1 behaviour, now read off the held item instead of a bucket bool);
+    // everything else keeps the T008 filter (aim through water).
+    const bool vessel_filling = ctx.state.selected_use == ItemUse::FillVessel;
     const double eye_height = ctx.curr_state.pose == phy::Pose::Sneaking ? kEyeSneaking : kEyeStanding;
     const glm::dvec3 eye = ctx.curr_state.position + glm::dvec3(0.0, eye_height, 0.0);
     const auto filter = [&](std::uint16_t id) {
         const bool liquid = id != 0 && ctx.world.registry().def_of(id).liquid;
-        if (bucket_filling) {
+        if (vessel_filling) {
             return id != 0; // water surfaces are targetable
         }
         return id != 0 && !liquid; // liquids are not targetable
@@ -207,42 +212,70 @@ void run_tick(const TickContext &ctx) {
         --ctx.state.place_cooldown;
     }
     // The block path repeats every 4 ticks while the button is held
-    // (docs/01 §4). The bucket must NOT: a placed source is immediately
-    // pickable again, so a held button alternates pour -> scoop (observed
-    // on-machine: pour then scoop 4 ticks later), which reads as a broken
-    // item. Item use is therefore edge-triggered.
+    // (docs/01 §4). Item use (the vessels) must NOT: a placed source is
+    // immediately pickable again, so a held button alternates pour -> scoop
+    // (observed on-machine: pour then scoop 4 ticks later), which reads as a
+    // broken item. Item use is therefore edge-triggered.
+    const bool item_use = is_vessel_use(ctx.state.selected_use);
     const bool use_edge = !ctx.state.prev_right;
     if (right_held && (ctx.state.place_cooldown == 0 || !ctx.state.prev_right)) {
-        if (hit.hit && (!ctx.state.bucket_selected || use_edge)) {
-            if (ctx.state.bucket_selected) {
-                // ── bucket (T-F1) ────────────────────────────────────────
-                // Filled: pour a source into the cell the hit face opens
-                // onto. Empty: scoop a source block out of the world.
-                // Placement skips check_placement's player-overlap test on
-                // purpose: fluids are non-solid, so pouring water at your
-                // own feet is legal (MC does the same); the replaceable
-                // test is the same one the block path uses.
-                if (ctx.state.bucket_has_water) {
-                    const glm::ivec3 cell = gam::placement_cell(hit);
-                    const std::uint16_t occupant = ctx.world.block_at(cell.x, cell.y, cell.z);
-                    if (gam::is_replaceable(ctx.world.registry(), occupant) &&
-                        ctx.world.place_water_source(cell.x, cell.y, cell.z)) {
-                        ctx.state.bucket_has_water = false;
-                        OC_LOG_INFO("bucket: poured water source at ({}, {}, {})", cell.x, cell.y, cell.z);
+        if (hit.hit && (!item_use || use_edge)) {
+            if (ctx.state.selected_use == ItemUse::PourVessel) {
+                // ── pour (T-F1) ──────────────────────────────────────────
+                // A held water vessel pours a source into the cell the hit
+                // face opens onto. Placement skips check_placement's
+                // player-overlap test on purpose: fluids are non-solid, so
+                // pouring water at your own feet is legal (MC does the same);
+                // the replaceable test is the same one the block path uses.
+                const glm::ivec3 cell = gam::placement_cell(hit);
+                const std::uint16_t occupant = ctx.world.block_at(cell.x, cell.y, cell.z);
+                if (gam::is_replaceable(ctx.world.registry(), occupant) &&
+                    ctx.world.place_water_source(cell.x, cell.y, cell.z)) {
+                    // A water vessel is always a 1-stack (max_stack 1), so the
+                    // pour swaps it in place and the player is still holding a
+                    // container afterwards. The branch below is unreachable in
+                    // practice and only reports it if that ever changes.
+                    if (!transform_vessel(ctx.state.inventory, ctx.state.selected_slot, ctx.state.vessels.full,
+                                          ctx.state.vessels.empty)) {
+                        OC_LOG_WARN("vessel: poured water but kept the water vessel (slot {})",
+                                    ctx.state.selected_slot);
                     }
-                } else if (ctx.world.remove_water_source(hit.block_pos.x, hit.block_pos.y, hit.block_pos.z,
-                                                         ctx.dirty_chunks)) {
-                    ctx.state.bucket_has_water = true;
-                    OC_LOG_INFO("bucket: filled from ({}, {}, {})", hit.block_pos.x, hit.block_pos.y, hit.block_pos.z);
+                    ctx.state.refresh_selection();
+                    OC_LOG_INFO("vessel: poured water source at ({}, {}, {})", cell.x, cell.y, cell.z);
                 }
-            } else {
+            } else if (ctx.state.selected_use == ItemUse::FillVessel) {
+                // ── scoop (T-F1) ─────────────────────────────────────────
+                // Check the swap fits BEFORE touching the world: taking a
+                // source and then finding nowhere to put the vessel would
+                // destroy one.
+                if (can_transform_vessel(ctx.state.inventory, ctx.state.selected_slot, ctx.state.vessels.empty,
+                                         ctx.state.vessels.full) &&
+                    ctx.world.remove_water_source(hit.block_pos.x, hit.block_pos.y, hit.block_pos.z,
+                                                  ctx.dirty_chunks)) {
+                    transform_vessel(ctx.state.inventory, ctx.state.selected_slot, ctx.state.vessels.empty,
+                                     ctx.state.vessels.full);
+                    ctx.state.refresh_selection();
+                    OC_LOG_INFO("vessel: filled from ({}, {}, {})", hit.block_pos.x, hit.block_pos.y, hit.block_pos.z);
+                }
+            } else if (ctx.state.selected_block != gam::kNoBlock) {
+                // ── place one unit of the held stack ─────────────────────
                 const glm::ivec3 cell = gam::placement_cell(hit);
                 const auto status = gam::check_placement(ctx.world.registry(), ctx.world, cell, ctx.curr_state.position,
                                                          ctx.curr_state.height(), phy::PlayerState::kHalfWidth);
                 if (status == gam::PlacementStatus::Ok) {
-                    ctx.world.set_block(cell.x, cell.y, cell.z, ctx.state.selected_block, ctx.dirty_chunks);
-                    OC_LOG_INFO("placed {} at ({}, {}, {})", ctx.world.registry().string_of(ctx.state.selected_block),
-                                cell.x, cell.y, cell.z);
+                    // place_one_block() reads the block while the cell still
+                    // holds it and hands back the block plus the counts, so the
+                    // world write and the log never consult the post-refresh
+                    // cache (which is the kNoBlock sentinel once the last unit
+                    // is gone -- passing that to the block registry throws).
+                    const PlacementResult placed = place_one_block(ctx.state.inventory, ctx.state.selected_slot);
+                    if (placed.consumed == 1) {
+                        ctx.world.set_block(cell.x, cell.y, cell.z, placed.block, ctx.dirty_chunks);
+                        ctx.state.refresh_selection();
+                        OC_LOG_INFO("placed {} at ({}, {}, {}); consumed 1 from slot {} ({} left)",
+                                    ctx.world.registry().string_of(placed.block), cell.x, cell.y, cell.z,
+                                    ctx.state.selected_slot, placed.left);
+                    }
                 }
             }
         }
@@ -252,16 +285,12 @@ void run_tick(const TickContext &ctx) {
     }
     ctx.state.prev_right = right_held;
 
-    // ── hotbar selection (blocks on 1..9, the bucket on 0) ───────────────
-    for (int slot = 0; slot < 9; ++slot) {
+    // ── hotbar selection (keys 1..9 select the 9 inventory hotbar cells; the
+    //    key-0 bucket slot is gone, the vessels are ordinary items now) ─────
+    for (int slot = 0; slot < kHotbarSlots; ++slot) {
         if (key_pressed(ctx.window, GLFW_KEY_1 + slot)) {
-            ctx.state.selected_slot = slot;
-            ctx.state.selected_block = ctx.state.hotbar[slot];
+            ctx.state.select_slot(slot);
         }
-    }
-    if (key_pressed(ctx.window, GLFW_KEY_0)) {
-        ctx.state.selected_slot = kBucketSlot;
-        ctx.state.selected_block = ctx.world.water_block_id();
     }
 
     // ── fluid scheduled ticks (T-F1): one step per game tick, exactly like

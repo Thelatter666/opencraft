@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <cstdint>
 #include <stdexcept>
 #include <string>
@@ -6,6 +7,7 @@
 #include <doctest/doctest.h>
 
 #include "opencraft/game/item_registry.hpp"
+#include "opencraft/voxel/block_registry.hpp"
 
 namespace {
 
@@ -13,17 +15,21 @@ using opencraft::game::EquipSlot;
 using opencraft::game::is_standard_stack_limit;
 using opencraft::game::ItemDef;
 using opencraft::game::ItemRegistry;
+using opencraft::game::kNoBlock;
 using opencraft::game::kStackLimitLarge;
 using opencraft::game::kStackLimitMedium;
 using opencraft::game::kStackLimitSingle;
 
-// The item forms of the twenty blocks BlockRegistry::create_default() ships
-// (T-I1: "现有 20 个方块的物品形态"). Listing them here keeps the launch set
-// honest without freezing its total size for later content cards.
+// The item forms of the launch blocks BlockRegistry::create_default() ships.
+// Listing them here keeps the launch set honest without freezing its total
+// size for later content cards.
+//
+// Nineteen, not twenty: T-I1 ruling S-3 removed `still_water`, because water
+// is not an item in this game (it is carried in a vessel).
 constexpr const char *kBlockFormIds[] = {
-    "loam_clod",     "sod_loam",    "greyrock",    "rubble_rock", "fine_grit",   "pebble_grit", "grit_slab",
-    "timber_log",    "leaf_canopy", "sawn_planks", "clear_pane",  "still_water", "underrock",   "char_ore",
-    "verdigris_ore", "ferrous_ore", "auric_ore",   "lucent_ore",  "rime_block",  "duskglass",
+    "loam_clod",   "sod_loam",    "greyrock",    "rubble_rock", "fine_grit", "pebble_grit", "grit_slab",
+    "timber_log",  "leaf_canopy", "sawn_planks", "clear_pane",  "underrock", "char_ore",    "verdigris_ore",
+    "ferrous_ore", "auric_ore",   "lucent_ore",  "rime_block",  "duskglass",
 };
 
 } // namespace
@@ -95,9 +101,12 @@ TEST_CASE("item registry rejects a non-positive stack limit") {
     CHECK(registry.def_of(single).max_stack == kStackLimitSingle);
 }
 
-TEST_CASE("item registry default set covers the twenty block item forms plus samples of each tier") {
+TEST_CASE("item registry default set covers the block item forms plus samples of each tier") {
     const auto registry = ItemRegistry::create_default();
-    CHECK(registry.size() >= 21); // the reserved entry plus the twenty block forms
+    CHECK(registry.size() >= 20); // the reserved entry plus the nineteen block forms
+    // T-I1 ruling S-3: water is not an item in this game, so its item form is
+    // gone for good rather than renamed.
+    CHECK_FALSE(registry.has_id("still_water"));
 
     for (const char *id : kBlockFormIds) {
         INFO("block form item: " << id);
@@ -144,6 +153,64 @@ TEST_CASE("item registry default stack limits stay inside the three documented t
     CHECK(large > 0);
     CHECK(medium > 0);
     CHECK(single > 0);
+}
+
+TEST_CASE("item registry block link names a real block or the non-zero sentinel") {
+    const auto registry = ItemRegistry::create_default();
+    const auto blocks = opencraft::voxel::BlockRegistry::create_default();
+
+    // The sentinel must not collide with a legal block id: 0 is air (T-I1
+    // ruling S-2 forbids using it for "places nothing").
+    CHECK(kNoBlock != opencraft::voxel::BlockRegistry::kAirId);
+    CHECK(kNoBlock == 0xFFFF);
+
+    // The reserved empty entry never places anything either.
+    CHECK(registry.def_of(ItemRegistry::kEmptyId).block == kNoBlock);
+
+    // Exactly the block-form items carry a block id, and it is always a real
+    // block that is not air; every other item answers kNoBlock.
+    for (std::uint16_t id = 1; id < registry.size(); ++id) {
+        const std::string &name = registry.string_of(id);
+        const std::uint16_t block = registry.def_of(id).block;
+        const bool is_block_form = std::any_of(std::begin(kBlockFormIds), std::end(kBlockFormIds),
+                                               [&](const char *candidate) { return name == candidate; });
+        INFO("item " << name << " block " << block);
+        if (is_block_form) {
+            CHECK(block != kNoBlock);
+            REQUIRE(blocks.has_numeric(block));
+            CHECK(block != opencraft::voxel::BlockRegistry::kAirId);
+        } else {
+            CHECK(block == kNoBlock);
+        }
+    }
+
+    // Spot checks that the link points at the intended block, not merely at
+    // some registered one.
+    CHECK(registry.def_of(registry.id_of("greyrock")).block == blocks.id_of("stone"));
+    CHECK(registry.def_of(registry.id_of("loam_clod")).block == blocks.id_of("dirt"));
+    CHECK(registry.def_of(registry.id_of("rime_block")).block == blocks.id_of("snow_block"));
+    CHECK(registry.def_of(registry.id_of("duskglass")).block == blocks.id_of("obsidian"));
+
+    // Water is the one launch block with no item form (S-3): nothing may place
+    // it, which is what "water is carried, never picked up" looks like in the
+    // data.
+    for (std::uint16_t id = 1; id < registry.size(); ++id) {
+        INFO("item " << registry.string_of(id));
+        CHECK(registry.def_of(id).block != blocks.id_of("water"));
+    }
+
+    // The item set is exactly the item forms of the launch blocks, water
+    // excepted: every other block is placed by one of them.
+    for (std::uint16_t block = 1; block < blocks.size(); ++block) {
+        if (block == blocks.id_of("water")) {
+            continue;
+        }
+        INFO("block " << blocks.string_of(block));
+        const bool covered = std::any_of(std::begin(kBlockFormIds), std::end(kBlockFormIds), [&](const char *id) {
+            return registry.def_of(registry.id_of(id)).block == block;
+        });
+        CHECK(covered);
+    }
 }
 
 TEST_CASE("item registry looks up a string_view slice without a copy") {
