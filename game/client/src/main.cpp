@@ -25,6 +25,8 @@
 #include "chunk_renderer.hpp"
 #include "cube_geometry.hpp"
 #include "fov.hpp"
+#include "hud.hpp"
+#include "interaction.hpp"
 #include "opencraft/core/log.hpp"
 #include "opencraft/core/tick_clock.hpp"
 #include "opencraft/core/version.hpp"
@@ -296,8 +298,6 @@ int main() {
                                                                  "leaves", "glass",       "sand", "gravel"};
     // T-F1: the bucket is the minimal item form the card allows - one extra
     // hotbar slot plus a has-water flag, no item registry.
-    static constexpr int kBucketSlot = 9;
-    static constexpr int kHotbarSlots = 10;
     std::array<std::uint16_t, 9> hotbar{};
     for (int slot = 0; slot < 9; ++slot) {
         hotbar[slot] = world.registry().id_of(kHotbarNames[slot]);
@@ -313,7 +313,7 @@ int main() {
         // The bucket is not a block, so it persists as the water id it mashes
         // to; nothing else on the bar has that id.
         if (stored_level->selected_block == world.water_block_id()) {
-            selected_slot = kBucketSlot;
+            selected_slot = client::kBucketSlot;
         }
         for (int slot = 0; slot < 9; ++slot) {
             if (hotbar[slot] == stored_level->selected_block) {
@@ -324,7 +324,9 @@ int main() {
     }
     // The id the held-item overlay and the placed block use; for the bucket it
     // is the water placeholder (the bucket itself has no block form yet).
-    const auto slot_block = [&](int slot) { return slot == kBucketSlot ? world.water_block_id() : hotbar[slot]; };
+    const auto slot_block = [&](int slot) {
+        return slot == client::kBucketSlot ? world.water_block_id() : hotbar[slot];
+    };
     std::uint16_t selected_block = slot_block(selected_slot);
 
     glm::ivec3 crack_pos{0, 0, 0};
@@ -481,7 +483,7 @@ int main() {
         }
 
         // ── targeting ────────────────────────────────────────────────────────
-        bucket_selected = selected_slot == kBucketSlot;
+        bucket_selected = selected_slot == client::kBucketSlot;
         // An empty bucket is aimed at water, so liquids become targetable for
         // it; everything else keeps the T008 filter (aim through water).
         const bool bucket_filling = bucket_selected && !bucket_has_water;
@@ -602,7 +604,7 @@ int main() {
             }
         }
         if (key_pressed(GLFW_KEY_0)) {
-            selected_slot = kBucketSlot;
+            selected_slot = client::kBucketSlot;
             selected_block = world.water_block_id();
         }
 
@@ -617,6 +619,10 @@ int main() {
             OC_LOG_INFO("autosave: {} chunk(s) queued for async write, level written (ticks={})", chunks, game_ticks);
         }
     };
+
+    // HUD inputs that outlive the frame loop; every referenced object is a
+    // const local declared above.
+    const client::HudResources hud_res{world, shader, ui_flat_shader, ui_text_shader, font};
 
     // ── main loop ───────────────────────────────────────────────────────────
     double last_frame = glfwGetTime();
@@ -890,188 +896,9 @@ int main() {
         glEnable(GL_DEPTH_TEST);
 
         // ── HUD: hotbar (10 slots + item name) and health hearts (T009) ─────
-        {
-            glDisable(GL_DEPTH_TEST);
-
-            constexpr float kSlotPx = 24.0f;
-            constexpr float kSlotGap = 2.0f;
-            const float bar_w = kHotbarSlots * kSlotPx + (kHotbarSlots - 1) * kSlotGap;
-            const float bar_x0 = static_cast<float>(fb_width) / 2.0f - bar_w / 2.0f;
-            const float bar_y0 = static_cast<float>(fb_height) - kSlotPx - 10.0f;
-
-            // Slot backdrops (one flat-color draw call for all of them).
-            {
-                std::vector<glm::vec2> flat;
-                for (int i = 0; i < kHotbarSlots; ++i) {
-                    const float x0 = bar_x0 + static_cast<float>(i) * (kSlotPx + kSlotGap);
-                    client::draw_rect(x0, bar_y0, x0 + kSlotPx, bar_y0 + kSlotPx, fb_width, fb_height, flat);
-                }
-                ui_flat_shader.use();
-                render::VertexArray vao;
-                vao.bind();
-                render::Buffer vbo(render::Buffer::Target::Vertex, flat.data(),
-                                   static_cast<std::size_t>(flat.size()) * sizeof(glm::vec2),
-                                   render::Buffer::Usage::Static);
-                vbo.bind();
-                vao.set_attribute(0, 2, GL_FLOAT, sizeof(glm::vec2), 0);
-                glUniform4f(ui_flat_shader.uniform_location("u_color"), 0.0f, 0.0f, 0.0f, 0.55f);
-                glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(flat.size()));
-            }
-            // Selected slot highlight: 2 px white frame (4 thin rects).
-            {
-                std::vector<glm::vec2> flat;
-                const float fx0 = bar_x0 + static_cast<float>(selected_slot) * (kSlotPx + kSlotGap);
-                const float fx1 = fx0 + kSlotPx;
-                const float fy0 = bar_y0;
-                const float fy1 = bar_y0 + kSlotPx;
-                client::draw_rect(fx0 - 2.0f, fy0 - 2.0f, fx1 + 2.0f, fy0, fb_width, fb_height, flat);
-                client::draw_rect(fx0 - 2.0f, fy1, fx1 + 2.0f, fy1 + 2.0f, fb_width, fb_height, flat);
-                client::draw_rect(fx0 - 2.0f, fy0, fx0, fy1, fb_width, fb_height, flat);
-                client::draw_rect(fx1, fy0, fx1 + 2.0f, fy1, fb_width, fb_height, flat);
-                ui_flat_shader.use();
-                render::VertexArray vao;
-                vao.bind();
-                render::Buffer vbo(render::Buffer::Target::Vertex, flat.data(),
-                                   static_cast<std::size_t>(flat.size()) * sizeof(glm::vec2),
-                                   render::Buffer::Usage::Static);
-                vbo.bind();
-                vao.set_attribute(0, 2, GL_FLOAT, sizeof(glm::vec2), 0);
-                glUniform4f(ui_flat_shader.uniform_location("u_color"), 0.95f, 0.95f, 0.95f, 1.0f);
-                glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(flat.size()));
-            }
-            // Slot icons: reuse the terrain shader's tile math (proven path)
-            // with a pixel-space ortho projection; one quad per slot.
-            {
-                const glm::mat4 hud_ortho =
-                    glm::ortho(0.0f, static_cast<float>(fb_width), static_cast<float>(fb_height), 0.0f);
-                std::vector<render::MeshVertex> icon_verts;
-                icon_verts.reserve(kHotbarSlots * 4);
-                std::vector<std::uint32_t> icon_indices;
-                icon_indices.reserve(kHotbarSlots * 6);
-                const float pad = 3.0f;
-                for (int i = 0; i < kHotbarSlots; ++i) {
-                    const float x0 = bar_x0 + static_cast<float>(i) * (kSlotPx + kSlotGap) + pad;
-                    const float y0 = bar_y0 + pad;
-                    const float x1 = x0 + kSlotPx - pad * 2.0f;
-                    const float y1 = y0 + kSlotPx - pad * 2.0f;
-                    // The bucket borrows the water tile: bright while it holds
-                    // water, dimmed when empty (placeholder art; a real icon
-                    // belongs to the M2 item layer).
-                    const bool bucket = i == kBucketSlot;
-                    const std::uint16_t icon_block = bucket ? world.water_block_id() : hotbar[i];
-                    const std::uint8_t icon_shade = bucket && !bucket_has_water ? 70 : 235;
-                    const std::uint16_t tile = static_cast<std::uint16_t>(icon_block * 3 + 1); // side tile
-                    const std::uint16_t base = static_cast<std::uint16_t>(icon_verts.size());
-                    // uv corner codes: 0=(0,0) tl, 1=(1,0) tr, 2=(0,1) bl, 3=(1,1) br.
-                    icon_verts.push_back(
-                        {static_cast<std::uint16_t>(x0), static_cast<std::uint16_t>(y0), 0, tile, 0, icon_shade});
-                    icon_verts.push_back(
-                        {static_cast<std::uint16_t>(x1), static_cast<std::uint16_t>(y0), 0, tile, 1, icon_shade});
-                    icon_verts.push_back(
-                        {static_cast<std::uint16_t>(x1), static_cast<std::uint16_t>(y1), 0, tile, 3, icon_shade});
-                    icon_verts.push_back(
-                        {static_cast<std::uint16_t>(x0), static_cast<std::uint16_t>(y1), 0, tile, 2, icon_shade});
-                    icon_indices.insert(icon_indices.end(),
-                                        {static_cast<std::uint32_t>(base), static_cast<std::uint32_t>(base + 1),
-                                         static_cast<std::uint32_t>(base + 2), static_cast<std::uint32_t>(base),
-                                         static_cast<std::uint32_t>(base + 2), static_cast<std::uint32_t>(base + 3)});
-                }
-                shader.use();
-                glUniformMatrix4fv(shader.uniform_location("u_mvp"), 1, GL_FALSE, &hud_ortho[0][0]);
-                glUniform3f(shader.uniform_location("u_chunk_origin"), 0.0f, 0.0f, 0.0f);
-                render::VertexArray vao;
-                vao.bind();
-                render::Buffer vbo(render::Buffer::Target::Vertex, icon_verts.data(),
-                                   icon_verts.size() * sizeof(render::MeshVertex), render::Buffer::Usage::Static);
-                vbo.bind();
-                constexpr std::size_t kIconStride = sizeof(render::MeshVertex);
-                vao.set_attribute(0, 3, GL_UNSIGNED_SHORT, kIconStride, offsetof(render::MeshVertex, x));
-                vao.set_attribute(1, 1, GL_UNSIGNED_SHORT, kIconStride, offsetof(render::MeshVertex, tile));
-                vao.set_attribute(2, 1, GL_UNSIGNED_BYTE, kIconStride, offsetof(render::MeshVertex, uv));
-                vao.set_attribute(3, 1, GL_UNSIGNED_BYTE, kIconStride, offsetof(render::MeshVertex, shade));
-                render::Buffer ebo(render::Buffer::Target::Index, icon_indices.data(),
-                                   icon_indices.size() * sizeof(std::uint32_t), render::Buffer::Usage::Static);
-                ebo.bind();
-                glDisable(GL_CULL_FACE);
-                glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(icon_indices.size()), GL_UNSIGNED_INT, nullptr);
-                glEnable(GL_CULL_FACE);
-            }
-            // Selected item name (uppercase) above the hotbar.
-            {
-                std::string name = bucket_selected ? (bucket_has_water ? "water bucket" : "bucket")
-                                                   : world.registry().string_of(selected_block);
-                std::transform(name.begin(), name.end(), name.begin(),
-                               [](unsigned char c) { return static_cast<char>(std::toupper(c)); });
-                std::vector<glm::vec2> tverts;
-                std::vector<glm::vec2> tuvs;
-                // Own line above the hearts row (bar_y0-24); drawing both at
-                // the same y made the name collide with the hearts.
-                client::draw_text(name, static_cast<float>(fb_width) / 2.0f - static_cast<float>(name.size()) * 7.0f,
-                                  bar_y0 - 46.0f, 16.0f, fb_width, fb_height, tverts, tuvs);
-                ui_text_shader.use();
-                font.bind(1);
-                render::VertexArray vao;
-                vao.bind();
-                render::Buffer vbo(render::Buffer::Target::Vertex, tverts.data(),
-                                   static_cast<std::size_t>(tverts.size()) * sizeof(glm::vec2),
-                                   render::Buffer::Usage::Static);
-                vbo.bind();
-                vao.set_attribute(0, 2, GL_FLOAT, sizeof(glm::vec2), 0);
-                render::Buffer uvbo(render::Buffer::Target::Vertex, tuvs.data(),
-                                    static_cast<std::size_t>(tuvs.size()) * sizeof(glm::vec2),
-                                    render::Buffer::Usage::Static);
-                uvbo.bind();
-                vao.set_attribute(1, 2, GL_FLOAT, sizeof(glm::vec2), 0);
-                glUniform4f(ui_text_shader.uniform_location("u_color"), 1.0f, 1.0f, 1.0f, 1.0f);
-                glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(tverts.size()));
-            }
-            // Health: 10 hearts driven by PlayerState::health (T007), 2 hp per
-            // heart. Red pass (full + half), then a dim pass for empty ones.
-            {
-                const int full = static_cast<int>(curr_state.health) / 2;
-                const bool half = static_cast<int>(curr_state.health) % 2 != 0;
-                std::string hearts_red;
-                hearts_red.reserve(10);
-                for (int i = 0; i < full; ++i) {
-                    hearts_red += '\x01';
-                }
-                if (half && full < 10) {
-                    hearts_red += '\x02';
-                }
-                const int empties = 10 - full - (half && full < 10 ? 1 : 0);
-                std::string hearts_empty(static_cast<std::size_t>(std::max(empties, 0)), '\x03');
-                const float heart_px = 14.0f;
-                const float hearts_y = bar_y0 - 22.0f;
-                auto draw_hearts = [&](const std::string &text, float r, float g, float b, float a) {
-                    if (text.empty()) {
-                        return;
-                    }
-                    std::vector<glm::vec2> tverts;
-                    std::vector<glm::vec2> tuvs;
-                    client::draw_text(text, bar_x0, hearts_y, heart_px, fb_width, fb_height, tverts, tuvs);
-                    ui_text_shader.use();
-                    font.bind(1);
-                    render::VertexArray vao;
-                    vao.bind();
-                    render::Buffer vbo(render::Buffer::Target::Vertex, tverts.data(),
-                                       static_cast<std::size_t>(tverts.size()) * sizeof(glm::vec2),
-                                       render::Buffer::Usage::Static);
-                    vbo.bind();
-                    vao.set_attribute(0, 2, GL_FLOAT, sizeof(glm::vec2), 0);
-                    render::Buffer uvbo(render::Buffer::Target::Vertex, tuvs.data(),
-                                        static_cast<std::size_t>(tuvs.size()) * sizeof(glm::vec2),
-                                        render::Buffer::Usage::Static);
-                    uvbo.bind();
-                    vao.set_attribute(1, 2, GL_FLOAT, sizeof(glm::vec2), 0);
-                    glUniform4f(ui_text_shader.uniform_location("u_color"), r, g, b, a);
-                    glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(tverts.size()));
-                };
-                draw_hearts(hearts_empty, 0.25f, 0.25f, 0.25f, 0.9f);
-                draw_hearts(hearts_red, 0.85f, 0.15f, 0.15f, 1.0f);
-            }
-
-            glEnable(GL_DEPTH_TEST);
-        }
+        const client::HudState hud_state{fb_width,        fb_height,        hotbar,         selected_slot,
+                                         bucket_selected, bucket_has_water, selected_block, curr_state.health};
+        client::draw_hud(hud_res, hud_state);
 
         // ── pause menu (drawn over the live scene; no ticks while paused) ───
         if (paused) {

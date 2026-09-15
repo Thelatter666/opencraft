@@ -10,6 +10,7 @@ add_executable(opencraft
     src/particles.cpp
     src/block_colors.cpp
     src/chunk_renderer.cpp
+    src/hud.cpp
 )
 
 target_include_directories(opencraft PRIVATE src)
