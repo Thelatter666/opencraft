@@ -11,6 +11,7 @@ add_executable(opencraft
     src/block_colors.cpp
     src/chunk_renderer.cpp
     src/hud.cpp
+    src/pause_menu.cpp
 )
 
 target_include_directories(opencraft PRIVATE src)
