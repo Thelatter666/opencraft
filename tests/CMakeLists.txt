@@ -11,6 +11,7 @@ add_executable(opencraft_tests
     test_block_registry.cpp
     test_chunk.cpp
     test_chunk_manager.cpp
+    test_fluid.cpp
     test_noise.cpp
     test_worldgen.cpp
     test_light_storage.cpp
