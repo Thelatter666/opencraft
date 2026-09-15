@@ -19,7 +19,10 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include "atlas.hpp"
+#include "bitmap_font.hpp"
+#include "block_colors.hpp"
 #include "camera_spring.hpp"
+#include "cube_geometry.hpp"
 #include "fov.hpp"
 #include "opencraft/core/log.hpp"
 #include "opencraft/core/tick_clock.hpp"
@@ -35,6 +38,8 @@
 #include "opencraft/render/rhi.hpp"
 #include "opencraft/storage/level_file.hpp"
 #include "opencraft/storage/world_save.hpp"
+#include "particles.hpp"
+#include "shaders.hpp"
 #include "world.hpp"
 
 namespace render = opencraft::render; // short alias used by the GPU glue below
@@ -58,178 +63,6 @@ constexpr int kNewMeshPerFrame = 4; // new-chunk meshing budget/frame
 
 constexpr double kEyeStanding = 1.62;
 constexpr double kEyeSneaking = 1.27;
-
-// ── shaders ─────────────────────────────────────────────────────────────────
-// Terrain shader: unchanged from T005 except that the shade byte now carries
-// the sampled light (max(sky, block)/15 folded into the face shade).
-constexpr char kVertexShader[] = R"(
-#version 410 core
-layout(location=0) in vec3 a_pos;
-layout(location=1) in float a_tile;
-layout(location=2) in float a_uv;
-layout(location=3) in float a_shade;
-
-uniform mat4 u_mvp;
-uniform vec3 u_chunk_origin;
-uniform float u_tiles_per_row;
-uniform float u_texel; // 1 / atlas_width_px
-
-out vec2 v_uv;
-out float v_shade;
-
-void main() {
-    gl_Position = u_mvp * vec4(a_pos + u_chunk_origin, 1.0);
-    float corner_u = mod(a_uv, 2.0);
-    float corner_v = mod(floor(a_uv * 0.5), 2.0);
-    float tx = mod(a_tile, u_tiles_per_row);
-    float ty = floor(a_tile / u_tiles_per_row);
-    // 0.5px inset per tile edge prevents atlas bleeding (docs/03 §4).
-    vec2 inset = vec2(0.5 * u_texel);
-    vec2 corner = vec2(corner_u, corner_v);
-    v_uv = (vec2(tx, ty) + mix(inset, vec2(1.0) - inset, corner)) * (16.0 * u_texel);
-    v_shade = a_shade / 255.0;
-}
-)";
-
-constexpr char kFragmentShader[] = R"(
-#version 410 core
-uniform sampler2D u_atlas;
-
-in vec2 v_uv;
-in float v_shade;
-
-out vec4 frag_color;
-
-void main() {
-    vec4 texel = texture(u_atlas, v_uv);
-    frag_color = vec4(texel.rgb * v_shade, texel.a);
-}
-)";
-
-// Flat-colored lines in clip space (selection wireframe, crosshair).
-constexpr char kWireVertexShader[] = R"(
-#version 410 core
-layout(location=0) in vec3 a_pos;
-
-uniform mat4 u_mvp;
-uniform vec3 u_offset;
-uniform float u_scale;
-
-void main() {
-    gl_Position = u_mvp * vec4(a_pos * u_scale + u_offset, 1.0);
-}
-)";
-
-constexpr char kWireFragmentShader[] = R"(
-#version 410 core
-uniform vec4 u_color;
-out vec4 frag_color;
-void main() { frag_color = u_color; }
-)";
-
-// Crack overlay cube: unit cube with per-vertex uv; the 10 destruction stages
-// share one buffer, the stage tile index comes in as a uniform.
-constexpr char kCrackVertexShader[] = R"(
-#version 410 core
-layout(location=0) in vec3 a_pos;
-layout(location=1) in vec2 a_uv;
-
-uniform mat4 u_mvp;
-uniform vec3 u_offset;
-uniform float u_scale;
-uniform float u_tile;
-uniform float u_tiles_per_row;
-uniform float u_texel;
-
-out vec2 v_uv;
-
-void main() {
-    gl_Position = u_mvp * vec4(a_pos * u_scale + u_offset, 1.0);
-    float tx = mod(u_tile, u_tiles_per_row);
-    float ty = floor(u_tile / u_tiles_per_row);
-    vec2 inset = vec2(0.5 * u_texel);
-    v_uv = (vec2(tx, ty) + mix(inset, vec2(1.0) - inset, a_uv)) * (16.0 * u_texel);
-}
-)";
-
-constexpr char kCrackFragmentShader[] = R"(
-#version 410 core
-uniform sampler2D u_atlas;
-in vec2 v_uv;
-out vec4 frag_color;
-void main() {
-    vec4 texel = texture(u_atlas, v_uv);
-    if (texel.a < 0.5) { discard; }
-    frag_color = vec4(texel.rgb, texel.a);
-}
-)";
-
-// Break particles: world-space GL points colored per block (T009).
-constexpr char kParticleVertexShader[] = R"(
-#version 410 core
-layout(location=0) in vec3 a_pos;
-layout(location=1) in vec4 a_color;
-uniform mat4 u_mvp;
-uniform float u_point_px;
-out vec4 v_color;
-void main() {
-    gl_Position = u_mvp * vec4(a_pos, 1.0);
-    gl_PointSize = u_point_px;
-    v_color = a_color;
-}
-)";
-
-constexpr char kParticleFragmentShader[] = R"(
-#version 410 core
-in vec4 v_color;
-out vec4 frag_color;
-void main() { frag_color = v_color; }
-)";
-
-// UI: flat quads (backdrop, buttons) and bitmap-font text.
-constexpr char kUiFlatVertexShader[] = R"(
-#version 410 core
-layout(location=0) in vec2 a_pos;
-uniform vec4 u_color;
-out vec4 v_color;
-void main() {
-    gl_Position = vec4(a_pos, 0.0, 1.0);
-    v_color = u_color;
-}
-)";
-
-constexpr char kUiFlatFragmentShader[] = R"(
-#version 410 core
-in vec4 v_color;
-out vec4 frag_color;
-void main() { frag_color = v_color; }
-)";
-
-constexpr char kUiTextVertexShader[] = R"(
-#version 410 core
-layout(location=0) in vec2 a_pos;
-layout(location=1) in vec2 a_uv;
-uniform vec4 u_color;
-out vec2 v_uv;
-out vec4 v_color;
-void main() {
-    gl_Position = vec4(a_pos, 0.0, 1.0);
-    v_uv = a_uv;
-    v_color = u_color;
-}
-)";
-
-constexpr char kUiTextFragmentShader[] = R"(
-#version 410 core
-uniform sampler2D u_font;
-in vec2 v_uv;
-in vec4 v_color;
-out vec4 frag_color;
-void main() {
-    if (texture(u_font, v_uv).a < 0.5) { discard; }
-    frag_color = vec4(v_color.rgb, v_color.a);
-}
-)";
 
 void error_callback(int error_code, const char *description) {
     OC_LOG_ERROR("GLFW error {}: {}", error_code, description);
@@ -296,215 +129,6 @@ ChunkLayer upload_fluid_layer(const render::FluidBucket &bucket) {
     const auto ux = static_cast<std::uint64_t>(static_cast<std::uint32_t>(cx));
     const auto uz = static_cast<std::uint32_t>(cz);
     return static_cast<std::int64_t>((ux << 32) | uz);
-}
-
-// Unit cube geometry for the overlays: 12 edges (wireframe) and 6 quads with
-// uv corners (crack overlay), all in [0,1]^3.
-struct CubeGeometry {
-    std::array<glm::vec3, 24> edge_vertices;
-    std::array<glm::vec3, 36> face_vertices;
-    std::array<glm::vec2, 36> face_uv;
-};
-
-CubeGeometry build_cube_geometry() {
-    CubeGeometry geo;
-    const glm::vec3 c[8] = {{0, 0, 0}, {1, 0, 0}, {1, 0, 1}, {0, 0, 1}, {0, 1, 0}, {1, 1, 0}, {1, 1, 1}, {0, 1, 1}};
-    static constexpr int kEdges[12][2] = {{0, 1}, {1, 2}, {2, 3}, {3, 0}, {4, 5}, {5, 6},
-                                          {6, 7}, {7, 4}, {0, 4}, {1, 5}, {2, 6}, {3, 7}};
-    for (int e = 0; e < 12; ++e) {
-        geo.edge_vertices[e * 2] = c[kEdges[e][0]];
-        geo.edge_vertices[e * 2 + 1] = c[kEdges[e][1]];
-    }
-    static constexpr int kFaces[6][4] = {{4, 5, 6, 7}, {0, 3, 2, 1}, {1, 5, 6, 2},
-                                         {3, 7, 6, 2}, {0, 4, 7, 3}, {0, 1, 5, 4}};
-    static constexpr glm::vec2 kQuadUv[4] = {{0, 0}, {1, 0}, {1, 1}, {0, 1}};
-    // Two triangles per face (non-indexed): 6 faces x 6 verts = 36, matching
-    // the glDrawArrays(GL_TRIANGLES, 0, 36) crack overlay call.
-    for (int f = 0; f < 6; ++f) {
-        static constexpr int kTriOrder[6] = {0, 1, 2, 0, 2, 3};
-        for (int v = 0; v < 6; ++v) {
-            geo.face_vertices[f * 6 + v] = c[kFaces[f][kTriOrder[v]]];
-            geo.face_uv[f * 6 + v] = kQuadUv[kTriOrder[v]];
-        }
-    }
-    return geo;
-}
-
-// ── original 5x7 bitmap font (T009: full A-Z, digits, punctuation, hearts) ──
-constexpr int kGlyphWidth = 5;
-constexpr int kGlyphHeight = 7;
-// \x01 full heart, \x02 half heart, \x03 empty heart (health bar glyphs).
-constexpr const char *kFontChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789:-\x01\x02\x03";
-constexpr std::array<std::uint8_t, kGlyphHeight> kGlyphs[] = {
-    {0x0E, 0x11, 0x11, 0x1F, 0x11, 0x11, 0x11}, // A
-    {0x1E, 0x11, 0x11, 0x1E, 0x11, 0x11, 0x1E}, // B
-    {0x0E, 0x11, 0x10, 0x10, 0x10, 0x11, 0x0E}, // C
-    {0x1E, 0x11, 0x11, 0x11, 0x11, 0x11, 0x1E}, // D
-    {0x1F, 0x10, 0x10, 0x1E, 0x10, 0x10, 0x1F}, // E
-    {0x1F, 0x10, 0x10, 0x1E, 0x10, 0x10, 0x10}, // F
-    {0x0E, 0x11, 0x10, 0x17, 0x11, 0x11, 0x0F}, // G
-    {0x11, 0x11, 0x11, 0x1F, 0x11, 0x11, 0x11}, // H
-    {0x0E, 0x04, 0x04, 0x04, 0x04, 0x04, 0x0E}, // I
-    {0x07, 0x02, 0x02, 0x02, 0x02, 0x12, 0x0C}, // J
-    {0x11, 0x12, 0x14, 0x18, 0x14, 0x12, 0x11}, // K
-    {0x10, 0x10, 0x10, 0x10, 0x10, 0x10, 0x1F}, // L
-    {0x11, 0x1B, 0x15, 0x15, 0x11, 0x11, 0x11}, // M
-    {0x11, 0x19, 0x15, 0x13, 0x11, 0x11, 0x11}, // N
-    {0x0E, 0x11, 0x11, 0x11, 0x11, 0x11, 0x0E}, // O
-    {0x0E, 0x11, 0x11, 0x0F, 0x10, 0x10, 0x10}, // P
-    {0x0E, 0x11, 0x11, 0x11, 0x15, 0x12, 0x0D}, // Q
-    {0x0E, 0x11, 0x11, 0x0E, 0x12, 0x12, 0x11}, // R
-    {0x0F, 0x10, 0x10, 0x0E, 0x01, 0x01, 0x1E}, // S
-    {0x1F, 0x04, 0x04, 0x04, 0x04, 0x04, 0x1F}, // T
-    {0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x0E}, // U
-    {0x11, 0x11, 0x11, 0x11, 0x11, 0x0A, 0x04}, // V
-    {0x11, 0x11, 0x11, 0x15, 0x15, 0x15, 0x0A}, // W
-    {0x11, 0x11, 0x0A, 0x04, 0x0A, 0x11, 0x11}, // X
-    {0x11, 0x11, 0x11, 0x0A, 0x04, 0x04, 0x04}, // Y
-    {0x1F, 0x01, 0x02, 0x04, 0x08, 0x10, 0x1F}, // Z
-    {0x0E, 0x11, 0x13, 0x15, 0x19, 0x11, 0x0E}, // 0
-    {0x04, 0x0C, 0x04, 0x04, 0x04, 0x04, 0x0E}, // 1
-    {0x0E, 0x11, 0x01, 0x06, 0x08, 0x10, 0x1F}, // 2
-    {0x0E, 0x11, 0x01, 0x06, 0x01, 0x11, 0x0E}, // 3
-    {0x02, 0x06, 0x0A, 0x12, 0x1F, 0x02, 0x02}, // 4
-    {0x1F, 0x10, 0x1E, 0x01, 0x01, 0x11, 0x0E}, // 5
-    {0x06, 0x08, 0x10, 0x1E, 0x11, 0x11, 0x0E}, // 6
-    {0x1F, 0x01, 0x02, 0x04, 0x08, 0x08, 0x08}, // 7
-    {0x0E, 0x11, 0x11, 0x0E, 0x11, 0x11, 0x0E}, // 8
-    {0x0E, 0x11, 0x11, 0x0F, 0x01, 0x02, 0x0C}, // 9
-    {0x00, 0x04, 0x00, 0x00, 0x00, 0x04, 0x00}, // :
-    {0x00, 0x00, 0x00, 0x0E, 0x00, 0x00, 0x00}, // -
-    {0x0A, 0x1F, 0x1F, 0x1F, 0x0E, 0x04, 0x00}, // \x01 full heart
-    {0x08, 0x1C, 0x1C, 0x1C, 0x0C, 0x04, 0x00}, // \x02 half heart
-    {0x0A, 0x11, 0x11, 0x11, 0x0A, 0x04, 0x00}, // \x03 empty heart
-};
-
-struct FontImage {
-    int width = 0;
-    int height = 0;
-    std::vector<std::uint32_t> pixels; // RGBA8 like AtlasImage
-};
-
-FontImage build_font_texture() {
-    FontImage font;
-    const int count = static_cast<int>(std::size(kGlyphs));
-    font.width = count * (kGlyphWidth + 1);
-    font.height = kGlyphHeight;
-    font.pixels.assign(static_cast<std::size_t>(font.width) * font.height, 0);
-    for (int g = 0; g < count; ++g) {
-        for (int row = 0; row < kGlyphHeight; ++row) {
-            for (int col = 0; col < kGlyphWidth; ++col) {
-                if ((kGlyphs[g][row] >> (kGlyphWidth - 1 - col)) & 1) {
-                    font.pixels[static_cast<std::size_t>(row * font.width + g * (kGlyphWidth + 1) + col)] =
-                        0xFF000000; // opaque (rgb unused; the shader colors via uniform)
-                }
-            }
-        }
-    }
-    return font;
-}
-
-// Appends one textured string (screen pixels in, y = top, NDC quads out).
-// Quads are emitted counter-clockwise in NDC (y up) so they are front-facing
-// under the default GL_CCW/M_LESS state - the HUD draws text with back-face
-// culling still enabled (T009 fix: CW quads lost their upper triangle there).
-void draw_text(const std::string &text, float x_px, float y_px, float px_height, int fb_w, int fb_h,
-               std::vector<glm::vec2> &verts, std::vector<glm::vec2> &uvs) {
-    const auto to_ndc = [&](float x, float y) {
-        return glm::vec2((x / static_cast<float>(fb_w)) * 2.0f - 1.0f, 1.0f - (y / static_cast<float>(fb_h)) * 2.0f);
-    };
-    const float scale = px_height / static_cast<float>(kGlyphHeight);
-    const int count = static_cast<int>(std::size(kGlyphs));
-    const float u_span = 1.0f / static_cast<float>(count * (kGlyphWidth + 1));
-    float cursor = x_px;
-    for (char ch : text) {
-        int glyph = -1;
-        for (int g = 0; g < count; ++g) {
-            if (kFontChars[g] == ch) {
-                glyph = g;
-                break;
-            }
-        }
-        if (glyph < 0) {
-            cursor += 3.0f * scale;
-            continue;
-        }
-        const glm::vec2 p0 = to_ndc(cursor, y_px);                                                       // top-left
-        const glm::vec2 p1 = to_ndc(cursor + static_cast<float>(kGlyphWidth) * scale, y_px + px_height); // bottom-right
-        const float u0 = static_cast<float>(glyph) * (kGlyphWidth + 1) * u_span;
-        const float u1 = u0 + static_cast<float>(kGlyphWidth) * u_span;
-        // Texture v=0 is the FIRST uploaded row = the glyph's top row.
-        // CCW order: (tl, bl, br) then (tl, br, tr).
-        verts.insert(verts.end(), {p0, {p0.x, p1.y}, p1, p0, p1, {p1.x, p0.y}});
-        uvs.insert(uvs.end(), {{u0, 0.0f}, {u0, 1.0f}, {u1, 1.0f}, {u0, 0.0f}, {u1, 1.0f}, {u1, 0.0f}});
-        cursor += static_cast<float>(kGlyphWidth + 2) * scale;
-    }
-}
-
-// Appends one flat NDC quad from a screen-pixel rect. CCW winding, see
-// draw_text.
-void draw_rect(float x0, float y0, float x1, float y1, int fb_w, int fb_h, std::vector<glm::vec2> &verts) {
-    const auto to_ndc = [&](float x, float y) {
-        return glm::vec2((x / static_cast<float>(fb_w)) * 2.0f - 1.0f, 1.0f - (y / static_cast<float>(fb_h)) * 2.0f);
-    };
-    const glm::vec2 a = to_ndc(x0, y0); // top-left
-    const glm::vec2 b = to_ndc(x1, y1); // bottom-right
-    verts.insert(verts.end(), {a, {a.x, b.y}, b, a, b, {b.x, a.y}});
-}
-
-// Average color of each block's side tile (slot 1) - the "main color" used
-// by break particles (T009). Returns one RGB triple per registry id.
-std::vector<glm::vec3> block_main_colors(const opencraft::client::AtlasImage &atlas, std::size_t registry_size) {
-    std::vector<glm::vec3> colors(registry_size, glm::vec3(0.7f));
-    const int tile_px = 16;
-    for (std::size_t id = 0; id < registry_size; ++id) {
-        const int tile = static_cast<int>(id) * 3 + 1; // side tile (mesher convention)
-        const int tx = (tile % atlas.tiles_per_row) * tile_px;
-        const int ty = (tile / atlas.tiles_per_row) * tile_px;
-        glm::vec3 sum(0.0f);
-        int count = 0;
-        for (int y = 0; y < tile_px; ++y) {
-            for (int x = 0; x < tile_px; ++x) {
-                const std::uint32_t pixel = atlas.pixels[static_cast<std::size_t>((ty + y) * atlas.width + tx + x)];
-                const float alpha = static_cast<float>((pixel >> 24) & 0xFF);
-                if (alpha < 128.0f) {
-                    continue;
-                }
-                sum += glm::vec3(static_cast<float>(pixel & 0xFF), static_cast<float>((pixel >> 8) & 0xFF),
-                                 static_cast<float>((pixel >> 16) & 0xFF)) /
-                       255.0f;
-                ++count;
-            }
-        }
-        if (count > 0) {
-            colors[id] = sum / static_cast<float>(count);
-        }
-    }
-    return colors;
-}
-
-// ── break particles (T009) ───────────────────────────────────────────────────
-struct Particle {
-    glm::vec3 pos;
-    glm::vec3 vel;
-    float life;      // seconds until removal
-    glm::vec4 color; // rgb + current alpha (fades with life)
-};
-
-constexpr int kParticlesPerBreak = 20;
-constexpr std::size_t kMaxParticles = 256;
-
-void update_particles(std::vector<Particle> &particles, float dt) {
-    constexpr float kGravity = 13.0f; // blocks/s^2, snappier than real g for feel
-    for (Particle &p : particles) {
-        p.vel.y -= kGravity * dt;
-        p.pos += p.vel * dt;
-        p.life -= dt;
-        p.color.a = std::clamp(p.life / 0.5f, 0.0f, 1.0f);
-    }
-    particles.erase(
-        std::remove_if(particles.begin(), particles.end(), [](const Particle &p) { return p.life <= 0.0f; }),
-        particles.end());
 }
 
 } // namespace
@@ -607,14 +231,14 @@ int main() {
     OC_LOG_INFO("atlas: {}x{} px, {} tiles/row, crack tiles at {}", atlas_image.width, atlas_image.height,
                 atlas_image.tiles_per_row, crack_base);
 
-    const FontImage font_image = build_font_texture();
+    const client::FontImage font_image = client::build_font_texture();
     const render::Texture2D font(font_image.width, font_image.height, font_image.pixels.data());
 
     // Block main colors for break particles (needs the generated atlas).
-    std::vector<glm::vec3> block_colors = block_main_colors(atlas_image, world.registry().size());
+    std::vector<glm::vec3> block_colors = client::block_main_colors(atlas_image, world.registry().size());
 
     // ── overlay geometry ─────────────────────────────────────────────────────
-    const CubeGeometry cube = build_cube_geometry();
+    const client::CubeGeometry cube = client::build_cube_geometry();
 
     render::VertexArray wire_vao;
     wire_vao.bind();
@@ -652,26 +276,26 @@ int main() {
     particle_vao.set_attribute(1, 4, GL_FLOAT, sizeof(glm::vec4) + sizeof(glm::vec3), sizeof(glm::vec3));
 
     // ── shaders ─────────────────────────────────────────────────────────────
-    const render::Shader shader(kVertexShader, kFragmentShader);
+    const render::Shader shader(client::kVertexShader, client::kFragmentShader);
     shader.use();
     glUniform1i(shader.uniform_location("u_atlas"), 0);
     glUniform1f(shader.uniform_location("u_tiles_per_row"), tiles_per_row);
     glUniform1f(shader.uniform_location("u_texel"), texel);
     atlas.bind(0);
 
-    const render::Shader wire_shader(kWireVertexShader, kWireFragmentShader);
+    const render::Shader wire_shader(client::kWireVertexShader, client::kWireFragmentShader);
 
-    const render::Shader crack_shader(kCrackVertexShader, kCrackFragmentShader);
+    const render::Shader crack_shader(client::kCrackVertexShader, client::kCrackFragmentShader);
     crack_shader.use();
     glUniform1i(crack_shader.uniform_location("u_atlas"), 0);
     glUniform1f(crack_shader.uniform_location("u_tiles_per_row"), tiles_per_row);
     glUniform1f(crack_shader.uniform_location("u_texel"), texel);
 
-    const render::Shader particle_shader(kParticleVertexShader, kParticleFragmentShader);
+    const render::Shader particle_shader(client::kParticleVertexShader, client::kParticleFragmentShader);
 
-    const render::Shader ui_flat_shader(kUiFlatVertexShader, kUiFlatFragmentShader);
+    const render::Shader ui_flat_shader(client::kUiFlatVertexShader, client::kUiFlatFragmentShader);
 
-    const render::Shader ui_text_shader(kUiTextVertexShader, kUiTextFragmentShader);
+    const render::Shader ui_text_shader(client::kUiTextVertexShader, client::kUiTextFragmentShader);
     ui_text_shader.use();
     glUniform1i(ui_text_shader.uniform_location("u_font"), 1);
 
@@ -778,7 +402,7 @@ int main() {
     // Hand swing + break particles (T009 mining feedback).
     double swing_start = -10.0; // glfwGetTime() of the last swing start
     bool swinging = false;
-    std::vector<Particle> particles;
+    std::vector<client::Particle> particles;
 
     // Streaming offsets sorted by distance; generation radius = view + 1 so
     // chunks at the view edge mesh against lit neighbors.
@@ -980,8 +604,8 @@ int main() {
                     rng = rng * 1664525u + 1013904223u;
                     return static_cast<float>(rng >> 8) / static_cast<float>(1 << 24);
                 };
-                for (int i = 0; i < kParticlesPerBreak && particles.size() < kMaxParticles; ++i) {
-                    Particle p;
+                for (int i = 0; i < client::kParticlesPerBreak && particles.size() < client::kMaxParticles; ++i) {
+                    client::Particle p;
                     p.pos = center + glm::dvec3(next_rand() - 0.5, next_rand() - 0.5, next_rand() - 0.5) * 0.6;
                     p.vel = glm::vec3(next_rand() - 0.5, next_rand(), next_rand() - 0.5) * 3.5f;
                     p.life = 0.4f + next_rand() * 0.25f;
@@ -1317,11 +941,11 @@ int main() {
             const double particles_now = glfwGetTime();
             const float dt = static_cast<float>(std::min(particles_now - last_particle_time, 0.1));
             last_particle_time = particles_now;
-            update_particles(particles, dt);
+            client::update_particles(particles, dt);
             if (!particles.empty()) {
                 std::vector<float> point_data;
                 point_data.reserve(particles.size() * 7);
-                for (const Particle &p : particles) {
+                for (const client::Particle &p : particles) {
                     point_data.insert(point_data.end(),
                                       {p.pos.x, p.pos.y, p.pos.z, p.color.r, p.color.g, p.color.b, p.color.a});
                 }
@@ -1422,7 +1046,7 @@ int main() {
                 std::vector<glm::vec2> flat;
                 for (int i = 0; i < kHotbarSlots; ++i) {
                     const float x0 = bar_x0 + static_cast<float>(i) * (kSlotPx + kSlotGap);
-                    draw_rect(x0, bar_y0, x0 + kSlotPx, bar_y0 + kSlotPx, fb_width, fb_height, flat);
+                    client::draw_rect(x0, bar_y0, x0 + kSlotPx, bar_y0 + kSlotPx, fb_width, fb_height, flat);
                 }
                 ui_flat_shader.use();
                 render::VertexArray vao;
@@ -1442,10 +1066,10 @@ int main() {
                 const float fx1 = fx0 + kSlotPx;
                 const float fy0 = bar_y0;
                 const float fy1 = bar_y0 + kSlotPx;
-                draw_rect(fx0 - 2.0f, fy0 - 2.0f, fx1 + 2.0f, fy0, fb_width, fb_height, flat);
-                draw_rect(fx0 - 2.0f, fy1, fx1 + 2.0f, fy1 + 2.0f, fb_width, fb_height, flat);
-                draw_rect(fx0 - 2.0f, fy0, fx0, fy1, fb_width, fb_height, flat);
-                draw_rect(fx1, fy0, fx1 + 2.0f, fy1, fb_width, fb_height, flat);
+                client::draw_rect(fx0 - 2.0f, fy0 - 2.0f, fx1 + 2.0f, fy0, fb_width, fb_height, flat);
+                client::draw_rect(fx0 - 2.0f, fy1, fx1 + 2.0f, fy1 + 2.0f, fb_width, fb_height, flat);
+                client::draw_rect(fx0 - 2.0f, fy0, fx0, fy1, fb_width, fb_height, flat);
+                client::draw_rect(fx1, fy0, fx1 + 2.0f, fy1, fb_width, fb_height, flat);
                 ui_flat_shader.use();
                 render::VertexArray vao;
                 vao.bind();
@@ -1524,8 +1148,8 @@ int main() {
                 std::vector<glm::vec2> tuvs;
                 // Own line above the hearts row (bar_y0-24); drawing both at
                 // the same y made the name collide with the hearts.
-                draw_text(name, static_cast<float>(fb_width) / 2.0f - static_cast<float>(name.size()) * 7.0f,
-                          bar_y0 - 46.0f, 16.0f, fb_width, fb_height, tverts, tuvs);
+                client::draw_text(name, static_cast<float>(fb_width) / 2.0f - static_cast<float>(name.size()) * 7.0f,
+                                  bar_y0 - 46.0f, 16.0f, fb_width, fb_height, tverts, tuvs);
                 ui_text_shader.use();
                 font.bind(1);
                 render::VertexArray vao;
@@ -1566,7 +1190,7 @@ int main() {
                     }
                     std::vector<glm::vec2> tverts;
                     std::vector<glm::vec2> tuvs;
-                    draw_text(text, bar_x0, hearts_y, heart_px, fb_width, fb_height, tverts, tuvs);
+                    client::draw_text(text, bar_x0, hearts_y, heart_px, fb_width, fb_height, tverts, tuvs);
                     ui_text_shader.use();
                     font.bind(1);
                     render::VertexArray vao;
@@ -1625,11 +1249,11 @@ int main() {
             const bool quit_hover = mx >= bx0 && mx <= bx1 && my >= cy + 8.0 && my <= cy + 44.0;
 
             std::vector<glm::vec2> flat;
-            draw_rect(0.0f, 0.0f, static_cast<float>(fb_width), static_cast<float>(fb_height), fb_width, fb_height,
-                      flat);
-            draw_rect(bx0, cy - 64.0f, bx1, cy - 28.0f, fb_width, fb_height, flat);
-            draw_rect(bx0, cy - 24.0f, bx1, cy + 4.0f, fb_width, fb_height, flat);
-            draw_rect(bx0, cy + 8.0f, bx1, cy + 44.0f, fb_width, fb_height, flat);
+            client::draw_rect(0.0f, 0.0f, static_cast<float>(fb_width), static_cast<float>(fb_height), fb_width,
+                              fb_height, flat);
+            client::draw_rect(bx0, cy - 64.0f, bx1, cy - 28.0f, fb_width, fb_height, flat);
+            client::draw_rect(bx0, cy - 24.0f, bx1, cy + 4.0f, fb_width, fb_height, flat);
+            client::draw_rect(bx0, cy + 8.0f, bx1, cy + 44.0f, fb_width, fb_height, flat);
             ui_flat_shader.use();
             // One color per draw call: backdrop first, then each button with a
             // hover-dependent color.
@@ -1663,14 +1287,14 @@ int main() {
 
             std::vector<glm::vec2> tverts;
             std::vector<glm::vec2> tuvs;
-            draw_text("PAUSED", static_cast<float>(fb_width) / 2.0f - 60.0f, cy - 110.0f, 22.0f, fb_width, fb_height,
-                      tverts, tuvs);
-            draw_text("RESUME", bx0 + 52.0f, cy - 54.0f, 16.0f, fb_width, fb_height, tverts, tuvs);
+            client::draw_text("PAUSED", static_cast<float>(fb_width) / 2.0f - 60.0f, cy - 110.0f, 22.0f, fb_width,
+                              fb_height, tverts, tuvs);
+            client::draw_text("RESUME", bx0 + 52.0f, cy - 54.0f, 16.0f, fb_width, fb_height, tverts, tuvs);
             // Label carries the live state so the toggle is observable
             // (MC shows ON/OFF on its accessibility options, not a bare name).
-            draw_text(auto_jump_enabled ? "AUTO-JUMP ON" : "AUTO-JUMP OFF", bx0 + 19.0f, cy - 14.0f, 16.0f, fb_width,
-                      fb_height, tverts, tuvs);
-            draw_text("QUIT", bx0 + 62.0f, cy + 18.0f, 16.0f, fb_width, fb_height, tverts, tuvs);
+            client::draw_text(auto_jump_enabled ? "AUTO-JUMP ON" : "AUTO-JUMP OFF", bx0 + 19.0f, cy - 14.0f, 16.0f,
+                              fb_width, fb_height, tverts, tuvs);
+            client::draw_text("QUIT", bx0 + 62.0f, cy + 18.0f, 16.0f, fb_width, fb_height, tverts, tuvs);
             ui_text_shader.use();
             glUniform4f(ui_text_shader.uniform_location("u_color"), 1.0f, 1.0f, 1.0f, 1.0f);
             font.bind(1);

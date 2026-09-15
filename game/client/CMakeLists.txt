@@ -4,6 +4,11 @@ add_executable(opencraft
     src/main.cpp
     src/world.cpp
     src/atlas.cpp
+    src/shaders.cpp
+    src/bitmap_font.cpp
+    src/cube_geometry.cpp
+    src/particles.cpp
+    src/block_colors.cpp
 )
 
 target_include_directories(opencraft PRIVATE src)
