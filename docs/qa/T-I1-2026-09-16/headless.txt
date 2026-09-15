@@ -1,0 +1,10 @@
+# T-I1 evidence: headless (acceptance 1)
+
+$ grep -rn "glad|GLFW|#include <GL" game/common/
+none
+
+$ grep -rn "glfw" --include=CMakeLists.txt . | grep -v build/
+game/client/CMakeLists.txt:33:    glfw
+
+=> the whole game/common library (old and new files) includes no GL header,
+   and GLFW is linked only by the client executable.

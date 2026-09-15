@@ -28,6 +28,9 @@ add_executable(opencraft_tests
     test_placement.cpp
     test_storage.cpp
     test_camera_spring.cpp
+    test_item_registry.cpp
+    test_item_stack.cpp
+    test_inventory.cpp
 )
 
 # opencraft_worldgen PUBLIC-links opencraft_voxel and opencraft_noise;
