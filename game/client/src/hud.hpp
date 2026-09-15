@@ -1,14 +1,17 @@
 #pragma once
 
-// In-game HUD: hotbar (slot backdrops, selection frame, block icons), the
-// selected item name and the health hearts. Moved verbatim out of main.cpp by
-// T-M1 (pure code motion): every colour, offset, size, draw order and GL state
-// change is unchanged; only the inputs became explicit parameters.
+// In-game HUD: hotbar (slot backdrops, selection frame, item icons, stack
+// counts), the selected item name and the health hearts. Moved out of main.cpp
+// by T-M1 (pure code motion); T-I2 replaced the hardcoded 9-block palette and
+// the bucket cell with the real inventory's hotbar section, and added the
+// count readout.
 
 #include <cstdint>
 #include <span>
 
 #include "interaction.hpp"
+#include "opencraft/game/item_registry.hpp"
+#include "opencraft/game/item_stack.hpp"
 #include "opencraft/render/rhi.hpp"
 
 namespace opencraft::client {
@@ -25,15 +28,17 @@ struct HudResources {
     const render::Texture2D &font;
 };
 
-// Per-frame HUD inputs.
+// Per-frame HUD inputs. `hotbar` is the inventory's hotbar section, drawn as
+// it is: empty cells draw nothing, cells above 1 unit draw their count.
 struct HudState {
     int fb_width = 0;
     int fb_height = 0;
-    std::span<const std::uint16_t, 9> hotbar; // 9 block slots; the bucket is kBucketSlot
+    std::span<const game::ItemStack, game::kHotbarSlots> hotbar;
+    // Item names and the item -> block link for the icons.
+    const game::ItemRegistry *items = nullptr;
+    // The vessel pair, for the "shows the water it carries" icon rule.
+    VesselIds vessels;
     int selected_slot = 0;
-    bool bucket_selected = false;
-    bool bucket_has_water = false;
-    std::uint16_t selected_block = 0; // id shown/placed for the current slot
     double health = 0.0;
 };
 

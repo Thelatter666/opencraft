@@ -1,0 +1,7 @@
+# T-I2 hotbar cell 6 (the vessel cell) icon luma, 8x8 corner probe (no count text)
+# geometry: bar_x0=524, bar_y0=714, cell i at 524+i*26 (24 px), probe = +3..+11
+# phase	shot	cell6_icon_luma
+A1	A1_hotbar_startup.png	74.5
+J1	J1_holding_water_vessel.png	75.3
+J2	J2_poured_cell6_now_empty_vessel.png	35.3
+J3	J3_scooped_back_into_cell6.png	75.3

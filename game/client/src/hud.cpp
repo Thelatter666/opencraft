@@ -64,7 +64,9 @@ void draw_hud(const HudResources &res, const HudState &state) {
         glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(flat.size()));
     }
     // Slot icons: reuse the terrain shader's tile math (proven path)
-    // with a pixel-space ortho projection; one quad per slot.
+    // with a pixel-space ortho projection; one quad per non-empty cell.
+    // Cells whose item has no generated texture (food, tools, armour) are flat
+    // tinted quads instead, batched per colour and drawn after the tiles.
     {
         const glm::mat4 hud_ortho =
             glm::ortho(0.0f, static_cast<float>(state.fb_width), static_cast<float>(state.fb_height), 0.0f);
@@ -72,58 +74,100 @@ void draw_hud(const HudResources &res, const HudState &state) {
         icon_verts.reserve(kHotbarSlots * 4);
         std::vector<std::uint32_t> icon_indices;
         icon_indices.reserve(kHotbarSlots * 6);
+
+        struct TintGroup {
+            float r = 0.0f;
+            float g = 0.0f;
+            float b = 0.0f;
+            std::vector<glm::vec2> rects;
+        };
+
+        std::vector<TintGroup> tint_groups;
         const float pad = 3.0f;
+        const std::uint16_t water = res.world.water_block_id();
         for (int i = 0; i < kHotbarSlots; ++i) {
+            const game::ItemStack &cell = state.hotbar[static_cast<std::size_t>(i)];
+            if (cell.empty()) {
+                continue; // an empty cell keeps the backdrop alone
+            }
             const float x0 = bar_x0 + static_cast<float>(i) * (kSlotPx + kSlotGap) + pad;
             const float y0 = bar_y0 + pad;
             const float x1 = x0 + kSlotPx - pad * 2.0f;
             const float y1 = y0 + kSlotPx - pad * 2.0f;
-            // The bucket borrows the water tile: bright while it holds
-            // water, dimmed when empty (placeholder art; a real icon
-            // belongs to the M2 item layer).
-            const bool bucket = i == kBucketSlot;
-            const std::uint16_t icon_block = bucket ? res.world.water_block_id() : state.hotbar[i];
-            const std::uint8_t icon_shade = bucket && !state.bucket_has_water ? 70 : 235;
-            const std::uint16_t tile = static_cast<std::uint16_t>(icon_block * 3 + 1); // side tile
+            // A block item shows its own block; a vessel shows the water it
+            // carries (dimmed while empty) -- the T-F1 hand art, now driven by
+            // the held item instead of a boolean.
+            const StandInVisual visual = stand_in_visual_of(*state.items, cell, water, state.vessels);
+            if (visual.block == game::kNoBlock) {
+                const glm::vec3 tint = item_tint(state.items->string_of(cell.item));
+                std::vector<glm::vec2> *rects = nullptr;
+                for (TintGroup &group : tint_groups) {
+                    if (group.r == tint.r && group.g == tint.g && group.b == tint.b) {
+                        rects = &group.rects;
+                        break;
+                    }
+                }
+                if (rects == nullptr) {
+                    tint_groups.push_back({tint.r, tint.g, tint.b, {}});
+                    rects = &tint_groups.back().rects;
+                }
+                draw_rect(x0, y0, x1, y1, state.fb_width, state.fb_height, *rects);
+                continue;
+            }
+            const std::uint16_t tile = static_cast<std::uint16_t>(visual.block * 3 + 1); // side tile
             const std::uint16_t base = static_cast<std::uint16_t>(icon_verts.size());
             // uv corner codes: 0=(0,0) tl, 1=(1,0) tr, 2=(0,1) bl, 3=(1,1) br.
             icon_verts.push_back(
-                {static_cast<std::uint16_t>(x0), static_cast<std::uint16_t>(y0), 0, tile, 0, icon_shade});
+                {static_cast<std::uint16_t>(x0), static_cast<std::uint16_t>(y0), 0, tile, 0, visual.shade});
             icon_verts.push_back(
-                {static_cast<std::uint16_t>(x1), static_cast<std::uint16_t>(y0), 0, tile, 1, icon_shade});
+                {static_cast<std::uint16_t>(x1), static_cast<std::uint16_t>(y0), 0, tile, 1, visual.shade});
             icon_verts.push_back(
-                {static_cast<std::uint16_t>(x1), static_cast<std::uint16_t>(y1), 0, tile, 3, icon_shade});
+                {static_cast<std::uint16_t>(x1), static_cast<std::uint16_t>(y1), 0, tile, 3, visual.shade});
             icon_verts.push_back(
-                {static_cast<std::uint16_t>(x0), static_cast<std::uint16_t>(y1), 0, tile, 2, icon_shade});
+                {static_cast<std::uint16_t>(x0), static_cast<std::uint16_t>(y1), 0, tile, 2, visual.shade});
             icon_indices.insert(icon_indices.end(),
                                 {static_cast<std::uint32_t>(base), static_cast<std::uint32_t>(base + 1),
                                  static_cast<std::uint32_t>(base + 2), static_cast<std::uint32_t>(base),
                                  static_cast<std::uint32_t>(base + 2), static_cast<std::uint32_t>(base + 3)});
         }
-        res.terrain_shader.use();
-        glUniformMatrix4fv(res.terrain_shader.uniform_location("u_mvp"), 1, GL_FALSE, &hud_ortho[0][0]);
-        glUniform3f(res.terrain_shader.uniform_location("u_chunk_origin"), 0.0f, 0.0f, 0.0f);
-        render::VertexArray vao;
-        vao.bind();
-        render::Buffer vbo(render::Buffer::Target::Vertex, icon_verts.data(),
-                           icon_verts.size() * sizeof(render::MeshVertex), render::Buffer::Usage::Static);
-        vbo.bind();
-        constexpr std::size_t kIconStride = sizeof(render::MeshVertex);
-        vao.set_attribute(0, 3, GL_UNSIGNED_SHORT, kIconStride, offsetof(render::MeshVertex, x));
-        vao.set_attribute(1, 1, GL_UNSIGNED_SHORT, kIconStride, offsetof(render::MeshVertex, tile));
-        vao.set_attribute(2, 1, GL_UNSIGNED_BYTE, kIconStride, offsetof(render::MeshVertex, uv));
-        vao.set_attribute(3, 1, GL_UNSIGNED_BYTE, kIconStride, offsetof(render::MeshVertex, shade));
-        render::Buffer ebo(render::Buffer::Target::Index, icon_indices.data(),
-                           icon_indices.size() * sizeof(std::uint32_t), render::Buffer::Usage::Static);
-        ebo.bind();
-        glDisable(GL_CULL_FACE);
-        glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(icon_indices.size()), GL_UNSIGNED_INT, nullptr);
-        glEnable(GL_CULL_FACE);
+        if (!icon_verts.empty()) {
+            res.terrain_shader.use();
+            glUniformMatrix4fv(res.terrain_shader.uniform_location("u_mvp"), 1, GL_FALSE, &hud_ortho[0][0]);
+            glUniform3f(res.terrain_shader.uniform_location("u_chunk_origin"), 0.0f, 0.0f, 0.0f);
+            render::VertexArray vao;
+            vao.bind();
+            render::Buffer vbo(render::Buffer::Target::Vertex, icon_verts.data(),
+                               icon_verts.size() * sizeof(render::MeshVertex), render::Buffer::Usage::Static);
+            vbo.bind();
+            constexpr std::size_t kIconStride = sizeof(render::MeshVertex);
+            vao.set_attribute(0, 3, GL_UNSIGNED_SHORT, kIconStride, offsetof(render::MeshVertex, x));
+            vao.set_attribute(1, 1, GL_UNSIGNED_SHORT, kIconStride, offsetof(render::MeshVertex, tile));
+            vao.set_attribute(2, 1, GL_UNSIGNED_BYTE, kIconStride, offsetof(render::MeshVertex, uv));
+            vao.set_attribute(3, 1, GL_UNSIGNED_BYTE, kIconStride, offsetof(render::MeshVertex, shade));
+            render::Buffer ebo(render::Buffer::Target::Index, icon_indices.data(),
+                               icon_indices.size() * sizeof(std::uint32_t), render::Buffer::Usage::Static);
+            ebo.bind();
+            glDisable(GL_CULL_FACE);
+            glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(icon_indices.size()), GL_UNSIGNED_INT, nullptr);
+            glEnable(GL_CULL_FACE);
+        }
+        for (const TintGroup &group : tint_groups) {
+            res.flat_shader.use();
+            render::VertexArray vao;
+            vao.bind();
+            render::Buffer vbo(render::Buffer::Target::Vertex, group.rects.data(),
+                               group.rects.size() * sizeof(glm::vec2), render::Buffer::Usage::Static);
+            vbo.bind();
+            vao.set_attribute(0, 2, GL_FLOAT, sizeof(glm::vec2), 0);
+            glUniform4f(res.flat_shader.uniform_location("u_color"), group.r, group.g, group.b, 1.0f);
+            glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(group.rects.size()));
+        }
     }
-    // Selected item name (uppercase) above the hotbar.
-    {
-        std::string name = state.bucket_selected ? (state.bucket_has_water ? "water bucket" : "bucket")
-                                                 : res.world.registry().string_of(state.selected_block);
+    // Selected item name (uppercase) above the hotbar. An empty hand has no
+    // name to show.
+    if (!state.hotbar[static_cast<std::size_t>(state.selected_slot)].empty()) {
+        std::string name =
+            state.items->def_of(state.hotbar[static_cast<std::size_t>(state.selected_slot)].item).display_name;
         std::transform(name.begin(), name.end(), name.begin(),
                        [](unsigned char c) { return static_cast<char>(std::toupper(c)); });
         std::vector<glm::vec2> tverts;
@@ -146,6 +190,47 @@ void draw_hud(const HudResources &res, const HudState &state) {
         vao.set_attribute(1, 2, GL_FLOAT, sizeof(glm::vec2), 0);
         glUniform4f(res.text_shader.uniform_location("u_color"), 1.0f, 1.0f, 1.0f, 1.0f);
         glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(tverts.size()));
+    }
+    // Stack counts: a cell holding more than one unit prints its number in the
+    // cell's bottom-right corner (MC convention). Empty cells and single units
+    // print nothing. All counts are one text batch / one draw call.
+    {
+        std::vector<glm::vec2> tverts;
+        std::vector<glm::vec2> tuvs;
+        constexpr float kCountPx = 10.0f;
+        bool any = false;
+        for (int i = 0; i < kHotbarSlots; ++i) {
+            const game::ItemStack &cell = state.hotbar[static_cast<std::size_t>(i)];
+            if (cell.count <= 1) {
+                continue;
+            }
+            const std::string text = std::to_string(cell.count);
+            // draw_text advances one glyph per kCountPx, so the string's width
+            // is text.size() * kCountPx; right-align it inside the cell.
+            const float x1 = bar_x0 + static_cast<float>(i + 1) * (kSlotPx + kSlotGap) - kSlotGap - 1.0f;
+            const float x0 = x1 - static_cast<float>(text.size()) * kCountPx;
+            draw_text(text, x0, bar_y0 + kSlotPx - kCountPx - 1.0f, kCountPx, state.fb_width, state.fb_height, tverts,
+                      tuvs);
+            any = true;
+        }
+        if (any) {
+            res.text_shader.use();
+            res.font.bind(1);
+            render::VertexArray vao;
+            vao.bind();
+            render::Buffer vbo(render::Buffer::Target::Vertex, tverts.data(),
+                               static_cast<std::size_t>(tverts.size()) * sizeof(glm::vec2),
+                               render::Buffer::Usage::Static);
+            vbo.bind();
+            vao.set_attribute(0, 2, GL_FLOAT, sizeof(glm::vec2), 0);
+            render::Buffer uvbo(render::Buffer::Target::Vertex, tuvs.data(),
+                                static_cast<std::size_t>(tuvs.size()) * sizeof(glm::vec2),
+                                render::Buffer::Usage::Static);
+            uvbo.bind();
+            vao.set_attribute(1, 2, GL_FLOAT, sizeof(glm::vec2), 0);
+            glUniform4f(res.text_shader.uniform_location("u_color"), 1.0f, 1.0f, 1.0f, 1.0f);
+            glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(tverts.size()));
+        }
     }
     // Health: 10 hearts driven by PlayerState::health (T007), 2 hp per
     // heart. Red pass (full + half), then a dim pass for empty ones.

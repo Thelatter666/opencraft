@@ -1,0 +1,20 @@
+[2026-09-16 04:21:12.453] [info] OpenCraft 0.1.0 starting
+[2026-09-16 04:21:12.594] [info] GL 4.1 Metal - 89.4 / glad loaded
+[2026-09-16 04:21:12.595] [info] save: no level.ocd, new world with seed 0x4f50454e43524146
+[2026-09-16 04:21:12.603] [info] spawn scan: surface at (0.5, 132.0, 0.5)
+[2026-09-16 04:21:12.817] [info] startup gen: 24 chunks, total 214.0 ms, avg 8.92 ms/chunk, max 9.77 ms
+[2026-09-16 04:21:12.817] [info] atlas: 144x144 px, 9 tiles/row, crack tiles at 63
+[2026-09-16 04:21:14.846] [info] fps 46.4 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-16 04:21:16.863] [info] fps 92.8 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-16 04:21:18.863] [info] fps 94.5 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-16 04:21:20.856] [info] fps 94.5 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-16 04:21:22.878] [info] fps 93.8 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-16 04:21:23.092] [info] placed snow_block at (0, 132, -3); consumed 1 from slot 8 (2 left)
+[2026-09-16 04:21:23.110] [info] remeshed 6 chunk(s) in 17.53 ms (last mesh 2.51 ms)
+[2026-09-16 04:21:24.571] [info] placed snow_block at (0, 132, -2); consumed 1 from slot 8 (1 left)
+[2026-09-16 04:21:24.588] [info] remeshed 6 chunk(s) in 17.07 ms (last mesh 2.44 ms)
+[2026-09-16 04:21:24.883] [info] fps 84.0 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-16 04:21:24.941] [info] autosave: 1 chunk(s) queued for async write, level written (ticks=199)
+[2026-09-16 04:21:26.043] [info] placed snow_block at (0, 132, -1); consumed 1 from slot 8 (0 left)
+[2026-09-16 04:21:26.054] [info] remeshed 4 chunk(s) in 11.05 ms (last mesh 2.50 ms)
+[2026-09-16 04:21:26.897] [info] fps 85.7 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104

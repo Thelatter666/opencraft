@@ -7,6 +7,8 @@
 // ⚖ values are frozen: the split moved them, it did not retune them
 // (docs/01 §4).
 
+#include "opencraft/game/inventory.hpp"
+
 namespace opencraft::client {
 
 inline constexpr int kWindowWidth = 1280;
@@ -25,9 +27,10 @@ inline constexpr double kEyeStanding = 1.62;
 inline constexpr double kEyeSneaking = 1.27;
 
 // ── hotbar layout ───────────────────────────────────────────────────────────
-// 10 slots: keys 1..9 pick blocks, 0 picks the bucket (T-F1's minimal item
-// form).
-inline constexpr int kBucketSlot = 9;
-inline constexpr int kHotbarSlots = 10;
+// Keys 1..9 select the nine hotbar cells of the inventory (docs/01 §5
+// 快捷栏 9). The T-F1 bucket cell (a tenth, key 0) is gone: the vessels are
+// ordinary items in the bar now (T-I2), so the bar is exactly the inventory's
+// hotbar section.
+inline constexpr int kHotbarSlots = game::kHotbarSlots;
 
 } // namespace opencraft::client

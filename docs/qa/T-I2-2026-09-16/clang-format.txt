@@ -1,0 +1,15 @@
+# T-I2 clang-format evidence
+# tool: /Library/Developer/CommandLineTools/usr/bin/clang-format (Apple clang-format version 17.0.0 (clang-1700.6.3.2))
+# command: clang-format --dry-run -Werror <file>   (no output per file = clean)
+
+game/client/src/inventory_wiring.hpp	CLEAN
+tests/test_inventory_wiring.cpp	CLEAN
+game/client/src/client_config.hpp	CLEAN
+game/client/src/hud.cpp	CLEAN
+game/client/src/hud.hpp	CLEAN
+game/client/src/interaction.hpp	CLEAN
+game/client/src/main.cpp	CLEAN
+game/client/src/tick.cpp	CLEAN
+game/common/include/opencraft/game/item_registry.hpp	CLEAN
+game/common/src/item_registry.cpp	CLEAN
+tests/test_item_registry.cpp	CLEAN

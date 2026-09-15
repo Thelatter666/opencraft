@@ -1,0 +1,48 @@
+[2026-09-16 04:22:41.771] [info] OpenCraft 0.1.0 starting
+[2026-09-16 04:22:41.927] [info] GL 4.1 Metal - 89.4 / glad loaded
+[2026-09-16 04:22:41.927] [info] save: no level.ocd, new world with seed 0x4f50454e43524146
+[2026-09-16 04:22:41.936] [info] spawn scan: surface at (0.5, 132.0, 0.5)
+[2026-09-16 04:22:42.147] [info] startup gen: 24 chunks, total 210.7 ms, avg 8.78 ms/chunk, max 9.65 ms
+[2026-09-16 04:22:42.147] [info] atlas: 144x144 px, 9 tiles/row, crack tiles at 63
+[2026-09-16 04:22:44.181] [info] fps 45.3 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-16 04:22:46.194] [info] fps 84.6 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-16 04:22:48.208] [info] fps 94.2 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-16 04:22:50.201] [info] fps 94.0 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-16 04:22:52.215] [info] fps 94.7 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-16 04:22:52.389] [info] vessel: poured water source at (0, 132, -2)
+[2026-09-16 04:22:52.395] [info] remeshed 2 chunk(s) in 6.20 ms (last mesh 3.26 ms)
+[2026-09-16 04:22:52.601] [info] remeshed 2 chunk(s) in 10.99 ms (last mesh 5.51 ms)
+[2026-09-16 04:22:52.871] [info] remeshed 2 chunk(s) in 15.64 ms (last mesh 7.59 ms)
+[2026-09-16 04:22:53.134] [info] remeshed 1 chunk(s) in 7.86 ms (last mesh 7.81 ms)
+[2026-09-16 04:22:53.393] [info] remeshed 1 chunk(s) in 10.37 ms (last mesh 10.31 ms)
+[2026-09-16 04:22:53.640] [info] remeshed 1 chunk(s) in 8.16 ms (last mesh 8.11 ms)
+[2026-09-16 04:22:53.913] [info] remeshed 1 chunk(s) in 10.39 ms (last mesh 10.33 ms)
+[2026-09-16 04:22:54.169] [info] remeshed 1 chunk(s) in 8.91 ms (last mesh 8.85 ms)
+[2026-09-16 04:22:54.215] [info] fps 85.0 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-16 04:22:54.323] [info] autosave: 2 chunk(s) queued for async write, level written (ticks=199)
+[2026-09-16 04:22:54.448] [info] remeshed 3 chunk(s) in 24.13 ms (last mesh 6.69 ms)
+[2026-09-16 04:22:54.718] [info] remeshed 3 chunk(s) in 23.02 ms (last mesh 6.51 ms)
+[2026-09-16 04:22:54.996] [info] remeshed 3 chunk(s) in 23.49 ms (last mesh 6.62 ms)
+[2026-09-16 04:22:55.148] [info] vessel: filled from (0, 132, -2)
+[2026-09-16 04:22:55.154] [info] remeshed 2 chunk(s) in 5.20 ms (last mesh 2.73 ms)
+[2026-09-16 04:22:55.265] [info] remeshed 4 chunk(s) in 15.04 ms (last mesh 3.22 ms)
+[2026-09-16 04:22:55.386] [info] remeshed 2 chunk(s) in 10.58 ms (last mesh 5.50 ms)
+[2026-09-16 04:22:55.543] [info] remeshed 3 chunk(s) in 14.68 ms (last mesh 4.23 ms)
+[2026-09-16 04:22:55.652] [info] remeshed 2 chunk(s) in 13.52 ms (last mesh 6.70 ms)
+[2026-09-16 04:22:55.826] [info] remeshed 3 chunk(s) in 20.53 ms (last mesh 5.29 ms)
+[2026-09-16 04:22:55.933] [info] remeshed 1 chunk(s) in 7.48 ms (last mesh 7.43 ms)
+[2026-09-16 04:22:56.105] [info] remeshed 3 chunk(s) in 21.72 ms (last mesh 5.38 ms)
+[2026-09-16 04:22:56.216] [info] remeshed 1 chunk(s) in 8.34 ms (last mesh 8.30 ms)
+[2026-09-16 04:22:56.218] [info] fps 83.4 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-16 04:22:56.391] [info] remeshed 3 chunk(s) in 22.80 ms (last mesh 5.29 ms)
+[2026-09-16 04:22:56.498] [info] remeshed 1 chunk(s) in 4.75 ms (last mesh 4.68 ms)
+[2026-09-16 04:22:56.667] [info] remeshed 3 chunk(s) in 21.72 ms (last mesh 5.66 ms)
+[2026-09-16 04:22:56.772] [info] remeshed 1 chunk(s) in 8.48 ms (last mesh 8.42 ms)
+[2026-09-16 04:22:56.931] [info] remeshed 3 chunk(s) in 8.20 ms (last mesh 2.47 ms)
+[2026-09-16 04:22:57.046] [info] remeshed 1 chunk(s) in 4.78 ms (last mesh 4.75 ms)
+[2026-09-16 04:22:57.211] [info] remeshed 3 chunk(s) in 23.03 ms (last mesh 5.36 ms)
+[2026-09-16 04:22:57.335] [info] remeshed 3 chunk(s) in 22.00 ms (last mesh 6.81 ms)
+[2026-09-16 04:22:57.501] [info] remeshed 3 chunk(s) in 14.25 ms (last mesh 4.07 ms)
+[2026-09-16 04:22:57.622] [info] remeshed 3 chunk(s) in 18.60 ms (last mesh 6.75 ms)
+[2026-09-16 04:22:57.793] [info] remeshed 3 chunk(s) in 21.40 ms (last mesh 5.33 ms)
+[2026-09-16 04:22:57.919] [info] remeshed 3 chunk(s) in 22.84 ms (last mesh 6.66 ms)

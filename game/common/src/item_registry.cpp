@@ -3,6 +3,8 @@
 #include <stdexcept>
 #include <utility>
 
+#include "opencraft/voxel/block_registry.hpp"
+
 namespace opencraft::game {
 
 namespace {
@@ -12,70 +14,73 @@ namespace {
 // no translations of them). The words are coined from geology / metalworking
 // / armour vocabulary instead of the familiar fantasy-mining set.
 //
-// The first twenty entries are the item forms of the twenty blocks
-// BlockRegistry::create_default() ships. They carry no link back to the
-// blocks' numeric ids: forming a block from a held item is a client-side
-// wiring concern (the next card), and baking a block id into ItemDef here
-// would freeze a mapping this card cannot test.
+// Every placeable entry names its block by STRING id, resolved in
+// create_default(): writing a block's numeric id here would freeze an
+// ordering the block registry is free to change, while a name survives
+// renumbering and fails loudly (id_of throws) if the block disappears.
 struct LaunchItem {
     const char *id;
     const char *display_name;
     int max_stack;
     EquipSlot equip;
+    // Block string id this item places, or nullptr when it has no block form.
+    const char *block;
 };
 
 constexpr LaunchItem kLaunchItems[] = {
-    // Item forms of the twenty launch blocks -- all stack to 64.
-    {"loam_clod", "Loam Clod", kStackLimitLarge, EquipSlot::None},
-    {"sod_loam", "Sod Loam", kStackLimitLarge, EquipSlot::None},
-    {"greyrock", "Greyrock", kStackLimitLarge, EquipSlot::None},
-    {"rubble_rock", "Rubble Rock", kStackLimitLarge, EquipSlot::None},
-    {"fine_grit", "Fine Grit", kStackLimitLarge, EquipSlot::None},
-    {"pebble_grit", "Pebble Grit", kStackLimitLarge, EquipSlot::None},
-    {"grit_slab", "Grit Slab", kStackLimitLarge, EquipSlot::None},
-    {"timber_log", "Timber Log", kStackLimitLarge, EquipSlot::None},
-    {"leaf_canopy", "Leaf Canopy", kStackLimitLarge, EquipSlot::None},
-    {"sawn_planks", "Sawn Planks", kStackLimitLarge, EquipSlot::None},
-    {"clear_pane", "Clear Pane", kStackLimitLarge, EquipSlot::None},
-    {"still_water", "Still Water", kStackLimitLarge, EquipSlot::None},
-    {"underrock", "Underrock", kStackLimitLarge, EquipSlot::None},
-    {"char_ore", "Char Ore", kStackLimitLarge, EquipSlot::None},
-    {"verdigris_ore", "Verdigris Ore", kStackLimitLarge, EquipSlot::None},
-    {"ferrous_ore", "Ferrous Ore", kStackLimitLarge, EquipSlot::None},
-    {"auric_ore", "Auric Ore", kStackLimitLarge, EquipSlot::None},
-    {"lucent_ore", "Lucent Ore", kStackLimitLarge, EquipSlot::None},
-    {"rime_block", "Rime Block", kStackLimitLarge, EquipSlot::None},
-    {"duskglass", "Duskglass", kStackLimitLarge, EquipSlot::None},
+    // Item forms of the launch blocks -- all stack to 64. Water has no entry
+    // (T-I1 ruling S-3): in this game water is carried in a vessel and is
+    // never itself an item, so there is nothing to place.
+    {"loam_clod", "Loam Clod", kStackLimitLarge, EquipSlot::None, "dirt"},
+    {"sod_loam", "Sod Loam", kStackLimitLarge, EquipSlot::None, "grass_block"},
+    {"greyrock", "Greyrock", kStackLimitLarge, EquipSlot::None, "stone"},
+    {"rubble_rock", "Rubble Rock", kStackLimitLarge, EquipSlot::None, "cobblestone"},
+    {"fine_grit", "Fine Grit", kStackLimitLarge, EquipSlot::None, "sand"},
+    {"pebble_grit", "Pebble Grit", kStackLimitLarge, EquipSlot::None, "gravel"},
+    {"grit_slab", "Grit Slab", kStackLimitLarge, EquipSlot::None, "sandstone"},
+    {"timber_log", "Timber Log", kStackLimitLarge, EquipSlot::None, "log"},
+    {"leaf_canopy", "Leaf Canopy", kStackLimitLarge, EquipSlot::None, "leaves"},
+    {"sawn_planks", "Sawn Planks", kStackLimitLarge, EquipSlot::None, "planks"},
+    {"clear_pane", "Clear Pane", kStackLimitLarge, EquipSlot::None, "glass"},
+    {"underrock", "Underrock", kStackLimitLarge, EquipSlot::None, "bedrock"},
+    {"char_ore", "Char Ore", kStackLimitLarge, EquipSlot::None, "coal_ore"},
+    {"verdigris_ore", "Verdigris Ore", kStackLimitLarge, EquipSlot::None, "copper_ore"},
+    {"ferrous_ore", "Ferrous Ore", kStackLimitLarge, EquipSlot::None, "iron_ore"},
+    {"auric_ore", "Auric Ore", kStackLimitLarge, EquipSlot::None, "gold_ore"},
+    {"lucent_ore", "Lucent Ore", kStackLimitLarge, EquipSlot::None, "diamond_ore"},
+    {"rime_block", "Rime Block", kStackLimitLarge, EquipSlot::None, "snow_block"},
+    {"duskglass", "Duskglass", kStackLimitLarge, EquipSlot::None, "obsidian"},
 
     // Vessels: containers stack to 16 while empty, and a filled one holds
-    // fluid so it does not stack at all.
-    {"empty_vessel", "Empty Vessel", kStackLimitMedium, EquipSlot::None},
-    {"water_vessel", "Water Vessel", kStackLimitSingle, EquipSlot::None},
+    // fluid so it does not stack at all. Both are handled by the client's
+    // vessel paths (T-I2), which is why they carry no block form.
+    {"empty_vessel", "Empty Vessel", kStackLimitMedium, EquipSlot::None, nullptr},
+    {"water_vessel", "Water Vessel", kStackLimitSingle, EquipSlot::None, nullptr},
 
     // Food and material drafts (no hunger/consumption logic yet).
-    {"sunroot", "Sunroot", kStackLimitLarge, EquipSlot::None},
-    {"cave_cap", "Cave Cap", kStackLimitLarge, EquipSlot::None},
-    {"grain_loaf", "Grain Loaf", kStackLimitLarge, EquipSlot::None},
-    {"char_lump", "Char Lump", kStackLimitLarge, EquipSlot::None},
-    {"ferrous_bloom", "Ferrous Bloom", kStackLimitLarge, EquipSlot::None},
-    {"rime_pearl", "Rime Pearl", kStackLimitMedium, EquipSlot::None},
+    {"sunroot", "Sunroot", kStackLimitLarge, EquipSlot::None, nullptr},
+    {"cave_cap", "Cave Cap", kStackLimitLarge, EquipSlot::None, nullptr},
+    {"grain_loaf", "Grain Loaf", kStackLimitLarge, EquipSlot::None, nullptr},
+    {"char_lump", "Char Lump", kStackLimitLarge, EquipSlot::None, nullptr},
+    {"ferrous_bloom", "Ferrous Bloom", kStackLimitLarge, EquipSlot::None, nullptr},
+    {"rime_pearl", "Rime Pearl", kStackLimitMedium, EquipSlot::None, nullptr},
 
     // Tools of the first tier (docs/01 §5 names the tiers 木质/岩质/精铁/秘银/
     // 星钻; "timber" is that system's first tier). Durability/damage/harvest
     // level are not modelled yet -- these entries exist so the single-item
     // stack tier has real samples.
-    {"timber_chisel", "Timber Chisel Pick", kStackLimitSingle, EquipSlot::None},
-    {"timber_hewer", "Timber Hewing Axe", kStackLimitSingle, EquipSlot::None},
-    {"timber_spade", "Timber Digging Spade", kStackLimitSingle, EquipSlot::None},
-    {"timber_edge", "Timber Edge Blade", kStackLimitSingle, EquipSlot::None},
+    {"timber_chisel", "Timber Chisel Pick", kStackLimitSingle, EquipSlot::None, nullptr},
+    {"timber_hewer", "Timber Hewing Axe", kStackLimitSingle, EquipSlot::None, nullptr},
+    {"timber_spade", "Timber Digging Spade", kStackLimitSingle, EquipSlot::None, nullptr},
+    {"timber_edge", "Timber Edge Blade", kStackLimitSingle, EquipSlot::None, nullptr},
 
     // Armour, first tier. Present because the inventory's four armour slots
     // need something that is allowed to occupy them, and because one piece
     // per body part is what makes the slot constraint testable.
-    {"timber_headguard", "Timber Headguard", kStackLimitSingle, EquipSlot::Head},
-    {"timber_cuirass", "Timber Cuirass", kStackLimitSingle, EquipSlot::Chest},
-    {"timber_greaves", "Timber Greaves", kStackLimitSingle, EquipSlot::Legs},
-    {"timber_treads", "Timber Treads", kStackLimitSingle, EquipSlot::Feet},
+    {"timber_headguard", "Timber Headguard", kStackLimitSingle, EquipSlot::Head, nullptr},
+    {"timber_cuirass", "Timber Cuirass", kStackLimitSingle, EquipSlot::Chest, nullptr},
+    {"timber_greaves", "Timber Greaves", kStackLimitSingle, EquipSlot::Legs, nullptr},
+    {"timber_treads", "Timber Treads", kStackLimitSingle, EquipSlot::Feet, nullptr},
 };
 
 } // namespace
@@ -91,8 +96,14 @@ ItemRegistry::ItemRegistry() {
 
 ItemRegistry ItemRegistry::create_default() {
     ItemRegistry registry;
+    // Resolve the block links against the launch block set. Constructing it
+    // here (rather than taking one in) keeps the signature the inventory
+    // already depends on; the item set IS the item set of those blocks, and
+    // the client's world builds the same default registry, so the ids agree.
+    const voxel::BlockRegistry blocks = voxel::BlockRegistry::create_default();
     for (const auto &entry : kLaunchItems) {
-        registry.register_item(entry.id, {entry.display_name, entry.max_stack, entry.equip});
+        const std::uint16_t block = entry.block == nullptr ? kNoBlock : blocks.id_of(entry.block);
+        registry.register_item(entry.id, {entry.display_name, entry.max_stack, entry.equip, block});
     }
     return registry;
 }
