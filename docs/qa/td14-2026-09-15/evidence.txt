@@ -1,0 +1,106 @@
+T-D14 实机证据（Auto-Jump）　2026-09-15
+=====================================
+
+环境
+----
+- 机器：macOS 24.6.0（arm64，本机 = 用户实机）
+- worktree：/Users/happy/Desktop/opencraft_worktree/opencraft-td14（main 7aed0ec + 任务提交 taskT-D14:）
+- 二进制：build/opencraft（Debug），cwd = build（存档相对路径 build/saves/world，每次运行前 rm -rf saves 保证新世界）
+- 世界种子：固定（WorldSource::kSeed），故出生点与地形每次一致 ⇒ 证据可复现
+- 按键注入：CGEventCreateKeyboardEvent + CGEventPost(kCGHIDEventTap)（qa_drive.mm，HID 层；**未用 osascript**）
+  · 窗口号按 PID 反查（qa_drive 内 CGWindowListCopyWindowInfo + kCGWindowOwnerPID）
+  · 激活 + 注入 + 截图在同一进程内完成（构建环境备忘要求）
+
+工具
+----
+- qa_drive.mm：本目录（T-D13 版基础上加 esc 模式）；qa_drive <pid> <whold|esc|...> [secs]
+- 临时打点 harness：见 temporary_harness.patch（**已 git checkout 还原，最终树 = 提交 taskT-D14: 的树**）
+  · 出生点南侧 5×4 通道整平到 y=132，并在 z = sz−1 放一排 1 格高石墙（顶面 y=133）
+  · 每 tick 输出：t / x / y / z / og(接地) / vy / inj(= 由 Auto-Jump 注入 in.jump 且空格未按下)
+  · 还原方式：`git checkout -- game/client/src/main.cpp`（临时改动从未提交）
+
+★ 决定性证据 A：开关 ON（默认）——W 键自动跳上 1 格墙
+-----------------------------------------------------
+注入：qa_drive <pid> whold 6（只按 W，**全程没有按空格**）
+原始逐 tick（本目录 trace_autojump_on_full.log，t=0..13）：
+
+t=0  x=0.5000 y=132.0000 z=0.5000 og=1 vy=0.0000 inj=0
+t=1  x=0.5000 y=132.0000 z=0.5000 og=1 vy=0.0000 inj=0
+t=2  x=0.5000 y=132.4200 z=0.4020 og=0 vy=0.3332 inj=1   ← Auto-Jump 注入（inj=1），进入滞空
+t=3  x=0.5000 y=132.7532 z=0.3289 og=0 vy=0.2481 inj=0
+t=4  x=0.5000 y=133.0013 z=0.2624 og=0 vy=0.1648 inj=0
+t=5  x=0.5000 y=133.1661 z=0.2018 og=0 vy=0.0831 inj=0
+t=6  x=0.5000 y=133.2492 z=0.1467 og=0 vy=0.0030 inj=0
+t=7  x=0.5000 y=133.2522 z=0.0966 og=0 vy=-0.0754 inj=0  ← 顶点 = 132 + 1.2522（⚖ 精确）
+t=8  x=0.5000 y=133.1768 z=0.0510 og=0 vy=-0.1523 inj=0
+t=9  x=0.5000 y=133.0244 z=0.0095 og=0 vy=-0.2277 inj=0
+t=10 x=0.5000 y=133.0000 z=-0.0283 og=1 vy=0.0000 inj=0  ← 落在墙顶面 y=133，恢复接地
+t=11..连续前进（y 恒为 133.0000，og=1）
+
+要点：
+1. t=2 的 inj=1 是**纯几何判定注入**（该 tick 未按空格）——实机可达性成立。
+2. 顶点 133.2522 = 起跳面 132 + **1.2522**，与 docs/01 §2 ⚖ 跳跃高度逐位一致（验收 #5 实机复现）。
+3. 起跳后 2 tick 即越过墙顶（t=4 y=133.0013 > 133），t=10 落到墙顶、滞空 8 tick（0.40 s）。
+4. 截图：shot_autojump_on_standing_on_wall.png（玩家站在石墙顶上，脚底与墙顶同高）。
+
+★ 决定性证据 B：开关 OFF——同一注入被墙挡停（对照）
+---------------------------------------------------
+同一二进制，仅把临时 harness 里的 auto_jump_enabled 初值改成 false 重新构建
+（见 temporary_harness.patch 第二段），同一注入：
+原始逐 tick（trace_autojump_off_full.log）：
+
+t=0  x=0.5000 y=132.0000 z=0.5000 og=1 vy=0.0000 inj=0
+t=1  x=0.5000 y=132.0000 z=0.5000 og=1 vy=0.0000 inj=0
+t=2  x=0.5000 y=132.0000 z=0.4020 og=1 vy=0.0000 inj=0
+t=3  x=0.5000 y=132.0000 z=0.3000 og=1 vy=0.0000 inj=0  ← 夹在墙前（体宽 0.3）
+t=4.. 恒为 z=0.3000 y=132.0000 og=1 inj=0
+
+全程 inj=0、y 只有 132.0000 一个取值（`grep -oE "y=[0-9.]+" | sort -u` 仅 y=132.0000）。
+⇒ 上跳确实来自 Auto-Jump 开关，而非任何手动输入或地形巧合。
+
+★ 证据 C：暂停菜单开关按钮
+---------------------------
+shot_pause_menu_toggle.png（ESC 注入后截图）：PAUSED / RESUME / **AUTO-JUMP OFF** / QUIT
+四个元素，第三个为新增按钮，标签带实时状态（该截图是 OFF 对照构建，故显示 OFF；默认值 ON）。
+鼠标悬停时按钮底色变亮（悬停高亮）。
+
+过程记录（如实交代）
+--------------------
+- 第一次尝试用 qa_drive 注入 W 时**没有任何位移**（run1 trace: z 恒 0.5、inj=0），原因未定位；
+  同一构建随后用 ZCode computer-use 的按键注入成功移动了玩家（shot-after-mcp.png），
+  说明客户端输入链路本身正常 ⇒ 属注入通道问题，非产品缺陷。
+- 第二、三次注入（run2）又完全无效（trace t 到 3999 仍 z=0.5），同样未定位。
+- 第四次（run3）注入生效，但发现 **W 只被识别约 9 tick 后按键状态被清除**
+  （窗口失焦时 GLFW 复位按键状态）：玩家只前进 0.64 格就停住，走不到 8 格外的墙。
+  ⇒ 因此把证据墙移到出生点正前方 1 格（z = sz−1），使自动跳跃在失焦窗口内完成，
+  这才得到证据 A/B。
+  （最终产品代码不含任何针对此的改动；见报告 §5 与 §8 建议 S-1。）
+- 全部实机运行都用**每 tick 实际位移**口径，无插值、无合成输入。
+
+复现命令
+--------
+    cd /Users/happy/Desktop/opencraft_worktree/opencraft-td14
+    cmake --build build -j8 --target opencraft      # 不接管道
+    # 打上临时 harness（可选；不打也可用真实自然地形）：git apply docs/qa/td14-2026-09-15/temporary_harness.patch
+    cd build && rm -rf saves && ./opencraft > /dev/null 2> trace.log &
+    P=$(pgrep -x opencraft | head -1)
+    clang++ -framework ApplicationServices -framework AppKit -framework Foundation \
+        -o /tmp/td14_qa/qa_drive ../docs/qa/td14-2026-09-15/qa_drive.mm
+    /tmp/td14_qa/qa_drive $P whold 6
+    grep -E "EV t=" trace.log | head -15
+    # 还原临时打点：git checkout -- game/client/src/main.cpp
+
+追加验证（本卡收尾，2026-09-15 深夜）
+------------------------------------
+两轮更强的实机证据，均已归档：
+
+1) verify_user_placed_natural_step.txt + shot_verify_user_placed_natural_step.png
+   · 构建 = 交付代码 + 仅逐帧日志（**无任何测试墙**）；世界新建 seed 0x4f50454e43524146
+   · 用户本人走到自然梯田前站定并停手，我只注入 W（HID，未按空格）
+   · 两次完整弧线顶点 = 起跳面 + 1.2522（y: 132→133.2522→133 / 133→134.2522→134）；
+     整场 inj=1 计数 13（每次 vy 都是 0.3332 = (0.42−0.08)×0.98）
+
+2) verify_ui_toggle_real_mouse_click.txt + shot_ui_click_auto_jump_off.png
+   · 运行时用**真实鼠标点击**暂停菜单按钮：标签 ON → OFF；随后点 RESUME 并注入 W，
+     全程 inj=1 计数 0、玩家被 1 格墙夹停（z=0.3000、y 恒 132.0000）
+   · 即 OFF 对照不再依赖重新构建；qa_drive.mm 已含 pauseclick / clickresume 模式

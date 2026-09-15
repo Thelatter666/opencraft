@@ -1,0 +1,82 @@
+diff --git a/game/client/src/main.cpp b/game/client/src/main.cpp
+index c030c2e..56585ba 100644
+--- a/game/client/src/main.cpp
++++ b/game/client/src/main.cpp
+@@ -59,6 +59,10 @@ constexpr int kNewMeshPerFrame = 4; // new-chunk meshing budget/frame
+ constexpr double kEyeStanding = 1.62;
+ constexpr double kEyeSneaking = 1.27;
+ 
++// ══ TEMP T-D14 EVIDENCE — NEVER COMMIT ══
++bool g_td14_trace_on = false;
++// ══ END TEMP ══
++
+ // ── shaders ─────────────────────────────────────────────────────────────────
+ // Terrain shader: unchanged from T005 except that the shade byte now carries
+ // the sampled light (max(sky, block)/15 folded into the face shade).
+@@ -577,6 +581,40 @@ int main() {
+     OC_LOG_INFO("startup gen: {} chunks, total {:.1f} ms, avg {:.2f} ms/chunk, max {:.2f} ms", gen_count, total_gen_ms,
+                 gen_count > 0 ? total_gen_ms / gen_count : 0.0, max_gen_ms);
+ 
++    // ══ TEMP T-D14 EVIDENCE HARNESS — NEVER COMMIT (revert after capture) ══
++    // Flatten a 5×11 lane south of spawn to the spawn's surface height and
++    // place a 1-block-high stone wall across it, then per-tick stderr trace.
++    // Auto-Jump fires on W alone (no Space is injected), so the Y trace IS the
++    // auto-jump evidence.
++    {
++        const std::uint16_t stone = world.registry().id_of("stone");
++        const int sx = static_cast<int>(std::floor(spawn_pos.x));
++        const int sy = static_cast<int>(std::floor(spawn_pos.y));
++        const int sz = static_cast<int>(std::floor(spawn_pos.z));
++        std::vector<std::pair<int, int>> dirty;
++        for (int dz = 0; dz >= -3; --dz) {
++            for (int dx = -2; dx <= 2; ++dx) {
++                const int wx = sx + dx;
++                const int wz = sz + dz;
++                // Solid up to layer sy-1, air from sy up: uniform floor top.
++                for (int wy = sy - 1; wy <= sy + 1; ++wy) {
++                    const std::uint16_t want = wy < sy ? stone : 0;
++                    if (world.block_at(wx, wy, wz) != want) {
++                        world.set_block(wx, wy, wz, want, dirty);
++                    }
++                }
++            }
++        }
++        const int wall_z = sz - 1;
++        for (int dx = -2; dx <= 2; ++dx) {
++            world.set_block(sx + dx, sy, wall_z, stone, dirty);
++        }
++        std::fprintf(stderr, "EV wall: spawn=(%d,%d,%d) lane flat top y=%d wall row z=%d\n", sx, sy, sz, sy, wall_z);
++        std::fflush(stderr);
++        g_td14_trace_on = true;
++    }
++    // ══ END TEMP ═══════════════════════════════════════════════════════════
++
+     // ── atlas + font ────────────────────────────────────────────────────────
+     const opencraft::client::AtlasImage atlas_image = opencraft::client::generate_atlas(world.registry());
+     const render::Texture2D atlas(atlas_image.width, atlas_image.height, atlas_image.pixels.data());
+@@ -690,7 +728,7 @@ int main() {
+     bool paused = false;
+     // T-D14: Auto-Jump master switch. In-memory only (card §4: 不要求落盘);
+     // default ON, matching MC's client option. Toggled from the pause menu.
+-    bool auto_jump_enabled = true;
++    bool auto_jump_enabled = false; // TEMP EVIDENCE CONTROL: switch OFF
+     // Last frame's primary-button state, for click-EDGE detection in the
+     // pause menu (the non-idempotent AUTO-JUMP toggle button).
+     bool prev_menu_clicked = false;
+@@ -861,6 +899,16 @@ int main() {
+         prev_state = curr_state;
+         phy::step_player(curr_state, in, world);
+ 
++        // ══ TEMP T-D14 per-tick trace — NEVER COMMIT ══
++        if (g_td14_trace_on && game_ticks < 400000) {
++            std::fprintf(stderr, "EV t=%llu x=%.4f y=%.4f z=%.4f og=%d vy=%.4f inj=%d\n",
++                         static_cast<unsigned long long>(game_ticks), curr_state.position.x, curr_state.position.y,
++                         curr_state.position.z, curr_state.on_ground ? 1 : 0, curr_state.velocity.y,
++                         (in.jump && !key_pressed(GLFW_KEY_SPACE)) ? 1 : 0);
++            std::fflush(stderr);
++        }
++        // ══ END TEMP ══
++
+         // Sprint transitions come from the physics state machine (explicit
+         // state per the T-D1 contract) — log them for QA evidence.
+         if (curr_state.sprinting != prev_state.sprinting) {
