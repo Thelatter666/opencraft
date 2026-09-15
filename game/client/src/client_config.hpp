@@ -8,6 +8,7 @@
 // (docs/01 §4).
 
 #include "opencraft/game/inventory.hpp"
+#include "opencraft/game/protocol.hpp"
 
 namespace opencraft::client {
 
@@ -16,8 +17,11 @@ inline constexpr int kWindowHeight = 720;
 
 // ── view / interaction constants ────────────────────────────────────────────
 inline constexpr double kMouseSensitivity = 0.0025;
-inline constexpr double kMaxPitch = 1.5533;   // ~89 degrees
-inline constexpr double kReachDistance = 4.5; // ⚖ docs/01 §4: survival block reach
+inline constexpr double kMaxPitch = 1.5533; // ~89 degrees
+// ⚖ docs/01 §4: survival block reach. T-A1 gave it a single source of truth -
+// the authoritative side re-checks the same number - so the value itself now
+// lives with the request vocabulary and this is the client's name for it.
+inline constexpr double kReachDistance = game::kReachDistance;
 // Base FOV and sprint multiplier live in fov.hpp (T-D1, unit-tested).
 inline constexpr int kViewRadius = 6;      // meshed chunk radius around the player
 inline constexpr int kGenPerFrame = 2;     // sync-generation budget (docs: <= 2/frame)

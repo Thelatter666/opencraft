@@ -10,7 +10,6 @@
 
 #include "client_config.hpp"
 #include "opencraft/core/log.hpp"
-#include "opencraft/game/placement.hpp"
 #include "opencraft/game/raycast.hpp"
 #include "opencraft/physics/auto_jump.hpp"
 #include "opencraft/physics/input_state.hpp"
@@ -62,6 +61,19 @@ storage::LevelData make_level_data(const TickContext &ctx) {
     level.selected_block = ctx.state.selected_block == gam::kNoBlock ? 0 : ctx.state.selected_block;
     return level;
 }
+
+namespace {
+
+// The actor geometry the authority validates an action against (T-A1): the
+// position the physics step just produced, the current pose height and the eye
+// offset for that pose. Value data, exactly what a client would send over the
+// wire - the authority derives the eye and re-checks the reach itself.
+[[nodiscard]] gam::ActorPose actor_pose(const TickContext &ctx) {
+    const double eye_height = ctx.curr_state.pose == phy::Pose::Sneaking ? kEyeSneaking : kEyeStanding;
+    return gam::ActorPose{ctx.curr_state.position, ctx.curr_state.height(), eye_height};
+}
+
+} // namespace
 
 // One 20 TPS logic tick: physics -> targeting -> mining -> placement.
 void run_tick(const TickContext &ctx) {
@@ -171,7 +183,19 @@ void run_tick(const TickContext &ctx) {
         ctx.state.swing_start = glfwGetTime();
     }
     if (mining_tick.broke) {
-        ctx.world.set_block(hit.block_pos.x, hit.block_pos.y, hit.block_pos.z, 0, ctx.dirty_chunks);
+        // T-A1: the break is now a REQUEST. The authoritative side re-checks
+        // the target (in reach, chunk loaded, breakable) and performs the write
+        // itself; the client keeps only what is presentation - the crack reset
+        // and the break particles below.
+        gam::ActionRequest dig;
+        dig.kind = gam::ActionKind::Dig;
+        dig.target = hit.block_pos;
+        dig.actor = actor_pose(ctx);
+        const gam::ActionResult dig_result = ctx.authority.submit(dig);
+        if (!dig_result.accepted) {
+            OC_LOG_WARN("dig refused at ({}, {}, {}): {}", hit.block_pos.x, hit.block_pos.y, hit.block_pos.z,
+                        dig_result.reason());
+        }
         ctx.state.crack_stage = -1;
         // Break particles: block main color with brightness jitter (T009).
         const std::uint16_t broken_id = target_id;
@@ -223,14 +247,18 @@ void run_tick(const TickContext &ctx) {
             if (ctx.state.selected_use == ItemUse::PourVessel) {
                 // ── pour (T-F1) ──────────────────────────────────────────
                 // A held water vessel pours a source into the cell the hit
-                // face opens onto. Placement skips check_placement's
-                // player-overlap test on purpose: fluids are non-solid, so
-                // pouring water at your own feet is legal (MC does the same);
-                // the replaceable test is the same one the block path uses.
+                // face opens onto. The authority owns the rule the client used
+                // to apply here: the replaceable test only, skipping
+                // check_placement's player-overlap test on purpose, because
+                // fluids are non-solid and pouring water at your own feet is
+                // legal (MC does the same).
                 const glm::ivec3 cell = gam::placement_cell(hit);
-                const std::uint16_t occupant = ctx.world.block_at(cell.x, cell.y, cell.z);
-                if (gam::is_replaceable(ctx.world.registry(), occupant) &&
-                    ctx.world.place_water_source(cell.x, cell.y, cell.z)) {
+                gam::ActionRequest pour;
+                pour.kind = gam::ActionKind::PourWater;
+                pour.target = cell;
+                pour.actor = actor_pose(ctx);
+                const gam::ActionResult pour_result = ctx.authority.submit(pour);
+                if (pour_result.accepted) {
                     // A water vessel is always a 1-stack (max_stack 1), so the
                     // pour swaps it in place and the player is still holding a
                     // container afterwards. The branch below is unreachable in
@@ -242,27 +270,50 @@ void run_tick(const TickContext &ctx) {
                     }
                     ctx.state.refresh_selection();
                     OC_LOG_INFO("vessel: poured water source at ({}, {}, {})", cell.x, cell.y, cell.z);
+                } else {
+                    OC_LOG_WARN("pour refused at ({}, {}, {}): {}", cell.x, cell.y, cell.z, pour_result.reason());
                 }
             } else if (ctx.state.selected_use == ItemUse::FillVessel) {
                 // ── scoop (T-F1) ─────────────────────────────────────────
-                // Check the swap fits BEFORE touching the world: taking a
+                // Check the swap fits BEFORE asking for the write: taking a
                 // source and then finding nowhere to put the vessel would
-                // destroy one.
+                // destroy one. "Is there a source here" is the authority's
+                // call, and it only happens once the swap is known to fit -
+                // the same short-circuit the client used to have.
+                gam::ActionRequest scoop;
+                scoop.kind = gam::ActionKind::ScoopWater;
+                scoop.target = hit.block_pos;
+                scoop.actor = actor_pose(ctx);
                 if (can_transform_vessel(ctx.state.inventory, ctx.state.selected_slot, ctx.state.vessels.empty,
-                                         ctx.state.vessels.full) &&
-                    ctx.world.remove_water_source(hit.block_pos.x, hit.block_pos.y, hit.block_pos.z,
-                                                  ctx.dirty_chunks)) {
-                    transform_vessel(ctx.state.inventory, ctx.state.selected_slot, ctx.state.vessels.empty,
-                                     ctx.state.vessels.full);
-                    ctx.state.refresh_selection();
-                    OC_LOG_INFO("vessel: filled from ({}, {}, {})", hit.block_pos.x, hit.block_pos.y, hit.block_pos.z);
+                                         ctx.state.vessels.full)) {
+                    const gam::ActionResult scoop_result = ctx.authority.submit(scoop);
+                    if (scoop_result.accepted) {
+                        transform_vessel(ctx.state.inventory, ctx.state.selected_slot, ctx.state.vessels.empty,
+                                         ctx.state.vessels.full);
+                        ctx.state.refresh_selection();
+                        OC_LOG_INFO("vessel: filled from ({}, {}, {})", hit.block_pos.x, hit.block_pos.y,
+                                    hit.block_pos.z);
+                    } else {
+                        OC_LOG_WARN("scoop refused at ({}, {}, {}): {}", hit.block_pos.x, hit.block_pos.y,
+                                    hit.block_pos.z, scoop_result.reason());
+                    }
                 }
             } else if (ctx.state.selected_block != gam::kNoBlock) {
                 // ── place one unit of the held stack ─────────────────────
+                // The placement rules themselves (cell replaceable, no actor
+                // overlap) moved to the authoritative side with T-A1, so the
+                // client no longer validates anything of its own: it names the
+                // cell and the block it is holding, and spends the unit only
+                // after the request came back accepted. Consuming after the
+                // verdict is what makes a refusal unable to eat an item.
                 const glm::ivec3 cell = gam::placement_cell(hit);
-                const auto status = gam::check_placement(ctx.world.registry(), ctx.world, cell, ctx.curr_state.position,
-                                                         ctx.curr_state.height(), phy::PlayerState::kHalfWidth);
-                if (status == gam::PlacementStatus::Ok) {
+                gam::ActionRequest place;
+                place.kind = gam::ActionKind::PlaceBlock;
+                place.target = cell;
+                place.item_or_block = ctx.state.selected_block;
+                place.actor = actor_pose(ctx);
+                const gam::ActionResult place_result = ctx.authority.submit(place);
+                if (place_result.accepted) {
                     // place_one_block() reads the block while the cell still
                     // holds it and hands back the block plus the counts, so the
                     // world write and the log never consult the post-refresh
@@ -270,12 +321,13 @@ void run_tick(const TickContext &ctx) {
                     // is gone -- passing that to the block registry throws).
                     const PlacementResult placed = place_one_block(ctx.state.inventory, ctx.state.selected_slot);
                     if (placed.consumed == 1) {
-                        ctx.world.set_block(cell.x, cell.y, cell.z, placed.block, ctx.dirty_chunks);
                         ctx.state.refresh_selection();
                         OC_LOG_INFO("placed {} at ({}, {}, {}); consumed 1 from slot {} ({} left)",
                                     ctx.world.registry().string_of(placed.block), cell.x, cell.y, cell.z,
                                     ctx.state.selected_slot, placed.left);
                     }
+                } else {
+                    OC_LOG_WARN("place refused at ({}, {}, {}): {}", cell.x, cell.y, cell.z, place_result.reason());
                 }
             }
         }
@@ -294,12 +346,16 @@ void run_tick(const TickContext &ctx) {
     }
 
     // ── fluid scheduled ticks (T-F1): one step per game tick, exactly like
-    //    the rest of the simulation. Changed chunks go to the remesh list.
-    ctx.world.fluid_step(ctx.dirty_chunks);
+    //    the rest of the simulation. The authority advances the fluid layer and
+    //    pushes back every chunk it made stale; the client only collects them
+    //    for the remesh pass (the same list the actions above pushed into).
+    ctx.authority.tick();
+    const gam::WorldChanges changes = ctx.authority.take_changes();
+    ctx.dirty_chunks.insert(ctx.dirty_chunks.end(), changes.dirty_chunks.begin(), changes.dirty_chunks.end());
 
     // ── autosave cadence: 200 ticks = ~10 s of game time (T009) ──────────
     if (ctx.save.maybe_autosave_tick()) {
-        const std::size_t chunks = ctx.world.autosave_pass();
+        const std::size_t chunks = ctx.authority.autosave_pass();
         ctx.save.write_level_now(make_level_data(ctx));
         OC_LOG_INFO("autosave: {} chunk(s) queued for async write, level written (ticks={})", chunks, ctx.game_ticks);
     }

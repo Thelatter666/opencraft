@@ -1,0 +1,16 @@
+--- /tmp/ta1_tick_permanent.cpp	2026-09-16 04:49:02
++++ /Users/happy/Desktop/opencraft_worktree/opencraft-T-A1/game/client/src/tick.cpp	2026-09-16 04:49:10
+@@ -192,6 +192,13 @@
+         dig.target = hit.block_pos;
+         dig.actor = actor_pose(ctx);
+         const gam::ActionResult dig_result = ctx.authority.submit(dig);
++        // TEMPORARY QA HARNESS (T-A1 on-machine evidence): the dig path has no
++        // log line of its own, so the harness prints the authority's verdict and
++        // what its world reports afterwards. Reverted before the commit; the
++        // patch is archived as docs/qa/T-A1-2026-09-16/temporary_harness.patch.
++        OC_LOG_INFO("HARNESS dig {} at ({}, {}, {}); block there now {}", dig_result.accepted ? "accepted" : "refused",
++                    hit.block_pos.x, hit.block_pos.y, hit.block_pos.z,
++                    ctx.world.block_at(hit.block_pos.x, hit.block_pos.y, hit.block_pos.z));
+         if (!dig_result.accepted) {
+             OC_LOG_WARN("dig refused at ({}, {}, {}): {}", hit.block_pos.x, hit.block_pos.y, hit.block_pos.z,
+                         dig_result.reason());

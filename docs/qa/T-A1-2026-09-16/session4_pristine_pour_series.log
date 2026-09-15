@@ -1,0 +1,101 @@
+[2026-09-16 04:53:03.317] [info] OpenCraft 0.1.0 starting
+[2026-09-16 04:53:03.427] [info] GL 4.1 Metal - 89.4 / glad loaded
+[2026-09-16 04:53:03.427] [info] save: no level.ocd, new world with seed 0x4f50454e43524146
+[2026-09-16 04:53:03.435] [info] spawn scan: surface at (0.5, 132.0, 0.5)
+[2026-09-16 04:53:03.644] [info] startup gen: 24 chunks, total 208.9 ms, avg 8.70 ms/chunk, max 9.59 ms
+[2026-09-16 04:53:03.644] [info] atlas: 144x144 px, 9 tiles/row, crack tiles at 63
+[2026-09-16 04:53:05.685] [info] fps 46.6 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-16 04:53:07.693] [info] fps 93.9 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-16 04:53:09.693] [info] fps 95.0 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-16 04:53:11.707] [info] fps 95.7 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-16 04:53:13.707] [info] fps 95.0 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-16 04:53:15.707] [info] fps 94.5 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-16 04:53:15.736] [info] autosave: 0 chunk(s) queued for async write, level written (ticks=199)
+[2026-09-16 04:53:17.713] [info] fps 84.9 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-16 04:53:19.714] [info] fps 86.0 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-16 04:53:21.728] [info] fps 93.2 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-16 04:53:23.734] [info] fps 93.4 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-16 04:53:25.734] [info] fps 96.0 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-16 04:53:25.777] [info] autosave: 0 chunk(s) queued for async write, level written (ticks=399)
+[2026-09-16 04:53:27.748] [info] fps 90.2 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-16 04:53:29.748] [info] fps 95.0 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-16 04:53:31.748] [info] fps 95.0 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-16 04:53:33.748] [info] fps 94.5 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-16 04:53:35.755] [info] fps 94.3 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-16 04:53:35.840] [info] autosave: 0 chunk(s) queued for async write, level written (ticks=599)
+[2026-09-16 04:53:37.769] [info] fps 94.7 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-16 04:53:39.776] [info] fps 94.3 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-16 04:53:41.776] [info] fps 85.0 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-16 04:53:43.775] [info] fps 95.5 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-16 04:53:45.790] [info] fps 94.7 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-16 04:53:45.917] [info] autosave: 0 chunk(s) queued for async write, level written (ticks=799)
+[2026-09-16 04:53:47.790] [info] fps 86.0 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-16 04:53:49.796] [info] fps 94.3 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-16 04:53:51.810] [info] fps 94.7 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-16 04:53:53.803] [info] fps 85.5 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-16 04:53:54.713] [info] vessel: poured water source at (0, 132, -1)
+[2026-09-16 04:53:54.722] [info] remeshed 3 chunk(s) in 8.93 ms (last mesh 2.61 ms)
+[2026-09-16 04:53:54.942] [info] remeshed 3 chunk(s) in 20.65 ms (last mesh 6.28 ms)
+[2026-09-16 04:53:55.215] [info] remeshed 3 chunk(s) in 23.01 ms (last mesh 6.61 ms)
+[2026-09-16 04:53:55.475] [info] remeshed 2 chunk(s) in 5.38 ms (last mesh 2.62 ms)
+[2026-09-16 04:53:55.735] [info] remeshed 2 chunk(s) in 15.65 ms (last mesh 6.58 ms)
+[2026-09-16 04:53:55.803] [info] fps 85.5 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-16 04:53:56.006] [info] remeshed 2 chunk(s) in 15.66 ms (last mesh 6.53 ms)
+[2026-09-16 04:53:56.055] [info] autosave: 2 chunk(s) queued for async write, level written (ticks=999)
+[2026-09-16 04:53:56.266] [info] remeshed 2 chunk(s) in 4.70 ms (last mesh 2.34 ms)
+[2026-09-16 04:53:56.521] [info] remeshed 2 chunk(s) in 9.60 ms (last mesh 4.53 ms)
+[2026-09-16 04:53:56.797] [info] remeshed 3 chunk(s) in 20.83 ms (last mesh 6.31 ms)
+[2026-09-16 04:53:57.068] [info] remeshed 3 chunk(s) in 21.72 ms (last mesh 6.54 ms)
+[2026-09-16 04:53:57.346] [info] remeshed 4 chunk(s) in 28.41 ms (last mesh 5.29 ms)
+[2026-09-16 04:53:57.631] [info] remeshed 3 chunk(s) in 22.07 ms (last mesh 5.54 ms)
+[2026-09-16 04:53:57.817] [info] fps 93.2 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-16 04:53:57.902] [info] remeshed 3 chunk(s) in 22.33 ms (last mesh 5.74 ms)
+[2026-09-16 04:53:58.174] [info] remeshed 3 chunk(s) in 23.22 ms (last mesh 5.42 ms)
+[2026-09-16 04:53:58.443] [info] remeshed 3 chunk(s) in 22.00 ms (last mesh 5.68 ms)
+[2026-09-16 04:53:58.713] [info] remeshed 3 chunk(s) in 20.91 ms (last mesh 5.40 ms)
+[2026-09-16 04:53:58.991] [info] remeshed 3 chunk(s) in 20.99 ms (last mesh 5.34 ms)
+[2026-09-16 04:53:59.263] [info] remeshed 3 chunk(s) in 22.10 ms (last mesh 5.46 ms)
+[2026-09-16 04:53:59.526] [info] remeshed 3 chunk(s) in 7.30 ms (last mesh 2.34 ms)
+[2026-09-16 04:53:59.789] [info] remeshed 3 chunk(s) in 20.21 ms (last mesh 5.38 ms)
+[2026-09-16 04:53:59.810] [info] fps 90.9 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-16 04:54:00.056] [info] remeshed 2 chunk(s) in 16.48 ms (last mesh 6.52 ms)
+[2026-09-16 04:54:00.326] [info] remeshed 2 chunk(s) in 16.22 ms (last mesh 6.49 ms)
+[2026-09-16 04:54:00.590] [info] remeshed 2 chunk(s) in 15.56 ms (last mesh 6.54 ms)
+[2026-09-16 04:54:00.864] [info] remeshed 2 chunk(s) in 18.61 ms (last mesh 6.69 ms)
+[2026-09-16 04:54:01.133] [info] remeshed 2 chunk(s) in 17.10 ms (last mesh 6.57 ms)
+[2026-09-16 04:54:01.406] [info] remeshed 2 chunk(s) in 18.74 ms (last mesh 6.68 ms)
+[2026-09-16 04:54:01.675] [info] remeshed 2 chunk(s) in 17.97 ms (last mesh 6.65 ms)
+[2026-09-16 04:54:01.824] [info] fps 92.3 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-16 04:54:01.946] [info] remeshed 2 chunk(s) in 17.55 ms (last mesh 6.61 ms)
+[2026-09-16 04:54:02.208] [info] remeshed 1 chunk(s) in 9.10 ms (last mesh 9.05 ms)
+[2026-09-16 04:54:02.464] [info] remeshed 1 chunk(s) in 8.46 ms (last mesh 8.42 ms)
+[2026-09-16 04:54:02.731] [info] remeshed 1 chunk(s) in 10.67 ms (last mesh 10.61 ms)
+[2026-09-16 04:54:02.985] [info] remeshed 1 chunk(s) in 7.85 ms (last mesh 7.80 ms)
+[2026-09-16 04:54:03.250] [info] remeshed 1 chunk(s) in 9.54 ms (last mesh 9.48 ms)
+[2026-09-16 04:54:03.506] [info] remeshed 1 chunk(s) in 8.71 ms (last mesh 8.66 ms)
+[2026-09-16 04:54:03.770] [info] remeshed 2 chunk(s) in 9.16 ms (last mesh 4.31 ms)
+[2026-09-16 04:54:03.831] [info] fps 88.4 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-16 04:54:04.031] [info] remeshed 2 chunk(s) in 12.80 ms (last mesh 5.90 ms)
+[2026-09-16 04:54:04.290] [info] remeshed 2 chunk(s) in 8.34 ms (last mesh 3.90 ms)
+[2026-09-16 04:54:04.544] [info] remeshed 2 chunk(s) in 5.14 ms (last mesh 2.46 ms)
+[2026-09-16 04:54:04.812] [info] remeshed 1 chunk(s) in 8.82 ms (last mesh 8.77 ms)
+[2026-09-16 04:54:05.060] [info] remeshed 1 chunk(s) in 7.28 ms (last mesh 7.24 ms)
+[2026-09-16 04:54:05.319] [info] remeshed 1 chunk(s) in 8.97 ms (last mesh 8.92 ms)
+[2026-09-16 04:54:05.831] [info] fps 94.5 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-16 04:54:06.642] [info] autosave: 5 chunk(s) queued for async write, level written (ticks=1199)
+[2026-09-16 04:54:07.831] [info] fps 94.5 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-16 04:54:09.830] [info] fps 95.0 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-16 04:54:11.845] [info] fps 94.2 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-16 04:54:13.851] [info] fps 84.9 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-16 04:54:15.865] [info] fps 84.7 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-16 04:54:16.700] [info] autosave: 0 chunk(s) queued for async write, level written (ticks=1399)
+[2026-09-16 04:54:17.872] [info] fps 93.4 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-16 04:54:19.872] [info] fps 93.0 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-16 04:54:21.886] [info] fps 94.2 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-16 04:54:23.886] [info] fps 94.5 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-16 04:54:25.893] [info] fps 93.3 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-16 04:54:26.762] [info] autosave: 0 chunk(s) queued for async write, level written (ticks=1599)
+[2026-09-16 04:54:27.907] [info] fps 94.2 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-16 04:54:29.907] [info] fps 94.0 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-16 04:54:31.907] [info] fps 94.5 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-16 04:54:33.913] [info] fps 94.3 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104

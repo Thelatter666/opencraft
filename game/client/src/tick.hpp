@@ -15,6 +15,7 @@
 
 #include "interaction.hpp"
 #include "opencraft/game/mining.hpp"
+#include "opencraft/game/protocol.hpp"
 #include "opencraft/physics/player_state.hpp"
 #include "opencraft/storage/level_file.hpp"
 #include "opencraft/storage/world_save.hpp"
@@ -29,7 +30,12 @@ class WorldSource;
 
 // Every member aliases a main() local; build it once before the frame loop.
 struct TickContext {
+    // T-A1: the world arrives in two pieces. `world` is the read-only view the
+    // targeting code queries; `authority` is the only thing that can change it
+    // (submit() per action, tick() for the fluid step, take_changes() for the
+    // stale-chunk push-back the client remeshes from).
     WorldSource &world;
+    game::IAuthority &authority;
     storage::WorldSave &save;
     const std::vector<glm::vec3> &block_colors;
     GLFWwindow *window;
