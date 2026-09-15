@@ -1,0 +1,79 @@
+diff --git a/game/client/src/main.cpp b/game/client/src/main.cpp
+index 0fa32e9..303fcfc 100644
+--- a/game/client/src/main.cpp
++++ b/game/client/src/main.cpp
+@@ -764,6 +764,14 @@ int main() {
+     // is the water placeholder (the bucket itself has no block form yet).
+     const auto slot_block = [&](int slot) { return slot == kBucketSlot ? world.water_block_id() : hotbar[slot]; };
+     std::uint16_t selected_block = slot_block(selected_slot);
++    // TEMP EVIDENCE HARNESS: start with the water bucket in hand and full. The
++    // hotbar digit keys are not reachable through this session's injection
++    // channel (see the report), so the harness supplies the starting state and
++    // everything after it is the real interaction path.
++    selected_slot = kBucketSlot;
++    bucket_selected = true;
++    bucket_has_water = true;
++    selected_block = slot_block(selected_slot);
+ 
+     glm::ivec3 crack_pos{0, 0, 0};
+     int crack_stage = -1; // -1 = no overlay
+@@ -819,6 +827,22 @@ int main() {
+         renderables[chunk_key(cx, cz)] = std::move(r);
+     };
+ 
++    // TEMP EVIDENCE HARNESS: flatten a 21x21 platform at the spawn level so the
++    // flat-spread acceptance (7 blocks, level steps) is observable on-machine
++    // (the natural spawn terrain is terraced and steers the water at once).
++    {
++        std::vector<std::pair<int, int>> platform_dirty;
++        const int floor_y = static_cast<int>(spawn_pos.y) - 1;
++        for (int dx = -10; dx <= 10; ++dx) {
++            for (int dz = -10; dz <= 10; ++dz) {
++                world.set_block(dx, floor_y, dz, world.registry().id_of("stone"), platform_dirty);
++                for (int y = floor_y + 1; y <= floor_y + 24; ++y) {
++                    world.set_block(dx, y, dz, 0, platform_dirty);
++                }
++            }
++        }
++    }
++
+     // Initial 3x3 meshes (5x5 generated above, so neighbors are lit).
+     for (int cx = -1; cx <= 1; ++cx) {
+         for (int cz = -1; cz <= 1; ++cz) {
+@@ -1069,6 +1093,22 @@ int main() {
+         //    the rest of the simulation. Changed chunks go to the remesh list.
+         world.fluid_step(dirty_chunks);
+ 
++        // TEMP EVIDENCE HARNESS: mesh-cost probe for a fluid-free vs watery
++        // chunk (docs/03 §10 budget is 5 ms/chunk).
++        if (game_ticks % 200 == 0) {
++            for (const render::ChunkPos probe : {render::ChunkPos{0, 0}, render::ChunkPos{-1, 0}}) {
++                const auto p0 = std::chrono::steady_clock::now();
++                render::MeshData plain = render::build_chunk_mesh(world, probe);
++                const auto p1 = std::chrono::steady_clock::now();
++                render::MeshData wet = render::build_chunk_mesh(world, probe, &world);
++                const auto p2 = std::chrono::steady_clock::now();
++                OC_LOG_INFO("[perf-dbg] t={} chunk ({},{}) no-fluid {:.3f} ms, with-fluid {:.3f} ms, fluid quads {}",
++                            game_ticks, probe.cx, probe.cz,
++                            std::chrono::duration<double, std::milli>(p1 - p0).count(),
++                            std::chrono::duration<double, std::milli>(p2 - p1).count(), wet.fluid.indices.size() / 6);
++            }
++        }
++
+         // ── autosave cadence: 200 ticks = ~10 s of game time (T009) ──────────
+         if (save.maybe_autosave_tick()) {
+             const std::size_t chunks = world.autosave_pass();
+diff --git a/game/client/src/world.cpp b/game/client/src/world.cpp
+index 9417b4f..04035f4 100644
+--- a/game/client/src/world.cpp
++++ b/game/client/src/world.cpp
+@@ -318,6 +318,9 @@ void WorldSource::set_fluid_at(int wx, int wy, int wz, std::uint16_t cell) {
+     const int lx = wx - cx * voxel::Chunk::kSizeX;
+     const int lz = wz - cz * voxel::Chunk::kSizeZ;
+     const voxel::FluidCell unpacked = voxel::unpack_fluid(cell);
++    OC_LOG_INFO("[fluid-dbg] t={} ({},{},{}) kind={} level={} source={} falling={}", fluid_.tick(), wx, wy, wz,
++                static_cast<int>(unpacked.kind), unpacked.level, unpacked.source ? 1 : 0,
++                unpacked.falling ? 1 : 0);
+     chunk->set_fluid(lx, wy, lz, unpacked);
+ 
+     // Keep the block layer in step so targeting, mining, physics and

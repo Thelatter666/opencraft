@@ -1,0 +1,178 @@
+[2026-09-16 02:09:54.918] [info] OpenCraft 0.1.0 starting
+[2026-09-16 02:09:55.070] [info] GL 4.1 Metal - 89.4 / glad loaded
+[2026-09-16 02:09:55.070] [info] save: no level.ocd, new world with seed 0x4f50454e43524146
+[2026-09-16 02:09:55.079] [info] spawn scan: surface at (0.5, 132.0, 0.5)
+[2026-09-16 02:09:55.289] [info] startup gen: 24 chunks, total 209.9 ms, avg 8.75 ms/chunk, max 9.69 ms
+[2026-09-16 02:09:55.289] [info] atlas: 144x144 px, 9 tiles/row, crack tiles at 63
+[2026-09-16 02:09:55.416] [info] [perf-dbg] t=0 chunk (0,0) no-fluid 2.712 ms, with-fluid 2.741 ms, fluid quads 0
+[2026-09-16 02:09:55.421] [info] [perf-dbg] t=0 chunk (-1,0) no-fluid 2.633 ms, with-fluid 2.558 ms, fluid quads 0
+[2026-09-16 02:09:57.336] [info] fps 45.1 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-16 02:09:59.353] [info] fps 91.5 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-16 02:10:01.362] [info] fps 91.0 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-16 02:10:03.366] [info] fps 87.8 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-16 02:10:05.383] [info] fps 94.8 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-16 02:10:07.374] [info] fps 94.5 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-16 02:10:07.398] [info] autosave: 4 chunk(s) queued for async write, level written (ticks=199)
+[2026-09-16 02:10:07.459] [info] [perf-dbg] t=200 chunk (0,0) no-fluid 4.590 ms, with-fluid 4.292 ms, fluid quads 0
+[2026-09-16 02:10:07.467] [info] [perf-dbg] t=200 chunk (-1,0) no-fluid 4.410 ms, with-fluid 3.861 ms, fluid quads 0
+[2026-09-16 02:10:09.388] [info] fps 94.7 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-16 02:10:11.396] [info] fps 93.6 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-16 02:10:13.397] [info] fps 93.5 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-16 02:10:15.395] [info] fps 94.8 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-16 02:10:17.409] [info] fps 93.6 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-16 02:10:17.479] [info] autosave: 0 chunk(s) queued for async write, level written (ticks=399)
+[2026-09-16 02:10:17.547] [info] [perf-dbg] t=400 chunk (0,0) no-fluid 7.504 ms, with-fluid 6.166 ms, fluid quads 0
+[2026-09-16 02:10:17.559] [info] [perf-dbg] t=400 chunk (-1,0) no-fluid 5.928 ms, with-fluid 5.182 ms, fluid quads 0
+[2026-09-16 02:10:19.415] [info] fps 92.9 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-16 02:10:21.429] [info] fps 94.2 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-16 02:10:23.429] [info] fps 94.0 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-16 02:10:25.429] [info] fps 94.0 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-16 02:10:27.430] [info] fps 93.5 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-16 02:10:27.563] [info] autosave: 0 chunk(s) queued for async write, level written (ticks=599)
+[2026-09-16 02:10:27.632] [info] [perf-dbg] t=600 chunk (0,0) no-fluid 8.785 ms, with-fluid 6.254 ms, fluid quads 0
+[2026-09-16 02:10:27.643] [info] [perf-dbg] t=600 chunk (-1,0) no-fluid 5.801 ms, with-fluid 5.100 ms, fluid quads 0
+[2026-09-16 02:10:29.430] [info] fps 85.0 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-16 02:10:31.436] [info] fps 93.8 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-16 02:10:33.436] [info] fps 94.0 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-16 02:10:35.436] [info] fps 95.0 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-16 02:10:36.499] [info] [fluid-dbg] t=776 (0,132,-2) kind=1 level=8 source=1 falling=0
+[2026-09-16 02:10:36.499] [info] bucket: poured water source at (0, 132, -2)
+[2026-09-16 02:10:36.505] [info] remeshed 2 chunk(s) in 5.94 ms (last mesh 3.06 ms)
+[2026-09-16 02:10:36.715] [info] [fluid-dbg] t=780 (0,132,-2) kind=0 level=0 source=0 falling=0
+[2026-09-16 02:10:36.715] [info] bucket: filled from (0, 132, -2)
+[2026-09-16 02:10:36.728] [info] remeshed 2 chunk(s) in 12.23 ms (last mesh 7.12 ms)
+[2026-09-16 02:10:36.924] [info] [fluid-dbg] t=784 (0,132,-2) kind=1 level=8 source=1 falling=0
+[2026-09-16 02:10:36.924] [info] bucket: poured water source at (0, 132, -2)
+[2026-09-16 02:10:36.939] [info] remeshed 2 chunk(s) in 15.50 ms (last mesh 7.60 ms)
+[2026-09-16 02:10:37.131] [info] [fluid-dbg] t=789 (1,132,-2) kind=1 level=7 source=0 falling=0
+[2026-09-16 02:10:37.131] [info] [fluid-dbg] t=789 (-1,132,-2) kind=1 level=7 source=0 falling=0
+[2026-09-16 02:10:37.131] [info] [fluid-dbg] t=789 (0,132,-1) kind=1 level=7 source=0 falling=0
+[2026-09-16 02:10:37.131] [info] [fluid-dbg] t=789 (0,132,-3) kind=1 level=7 source=0 falling=0
+[2026-09-16 02:10:37.142] [info] remeshed 3 chunk(s) in 10.72 ms (last mesh 3.02 ms)
+[2026-09-16 02:10:37.394] [info] [fluid-dbg] t=794 (2,132,-2) kind=1 level=6 source=0 falling=0
+[2026-09-16 02:10:37.395] [info] [fluid-dbg] t=794 (1,132,-1) kind=1 level=6 source=0 falling=0
+[2026-09-16 02:10:37.395] [info] [fluid-dbg] t=794 (1,132,-3) kind=1 level=6 source=0 falling=0
+[2026-09-16 02:10:37.395] [info] [fluid-dbg] t=794 (-2,132,-2) kind=1 level=6 source=0 falling=0
+[2026-09-16 02:10:37.395] [info] [fluid-dbg] t=794 (-1,132,-1) kind=1 level=6 source=0 falling=0
+[2026-09-16 02:10:37.395] [info] [fluid-dbg] t=794 (-1,132,-3) kind=1 level=6 source=0 falling=0
+[2026-09-16 02:10:37.395] [info] [fluid-dbg] t=794 (0,132,0) kind=1 level=6 source=0 falling=0
+[2026-09-16 02:10:37.395] [info] [fluid-dbg] t=794 (0,132,-4) kind=1 level=6 source=0 falling=0
+[2026-09-16 02:10:37.421] [info] remeshed 4 chunk(s) in 26.26 ms (last mesh 5.25 ms)
+[2026-09-16 02:10:37.443] [info] fps 84.4 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-16 02:10:37.672] [info] [fluid-dbg] t=799 (3,132,-2) kind=1 level=5 source=0 falling=0
+[2026-09-16 02:10:37.672] [info] [fluid-dbg] t=799 (2,132,-1) kind=1 level=5 source=0 falling=0
+[2026-09-16 02:10:37.672] [info] [fluid-dbg] t=799 (2,132,-3) kind=1 level=5 source=0 falling=0
+[2026-09-16 02:10:37.672] [info] [fluid-dbg] t=799 (1,132,0) kind=1 level=5 source=0 falling=0
+[2026-09-16 02:10:37.672] [info] [fluid-dbg] t=799 (1,132,-4) kind=1 level=5 source=0 falling=0
+[2026-09-16 02:10:37.672] [info] [fluid-dbg] t=799 (-3,132,-2) kind=1 level=5 source=0 falling=0
+[2026-09-16 02:10:37.672] [info] [fluid-dbg] t=799 (-2,132,-1) kind=1 level=5 source=0 falling=0
+[2026-09-16 02:10:37.672] [info] [fluid-dbg] t=799 (-2,132,-3) kind=1 level=5 source=0 falling=0
+[2026-09-16 02:10:37.672] [info] [fluid-dbg] t=799 (-1,132,0) kind=1 level=5 source=0 falling=0
+[2026-09-16 02:10:37.672] [info] [fluid-dbg] t=799 (-1,132,-4) kind=1 level=5 source=0 falling=0
+[2026-09-16 02:10:37.672] [info] [fluid-dbg] t=799 (0,132,1) kind=1 level=5 source=0 falling=0
+[2026-09-16 02:10:37.672] [info] [fluid-dbg] t=799 (0,132,-5) kind=1 level=5 source=0 falling=0
+[2026-09-16 02:10:37.693] [info] remeshed 4 chunk(s) in 21.04 ms (last mesh 4.60 ms)
+[2026-09-16 02:10:37.753] [info] autosave: 4 chunk(s) queued for async write, level written (ticks=799)
+[2026-09-16 02:10:37.809] [info] [perf-dbg] t=800 chunk (0,0) no-fluid 6.191 ms, with-fluid 5.574 ms, fluid quads 11
+[2026-09-16 02:10:37.819] [info] [perf-dbg] t=800 chunk (-1,0) no-fluid 5.188 ms, with-fluid 4.978 ms, fluid quads 3
+[2026-09-16 02:10:37.978] [info] [fluid-dbg] t=804 (4,132,-2) kind=1 level=4 source=0 falling=0
+[2026-09-16 02:10:37.978] [info] [fluid-dbg] t=804 (3,132,-1) kind=1 level=4 source=0 falling=0
+[2026-09-16 02:10:37.978] [info] [fluid-dbg] t=804 (3,132,-3) kind=1 level=4 source=0 falling=0
+[2026-09-16 02:10:37.978] [info] [fluid-dbg] t=804 (2,132,0) kind=1 level=4 source=0 falling=0
+[2026-09-16 02:10:37.979] [info] [fluid-dbg] t=804 (2,132,-4) kind=1 level=4 source=0 falling=0
+[2026-09-16 02:10:37.979] [info] [fluid-dbg] t=804 (1,132,1) kind=1 level=4 source=0 falling=0
+[2026-09-16 02:10:37.979] [info] [fluid-dbg] t=804 (1,132,-5) kind=1 level=4 source=0 falling=0
+[2026-09-16 02:10:37.979] [info] [fluid-dbg] t=804 (-4,132,-2) kind=1 level=4 source=0 falling=0
+[2026-09-16 02:10:37.979] [info] [fluid-dbg] t=804 (-3,132,-1) kind=1 level=4 source=0 falling=0
+[2026-09-16 02:10:37.979] [info] [fluid-dbg] t=804 (-3,132,-3) kind=1 level=4 source=0 falling=0
+[2026-09-16 02:10:37.979] [info] [fluid-dbg] t=804 (-2,132,0) kind=1 level=4 source=0 falling=0
+[2026-09-16 02:10:37.979] [info] [fluid-dbg] t=804 (-2,132,-4) kind=1 level=4 source=0 falling=0
+[2026-09-16 02:10:37.979] [info] [fluid-dbg] t=804 (-1,132,1) kind=1 level=4 source=0 falling=0
+[2026-09-16 02:10:37.979] [info] [fluid-dbg] t=804 (-1,132,-5) kind=1 level=4 source=0 falling=0
+[2026-09-16 02:10:37.979] [info] [fluid-dbg] t=804 (0,132,2) kind=1 level=4 source=0 falling=0
+[2026-09-16 02:10:37.979] [info] [fluid-dbg] t=804 (0,132,-6) kind=1 level=4 source=0 falling=0
+[2026-09-16 02:10:38.006] [info] remeshed 4 chunk(s) in 26.53 ms (last mesh 5.26 ms)
+[2026-09-16 02:10:38.249] [info] [fluid-dbg] t=809 (5,132,-2) kind=1 level=3 source=0 falling=0
+[2026-09-16 02:10:38.249] [info] [fluid-dbg] t=809 (4,132,-1) kind=1 level=3 source=0 falling=0
+[2026-09-16 02:10:38.249] [info] [fluid-dbg] t=809 (4,132,-3) kind=1 level=3 source=0 falling=0
+[2026-09-16 02:10:38.249] [info] [fluid-dbg] t=809 (3,132,0) kind=1 level=3 source=0 falling=0
+[2026-09-16 02:10:38.249] [info] [fluid-dbg] t=809 (3,132,-4) kind=1 level=3 source=0 falling=0
+[2026-09-16 02:10:38.249] [info] [fluid-dbg] t=809 (2,132,1) kind=1 level=3 source=0 falling=0
+[2026-09-16 02:10:38.250] [info] [fluid-dbg] t=809 (2,132,-5) kind=1 level=3 source=0 falling=0
+[2026-09-16 02:10:38.250] [info] [fluid-dbg] t=809 (1,132,2) kind=1 level=3 source=0 falling=0
+[2026-09-16 02:10:38.250] [info] [fluid-dbg] t=809 (1,132,-6) kind=1 level=3 source=0 falling=0
+[2026-09-16 02:10:38.250] [info] [fluid-dbg] t=809 (-5,132,-2) kind=1 level=3 source=0 falling=0
+[2026-09-16 02:10:38.250] [info] [fluid-dbg] t=809 (-4,132,-1) kind=1 level=3 source=0 falling=0
+[2026-09-16 02:10:38.250] [info] [fluid-dbg] t=809 (-4,132,-3) kind=1 level=3 source=0 falling=0
+[2026-09-16 02:10:38.250] [info] [fluid-dbg] t=809 (-3,132,0) kind=1 level=3 source=0 falling=0
+[2026-09-16 02:10:38.250] [info] [fluid-dbg] t=809 (-3,132,-4) kind=1 level=3 source=0 falling=0
+[2026-09-16 02:10:38.250] [info] [fluid-dbg] t=809 (-2,132,1) kind=1 level=3 source=0 falling=0
+[2026-09-16 02:10:38.250] [info] [fluid-dbg] t=809 (-2,132,-5) kind=1 level=3 source=0 falling=0
+[2026-09-16 02:10:38.250] [info] [fluid-dbg] t=809 (-1,132,2) kind=1 level=3 source=0 falling=0
+[2026-09-16 02:10:38.250] [info] [fluid-dbg] t=809 (-1,132,-6) kind=1 level=3 source=0 falling=0
+[2026-09-16 02:10:38.250] [info] [fluid-dbg] t=809 (0,132,3) kind=1 level=3 source=0 falling=0
+[2026-09-16 02:10:38.250] [info] [fluid-dbg] t=809 (0,132,-7) kind=1 level=3 source=0 falling=0
+[2026-09-16 02:10:38.277] [info] remeshed 4 chunk(s) in 26.72 ms (last mesh 5.26 ms)
+[2026-09-16 02:10:38.526] [info] [fluid-dbg] t=814 (6,132,-2) kind=1 level=2 source=0 falling=0
+[2026-09-16 02:10:38.527] [info] [fluid-dbg] t=814 (5,132,-1) kind=1 level=2 source=0 falling=0
+[2026-09-16 02:10:38.527] [info] [fluid-dbg] t=814 (5,132,-3) kind=1 level=2 source=0 falling=0
+[2026-09-16 02:10:38.527] [info] [fluid-dbg] t=814 (4,132,0) kind=1 level=2 source=0 falling=0
+[2026-09-16 02:10:38.527] [info] [fluid-dbg] t=814 (4,132,-4) kind=1 level=2 source=0 falling=0
+[2026-09-16 02:10:38.527] [info] [fluid-dbg] t=814 (3,132,1) kind=1 level=2 source=0 falling=0
+[2026-09-16 02:10:38.527] [info] [fluid-dbg] t=814 (3,132,-5) kind=1 level=2 source=0 falling=0
+[2026-09-16 02:10:38.527] [info] [fluid-dbg] t=814 (2,132,2) kind=1 level=2 source=0 falling=0
+[2026-09-16 02:10:38.527] [info] [fluid-dbg] t=814 (2,132,-6) kind=1 level=2 source=0 falling=0
+[2026-09-16 02:10:38.527] [info] [fluid-dbg] t=814 (1,132,3) kind=1 level=2 source=0 falling=0
+[2026-09-16 02:10:38.527] [info] [fluid-dbg] t=814 (1,132,-7) kind=1 level=2 source=0 falling=0
+[2026-09-16 02:10:38.527] [info] [fluid-dbg] t=814 (-6,132,-2) kind=1 level=2 source=0 falling=0
+[2026-09-16 02:10:38.528] [info] [fluid-dbg] t=814 (-5,132,-1) kind=1 level=2 source=0 falling=0
+[2026-09-16 02:10:38.528] [info] [fluid-dbg] t=814 (-5,132,-3) kind=1 level=2 source=0 falling=0
+[2026-09-16 02:10:38.528] [info] [fluid-dbg] t=814 (-4,132,0) kind=1 level=2 source=0 falling=0
+[2026-09-16 02:10:38.528] [info] [fluid-dbg] t=814 (-4,132,-4) kind=1 level=2 source=0 falling=0
+[2026-09-16 02:10:38.528] [info] [fluid-dbg] t=814 (-3,132,1) kind=1 level=2 source=0 falling=0
+[2026-09-16 02:10:38.528] [info] [fluid-dbg] t=814 (-3,132,-5) kind=1 level=2 source=0 falling=0
+[2026-09-16 02:10:38.528] [info] [fluid-dbg] t=814 (-2,132,2) kind=1 level=2 source=0 falling=0
+[2026-09-16 02:10:38.528] [info] [fluid-dbg] t=814 (-2,132,-6) kind=1 level=2 source=0 falling=0
+[2026-09-16 02:10:38.528] [info] [fluid-dbg] t=814 (-1,132,3) kind=1 level=2 source=0 falling=0
+[2026-09-16 02:10:38.528] [info] [fluid-dbg] t=814 (-1,132,-7) kind=1 level=2 source=0 falling=0
+[2026-09-16 02:10:38.528] [info] [fluid-dbg] t=814 (0,132,4) kind=1 level=2 source=0 falling=0
+[2026-09-16 02:10:38.528] [info] [fluid-dbg] t=814 (0,132,-8) kind=1 level=2 source=0 falling=0
+[2026-09-16 02:10:38.555] [info] remeshed 4 chunk(s) in 26.86 ms (last mesh 5.21 ms)
+[2026-09-16 02:10:38.818] [info] [fluid-dbg] t=819 (7,132,-2) kind=1 level=1 source=0 falling=0
+[2026-09-16 02:10:38.819] [info] [fluid-dbg] t=819 (6,132,-1) kind=1 level=1 source=0 falling=0
+[2026-09-16 02:10:38.819] [info] [fluid-dbg] t=819 (6,132,-3) kind=1 level=1 source=0 falling=0
+[2026-09-16 02:10:38.819] [info] [fluid-dbg] t=819 (5,132,0) kind=1 level=1 source=0 falling=0
+[2026-09-16 02:10:38.819] [info] [fluid-dbg] t=819 (5,132,-4) kind=1 level=1 source=0 falling=0
+[2026-09-16 02:10:38.819] [info] [fluid-dbg] t=819 (4,132,1) kind=1 level=1 source=0 falling=0
+[2026-09-16 02:10:38.819] [info] [fluid-dbg] t=819 (4,132,-5) kind=1 level=1 source=0 falling=0
+[2026-09-16 02:10:38.819] [info] [fluid-dbg] t=819 (3,132,2) kind=1 level=1 source=0 falling=0
+[2026-09-16 02:10:38.819] [info] [fluid-dbg] t=819 (3,132,-6) kind=1 level=1 source=0 falling=0
+[2026-09-16 02:10:38.819] [info] [fluid-dbg] t=819 (2,132,3) kind=1 level=1 source=0 falling=0
+[2026-09-16 02:10:38.819] [info] [fluid-dbg] t=819 (2,132,-7) kind=1 level=1 source=0 falling=0
+[2026-09-16 02:10:38.819] [info] [fluid-dbg] t=819 (1,132,4) kind=1 level=1 source=0 falling=0
+[2026-09-16 02:10:38.819] [info] [fluid-dbg] t=819 (1,132,-8) kind=1 level=1 source=0 falling=0
+[2026-09-16 02:10:38.819] [info] [fluid-dbg] t=819 (-7,132,-2) kind=1 level=1 source=0 falling=0
+[2026-09-16 02:10:38.819] [info] [fluid-dbg] t=819 (-6,132,-1) kind=1 level=1 source=0 falling=0
+[2026-09-16 02:10:38.819] [info] [fluid-dbg] t=819 (-6,132,-3) kind=1 level=1 source=0 falling=0
+[2026-09-16 02:10:38.819] [info] [fluid-dbg] t=819 (-5,132,0) kind=1 level=1 source=0 falling=0
+[2026-09-16 02:10:38.819] [info] [fluid-dbg] t=819 (-5,132,-4) kind=1 level=1 source=0 falling=0
+[2026-09-16 02:10:38.819] [info] [fluid-dbg] t=819 (-4,132,1) kind=1 level=1 source=0 falling=0
+[2026-09-16 02:10:38.820] [info] [fluid-dbg] t=819 (-4,132,-5) kind=1 level=1 source=0 falling=0
+[2026-09-16 02:10:38.820] [info] [fluid-dbg] t=819 (-3,132,2) kind=1 level=1 source=0 falling=0
+[2026-09-16 02:10:38.820] [info] [fluid-dbg] t=819 (-3,132,-6) kind=1 level=1 source=0 falling=0
+[2026-09-16 02:10:38.820] [info] [fluid-dbg] t=819 (-2,132,3) kind=1 level=1 source=0 falling=0
+[2026-09-16 02:10:38.820] [info] [fluid-dbg] t=819 (-2,132,-7) kind=1 level=1 source=0 falling=0
+[2026-09-16 02:10:38.820] [info] [fluid-dbg] t=819 (-1,132,4) kind=1 level=1 source=0 falling=0
+[2026-09-16 02:10:38.820] [info] [fluid-dbg] t=819 (-1,132,-8) kind=1 level=1 source=0 falling=0
+[2026-09-16 02:10:38.820] [info] [fluid-dbg] t=819 (0,132,5) kind=1 level=1 source=0 falling=0
+[2026-09-16 02:10:38.820] [info] [fluid-dbg] t=819 (0,132,-9) kind=1 level=1 source=0 falling=0
+[2026-09-16 02:10:38.846] [info] remeshed 4 chunk(s) in 26.18 ms (last mesh 5.24 ms)
+[2026-09-16 02:10:39.451] [info] fps 87.7 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-16 02:10:41.450] [info] fps 88.3 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-16 02:10:43.450] [info] fps 95.5 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-16 02:10:45.464] [info] fps 94.3 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-16 02:10:47.464] [info] fps 90.5 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-16 02:10:47.949] [info] autosave: 4 chunk(s) queued for async write, level written (ticks=999)
+[2026-09-16 02:10:48.019] [info] [perf-dbg] t=1000 chunk (0,0) no-fluid 7.481 ms, with-fluid 6.319 ms, fluid quads 69
+[2026-09-16 02:10:48.030] [info] [perf-dbg] t=1000 chunk (-1,0) no-fluid 5.361 ms, with-fluid 5.170 ms, fluid quads 45
+[2026-09-16 02:10:49.471] [info] fps 94.2 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
