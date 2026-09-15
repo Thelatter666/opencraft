@@ -3,6 +3,9 @@
 #include <cstddef>
 #include <vector>
 
+// GLFW must not pull in a GL header of its own post-split (main.cpp does the
+// same): glad is loaded separately.
+#define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
 #include <glad/gl.h>
 #include <glm/glm.hpp>

@@ -23,6 +23,7 @@
 #include "block_colors.hpp"
 #include "camera_spring.hpp"
 #include "chunk_renderer.hpp"
+#include "client_config.hpp"
 #include "cube_geometry.hpp"
 #include "fov.hpp"
 #include "hud.hpp"
@@ -44,6 +45,7 @@
 #include "particles.hpp"
 #include "pause_menu.hpp"
 #include "shaders.hpp"
+#include "tick.hpp"
 #include "world.hpp"
 
 namespace render = opencraft::render; // short alias used by the GPU glue below
@@ -52,21 +54,6 @@ namespace gam = opencraft::game;
 namespace client = opencraft::client;
 
 namespace {
-
-constexpr int kWindowWidth = 1280;
-constexpr int kWindowHeight = 720;
-
-// ── view / interaction constants ────────────────────────────────────────────
-constexpr double kMouseSensitivity = 0.0025;
-constexpr double kMaxPitch = 1.5533;   // ~89 degrees
-constexpr double kReachDistance = 4.5; // ⚖ docs/01 §4: survival block reach
-// Base FOV and sprint multiplier live in fov.hpp (T-D1, unit-tested).
-constexpr int kViewRadius = 6;      // meshed chunk radius around the player
-constexpr int kGenPerFrame = 2;     // sync-generation budget (docs: <= 2/frame)
-constexpr int kNewMeshPerFrame = 4; // new-chunk meshing budget/frame
-
-constexpr double kEyeStanding = 1.62;
-constexpr double kEyeSneaking = 1.27;
 
 void error_callback(int error_code, const char *description) {
     OC_LOG_ERROR("GLFW error {}: {}", error_code, description);
@@ -92,7 +79,7 @@ int main() {
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
 #endif
 
-    GLFWwindow *window = glfwCreateWindow(kWindowWidth, kWindowHeight, "OpenCraft", nullptr, nullptr);
+    GLFWwindow *window = glfwCreateWindow(client::kWindowWidth, client::kWindowHeight, "OpenCraft", nullptr, nullptr);
     if (window == nullptr) {
         OC_LOG_CRITICAL("glfwCreateWindow failed");
         glfwTerminate();
@@ -241,8 +228,8 @@ int main() {
     glUniform1i(ui_text_shader.uniform_location("u_font"), 1);
 
     // ── GL state ────────────────────────────────────────────────────────────
-    int fb_width = kWindowWidth;
-    int fb_height = kWindowHeight;
+    int fb_width = client::kWindowWidth;
+    int fb_height = client::kWindowHeight;
     glfwGetFramebufferSize(window, &fb_width, &fb_height);
     glViewport(0, 0, fb_width, fb_height);
 
@@ -281,44 +268,29 @@ int main() {
     // pause menu (the non-idempotent AUTO-JUMP toggle button).
     bool prev_menu_clicked = false;
     bool prev_esc = false;
-    bool prev_right = false;
-    bool prev_w = false;
-    int place_cooldown = 0;
-
-    // T-D1 QA evidence (acceptance 6c): measure each sprint-jump arc so the
-    // on-machine distance can be compared against the headless ⚖ assertions
-    // (arc average 7.127 ±1%, gap clearance ≈4 blocks). An arc opens on the
-    // tick a grounded sprint jump leaves the ground and closes on landing.
-    bool jump_arc_open = false;
-    glm::dvec3 jump_arc_start{0.0, 0.0, 0.0};
-    int jump_arc_ticks = 0;
+    // Input edges, carry state, targeting and the T-D1 sprint-jump QA counters
+    // live in one object; every default in it is the value this code used
+    // before the split (see interaction.hpp).
+    client::InteractionState interact;
 
     // ── hotbar (10 slots: keys 1..9 pick blocks, 0 picks the bucket; creative
     //    palette, real inventory is M2) ───────────────────────────────────────
     static constexpr std::array<const char *, 9> kHotbarNames = {"stone",  "cobblestone", "dirt", "planks", "log",
                                                                  "leaves", "glass",       "sand", "gravel"};
-    // T-F1: the bucket is the minimal item form the card allows - one extra
-    // hotbar slot plus a has-water flag, no item registry.
-    std::array<std::uint16_t, 9> hotbar{};
     for (int slot = 0; slot < 9; ++slot) {
-        hotbar[slot] = world.registry().id_of(kHotbarNames[slot]);
+        interact.hotbar[slot] = world.registry().id_of(kHotbarNames[slot]);
     }
-    bool bucket_has_water = false;
-    // Mirrors selected_slot for the HUD and the render pass (the tick's
-    // targeting needs it before the hotbar keys are polled).
-    bool bucket_selected = false;
-    int selected_slot = 0;
     if (stored_level.has_value() && stored_level->has_player &&
         stored_level->selected_block < world.registry().size()) {
         // Restore the persisted selection to its slot when it is on the bar.
         // The bucket is not a block, so it persists as the water id it mashes
         // to; nothing else on the bar has that id.
         if (stored_level->selected_block == world.water_block_id()) {
-            selected_slot = client::kBucketSlot;
+            interact.selected_slot = client::kBucketSlot;
         }
         for (int slot = 0; slot < 9; ++slot) {
-            if (hotbar[slot] == stored_level->selected_block) {
-                selected_slot = slot;
+            if (interact.hotbar[slot] == stored_level->selected_block) {
+                interact.selected_slot = slot;
                 break;
             }
         }
@@ -326,30 +298,24 @@ int main() {
     // The id the held-item overlay and the placed block use; for the bucket it
     // is the water placeholder (the bucket itself has no block form yet).
     const auto slot_block = [&](int slot) {
-        return slot == client::kBucketSlot ? world.water_block_id() : hotbar[slot];
+        return slot == client::kBucketSlot ? world.water_block_id() : interact.hotbar[slot];
     };
-    std::uint16_t selected_block = slot_block(selected_slot);
+    interact.selected_block = slot_block(interact.selected_slot);
 
-    glm::ivec3 crack_pos{0, 0, 0};
-    int crack_stage = -1; // -1 = no overlay
-    glm::ivec3 target_pos{0, 0, 0};
-    bool has_target = false;
     gam::MiningTracker mining(world.registry());
     opencraft::core::TickClock tick_clock;
     std::vector<std::pair<int, int>> dirty_chunks;
     client::ChunkRenderableMap renderables;
     double last_mesh_ms = 0.0;
 
-    // Hand swing + break particles (T009 mining feedback).
-    double swing_start = -10.0; // glfwGetTime() of the last swing start
-    bool swinging = false;
+    // Break particles (T009 mining feedback).
     std::vector<client::Particle> particles;
 
     // Streaming offsets sorted by distance; generation radius = view + 1 so
     // chunks at the view edge mesh against lit neighbors.
     std::vector<std::pair<int, int>> gen_offsets;
-    for (int dx = -(kViewRadius + 1); dx <= kViewRadius + 1; ++dx) {
-        for (int dz = -(kViewRadius + 1); dz <= kViewRadius + 1; ++dz) {
+    for (int dx = -(client::kViewRadius + 1); dx <= client::kViewRadius + 1; ++dx) {
+        for (int dz = -(client::kViewRadius + 1); dz <= client::kViewRadius + 1; ++dz) {
             gen_offsets.emplace_back(dx, dz);
         }
     }
@@ -370,255 +336,25 @@ int main() {
         }
     }
 
-    const auto key_pressed = [&](int key) { return glfwGetKey(window, key) == GLFW_PRESS; };
-    const auto view_dir = [&] {
-        const double cp = std::cos(view_pitch);
-        return glm::dvec3(-std::sin(view_yaw) * cp, -std::sin(view_pitch), -std::cos(view_yaw) * cp);
-    };
-
-    // Level snapshot for periodic + exit saves (T009). Field-for-field the
-    // inverse of storage::serialize_level - keep both in sync.
-    const auto make_level_data = [&] {
-        opencraft::storage::LevelData level;
-        level.seed = world_seed;
-        level.tick_count = game_ticks;
-        level.has_player = true;
-        level.spawn_x = spawn_pos.x;
-        level.spawn_y = spawn_pos.y;
-        level.spawn_z = spawn_pos.z;
-        level.player_x = curr_state.position.x;
-        level.player_y = curr_state.position.y;
-        level.player_z = curr_state.position.z;
-        level.player_vx = curr_state.velocity.x;
-        level.player_vy = curr_state.velocity.y;
-        level.player_vz = curr_state.velocity.z;
-        level.yaw = view_yaw;
-        level.pitch = view_pitch;
-        level.health = curr_state.health;
-        level.fall_peak_y = curr_state.fall_peak_y;
-        level.fall_distance = curr_state.fall_distance;
-        level.pose = static_cast<std::uint8_t>(curr_state.pose);
-        level.on_ground = curr_state.on_ground;
-        level.selected_block = selected_block;
-        return level;
-    };
-
-    // One 20 TPS logic tick: physics -> targeting -> mining -> placement.
-    auto run_tick = [&] {
-        // ── input mapping (WASD + space + shift + ctrl) ──────────────────────
-        // T-D1: S maps to the explicit InputState::backward field (T007 had
-        // no backward flag and simulated it as a 180° yaw flip; the physics
-        // input direction now handles backward directly, and sprint requires
-        // forward + not-backward per MC). forward_press is the one-tick W
-        // keydown edge that drives the physics double-tap sprint window.
-        const bool w = key_pressed(GLFW_KEY_W);
-        const bool s = key_pressed(GLFW_KEY_S);
-        const bool a = key_pressed(GLFW_KEY_A);
-        const bool d = key_pressed(GLFW_KEY_D);
-        phy::InputState in;
-        in.yaw = view_yaw;
-        in.pitch = view_pitch;
-        in.forward = w && !s;
-        in.backward = s && !w;
-        in.left = a;
-        in.right = d;
-        in.forward_press = w && !prev_w;
-        prev_w = w;
-        in.jump = key_pressed(GLFW_KEY_SPACE) != 0;
-        in.sneak = key_pressed(GLFW_KEY_LEFT_SHIFT) != 0;
-        in.sprint = key_pressed(GLFW_KEY_LEFT_CONTROL) != 0;
-
-        // ── T-D14 Auto-Jump (card §4): input-stage injection ────────────────
-        // Decide BEFORE the physics step (docs/research/08 §2: the mechanism
-        // lives in the input stage of the tick). When the pure predicate says
-        // the forward move ends against a 0.6–1.25-block obstacle with
-        // headroom, set in.jump so the EXISTING jump branch in step_player
-        // runs — manual-jump semantics (incl. the sprint +0.2 boost) come
-        // free, and the golden numbers stay shared. The player's own jump
-        // input short-circuits the call (nothing to inject).
-        if (!in.jump && auto_jump_enabled) {
-            phy::AutoJumpConfig aj_cfg; // defaults = card §1: ON, 1.0 scan, 1.8 clearance
-            if (phy::should_auto_jump(curr_state, in, world, phy::PhysicsConfig{}, aj_cfg)) {
-                in.jump = true;
-            }
-        }
-
-        prev_state = curr_state;
-        phy::step_player(curr_state, in, world);
-
-        // Sprint transitions come from the physics state machine (explicit
-        // state per the T-D1 contract) — log them for QA evidence.
-        if (curr_state.sprinting != prev_state.sprinting) {
-            OC_LOG_INFO("sprint {} at tick {} (pos {:.2f}, {:.2f}, {:.2f})", curr_state.sprinting ? "start" : "stop",
-                        game_ticks, curr_state.position.x, curr_state.position.y, curr_state.position.z);
-        }
-
-        // Sprint-jump arc measurement (acceptance 6c). A sprint jump takes off
-        // from the ground while sprinting; the arc closes when the player is
-        // grounded again, and the horizontal centre-to-centre distance and the
-        // tick count give an on-machine average speed comparable to the
-        // headless ⚖ figure (12-move arc, see test_sprint_feel.cpp).
-        // NOTE: take-off is detected from prev_state.on_ground — step_player
-        // applies the jump, so curr_state is already airborne on this tick.
-        if (!jump_arc_open && curr_state.sprinting && prev_state.on_ground && in.jump) {
-            jump_arc_open = true;
-            jump_arc_start = curr_state.position;
-            jump_arc_ticks = 0;
-        } else if (jump_arc_open) {
-            ++jump_arc_ticks;
-            if (curr_state.on_ground) {
-                const double dx = curr_state.position.x - jump_arc_start.x;
-                const double dz = curr_state.position.z - jump_arc_start.z;
-                const double dist = std::sqrt(dx * dx + dz * dz);
-                // Move count includes the take-off tick itself, matching the
-                // headless 12-move arc convention in test_sprint_feel.cpp.
-                const int moves = jump_arc_ticks + 1;
-                OC_LOG_INFO("sprint-jump arc: {} moves, horizontal {:.3f} blocks, clearance {:.3f}, "
-                            "avg {:.3f} m/s (from ({:.2f}, {:.2f}, {:.2f}))",
-                            moves, dist, dist - 0.6, dist * 20.0 / moves, jump_arc_start.x, jump_arc_start.y,
-                            jump_arc_start.z);
-                jump_arc_open = false;
-            } else if (jump_arc_ticks > 60) {
-                jump_arc_open = false; // safety: never let a stuck arc log forever
-            }
-        }
-
-        // ── targeting ────────────────────────────────────────────────────────
-        bucket_selected = selected_slot == client::kBucketSlot;
-        // An empty bucket is aimed at water, so liquids become targetable for
-        // it; everything else keeps the T008 filter (aim through water).
-        const bool bucket_filling = bucket_selected && !bucket_has_water;
-        const double eye_height = curr_state.pose == phy::Pose::Sneaking ? kEyeSneaking : kEyeStanding;
-        const glm::dvec3 eye = curr_state.position + glm::dvec3(0.0, eye_height, 0.0);
-        const auto filter = [&](std::uint16_t id) {
-            const bool liquid = id != 0 && world.registry().def_of(id).liquid;
-            if (bucket_filling) {
-                return id != 0; // water surfaces are targetable
-            }
-            return id != 0 && !liquid; // liquids are not targetable
-        };
-        const gam::VoxelRayHit hit = gam::raycast_voxel(eye, view_dir(), kReachDistance, world, filter);
-        has_target = hit.hit;
-        target_pos = hit.block_pos;
-
-        // ── mining ───────────────────────────────────────────────────────────
-        const bool left_held = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS;
-        const std::uint16_t target_id = hit.hit ? world.block_at(hit.block_pos.x, hit.block_pos.y, hit.block_pos.z) : 0;
-        const auto mining_tick = mining.tick(hit.block_pos, target_id, hit.hit, left_held);
-        if (left_held && hit.hit && !swinging) {
-            swinging = true;
-            swing_start = glfwGetTime();
-        }
-        if (mining_tick.broke) {
-            world.set_block(hit.block_pos.x, hit.block_pos.y, hit.block_pos.z, 0, dirty_chunks);
-            crack_stage = -1;
-            // Break particles: block main color with brightness jitter (T009).
-            const std::uint16_t broken_id = target_id;
-            if (broken_id < block_colors.size()) {
-                const glm::dvec3 center = glm::dvec3(hit.block_pos) + glm::dvec3(0.5, 0.5, 0.5);
-                std::uint32_t rng = static_cast<std::uint32_t>(hit.block_pos.x * 73856093) ^
-                                    static_cast<std::uint32_t>(hit.block_pos.y * 19349663) ^
-                                    static_cast<std::uint32_t>(hit.block_pos.z * 83492791) ^
-                                    static_cast<std::uint32_t>(game_ticks * 2654435761u);
-                const auto next_rand = [&rng]() {
-                    rng = rng * 1664525u + 1013904223u;
-                    return static_cast<float>(rng >> 8) / static_cast<float>(1 << 24);
-                };
-                for (int i = 0; i < client::kParticlesPerBreak && particles.size() < client::kMaxParticles; ++i) {
-                    client::Particle p;
-                    p.pos = center + glm::dvec3(next_rand() - 0.5, next_rand() - 0.5, next_rand() - 0.5) * 0.6;
-                    p.vel = glm::vec3(next_rand() - 0.5, next_rand(), next_rand() - 0.5) * 3.5f;
-                    p.life = 0.4f + next_rand() * 0.25f;
-                    const float jitter = 0.75f + next_rand() * 0.5f;
-                    p.color = glm::vec4(glm::clamp(block_colors[broken_id] * jitter, 0.0f, 1.0f), 1.0f);
-                    particles.push_back(p);
-                }
-            }
-            swinging = true;
-            swing_start = glfwGetTime();
-        } else if (hit.hit && mining_tick.progress > 0.0f) {
-            crack_pos = hit.block_pos;
-            crack_stage = mining_tick.crack_stage;
-        } else {
-            crack_stage = -1;
-        }
-
-        // ── placement (hold right: first attempt immediate, then every 4 ticks
-        //    ⚖ docs/01 §4; interactive blocks would take priority here - none
-        //    exist in this milestone, the hook stays at the call site) ────────
-        const bool right_held = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS;
-        if (place_cooldown > 0) {
-            --place_cooldown;
-        }
-        // The block path repeats every 4 ticks while the button is held
-        // (docs/01 §4). The bucket must NOT: a placed source is immediately
-        // pickable again, so a held button alternates pour -> scoop (observed
-        // on-machine: pour then scoop 4 ticks later), which reads as a broken
-        // item. Item use is therefore edge-triggered.
-        const bool use_edge = !prev_right;
-        if (right_held && (place_cooldown == 0 || !prev_right)) {
-            if (hit.hit && (!bucket_selected || use_edge)) {
-                if (bucket_selected) {
-                    // ── bucket (T-F1) ────────────────────────────────────────
-                    // Filled: pour a source into the cell the hit face opens
-                    // onto. Empty: scoop a source block out of the world.
-                    // Placement skips check_placement's player-overlap test on
-                    // purpose: fluids are non-solid, so pouring water at your
-                    // own feet is legal (MC does the same); the replaceable
-                    // test is the same one the block path uses.
-                    if (bucket_has_water) {
-                        const glm::ivec3 cell = gam::placement_cell(hit);
-                        const std::uint16_t occupant = world.block_at(cell.x, cell.y, cell.z);
-                        if (gam::is_replaceable(world.registry(), occupant) &&
-                            world.place_water_source(cell.x, cell.y, cell.z)) {
-                            bucket_has_water = false;
-                            OC_LOG_INFO("bucket: poured water source at ({}, {}, {})", cell.x, cell.y, cell.z);
-                        }
-                    } else if (world.remove_water_source(hit.block_pos.x, hit.block_pos.y, hit.block_pos.z,
-                                                         dirty_chunks)) {
-                        bucket_has_water = true;
-                        OC_LOG_INFO("bucket: filled from ({}, {}, {})", hit.block_pos.x, hit.block_pos.y,
-                                    hit.block_pos.z);
-                    }
-                } else {
-                    const glm::ivec3 cell = gam::placement_cell(hit);
-                    const auto status = gam::check_placement(world.registry(), world, cell, curr_state.position,
-                                                             curr_state.height(), phy::PlayerState::kHalfWidth);
-                    if (status == gam::PlacementStatus::Ok) {
-                        world.set_block(cell.x, cell.y, cell.z, selected_block, dirty_chunks);
-                        OC_LOG_INFO("placed {} at ({}, {}, {})", world.registry().string_of(selected_block), cell.x,
-                                    cell.y, cell.z);
-                    }
-                }
-            }
-            place_cooldown = 4; // ⚖ retry rhythm whether or not the attempt succeeded
-            swinging = true;
-            swing_start = glfwGetTime();
-        }
-        prev_right = right_held;
-
-        // ── hotbar selection (blocks on 1..9, the bucket on 0) ───────────────
-        for (int slot = 0; slot < 9; ++slot) {
-            if (key_pressed(GLFW_KEY_1 + slot)) {
-                selected_slot = slot;
-                selected_block = hotbar[slot];
-            }
-        }
-        if (key_pressed(GLFW_KEY_0)) {
-            selected_slot = client::kBucketSlot;
-            selected_block = world.water_block_id();
-        }
-
-        // ── fluid scheduled ticks (T-F1): one step per game tick, exactly like
-        //    the rest of the simulation. Changed chunks go to the remesh list.
-        world.fluid_step(dirty_chunks);
-
-        // ── autosave cadence: 200 ticks = ~10 s of game time (T009) ──────────
-        if (save.maybe_autosave_tick()) {
-            const std::size_t chunks = world.autosave_pass();
-            save.write_level_now(make_level_data());
-            OC_LOG_INFO("autosave: {} chunk(s) queued for async write, level written (ticks={})", chunks, game_ticks);
-        }
+    // Everything a logic tick reads or writes, as references into the locals
+    // above (nothing is copied - see tick.hpp).
+    const client::TickContext tick_ctx{
+        .world = world,
+        .save = save,
+        .block_colors = block_colors,
+        .window = window,
+        .world_seed = world_seed,
+        .spawn_pos = spawn_pos,
+        .game_ticks = game_ticks,
+        .view_yaw = view_yaw,
+        .view_pitch = view_pitch,
+        .auto_jump_enabled = auto_jump_enabled,
+        .prev_state = prev_state,
+        .curr_state = curr_state,
+        .mining = mining,
+        .dirty_chunks = dirty_chunks,
+        .particles = particles,
+        .state = interact,
     };
 
     // HUD inputs that outlive the frame loop; every referenced object is a
@@ -643,7 +379,7 @@ int main() {
     // from the same position the physics starts at, so frame 1 has no transient.
     client::CameraFilter camera;
     camera.reset(curr_state.position.x, curr_state.position.y, curr_state.position.z,
-                 curr_state.pose == phy::Pose::Sneaking ? kEyeSneaking : kEyeStanding);
+                 curr_state.pose == phy::Pose::Sneaking ? client::kEyeSneaking : client::kEyeStanding);
     double camera_last_time = last_frame;
     // Physics ticks executed by the frame currently being rendered. The spring
     // uses these to bend its per-frame ramp where the physics tick landed.
@@ -655,7 +391,7 @@ int main() {
         glfwPollEvents();
 
         // ESC edge: toggle pause in both directions.
-        const bool esc_down = key_pressed(GLFW_KEY_ESCAPE) != 0;
+        const bool esc_down = client::key_pressed(window, GLFW_KEY_ESCAPE) != 0;
         if (esc_down && !prev_esc) {
             paused = !paused;
             if (paused) {
@@ -678,9 +414,9 @@ int main() {
                 double x = 0.0;
                 double y = 0.0;
                 glfwGetCursorPos(window, &x, &y);
-                view_yaw -= (x - last_cursor_x) * kMouseSensitivity;
-                view_pitch += (y - last_cursor_y) * kMouseSensitivity;
-                view_pitch = std::clamp(view_pitch, -kMaxPitch, kMaxPitch);
+                view_yaw -= (x - last_cursor_x) * client::kMouseSensitivity;
+                view_pitch += (y - last_cursor_y) * client::kMouseSensitivity;
+                view_pitch = std::clamp(view_pitch, -client::kMaxPitch, client::kMaxPitch);
                 last_cursor_x = x;
                 last_cursor_y = y;
             }
@@ -699,12 +435,13 @@ int main() {
             if (ticks > 0) {
                 tick_kink_dt = (1.0 - alpha_before) * (opencraft::core::TickClock::kTickDurationMs / 1000.0);
                 tick_kink_eye_y =
-                    curr_state.position.y + (curr_state.pose == phy::Pose::Sneaking ? kEyeSneaking : kEyeStanding);
+                    curr_state.position.y +
+                    (curr_state.pose == phy::Pose::Sneaking ? client::kEyeSneaking : client::kEyeStanding);
             } else {
                 tick_kink_dt = 0.0;
             }
             for (int i = 0; i < ticks; ++i) {
-                run_tick();
+                client::run_tick(tick_ctx);
                 ++game_ticks;
             }
 
@@ -712,7 +449,7 @@ int main() {
             const auto [pcx, pcz] =
                 opencraft::voxel::Chunk::chunk_coords(static_cast<int>(std::floor(curr_state.position.x)),
                                                       static_cast<int>(std::floor(curr_state.position.z)));
-            int gen_left = kGenPerFrame;
+            int gen_left = client::kGenPerFrame;
             for (const auto &[dx, dz] : gen_offsets) {
                 if (gen_left == 0) {
                     break;
@@ -738,12 +475,12 @@ int main() {
                             last_mesh_ms);
                 dirty_chunks.clear();
             }
-            int mesh_left = kNewMeshPerFrame;
+            int mesh_left = client::kNewMeshPerFrame;
             for (const auto &[dx, dz] : gen_offsets) {
                 if (mesh_left == 0) {
                     break;
                 }
-                if (dx * dx + dz * dz > kViewRadius * kViewRadius) {
+                if (dx * dx + dz * dz > client::kViewRadius * client::kViewRadius) {
                     continue; // mesh only within the view radius
                 }
                 const int cx = pcx + dx;
@@ -766,7 +503,7 @@ int main() {
         // the spring clamps it internally.
         const double alpha = tick_clock.alpha();
         const glm::dvec3 cam_pos = prev_state.position + (curr_state.position - prev_state.position) * alpha;
-        const double eye_height = curr_state.pose == phy::Pose::Sneaking ? kEyeSneaking : kEyeStanding;
+        const double eye_height = curr_state.pose == phy::Pose::Sneaking ? client::kEyeSneaking : client::kEyeStanding;
         const double frame_dt = std::max(0.0, now - camera_last_time);
         camera_last_time = now;
         // The LERP ramp bends where this frame's tick landed (see the kink
@@ -791,7 +528,8 @@ int main() {
         const glm::mat4 projection = glm::perspective(
             glm::radians(fov), static_cast<float>(fb_width) / static_cast<float>(fb_height), 0.05f, 600.0f);
         const glm::vec3 eye_f(eye);
-        const glm::mat4 view = glm::lookAt(eye_f, eye_f + glm::vec3(view_dir()), glm::vec3(0.0f, 1.0f, 0.0f));
+        const glm::mat4 view =
+            glm::lookAt(eye_f, eye_f + glm::vec3(client::view_dir(view_yaw, view_pitch)), glm::vec3(0.0f, 1.0f, 0.0f));
         const glm::mat4 mvp = projection * view;
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -830,23 +568,24 @@ int main() {
         }
 
         // ── selection wireframe + crack overlay ─────────────────────────────
-        if (has_target) {
+        if (interact.has_target) {
             wire_shader.use();
             glUniformMatrix4fv(wire_shader.uniform_location("u_mvp"), 1, GL_FALSE, &mvp[0][0]);
-            glUniform3f(wire_shader.uniform_location("u_offset"), static_cast<float>(target_pos.x),
-                        static_cast<float>(target_pos.y), static_cast<float>(target_pos.z));
+            glUniform3f(wire_shader.uniform_location("u_offset"), static_cast<float>(interact.target_pos.x),
+                        static_cast<float>(interact.target_pos.y), static_cast<float>(interact.target_pos.z));
             glUniform1f(wire_shader.uniform_location("u_scale"), 1.002f);
             glUniform4f(wire_shader.uniform_location("u_color"), 0.05f, 0.05f, 0.05f, 1.0f);
             wire_vao.bind();
             glDrawArrays(GL_LINES, 0, 24);
         }
-        if (crack_stage >= 0) {
+        if (interact.crack_stage >= 0) {
             crack_shader.use();
             glUniformMatrix4fv(crack_shader.uniform_location("u_mvp"), 1, GL_FALSE, &mvp[0][0]);
-            glUniform3f(crack_shader.uniform_location("u_offset"), static_cast<float>(crack_pos.x) - 0.001f,
-                        static_cast<float>(crack_pos.y) - 0.001f, static_cast<float>(crack_pos.z) - 0.001f);
+            glUniform3f(crack_shader.uniform_location("u_offset"), static_cast<float>(interact.crack_pos.x) - 0.001f,
+                        static_cast<float>(interact.crack_pos.y) - 0.001f,
+                        static_cast<float>(interact.crack_pos.z) - 0.001f);
             glUniform1f(crack_shader.uniform_location("u_scale"), 1.002f);
-            glUniform1f(crack_shader.uniform_location("u_tile"), static_cast<float>(crack_base + crack_stage));
+            glUniform1f(crack_shader.uniform_location("u_tile"), static_cast<float>(crack_base + interact.crack_stage));
             // Overlay cube winding is mirrored vs the mesher's CCW convention;
             // draw double-sided so culling cannot swallow the overlay.
             glDisable(GL_CULL_FACE);
@@ -861,12 +600,12 @@ int main() {
         // The crack shader does the textured-cube job: per-face tile uniform,
         // so the top/bottom/side faces get three draw calls.
         {
-            double swing_t = (glfwGetTime() - swing_start) / 0.25;
+            double swing_t = (glfwGetTime() - interact.swing_start) / 0.25;
             if (swing_t >= 1.0) {
                 swing_t = 0.0;
-                swinging = false;
+                interact.swinging = false;
             }
-            const float s = swinging ? std::sin(static_cast<float>(swing_t) * 3.14159265f) : 0.0f;
+            const float s = interact.swinging ? std::sin(static_cast<float>(swing_t) * 3.14159265f) : 0.0f;
             glClear(GL_DEPTH_BUFFER_BIT);
             glDisable(GL_CULL_FACE);
             crack_shader.use();
@@ -876,11 +615,11 @@ int main() {
             glUniform1f(crack_shader.uniform_location("u_scale"), 0.32f);
             crack_vao.bind();
             // build_cube_geometry face order: f0 top, f1 bottom, f2..f5 sides.
-            glUniform1f(crack_shader.uniform_location("u_tile"), static_cast<float>(selected_block * 3 + 1));
+            glUniform1f(crack_shader.uniform_location("u_tile"), static_cast<float>(interact.selected_block * 3 + 1));
             glDrawArrays(GL_TRIANGLES, 12, 24); // 4 side faces
-            glUniform1f(crack_shader.uniform_location("u_tile"), static_cast<float>(selected_block * 3 + 0));
+            glUniform1f(crack_shader.uniform_location("u_tile"), static_cast<float>(interact.selected_block * 3 + 0));
             glDrawArrays(GL_TRIANGLES, 0, 6); // top
-            glUniform1f(crack_shader.uniform_location("u_tile"), static_cast<float>(selected_block * 3 + 2));
+            glUniform1f(crack_shader.uniform_location("u_tile"), static_cast<float>(interact.selected_block * 3 + 2));
             glDrawArrays(GL_TRIANGLES, 6, 6); // bottom
             glEnable(GL_CULL_FACE);
         }
@@ -898,8 +637,14 @@ int main() {
         glEnable(GL_DEPTH_TEST);
 
         // ── HUD: hotbar (10 slots + item name) and health hearts (T009) ─────
-        const client::HudState hud_state{fb_width,        fb_height,        hotbar,         selected_slot,
-                                         bucket_selected, bucket_has_water, selected_block, curr_state.health};
+        const client::HudState hud_state{fb_width,
+                                         fb_height,
+                                         interact.hotbar,
+                                         interact.selected_slot,
+                                         interact.bucket_selected,
+                                         interact.bucket_has_water,
+                                         interact.selected_block,
+                                         curr_state.health};
         client::draw_hud(hud_res, hud_state);
 
         // ── pause menu (drawn over the live scene; no ticks while paused) ───
@@ -939,7 +684,7 @@ int main() {
 
     // ── exit: force flush (T009: 退出时强制 flush，QUIT 与窗口关闭共用此路径) ──
     world.autosave_pass();
-    save.write_level_now(make_level_data());
+    save.write_level_now(client::make_level_data(tick_ctx));
     save.flush();
     OC_LOG_INFO("save: flushed on exit (ticks={}, chunks cached={})", game_ticks, save.cached_region_count());
 

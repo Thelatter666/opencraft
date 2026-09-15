@@ -1,0 +1,33 @@
+#pragma once
+
+// Client-side tunables: window size, view/interaction constants and the
+// per-frame streaming budgets. Moved verbatim out of main.cpp by T-M1 (pure
+// code motion) so the tick and the renderer share one authoritative copy.
+//
+// ⚖ values are frozen: the split moved them, it did not retune them
+// (docs/01 §4).
+
+namespace opencraft::client {
+
+inline constexpr int kWindowWidth = 1280;
+inline constexpr int kWindowHeight = 720;
+
+// ── view / interaction constants ────────────────────────────────────────────
+inline constexpr double kMouseSensitivity = 0.0025;
+inline constexpr double kMaxPitch = 1.5533;   // ~89 degrees
+inline constexpr double kReachDistance = 4.5; // ⚖ docs/01 §4: survival block reach
+// Base FOV and sprint multiplier live in fov.hpp (T-D1, unit-tested).
+inline constexpr int kViewRadius = 6;      // meshed chunk radius around the player
+inline constexpr int kGenPerFrame = 2;     // sync-generation budget (docs: <= 2/frame)
+inline constexpr int kNewMeshPerFrame = 4; // new-chunk meshing budget/frame
+
+inline constexpr double kEyeStanding = 1.62;
+inline constexpr double kEyeSneaking = 1.27;
+
+// ── hotbar layout ───────────────────────────────────────────────────────────
+// 10 slots: keys 1..9 pick blocks, 0 picks the bucket (T-F1's minimal item
+// form).
+inline constexpr int kBucketSlot = 9;
+inline constexpr int kHotbarSlots = 10;
+
+} // namespace opencraft::client

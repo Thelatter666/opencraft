@@ -10,6 +10,7 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include "bitmap_font.hpp"
+#include "client_config.hpp"
 #include "opencraft/render/mesher.hpp"
 #include "world.hpp"
 
