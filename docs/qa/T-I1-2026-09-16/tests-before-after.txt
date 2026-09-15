@@ -16,3 +16,15 @@
 297 - 267 = 30 = TEST_CASE count of the three new test files (7 + 6 + 17),
 and 'git status' shows no pre-existing test source modified, so the 267
 baseline cases are byte-identical sources and 0 of them failed above.
+
+## clean from-scratch build of the committed tree (PM-style verification)
+$ git status --porcelain | wc -l      -> 0 (working tree == commit b58431d)
+$ cmake -S . -B build-clean -DCMAKE_BUILD_TYPE=Release   # own configure, exit 0
+$ cmake --build build-clean -j8                          # exit 0
+$ ./build-clean/tests/opencraft_tests                    # exit 0
+[doctest] test cases:  297 |  297 passed | 0 failed | 0 skipped
+[doctest] assertions: 9049 | 9049 passed | 0 failed |
+   (1 warning in the log = the pre-existing linker "ignoring duplicate libraries",
+    present in the baseline log too; 0 compiler warnings)
+
+## Debug build (worktree default build dir) has the same result: 297/297.
