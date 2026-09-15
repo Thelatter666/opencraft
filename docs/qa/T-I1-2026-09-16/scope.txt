@@ -1,0 +1,22 @@
+# T-I1 evidence: scope
+
+## git status --short
+ M game/common/CMakeLists.txt
+ M tests/CMakeLists.txt
+?? docs/qa/T-I1-2026-09-16/
+?? game/common/include/opencraft/game/inventory.hpp
+?? game/common/include/opencraft/game/item_registry.hpp
+?? game/common/include/opencraft/game/item_stack.hpp
+?? game/common/src/inventory.cpp
+?? game/common/src/item_registry.cpp
+?? tests/test_inventory.cpp
+?? tests/test_item_registry.cpp
+?? tests/test_item_stack.cpp
+
+## git diff --stat
+ game/common/CMakeLists.txt | 12 ++++++++----
+ tests/CMakeLists.txt       |  3 +++
+ 2 files changed, 11 insertions(+), 4 deletions(-)
+
+## git diff --stat -- game/client engine  (must be empty)
+(empty)

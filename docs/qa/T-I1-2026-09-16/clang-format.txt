@@ -1,0 +1,9 @@
+# T-I1 evidence: clang-format (CLT 17, NOT brew 23)
+
+$ clang-format --dry-run --Werror game/common/include/opencraft/game/*.hpp game/common/src/*.cpp \
+    tests/test_item_registry.cpp tests/test_item_stack.cpp tests/test_inventory.cpp
+exit 0, no output
+
+## plus the pre-existing files of the same directories (no reformat collateral)
+$ clang-format --dry-run --Werror $(git ls-files "game/common/**/*.hpp" "game/common/**/*.cpp")
+exit 0, no output

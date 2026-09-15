@@ -1,0 +1,18 @@
+# T-I1 evidence: existing 267 tests unchanged
+
+## before (clean worktree at baseline 0a96622, same build dir)
+===============================================================================
+[doctest] test cases:  267 |  267 passed | 0 failed | 0 skipped
+[doctest] assertions: 8498 | 8498 passed | 0 failed |
+[doctest] Status: SUCCESS!
+
+## after (this card: +8 new files, 2 CMakeLists edited)
+===============================================================================
+[doctest] test cases:  297 |  297 passed | 0 failed | 0 skipped
+[doctest] assertions: 9049 | 9049 passed | 0 failed |
+[doctest] Status: SUCCESS!
+
+## arithmetic
+297 - 267 = 30 = TEST_CASE count of the three new test files (7 + 6 + 17),
+and 'git status' shows no pre-existing test source modified, so the 267
+baseline cases are byte-identical sources and 0 of them failed above.
