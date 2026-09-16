@@ -1,0 +1,37 @@
+T-E1 临时打点（取证用，已还原）—— 记录而非可应用补丁
+================================================================
+说明：卡面只允许**一条**常驻日志（挖成功时的掉落物生成，已落在 WorldSim::apply_dig）。
+拾取路径没有常驻日志，因此拾取的决定性证据用**临时打点**取（项目既有手法：
+临时打点 → 取证 → 还原 → 校验二进制无残留）。
+
+打点内容（两处，均在客户端）：
+
+1) game/client/src/main.cpp —— 渲染通过处（每 60 帧一行）
+     static int te1_probe_frames = 0;
+     if (++te1_probe_frames % 60 == 0) {
+         std::size_t probe_count = 0;
+         glm::dvec3 probe_pos{0.0, 0.0, 0.0};
+         drops.for_each_entity([&](const srv::Entity &probe_drop) {
+             ++probe_count;
+             probe_pos = probe_drop.position;
+         });
+         OC_LOG_INFO("PROBE render: drops={} first=({:.2f}, {:.2f}, {:.2f})", probe_count, probe_pos.x,
+                     probe_pos.y, probe_pos.z);
+     }
+
+2) game/client/src/tick.cpp —— 拾取循环（候选进入拾取盒 / 提交被拒 / 成功交接）
+     if (!candidates.empty()) {
+         const srv::Entity *probe_drop = drops.find(candidates.front().first);
+         OC_LOG_INFO("PROBE pickup: {} candidate(s) in box, first=({:.2f}, {:.2f}, {:.2f})", ...);
+     }
+     ...
+     OC_LOG_INFO("PROBE pickup: took item {} x{} (entity {})", ctx.world.items().string_of(stack.item),
+                 stack.count, id);          // accepted 之后
+     OC_LOG_INFO("PROBE pickup: submit REFUSED for entity {}", id);   // 被拒分支
+
+还原校验（最终二进制）：
+  strings build/opencraft | grep -c PROBE   →  0
+  md5(build/opencraft) = 2deca4791afd8d1436bc7b4e6773c995
+  还原前后 md5 **完全相同**（打点只加日志，去掉后逐字节回到同一二进制）
+
+打点版会话日志：session_transient_probe.log（含 PROBE pickup 两行，见 README §证据 C）

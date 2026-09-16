@@ -1,0 +1,150 @@
+[2026-09-17 04:03:11.771] [info] OpenCraft 0.1.0 starting
+[2026-09-17 04:03:11.937] [info] GL 4.1 Metal - 89.4 / glad loaded
+[2026-09-17 04:03:11.937] [info] save: no level.ocd, new world with seed 0x4f50454e43524146
+[2026-09-17 04:03:12.164] [info] startup gen: 25 chunks, total 226.6 ms, avg 9.06 ms/chunk
+[2026-09-17 04:03:12.164] [info] spawn scan: surface at (0.5, 132.0, 0.5)
+[2026-09-17 04:03:12.164] [info] atlas: 144x144 px, 9 tiles/row, crack tiles at 63
+[2026-09-17 04:03:13.696] [info] PROBE render: drops=0 first=(0.00, 0.00, 0.00)
+[2026-09-17 04:03:14.199] [info] fps 41.8 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-17 04:03:14.797] [info] PROBE render: drops=0 first=(0.00, 0.00, 0.00)
+[2026-09-17 04:03:15.630] [info] PROBE render: drops=0 first=(0.00, 0.00, 0.00)
+[2026-09-17 04:03:16.213] [info] fps 68.4 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-17 04:03:16.464] [info] PROBE render: drops=0 first=(0.00, 0.00, 0.00)
+[2026-09-17 04:03:17.297] [info] PROBE render: drops=0 first=(0.00, 0.00, 0.00)
+[2026-09-17 04:03:18.130] [info] PROBE render: drops=0 first=(0.00, 0.00, 0.00)
+[2026-09-17 04:03:18.213] [info] fps 72.0 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-17 04:03:18.964] [info] PROBE render: drops=0 first=(0.00, 0.00, 0.00)
+[2026-09-17 04:03:19.797] [info] PROBE render: drops=0 first=(0.00, 0.00, 0.00)
+[2026-09-17 04:03:20.227] [info] fps 72.0 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-17 04:03:20.630] [info] PROBE render: drops=0 first=(0.00, 0.00, 0.00)
+[2026-09-17 04:03:21.463] [info] PROBE render: drops=0 first=(0.00, 0.00, 0.00)
+[2026-09-17 04:03:22.234] [info] fps 72.2 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-17 04:03:22.289] [info] PROBE render: drops=0 first=(0.00, 0.00, 0.00)
+[2026-09-17 04:03:23.109] [info] PROBE render: drops=0 first=(0.00, 0.00, 0.00)
+[2026-09-17 04:03:23.942] [info] PROBE render: drops=0 first=(0.00, 0.00, 0.00)
+[2026-09-17 04:03:24.248] [info] fps 72.5 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-17 04:03:24.332] [info] autosave: 0 chunk(s) queued for async write, level written (ticks=199)
+[2026-09-17 04:03:24.763] [info] PROBE render: drops=0 first=(0.00, 0.00, 0.00)
+[2026-09-17 04:03:25.583] [info] PROBE render: drops=0 first=(0.00, 0.00, 0.00)
+[2026-09-17 04:03:26.254] [info] fps 73.2 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-17 04:03:26.407] [info] PROBE render: drops=0 first=(0.00, 0.00, 0.00)
+[2026-09-17 04:03:27.222] [info] PROBE render: drops=0 first=(0.00, 0.00, 0.00)
+[2026-09-17 04:03:28.046] [info] PROBE render: drops=0 first=(0.00, 0.00, 0.00)
+[2026-09-17 04:03:28.269] [info] fps 73.0 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-17 04:03:28.866] [info] PROBE render: drops=0 first=(0.00, 0.00, 0.00)
+[2026-09-17 04:03:29.686] [info] PROBE render: drops=0 first=(0.00, 0.00, 0.00)
+[2026-09-17 04:03:30.275] [info] fps 73.2 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-17 04:03:30.504] [info] PROBE render: drops=0 first=(0.00, 0.00, 0.00)
+[2026-09-17 04:03:31.331] [info] PROBE render: drops=0 first=(0.00, 0.00, 0.00)
+[2026-09-17 04:03:32.150] [info] PROBE render: drops=0 first=(0.00, 0.00, 0.00)
+[2026-09-17 04:03:32.289] [info] fps 73.0 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-17 04:03:32.858] [info] item drop sod_loam spawned at (0.50, 131.38, 0.50) [entity 1]
+[2026-09-17 04:03:32.869] [info] remeshed 4 chunk(s) in 10.04 ms (last mesh 2.30 ms)
+[2026-09-17 04:03:32.983] [info] PROBE render: drops=1 first=(0.50, 131.73, 0.50)
+[2026-09-17 04:03:33.366] [info] PROBE pickup: 1 candidate(s) in box, first=(0.50, 131.13, 0.50)
+[2026-09-17 04:03:33.366] [info] PROBE pickup: took item sod_loam x1 (entity 1)
+[2026-09-17 04:03:33.796] [info] PROBE render: drops=0 first=(0.00, 0.00, 0.00)
+[2026-09-17 04:03:34.289] [info] fps 74.0 | pos (0.50, 131.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-17 04:03:34.373] [info] autosave: 1 chunk(s) queued for async write, level written (ticks=399)
+[2026-09-17 04:03:34.589] [info] PROBE render: drops=0 first=(0.00, 0.00, 0.00)
+[2026-09-17 04:03:35.421] [info] PROBE render: drops=0 first=(0.00, 0.00, 0.00)
+[2026-09-17 04:03:36.255] [info] PROBE render: drops=0 first=(0.00, 0.00, 0.00)
+[2026-09-17 04:03:36.296] [info] fps 72.3 | pos (0.50, 131.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-17 04:03:37.088] [info] PROBE render: drops=0 first=(0.00, 0.00, 0.00)
+[2026-09-17 04:03:37.914] [info] PROBE render: drops=0 first=(0.00, 0.00, 0.00)
+[2026-09-17 04:03:38.303] [info] fps 72.3 | pos (0.50, 131.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-17 04:03:38.747] [info] PROBE render: drops=0 first=(0.00, 0.00, 0.00)
+[2026-09-17 04:03:39.580] [info] PROBE render: drops=0 first=(0.00, 0.00, 0.00)
+[2026-09-17 04:03:40.303] [info] fps 72.0 | pos (0.50, 131.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-17 04:03:40.414] [info] PROBE render: drops=0 first=(0.00, 0.00, 0.00)
+[2026-09-17 04:03:41.247] [info] PROBE render: drops=0 first=(0.00, 0.00, 0.00)
+[2026-09-17 04:03:42.081] [info] PROBE render: drops=0 first=(0.00, 0.00, 0.00)
+[2026-09-17 04:03:42.303] [info] fps 72.0 | pos (0.50, 131.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-17 04:03:42.914] [info] PROBE render: drops=0 first=(0.00, 0.00, 0.00)
+[2026-09-17 04:03:43.747] [info] PROBE render: drops=0 first=(0.00, 0.00, 0.00)
+[2026-09-17 04:03:44.317] [info] fps 72.0 | pos (0.50, 131.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-17 04:03:44.387] [info] autosave: 0 chunk(s) queued for async write, level written (ticks=599)
+[2026-09-17 04:03:44.581] [info] PROBE render: drops=0 first=(0.00, 0.00, 0.00)
+[2026-09-17 04:03:45.414] [info] PROBE render: drops=0 first=(0.00, 0.00, 0.00)
+[2026-09-17 04:03:46.248] [info] PROBE render: drops=0 first=(0.00, 0.00, 0.00)
+[2026-09-17 04:03:46.317] [info] fps 72.0 | pos (0.50, 131.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-17 04:03:47.081] [info] PROBE render: drops=0 first=(0.00, 0.00, 0.00)
+[2026-09-17 04:03:47.914] [info] PROBE render: drops=0 first=(0.00, 0.00, 0.00)
+[2026-09-17 04:03:48.331] [info] fps 72.0 | pos (0.50, 131.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-17 04:03:48.747] [info] PROBE render: drops=0 first=(0.00, 0.00, 0.00)
+[2026-09-17 04:03:49.582] [info] PROBE render: drops=0 first=(0.00, 0.00, 0.00)
+[2026-09-17 04:03:50.345] [info] fps 72.0 | pos (0.50, 131.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-17 04:03:50.414] [info] PROBE render: drops=0 first=(0.00, 0.00, 0.00)
+[2026-09-17 04:03:51.247] [info] PROBE render: drops=0 first=(0.00, 0.00, 0.00)
+[2026-09-17 04:03:52.081] [info] PROBE render: drops=0 first=(0.00, 0.00, 0.00)
+[2026-09-17 04:03:52.358] [info] fps 72.0 | pos (0.50, 131.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-17 04:03:52.914] [info] PROBE render: drops=0 first=(0.00, 0.00, 0.00)
+[2026-09-17 04:03:53.748] [info] PROBE render: drops=0 first=(0.00, 0.00, 0.00)
+[2026-09-17 04:03:54.358] [info] fps 72.0 | pos (0.50, 131.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-17 04:03:54.414] [info] autosave: 0 chunk(s) queued for async write, level written (ticks=799)
+[2026-09-17 04:03:54.582] [info] PROBE render: drops=0 first=(0.00, 0.00, 0.00)
+[2026-09-17 04:03:55.415] [info] PROBE render: drops=0 first=(0.00, 0.00, 0.00)
+[2026-09-17 04:03:56.247] [info] PROBE render: drops=0 first=(0.00, 0.00, 0.00)
+[2026-09-17 04:03:56.359] [info] fps 72.0 | pos (0.50, 131.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-17 04:03:57.082] [info] PROBE render: drops=0 first=(0.00, 0.00, 0.00)
+[2026-09-17 04:03:57.913] [info] PROBE render: drops=0 first=(0.00, 0.00, 0.00)
+[2026-09-17 04:03:58.372] [info] fps 72.0 | pos (0.50, 131.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-17 04:03:58.748] [info] PROBE render: drops=0 first=(0.00, 0.00, 0.00)
+[2026-09-17 04:03:59.580] [info] PROBE render: drops=0 first=(0.00, 0.00, 0.00)
+[2026-09-17 04:04:00.386] [info] fps 72.0 | pos (0.50, 131.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-17 04:04:00.414] [info] PROBE render: drops=0 first=(0.00, 0.00, 0.00)
+[2026-09-17 04:04:01.248] [info] PROBE render: drops=0 first=(0.00, 0.00, 0.00)
+[2026-09-17 04:04:02.082] [info] PROBE render: drops=0 first=(0.00, 0.00, 0.00)
+[2026-09-17 04:04:02.400] [info] fps 72.0 | pos (0.50, 131.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-17 04:04:02.914] [info] PROBE render: drops=0 first=(0.00, 0.00, 0.00)
+[2026-09-17 04:04:03.748] [info] PROBE render: drops=0 first=(0.00, 0.00, 0.00)
+[2026-09-17 04:04:04.399] [info] fps 72.0 | pos (0.50, 131.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-17 04:04:04.457] [info] autosave: 0 chunk(s) queued for async write, level written (ticks=999)
+[2026-09-17 04:04:04.581] [info] PROBE render: drops=0 first=(0.00, 0.00, 0.00)
+[2026-09-17 04:04:05.414] [info] PROBE render: drops=0 first=(0.00, 0.00, 0.00)
+[2026-09-17 04:04:06.247] [info] PROBE render: drops=0 first=(0.00, 0.00, 0.00)
+[2026-09-17 04:04:06.400] [info] fps 72.0 | pos (0.50, 131.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-17 04:04:07.080] [info] PROBE render: drops=0 first=(0.00, 0.00, 0.00)
+[2026-09-17 04:04:07.914] [info] PROBE render: drops=0 first=(0.00, 0.00, 0.00)
+[2026-09-17 04:04:08.413] [info] fps 72.0 | pos (0.50, 131.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-17 04:04:08.747] [info] PROBE render: drops=0 first=(0.00, 0.00, 0.00)
+[2026-09-17 04:04:09.580] [info] PROBE render: drops=0 first=(0.00, 0.00, 0.00)
+[2026-09-17 04:04:10.414] [info] PROBE render: drops=0 first=(0.00, 0.00, 0.00)
+[2026-09-17 04:04:10.428] [info] fps 72.0 | pos (0.50, 131.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-17 04:04:11.247] [info] PROBE render: drops=0 first=(0.00, 0.00, 0.00)
+[2026-09-17 04:04:12.080] [info] PROBE render: drops=0 first=(0.00, 0.00, 0.00)
+[2026-09-17 04:04:12.428] [info] fps 72.0 | pos (0.50, 131.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-17 04:04:12.914] [info] PROBE render: drops=0 first=(0.00, 0.00, 0.00)
+[2026-09-17 04:04:13.747] [info] PROBE render: drops=0 first=(0.00, 0.00, 0.00)
+[2026-09-17 04:04:14.428] [info] fps 72.0 | pos (0.50, 131.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-17 04:04:14.484] [info] autosave: 0 chunk(s) queued for async write, level written (ticks=1199)
+[2026-09-17 04:04:14.580] [info] PROBE render: drops=0 first=(0.00, 0.00, 0.00)
+[2026-09-17 04:04:15.413] [info] PROBE render: drops=0 first=(0.00, 0.00, 0.00)
+[2026-09-17 04:04:16.247] [info] PROBE render: drops=0 first=(0.00, 0.00, 0.00)
+[2026-09-17 04:04:16.441] [info] fps 72.0 | pos (0.50, 131.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-17 04:04:17.080] [info] PROBE render: drops=0 first=(0.00, 0.00, 0.00)
+[2026-09-17 04:04:17.914] [info] PROBE render: drops=0 first=(0.00, 0.00, 0.00)
+[2026-09-17 04:04:18.441] [info] fps 72.0 | pos (0.50, 131.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-17 04:04:18.747] [info] PROBE render: drops=0 first=(0.00, 0.00, 0.00)
+[2026-09-17 04:04:19.580] [info] PROBE render: drops=0 first=(0.00, 0.00, 0.00)
+[2026-09-17 04:04:20.413] [info] PROBE render: drops=0 first=(0.00, 0.00, 0.00)
+[2026-09-17 04:04:20.454] [info] fps 72.0 | pos (0.50, 131.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-17 04:04:21.246] [info] PROBE render: drops=0 first=(0.00, 0.00, 0.00)
+[2026-09-17 04:04:22.080] [info] PROBE render: drops=0 first=(0.00, 0.00, 0.00)
+[2026-09-17 04:04:22.469] [info] fps 72.0 | pos (0.50, 131.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-17 04:04:22.913] [info] PROBE render: drops=0 first=(0.00, 0.00, 0.00)
+[2026-09-17 04:04:23.746] [info] PROBE render: drops=0 first=(0.00, 0.00, 0.00)
+[2026-09-17 04:04:24.482] [info] fps 72.0 | pos (0.50, 131.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-17 04:04:24.511] [info] autosave: 0 chunk(s) queued for async write, level written (ticks=1399)
+[2026-09-17 04:04:24.580] [info] PROBE render: drops=0 first=(0.00, 0.00, 0.00)
+[2026-09-17 04:04:25.413] [info] PROBE render: drops=0 first=(0.00, 0.00, 0.00)
+[2026-09-17 04:04:26.247] [info] PROBE render: drops=0 first=(0.00, 0.00, 0.00)
+[2026-09-17 04:04:26.483] [info] fps 72.0 | pos (0.50, 131.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-17 04:04:27.080] [info] PROBE render: drops=0 first=(0.00, 0.00, 0.00)
+[2026-09-17 04:04:27.913] [info] PROBE render: drops=0 first=(0.00, 0.00, 0.00)
+[2026-09-17 04:04:28.496] [info] fps 72.0 | pos (0.50, 131.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-17 04:04:28.748] [info] PROBE render: drops=0 first=(0.00, 0.00, 0.00)
+[2026-09-17 04:04:29.581] [info] PROBE render: drops=0 first=(0.00, 0.00, 0.00)
+[2026-09-17 04:04:30.413] [info] PROBE render: drops=0 first=(0.00, 0.00, 0.00)
+[2026-09-17 04:04:30.512] [info] fps 72.0 | pos (0.50, 131.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-17 04:04:31.246] [info] PROBE render: drops=0 first=(0.00, 0.00, 0.00)
