@@ -94,11 +94,51 @@ struct WorldChanges {
     [[nodiscard]] bool empty() const { return dirty_chunks.empty(); }
 };
 
+// ── world streaming (T-D4) ──────────────────────────────────────────────────
+// Where the viewer is and how much work one streaming call may spend. Chunk
+// coordinates and ints, not a float world position: both ends already work in
+// chunk space, and integers cross a network hop without a rounding argument.
+//
+// The two radii are the policy, named by the caller and enforced by the
+// authority:
+//   * the chunks within `generate_radius` (Chebyshev distance, in chunks) are
+//     the working set - generated on demand, up to the caller's budget;
+//   * a chunk is released only once it is further away than `unload_radius`.
+// The gap between them is the hysteresis that keeps a player pacing over the
+// edge of the view from loading and unloading the same chunk every step (and
+// re-writing its dirty data every step). `unload_radius == generate_radius` is
+// the zero-hysteresis configuration.
+struct StreamRequest {
+    int center_cx = 0;
+    int center_cz = 0;
+    int generate_radius = 0; // working set: chunks, Chebyshev distance
+    int unload_radius = 0;   // release threshold; >= generate_radius
+    int generate_budget = 0; // how many chunks this call may create (frame budget)
+    // The persistence window is due: besides streaming, run the authority's own
+    // write-back of every dirty loaded chunk (the T009 cadence pass).
+    bool persist = false;
+    // A radius of 0 means "just the centre" / "release beyond the centre", so a
+    // caller that wants streaming must send the windows it means - the client
+    // builds them from its config (client::make_stream_request).
+};
+
+struct StreamResult {
+    // Chunks this call created, nearest-first. The client can pace its own
+    // derived work (meshing) with them; nothing else about them is stale.
+    std::vector<std::pair<int, int>> loaded_chunks;
+    // Chunks this call released, ascending. Their world data is gone - the
+    // dirty ones were written to the save first - so the client drops whatever
+    // it owns for them; the GPU mesh is the one that matters (渲染资源属客户端).
+    std::vector<std::pair<int, int>> unloaded_chunks;
+    std::size_t persisted_chunks = 0; // chunks handed to the save by this call
+    std::size_t loaded_total = 0;     // chunks in the authority's memory afterwards
+};
+
 // The client's handle on the authoritative side - the whole of it. Everything
-// the client is allowed to do to the world goes through these four verbs;
-// server::WorldSim is this card's in-process implementation, and M3 swaps in
-// one that serializes `submit()` onto a socket (its world already lives
-// elsewhere, so the other three become message pumps).
+// the client is allowed to do to the world goes through these five verbs;
+// server::WorldSim is the in-process implementation, and M3 swaps in one that
+// serializes `submit()` onto a socket (its world already lives elsewhere, so
+// the others become message pumps).
 class IAuthority {
 public:
     virtual ~IAuthority() = default;
@@ -118,9 +158,20 @@ public:
 
     // Persistence pump (T009 cadence): hands the attached save a snapshot of
     // every dirty chunk and returns how many were queued. Not a world write -
-    // it is the authority's own maintenance, still driven from the client's
-    // tick in this card because the embedded server shares its clock.
+    // it is the authority's own maintenance. T-D4 stopped the client from
+    // driving it directly (it is world management, not a client verb): the
+    // client asks for it through stream()'s `persist` field, which runs exactly
+    // this pass. The method stays on the interface because it is what both ends
+    // mean by "write back what is dirty".
     virtual std::size_t autosave_pass() = 0;
+
+    // Streaming maintenance in request form (T-D4): the client names where the
+    // viewer is and what the call may spend; the authority decides what to
+    // generate, what to release - dirty chunks written to the save first - and,
+    // when the window is due, what to write back. The client no longer drives
+    // chunk loading, chunk releasing or the autosave pass itself: those are
+    // world management, and the world belongs to the authority.
+    [[nodiscard]] virtual StreamResult stream(const StreamRequest &req) = 0;
 };
 
 } // namespace opencraft::game

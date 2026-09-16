@@ -8,14 +8,17 @@
 // The client's boundary is:
 //   * reads      -> client::WorldSource, a const view over this object;
 //   * actions    -> game::IAuthority::submit() (this class), validated here;
-//   * push-back  -> take_changes(), the stale-chunk list the client remeshes.
+//   * push-back  -> take_changes(), the stale-chunk list the client remeshes;
+//   * streaming  -> stream(), which loads, releases (dirty data written first)
+//                   and persists; the client names the viewer, not the steps.
 //
 // The class runs inside the client process for now (docs/03 §1: 客户端+内嵌
-// 服务端); M3 puts a network channel in front of the same three verbs, which
-// is why the request/result types live in game/common and carry plain data.
+// 服务端); M3 puts a network channel in front of the same verbs, which is why
+// the request/result types live in game/common and carry plain data.
 
 #include <cstdint>
 #include <optional>
+#include <set>
 #include <utility>
 #include <vector>
 
@@ -80,14 +83,26 @@ public:
     // behavior). The save is NOT owned; it must outlive the WorldSim.
     void attach_save(storage::WorldSave *save) { save_ = save; }
 
-    // Generates (if absent), light-initializes and stores chunk (cx, cz).
-    // Disk-first: when a save is attached and the chunk exists on disk, the
-    // persisted blocks win over regeneration (light is recomputed - the
-    // documented T009 choice). Returns true when the chunk was newly created
-    // or loaded this call. Synchronous; the caller owns the frame budget.
-    bool ensure_chunk(int cx, int cz);
+    // The world-management verb (T-D4; game::IAuthority::stream). One call
+    // runs the whole streaming cycle, in the order that matters:
+    //
+    //   1. generate the nearest chunks inside `generate_radius`, up to
+    //      `generate_budget` of them;
+    //   2. release every chunk further than `unload_radius` - a dirty chunk is
+    //      written to the attached save BEFORE its state is dropped;
+    //   3. run the autosave pass when the `persist` window is due.
+    //
+    // Generation and release sit behind this single entry point on purpose:
+    // ensure_chunk() and unload_chunk() are private, so "the client cannot
+    // drive the streaming itself" is enforced by the access specifier (the
+    // T-A1 rule) instead of by everyone keeping two call sites in step.
+    [[nodiscard]] game::StreamResult stream(const game::StreamRequest &req) override;
 
     [[nodiscard]] bool chunk_ready(int cx, int cz) const { return chunks_.find(cx, cz) != nullptr; }
+
+    // Chunks currently in memory - the streaming working set. Bounded by
+    // stream()'s unload window; before T-D4 it only ever grew.
+    [[nodiscard]] std::size_t loaded_chunk_count() const { return chunks_.loaded_count(); }
 
     // True when the chunk and its 4 side neighbors are generated - meshing a
     // chunk before that would bake wrong (air) border faces.
@@ -102,16 +117,12 @@ public:
     // Returns the feet-center spawn position (x+0.5, surface_y, z+0.5).
     [[nodiscard]] glm::dvec3 find_spawn();
 
-    // Unload hook (T006 follow-up, wired by T009): serializes the chunk to
-    // the attached save first (if any), then drops its light storage and the
-    // block data. Returns true when a chunk was unloaded.
-    bool unload_chunk(int cx, int cz);
-
     // Autosave pass (call once per cadence window from the main thread):
     // drains the save's dirty set and submits serialized snapshots of every
     // still-loaded chunk to the save's IO thread (bytes copied here - the IO
     // thread never touches chunk state, per the T009 card). Returns how many
-    // chunks were handed to the writer.
+    // chunks were handed to the writer. stream() runs it for the client's
+    // `persist` window; the client no longer calls it directly (T-D4).
     std::size_t autosave_pass() override;
 
     // Serializes one loaded chunk into `out` (Chunk format v2; v1 payloads
@@ -156,6 +167,32 @@ public:
 
 private:
     // ── the writers. Only submit() and the fluid simulation reach these. ────
+
+    // Generates (if absent), light-initializes and stores chunk (cx, cz).
+    // Disk-first: when a save is attached and the chunk exists on disk, the
+    // persisted blocks win over regeneration (light is recomputed - the
+    // documented T009 choice). Returns true when the chunk was newly created
+    // or loaded this call. Synchronous; stream() owns the frame budget.
+    bool ensure_chunk(int cx, int cz);
+
+    // Unload hook (T006 follow-up, wired by T009): serializes the chunk to the
+    // attached save first (if any), then drops its light storage and the block
+    // data. Returns true when a chunk was unloaded.
+    bool unload_chunk(int cx, int cz);
+
+    // Registers a chunk as resident - the streaming set stream() sweeps - and
+    // reports the load as successful. Both of ensure_chunk's load paths (disk
+    // and generation) end here, so the set cannot drift from what is actually
+    // in memory.
+    bool mark_resident(int cx, int cz) {
+        resident_.emplace(cx, cz);
+        return true;
+    }
+
+    // Offsets of the (2r+1)^2 square around the centre, nearest-first - the
+    // order chunks stream in. Cached because the radius only changes when a
+    // caller changes its view distance, not every frame.
+    [[nodiscard]] const std::vector<std::pair<int, int>> &generate_offsets(int radius);
 
     // Writes a block and updates light incrementally. Appends every chunk
     // whose mesh may have changed to the pending push-back (own chunk plus
@@ -232,6 +269,14 @@ private:
     std::vector<std::pair<int, int>> fluid_dirty_;
     // Push-back accumulated since the last take_changes().
     std::vector<std::pair<int, int>> pending_chunks_;
+    // The streaming working set: every chunk in memory, maintained by
+    // mark_resident()/unload_chunk(). Sorted, so a release sweep reports (and
+    // logs) in a stable order. ChunkManager has no iteration API and this is
+    // the only loader, so the set is complete by construction.
+    std::set<std::pair<int, int>> resident_;
+    // Cache behind generate_offsets(); invalid when gen_offsets_radius_ changes.
+    std::vector<std::pair<int, int>> gen_offsets_;
+    int gen_offsets_radius_ = -1;
     storage::WorldSave *save_ = nullptr;
 };
 

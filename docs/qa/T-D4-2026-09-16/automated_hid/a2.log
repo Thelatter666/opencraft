@@ -1,0 +1,28 @@
+[2026-09-16 23:32:36.444] [info] OpenCraft 0.1.0 starting
+[2026-09-16 23:32:36.588] [info] GL 4.1 Metal - 89.4 / glad loaded
+[2026-09-16 23:32:36.588] [info] save: loaded level.ocd (seed=0x4f50454e43524146, ticks=2199, player=(0.50, 132.00, 0.50), hp=20.0)
+[2026-09-16 23:32:36.614] [info] chunk (0, -1) loaded from disk
+[2026-09-16 23:32:36.812] [info] startup gen: 25 chunks, total 223.3 ms, avg 8.93 ms/chunk
+[2026-09-16 23:32:36.812] [info] atlas: 144x144 px, 9 tiles/row, crack tiles at 63
+[2026-09-16 23:32:38.854] [info] fps 45.1 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-16 23:32:40.870] [info] fps 87.0 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-16 23:32:42.875] [info] fps 74.3 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-16 23:32:44.899] [info] fps 83.4 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-16 23:32:46.910] [info] fps 72.5 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-16 23:32:48.917] [info] fps 77.7 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-16 23:32:48.934] [info] autosave: 0 chunk(s) queued for async write, level written (ticks=2398)
+[2026-09-16 23:32:49.057] [info] remeshed 4 chunk(s) in 20.35 ms (last mesh 5.05 ms)
+[2026-09-16 23:32:50.932] [info] fps 72.1 | pos (0.50, 131.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-16 23:32:52.939] [info] fps 80.1 | pos (0.50, 131.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-16 23:32:54.951] [info] fps 72.0 | pos (0.50, 131.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-16 23:32:56.951] [info] fps 72.0 | pos (0.50, 131.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-16 23:32:58.967] [info] fps 72.1 | pos (0.50, 131.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-16 23:32:58.981] [info] autosave: 1 chunk(s) queued for async write, level written (ticks=2598)
+[2026-09-16 23:33:00.967] [info] fps 72.0 | pos (0.50, 131.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-16 23:33:02.967] [info] fps 84.5 | pos (0.50, 131.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-16 23:33:04.979] [info] fps 74.5 | pos (0.50, 131.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-16 23:33:06.993] [info] fps 72.0 | pos (0.50, 131.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-16 23:33:09.008] [info] fps 72.1 | pos (0.50, 131.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-16 23:33:09.022] [info] autosave: 0 chunk(s) queued for async write, level written (ticks=2798)
+[2026-09-16 23:33:11.013] [info] fps 75.2 | pos (0.50, 131.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-16 23:33:13.021] [info] fps 88.6 | pos (0.50, 131.00, 0.50) | chunks 113 | stream-meshed 104

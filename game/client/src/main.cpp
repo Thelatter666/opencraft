@@ -124,9 +124,23 @@ int main() {
     authority.attach_save(&save);
     client::WorldSource world(authority);
 
-    // Spawn: generate the center chunk first, then scan 5x5 surface columns
-    // (T009 card item) - or reuse the persisted player position.
-    static_cast<void>(authority.ensure_chunk(0, 0));
+    // Startup burst: the 5x5 around the origin in one streaming call, so the
+    // 3x3 spawn meshes have lit neighbors; everything farther streams in within
+    // the frame budget. This is the one call allowed to ignore the budget - the
+    // spawn scan below reads surface columns out of that square, and there is no
+    // frame to budget against yet.
+    const gam::StreamRequest startup_stream{
+        .center_cx = 0, .center_cz = 0, .generate_radius = 2, .unload_radius = 2, .generate_budget = 25};
+    const auto startup_t0 = std::chrono::steady_clock::now();
+    const gam::StreamResult startup = authority.stream(startup_stream);
+    const double startup_ms =
+        std::chrono::duration<double, std::milli>(std::chrono::steady_clock::now() - startup_t0).count();
+    OC_LOG_INFO("startup gen: {} chunks, total {:.1f} ms, avg {:.2f} ms/chunk", startup.loaded_chunks.size(),
+                startup_ms,
+                startup.loaded_chunks.empty() ? 0.0 : startup_ms / static_cast<double>(startup.loaded_chunks.size()));
+
+    // Spawn: scan 5x5 surface columns inside the square just generated (T009
+    // card item) - or reuse the persisted player position.
     const glm::dvec3 spawn_pos = [&] {
         if (stored_level.has_value() && stored_level->has_player) {
             return glm::dvec3(stored_level->player_x, stored_level->player_y, stored_level->player_z);
@@ -135,26 +149,6 @@ int main() {
         OC_LOG_INFO("spawn scan: surface at ({:.1f}, {:.1f}, {:.1f})", scanned.x, scanned.y, scanned.z);
         return scanned;
     }();
-
-    // Startup burst: 5x5 generated synchronously so the 3x3 spawn meshes have
-    // lit neighbors; everything farther streams in within the frame budget.
-    double total_gen_ms = 0.0;
-    double max_gen_ms = 0.0;
-    int gen_count = 0;
-    for (int cx = -2; cx <= 2; ++cx) {
-        for (int cz = -2; cz <= 2; ++cz) {
-            const auto t0 = std::chrono::steady_clock::now();
-            if (authority.ensure_chunk(cx, cz)) {
-                const double ms =
-                    std::chrono::duration<double, std::milli>(std::chrono::steady_clock::now() - t0).count();
-                total_gen_ms += ms;
-                max_gen_ms = std::max(max_gen_ms, ms);
-                ++gen_count;
-            }
-        }
-    }
-    OC_LOG_INFO("startup gen: {} chunks, total {:.1f} ms, avg {:.2f} ms/chunk, max {:.2f} ms", gen_count, total_gen_ms,
-                gen_count > 0 ? total_gen_ms / gen_count : 0.0, max_gen_ms);
 
     // ── atlas + font ────────────────────────────────────────────────────────
     const opencraft::client::AtlasImage atlas_image = opencraft::client::generate_atlas(world.registry());
@@ -308,8 +302,11 @@ int main() {
     // Break particles (T009 mining feedback).
     std::vector<client::Particle> particles;
 
-    // Streaming offsets sorted by distance; generation radius = view + 1 so
-    // chunks at the view edge mesh against lit neighbors.
+    // Chunk offsets sorted by distance, out to the generation radius (view + 1),
+    // used to pace the client's own meshing: a chunk at the view edge may only
+    // be meshed against lit neighbors once the wider ring exists. T-D4 moved
+    // the *generation* that fills that ring into the authority (stream()); this
+    // list stayed because the mesh order is the client's pacing decision.
     std::vector<std::pair<int, int>> gen_offsets;
     for (int dx = -(client::kViewRadius + 1); dx <= client::kViewRadius + 1; ++dx) {
         for (int dz = -(client::kViewRadius + 1); dz <= client::kViewRadius + 1; ++dz) {
@@ -444,17 +441,24 @@ int main() {
             }
 
             // ── streaming ───────────────────────────────────────────────────────
+            // The authority owns the streaming decision (T-D4): the client says
+            // where the viewer is and what the frame may spend, and gets back
+            // what it loaded and what it released. Generation, release and the
+            // persist-before-release rule all live behind that one call.
             const auto [pcx, pcz] =
                 opencraft::voxel::Chunk::chunk_coords(static_cast<int>(std::floor(curr_state.position.x)),
                                                       static_cast<int>(std::floor(curr_state.position.z)));
-            int gen_left = client::kGenPerFrame;
-            for (const auto &[dx, dz] : gen_offsets) {
-                if (gen_left == 0) {
-                    break;
+            const gam::StreamResult streamed =
+                authority.stream(client::make_stream_request(curr_state.position, client::kGenPerFrame));
+            if (!streamed.unloaded_chunks.empty()) {
+                // The released chunks' world data is gone (dirty ones were
+                // written to the save first). Whatever the client owns for them
+                // - here, the GPU mesh - goes with it.
+                for (const auto &[cx, cz] : streamed.unloaded_chunks) {
+                    renderables.erase(client::chunk_key(cx, cz));
                 }
-                if (authority.ensure_chunk(pcx + dx, pcz + dz)) {
-                    --gen_left;
-                }
+                OC_LOG_INFO("stream: released {} chunk(s), {} resident, {} meshed", streamed.unloaded_chunks.size(),
+                            streamed.loaded_total, renderables.size());
             }
 
             if (!dirty_chunks.empty()) {
@@ -483,6 +487,9 @@ int main() {
                 }
                 const int cx = pcx + dx;
                 const int cz = pcz + dz;
+                // A chunk released by stream() this frame is not resident, so
+                // neighbors_ready() is false for it and its neighbors: nothing
+                // gets meshed against a chunk that is no longer there.
                 if (world.neighbors_ready(cx, cz) && renderables.find(client::chunk_key(cx, cz)) == renderables.end()) {
                     client::mesh_chunk(renderables, world, cx, cz, last_mesh_ms);
                     ++stream_meshed;
@@ -691,7 +698,13 @@ int main() {
     glfwDestroyWindow(window);
 
     // ── exit: force flush (T009: 退出时强制 flush，QUIT 与窗口关闭共用此路径) ──
-    authority.autosave_pass();
+    // The persist window in request form (T-D4): the same request the frame loop
+    // sends, with no generation budget, plus `persist`. The release window in it
+    // is the normal one around the player, so this is a write-back of what is
+    // still dirty - not a teardown of the world.
+    gam::StreamRequest exit_flush = client::make_stream_request(curr_state.position);
+    exit_flush.persist = true;
+    static_cast<void>(authority.stream(exit_flush));
     save.write_level_now(client::make_level_data(tick_ctx));
     save.flush();
     OC_LOG_INFO("save: flushed on exit (ticks={}, chunks cached={})", game_ticks, save.cached_region_count());
