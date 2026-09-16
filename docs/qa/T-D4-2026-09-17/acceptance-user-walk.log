@@ -1,0 +1,570 @@
+[2026-09-17 00:30:03.244] [info] OpenCraft 0.1.0 starting
+[2026-09-17 00:30:03.498] [info] GL 4.1 Metal - 89.4 / glad loaded
+[2026-09-17 00:30:03.498] [info] save: loaded level.ocd (seed=0x4f50454e43524146, ticks=111, player=(0.50, 133.00, -8.48), hp=20.0)
+[2026-09-17 00:30:03.726] [info] startup gen: 25 chunks, total 227.9 ms, avg 9.12 ms/chunk
+[2026-09-17 00:30:03.727] [info] atlas: 144x144 px, 9 tiles/row, crack tiles at 63
+[2026-09-17 00:30:05.772] [info] fps 41.8 | pos (0.50, 133.00, -8.50) | chunks 113 | stream-meshed 104
+[2026-09-17 00:30:07.786] [info] fps 68.4 | pos (0.50, 133.00, -8.50) | chunks 113 | stream-meshed 104
+[2026-09-17 00:30:09.786] [info] fps 72.0 | pos (0.50, 133.00, -8.50) | chunks 113 | stream-meshed 104
+[2026-09-17 00:30:11.799] [info] fps 72.0 | pos (0.50, 133.00, -8.50) | chunks 113 | stream-meshed 104
+[2026-09-17 00:30:13.814] [info] fps 72.0 | pos (0.50, 133.00, -8.50) | chunks 113 | stream-meshed 104
+[2026-09-17 00:30:15.814] [info] fps 72.0 | pos (0.50, 133.00, -8.50) | chunks 113 | stream-meshed 104
+[2026-09-17 00:30:15.884] [info] autosave: 0 chunk(s) queued for async write, level written (ticks=310)
+[2026-09-17 00:30:17.827] [info] fps 72.0 | pos (0.50, 133.00, -8.50) | chunks 113 | stream-meshed 104
+[2026-09-17 00:30:19.841] [info] fps 72.0 | pos (0.50, 133.00, -8.50) | chunks 113 | stream-meshed 104
+[2026-09-17 00:30:21.855] [info] fps 72.0 | pos (0.50, 133.00, -8.50) | chunks 113 | stream-meshed 104
+[2026-09-17 00:30:23.868] [info] fps 72.0 | pos (0.50, 133.00, -8.50) | chunks 113 | stream-meshed 104
+[2026-09-17 00:30:25.877] [info] fps 75.2 | pos (0.50, 133.00, -8.50) | chunks 113 | stream-meshed 104
+[2026-09-17 00:30:25.920] [info] autosave: 0 chunk(s) queued for async write, level written (ticks=510)
+[2026-09-17 00:30:27.882] [info] fps 73.3 | pos (0.50, 133.00, -8.50) | chunks 113 | stream-meshed 104
+[2026-09-17 00:30:29.882] [info] fps 85.0 | pos (0.50, 133.00, -8.50) | chunks 113 | stream-meshed 104
+[2026-09-17 00:30:31.889] [info] fps 81.2 | pos (0.50, 133.00, -8.50) | chunks 113 | stream-meshed 104
+[2026-09-17 00:30:33.889] [info] fps 80.5 | pos (0.50, 133.00, -8.50) | chunks 113 | stream-meshed 104
+[2026-09-17 00:30:35.890] [info] fps 79.0 | pos (0.50, 133.00, -8.50) | chunks 113 | stream-meshed 104
+[2026-09-17 00:30:35.974] [info] autosave: 0 chunk(s) queued for async write, level written (ticks=710)
+[2026-09-17 00:30:37.894] [info] fps 84.3 | pos (0.50, 133.00, -8.50) | chunks 113 | stream-meshed 104
+[2026-09-17 00:30:39.910] [info] fps 86.4 | pos (0.50, 133.00, -8.50) | chunks 113 | stream-meshed 104
+[2026-09-17 00:30:41.917] [info] fps 89.2 | pos (0.50, 133.00, -8.50) | chunks 113 | stream-meshed 104
+[2026-09-17 00:30:43.917] [info] fps 85.2 | pos (0.50, 133.00, -8.50) | chunks 113 | stream-meshed 104
+[2026-09-17 00:30:45.917] [info] fps 91.0 | pos (0.50, 133.00, -8.50) | chunks 113 | stream-meshed 104
+[2026-09-17 00:30:47.931] [info] fps 87.2 | pos (0.50, 133.00, -8.50) | chunks 113 | stream-meshed 104
+[2026-09-17 00:30:49.938] [info] fps 86.4 | pos (0.50, 133.00, -8.50) | chunks 113 | stream-meshed 104
+[2026-09-17 00:30:51.938] [info] fps 95.0 | pos (0.50, 133.00, -8.50) | chunks 113 | stream-meshed 104
+[2026-09-17 00:30:53.432] [info] autosave: 0 chunk(s) queued for async write, level written (ticks=910)
+[2026-09-17 00:30:53.938] [info] fps 87.5 | pos (0.50, 133.00, -8.50) | chunks 113 | stream-meshed 104
+[2026-09-17 00:30:55.945] [info] fps 92.7 | pos (0.50, 133.00, -8.50) | chunks 113 | stream-meshed 104
+[2026-09-17 00:30:57.959] [info] fps 89.6 | pos (0.50, 133.00, -8.50) | chunks 113 | stream-meshed 104
+[2026-09-17 00:30:59.966] [info] fps 82.5 | pos (0.50, 133.00, -8.50) | chunks 113 | stream-meshed 104
+[2026-09-17 00:31:01.965] [info] fps 95.0 | pos (0.50, 133.00, -8.50) | chunks 113 | stream-meshed 104
+[2026-09-17 00:31:03.523] [info] autosave: 0 chunk(s) queued for async write, level written (ticks=1110)
+[2026-09-17 00:31:03.980] [info] fps 87.2 | pos (0.50, 133.00, -8.50) | chunks 113 | stream-meshed 104
+[2026-09-17 00:31:05.972] [info] fps 91.0 | pos (0.50, 133.00, -8.50) | chunks 113 | stream-meshed 104
+[2026-09-17 00:31:07.973] [info] placed stone at (-1, 133, -10); consumed 1 from slot 0 (63 left)
+[2026-09-17 00:31:07.990] [info] remeshed 6 chunk(s) in 17.31 ms (last mesh 2.31 ms)
+[2026-09-17 00:31:07.991] [info] fps 90.4 | pos (0.50, 133.00, -8.50) | chunks 113 | stream-meshed 104
+[2026-09-17 00:31:08.348] [info] placed stone at (-1, 134, -10); consumed 1 from slot 0 (62 left)
+[2026-09-17 00:31:08.367] [info] remeshed 6 chunk(s) in 19.13 ms (last mesh 2.21 ms)
+[2026-09-17 00:31:10.016] [info] fps 92.5 | pos (0.50, 133.00, -8.50) | chunks 113 | stream-meshed 104
+[2026-09-17 00:31:12.016] [info] fps 95.0 | pos (0.50, 133.00, -8.50) | chunks 113 | stream-meshed 104
+[2026-09-17 00:31:13.227] [info] remeshed 6 chunk(s) in 18.42 ms (last mesh 2.23 ms)
+[2026-09-17 00:31:13.690] [info] autosave: 2 chunk(s) queued for async write, level written (ticks=1310)
+[2026-09-17 00:31:14.021] [info] fps 91.1 | pos (0.50, 133.00, -8.50) | chunks 113 | stream-meshed 104
+[2026-09-17 00:31:16.030] [info] fps 86.7 | pos (0.50, 133.00, -8.50) | chunks 113 | stream-meshed 104
+[2026-09-17 00:31:18.028] [info] fps 92.2 | pos (0.50, 133.00, -8.50) | chunks 113 | stream-meshed 104
+[2026-09-17 00:31:20.028] [info] fps 87.0 | pos (0.50, 133.00, -8.50) | chunks 113 | stream-meshed 104
+[2026-09-17 00:31:22.045] [info] fps 95.4 | pos (0.50, 133.00, -8.50) | chunks 113 | stream-meshed 104
+[2026-09-17 00:31:23.786] [info] autosave: 0 chunk(s) queued for async write, level written (ticks=1510)
+[2026-09-17 00:31:24.050] [info] fps 94.0 | pos (0.50, 133.00, -8.50) | chunks 113 | stream-meshed 104
+[2026-09-17 00:31:24.389] [info] vessel: poured water source at (0, 133, -8)
+[2026-09-17 00:31:24.397] [info] remeshed 2 chunk(s) in 7.21 ms (last mesh 2.30 ms)
+[2026-09-17 00:31:24.604] [info] remeshed 2 chunk(s) in 5.51 ms (last mesh 2.34 ms)
+[2026-09-17 00:31:24.859] [info] remeshed 2 chunk(s) in 5.34 ms (last mesh 2.78 ms)
+[2026-09-17 00:31:25.118] [info] remeshed 1 chunk(s) in 4.80 ms (last mesh 4.77 ms)
+[2026-09-17 00:31:25.375] [info] remeshed 1 chunk(s) in 5.88 ms (last mesh 5.85 ms)
+[2026-09-17 00:31:25.631] [info] remeshed 1 chunk(s) in 5.05 ms (last mesh 5.00 ms)
+[2026-09-17 00:31:25.894] [info] remeshed 1 chunk(s) in 4.71 ms (last mesh 4.67 ms)
+[2026-09-17 00:31:26.042] [info] fps 89.5 | pos (0.50, 133.00, -8.50) | chunks 113 | stream-meshed 104
+[2026-09-17 00:31:26.144] [info] remeshed 1 chunk(s) in 4.82 ms (last mesh 4.79 ms)
+[2026-09-17 00:31:26.415] [info] remeshed 1 chunk(s) in 5.07 ms (last mesh 5.04 ms)
+[2026-09-17 00:31:26.665] [info] remeshed 1 chunk(s) in 4.65 ms (last mesh 4.61 ms)
+[2026-09-17 00:31:26.923] [info] remeshed 1 chunk(s) in 6.41 ms (last mesh 6.37 ms)
+[2026-09-17 00:31:27.187] [info] remeshed 1 chunk(s) in 4.80 ms (last mesh 4.76 ms)
+[2026-09-17 00:31:27.445] [info] remeshed 1 chunk(s) in 6.57 ms (last mesh 6.49 ms)
+[2026-09-17 00:31:27.695] [info] remeshed 1 chunk(s) in 6.70 ms (last mesh 6.67 ms)
+[2026-09-17 00:31:27.951] [info] remeshed 1 chunk(s) in 6.46 ms (last mesh 6.43 ms)
+[2026-09-17 00:31:28.048] [info] fps 91.2 | pos (0.50, 133.00, -8.50) | chunks 113 | stream-meshed 104
+[2026-09-17 00:31:28.215] [info] remeshed 1 chunk(s) in 6.10 ms (last mesh 6.07 ms)
+[2026-09-17 00:31:28.474] [info] remeshed 1 chunk(s) in 8.42 ms (last mesh 8.38 ms)
+[2026-09-17 00:31:28.736] [info] remeshed 1 chunk(s) in 6.11 ms (last mesh 6.08 ms)
+[2026-09-17 00:31:28.992] [info] remeshed 1 chunk(s) in 5.96 ms (last mesh 5.93 ms)
+[2026-09-17 00:31:29.256] [info] remeshed 1 chunk(s) in 5.96 ms (last mesh 5.92 ms)
+[2026-09-17 00:31:29.506] [info] remeshed 1 chunk(s) in 5.08 ms (last mesh 5.05 ms)
+[2026-09-17 00:31:29.762] [info] remeshed 1 chunk(s) in 5.04 ms (last mesh 5.00 ms)
+[2026-09-17 00:31:30.029] [info] remeshed 1 chunk(s) in 7.69 ms (last mesh 7.66 ms)
+[2026-09-17 00:31:30.063] [info] fps 96.2 | pos (0.50, 133.00, -8.50) | chunks 113 | stream-meshed 104
+[2026-09-17 00:31:30.285] [info] remeshed 1 chunk(s) in 5.66 ms (last mesh 5.60 ms)
+[2026-09-17 00:31:30.546] [info] remeshed 1 chunk(s) in 3.58 ms (last mesh 3.52 ms)
+[2026-09-17 00:31:30.798] [info] remeshed 2 chunk(s) in 6.01 ms (last mesh 2.29 ms)
+[2026-09-17 00:31:31.056] [info] remeshed 2 chunk(s) in 7.57 ms (last mesh 3.02 ms)
+[2026-09-17 00:31:31.326] [info] remeshed 2 chunk(s) in 13.38 ms (last mesh 5.76 ms)
+[2026-09-17 00:31:31.591] [info] remeshed 2 chunk(s) in 7.60 ms (last mesh 2.24 ms)
+[2026-09-17 00:31:31.841] [info] remeshed 2 chunk(s) in 7.13 ms (last mesh 2.37 ms)
+[2026-09-17 00:31:32.071] [info] fps 93.6 | pos (0.50, 133.00, -8.50) | chunks 113 | stream-meshed 104
+[2026-09-17 00:31:32.102] [info] remeshed 2 chunk(s) in 10.51 ms (last mesh 4.82 ms)
+[2026-09-17 00:31:32.361] [info] remeshed 2 chunk(s) in 6.71 ms (last mesh 2.24 ms)
+[2026-09-17 00:31:32.632] [info] remeshed 2 chunk(s) in 6.12 ms (last mesh 2.40 ms)
+[2026-09-17 00:31:32.884] [info] remeshed 2 chunk(s) in 7.94 ms (last mesh 2.31 ms)
+[2026-09-17 00:31:33.137] [info] remeshed 1 chunk(s) in 5.16 ms (last mesh 5.11 ms)
+[2026-09-17 00:31:33.401] [info] remeshed 1 chunk(s) in 4.56 ms (last mesh 4.52 ms)
+[2026-09-17 00:31:33.658] [info] remeshed 1 chunk(s) in 4.99 ms (last mesh 4.95 ms)
+[2026-09-17 00:31:33.923] [info] remeshed 1 chunk(s) in 5.99 ms (last mesh 5.95 ms)
+[2026-09-17 00:31:34.070] [info] fps 95.7 | pos (0.50, 133.00, -8.50) | chunks 113 | stream-meshed 104
+[2026-09-17 00:31:34.129] [info] autosave: 3 chunk(s) queued for async write, level written (ticks=1710)
+[2026-09-17 00:31:34.180] [info] remeshed 1 chunk(s) in 5.76 ms (last mesh 5.71 ms)
+[2026-09-17 00:31:34.442] [info] remeshed 1 chunk(s) in 3.41 ms (last mesh 3.38 ms)
+[2026-09-17 00:31:34.698] [info] remeshed 1 chunk(s) in 9.88 ms (last mesh 9.82 ms)
+[2026-09-17 00:31:34.954] [info] remeshed 1 chunk(s) in 7.68 ms (last mesh 7.61 ms)
+[2026-09-17 00:31:35.222] [info] remeshed 1 chunk(s) in 5.69 ms (last mesh 5.62 ms)
+[2026-09-17 00:31:35.480] [info] remeshed 1 chunk(s) in 5.96 ms (last mesh 5.91 ms)
+[2026-09-17 00:31:35.736] [info] remeshed 1 chunk(s) in 6.39 ms (last mesh 6.30 ms)
+[2026-09-17 00:31:35.985] [info] remeshed 1 chunk(s) in 4.86 ms (last mesh 4.83 ms)
+[2026-09-17 00:31:36.083] [info] fps 83.7 | pos (0.50, 133.00, -8.50) | chunks 113 | stream-meshed 104
+[2026-09-17 00:31:36.247] [info] remeshed 3 chunk(s) in 10.89 ms (last mesh 3.05 ms)
+[2026-09-17 00:31:36.512] [info] remeshed 3 chunk(s) in 11.39 ms (last mesh 3.45 ms)
+[2026-09-17 00:31:36.782] [info] remeshed 3 chunk(s) in 9.95 ms (last mesh 3.15 ms)
+[2026-09-17 00:31:37.039] [info] remeshed 3 chunk(s) in 10.51 ms (last mesh 3.00 ms)
+[2026-09-17 00:31:37.303] [info] remeshed 3 chunk(s) in 10.42 ms (last mesh 3.14 ms)
+[2026-09-17 00:31:37.573] [info] remeshed 3 chunk(s) in 9.37 ms (last mesh 2.56 ms)
+[2026-09-17 00:31:38.093] [info] fps 93.6 | pos (0.50, 133.00, -8.50) | chunks 113 | stream-meshed 104
+[2026-09-17 00:31:40.091] [info] fps 88.8 | pos (0.50, 133.00, -8.50) | chunks 113 | stream-meshed 104
+[2026-09-17 00:31:42.105] [info] fps 94.1 | pos (0.50, 133.00, -8.50) | chunks 113 | stream-meshed 104
+2026-09-17 00:31:42.519 opencraft[39779:1201272] error messaging the mach port for IMKCFRunLoopWakeUpReliable
+[2026-09-17 00:31:44.118] [info] fps 66.7 | pos (4.65, 136.75, -8.14) | chunks 113 | stream-meshed 104
+[2026-09-17 00:31:44.361] [info] autosave: 3 chunk(s) queued for async write, level written (ticks=1910)
+[2026-09-17 00:31:46.132] [info] fps 66.2 | pos (11.97, 141.25, -8.56) | chunks 113 | stream-meshed 104
+[2026-09-17 00:31:48.147] [info] fps 87.2 | pos (19.09, 143.42, -8.46) | chunks 126 | stream-meshed 117
+[2026-09-17 00:31:49.898] [info] sprint start at tick 2016 (pos 23.98, 145.00, -8.43)
+[2026-09-17 00:31:50.147] [info] fps 86.9 | pos (25.23, 145.00, -8.43) | chunks 126 | stream-meshed 117
+[2026-09-17 00:31:52.139] [info] sprint stop at tick 2057 (pos 34.70, 144.50, -8.48)
+[2026-09-17 00:31:52.154] [info] fps 70.3 | pos (34.70, 144.50, -8.48) | chunks 139 | stream-meshed 130
+[2026-09-17 00:31:52.243] [info] sprint-jump arc: 12 moves, horizontal 2.086 blocks, clearance 1.486, avg 3.477 m/s (from (32.61, 144.42, -8.47))
+[2026-09-17 00:31:54.161] [info] fps 88.7 | pos (40.01, 144.00, -8.48) | chunks 139 | stream-meshed 130
+[2026-09-17 00:31:54.577] [info] sprint start at tick 2105 (pos 40.51, 144.00, -8.48)
+[2026-09-17 00:31:54.816] [info] autosave: 0 chunk(s) queued for async write, level written (ticks=2110)
+[2026-09-17 00:31:56.148] [info] stream: released 15 chunk(s), 242 resident, 139 meshed
+[2026-09-17 00:31:56.165] [info] fps 61.9 | pos (48.21, 141.00, -8.44) | chunks 143 | stream-meshed 134
+[2026-09-17 00:31:57.451] [info] sprint stop at tick 2158 (pos 53.70, 141.02, -8.42)
+[2026-09-17 00:31:57.502] [info] sprint-jump arc: 9 moves, horizontal 1.468 blocks, clearance 0.868, avg 3.261 m/s (from (52.23, 140.42, -8.42))
+[2026-09-17 00:31:58.182] [info] fps 55.9 | pos (54.75, 143.17, -8.43) | chunks 152 | stream-meshed 143
+[2026-09-17 00:32:00.194] [info] fps 81.0 | pos (61.35, 143.00, -8.47) | chunks 152 | stream-meshed 143
+[2026-09-17 00:32:00.807] [info] stream: released 15 chunk(s), 242 resident, 151 meshed
+[2026-09-17 00:32:02.194] [info] fps 75.0 | pos (68.37, 145.00, -8.44) | chunks 164 | stream-meshed 156
+[2026-09-17 00:32:04.201] [info] fps 84.0 | pos (76.12, 144.23, -8.44) | chunks 164 | stream-meshed 156
+[2026-09-17 00:32:05.244] [info] stream: released 15 chunk(s), 242 resident, 157 meshed
+[2026-09-17 00:32:05.508] [info] autosave: 0 chunk(s) queued for async write, level written (ticks=2310)
+[2026-09-17 00:32:06.210] [info] fps 75.5 | pos (81.87, 142.00, -8.40) | chunks 170 | stream-meshed 169
+[2026-09-17 00:32:08.216] [info] fps 86.2 | pos (83.37, 142.00, -8.41) | chunks 170 | stream-meshed 169
+[2026-09-17 00:32:10.223] [info] fps 86.7 | pos (83.37, 142.00, -8.41) | chunks 170 | stream-meshed 169
+[2026-09-17 00:32:12.236] [info] fps 75.5 | pos (83.37, 142.00, -8.41) | chunks 170 | stream-meshed 169
+[2026-09-17 00:32:14.243] [info] fps 84.2 | pos (83.37, 142.00, -8.41) | chunks 170 | stream-meshed 169
+[2026-09-17 00:32:16.243] [info] fps 87.0 | pos (83.37, 142.00, -8.41) | chunks 170 | stream-meshed 169
+[2026-09-17 00:32:18.251] [info] fps 83.2 | pos (83.37, 142.00, -8.41) | chunks 170 | stream-meshed 169
+[2026-09-17 00:32:20.251] [info] fps 88.0 | pos (83.37, 142.00, -8.41) | chunks 170 | stream-meshed 169
+[2026-09-17 00:32:22.258] [info] fps 86.8 | pos (83.37, 142.00, -8.41) | chunks 170 | stream-meshed 169
+[2026-09-17 00:32:24.271] [info] fps 81.9 | pos (83.37, 142.00, -8.41) | chunks 170 | stream-meshed 169
+[2026-09-17 00:32:26.278] [info] fps 85.8 | pos (83.37, 142.00, -8.41) | chunks 170 | stream-meshed 169
+[2026-09-17 00:32:28.279] [info] fps 81.4 | pos (83.37, 142.00, -8.41) | chunks 170 | stream-meshed 169
+[2026-09-17 00:32:30.286] [info] fps 87.7 | pos (83.37, 142.00, -8.41) | chunks 170 | stream-meshed 169
+[2026-09-17 00:32:32.299] [info] fps 84.9 | pos (83.37, 142.00, -8.41) | chunks 170 | stream-meshed 169
+[2026-09-17 00:32:34.313] [info] fps 84.4 | pos (83.37, 142.00, -8.41) | chunks 170 | stream-meshed 169
+[2026-09-17 00:32:36.313] [info] fps 87.0 | pos (83.37, 142.00, -8.41) | chunks 170 | stream-meshed 169
+[2026-09-17 00:32:38.326] [info] fps 81.5 | pos (83.37, 142.00, -8.41) | chunks 170 | stream-meshed 169
+[2026-09-17 00:32:40.334] [info] fps 80.2 | pos (83.37, 142.00, -8.41) | chunks 170 | stream-meshed 169
+[2026-09-17 00:32:42.347] [info] fps 87.9 | pos (83.37, 142.00, -8.41) | chunks 170 | stream-meshed 169
+[2026-09-17 00:32:44.342] [info] fps 82.0 | pos (83.37, 142.00, -8.41) | chunks 170 | stream-meshed 169
+[2026-09-17 00:32:46.354] [info] fps 87.5 | pos (83.37, 142.00, -8.41) | chunks 170 | stream-meshed 169
+[2026-09-17 00:32:48.368] [info] fps 80.7 | pos (83.37, 142.00, -8.41) | chunks 170 | stream-meshed 169
+[2026-09-17 00:32:50.375] [info] fps 87.7 | pos (83.37, 142.00, -8.41) | chunks 170 | stream-meshed 169
+[2026-09-17 00:32:52.389] [info] fps 77.0 | pos (83.37, 142.00, -8.41) | chunks 170 | stream-meshed 169
+[2026-09-17 00:32:54.396] [info] fps 72.3 | pos (83.37, 142.00, -8.41) | chunks 170 | stream-meshed 169
+[2026-09-17 00:32:56.410] [info] fps 72.0 | pos (83.37, 142.00, -8.41) | chunks 170 | stream-meshed 169
+[2026-09-17 00:32:58.410] [info] fps 72.0 | pos (83.37, 142.00, -8.41) | chunks 170 | stream-meshed 169
+[2026-09-17 00:33:00.423] [info] fps 72.0 | pos (83.37, 142.00, -8.41) | chunks 170 | stream-meshed 169
+[2026-09-17 00:33:02.231] [info] autosave: 0 chunk(s) queued for async write, level written (ticks=2510)
+[2026-09-17 00:33:02.423] [info] fps 72.0 | pos (83.37, 142.00, -8.41) | chunks 170 | stream-meshed 169
+[2026-09-17 00:33:04.423] [info] fps 72.0 | pos (83.37, 142.00, -8.41) | chunks 170 | stream-meshed 169
+[2026-09-17 00:33:06.438] [info] fps 72.0 | pos (83.37, 142.00, -8.41) | chunks 170 | stream-meshed 169
+[2026-09-17 00:33:08.452] [info] fps 72.0 | pos (83.37, 142.00, -8.41) | chunks 170 | stream-meshed 169
+[2026-09-17 00:33:10.465] [info] fps 72.0 | pos (83.37, 142.00, -8.41) | chunks 170 | stream-meshed 169
+[2026-09-17 00:33:12.272] [info] autosave: 0 chunk(s) queued for async write, level written (ticks=2710)
+[2026-09-17 00:33:12.465] [info] fps 72.0 | pos (83.37, 142.00, -8.41) | chunks 170 | stream-meshed 169
+[2026-09-17 00:33:14.480] [info] fps 72.0 | pos (83.37, 142.00, -8.41) | chunks 170 | stream-meshed 169
+[2026-09-17 00:33:16.480] [info] fps 72.0 | pos (83.37, 142.00, -8.41) | chunks 170 | stream-meshed 169
+[2026-09-17 00:33:18.493] [info] fps 72.0 | pos (83.37, 142.00, -8.41) | chunks 170 | stream-meshed 169
+[2026-09-17 00:33:20.493] [info] fps 72.0 | pos (83.37, 142.00, -8.41) | chunks 170 | stream-meshed 169
+[2026-09-17 00:33:22.327] [info] autosave: 0 chunk(s) queued for async write, level written (ticks=2910)
+[2026-09-17 00:33:22.506] [info] fps 72.0 | pos (83.37, 142.00, -8.41) | chunks 170 | stream-meshed 169
+[2026-09-17 00:33:24.522] [info] fps 72.0 | pos (83.37, 142.00, -8.41) | chunks 170 | stream-meshed 169
+[2026-09-17 00:33:26.527] [info] fps 72.2 | pos (83.37, 142.00, -8.41) | chunks 170 | stream-meshed 169
+[2026-09-17 00:33:28.542] [info] fps 73.0 | pos (83.37, 142.00, -8.41) | chunks 170 | stream-meshed 169
+[2026-09-17 00:33:30.548] [info] fps 72.2 | pos (83.37, 142.00, -8.41) | chunks 170 | stream-meshed 169
+[2026-09-17 00:33:32.556] [info] fps 72.2 | pos (83.37, 142.00, -8.41) | chunks 170 | stream-meshed 169
+[2026-09-17 00:33:34.569] [info] fps 72.0 | pos (83.37, 142.00, -8.41) | chunks 170 | stream-meshed 169
+[2026-09-17 00:33:36.576] [info] fps 80.0 | pos (83.37, 142.00, -8.41) | chunks 170 | stream-meshed 169
+[2026-09-17 00:33:38.589] [info] fps 84.2 | pos (83.37, 142.00, -8.41) | chunks 170 | stream-meshed 169
+[2026-09-17 00:33:40.597] [info] fps 84.7 | pos (83.37, 142.00, -8.41) | chunks 170 | stream-meshed 169
+[2026-09-17 00:33:42.604] [info] fps 94.8 | pos (83.37, 142.00, -8.41) | chunks 170 | stream-meshed 169
+[2026-09-17 00:33:44.626] [info] fps 82.9 | pos (83.37, 142.00, -8.41) | chunks 170 | stream-meshed 169
+[2026-09-17 00:33:46.624] [info] fps 87.7 | pos (83.37, 142.00, -8.41) | chunks 170 | stream-meshed 169
+[2026-09-17 00:33:48.638] [info] fps 78.7 | pos (83.37, 142.00, -8.41) | chunks 170 | stream-meshed 169
+[2026-09-17 00:33:50.645] [info] fps 82.9 | pos (83.37, 142.00, -8.41) | chunks 170 | stream-meshed 169
+[2026-09-17 00:33:52.645] [info] fps 82.5 | pos (83.37, 142.00, -8.41) | chunks 170 | stream-meshed 169
+[2026-09-17 00:33:54.543] [info] autosave: 0 chunk(s) queued for async write, level written (ticks=3110)
+[2026-09-17 00:33:54.659] [info] fps 92.2 | pos (83.37, 142.00, -8.41) | chunks 170 | stream-meshed 169
+[2026-09-17 00:33:56.233] [info] sprint start at tick 3143 (pos 83.68, 142.00, -8.40)
+[2026-09-17 00:33:56.666] [info] fps 91.2 | pos (85.78, 142.00, -8.37) | chunks 170 | stream-meshed 169
+[2026-09-17 00:33:58.122] [info] sprint-jump arc: 12 moves, horizontal 3.177 blocks, clearance 2.577, avg 5.295 m/s (from (90.91, 141.42, -8.38))
+[2026-09-17 00:33:58.408] [info] stream: released 15 chunk(s), 242 resident, 161 meshed
+[2026-09-17 00:33:58.673] [info] fps 66.8 | pos (96.36, 142.25, -8.38) | chunks 174 | stream-meshed 182
+[2026-09-17 00:33:58.931] [info] sprint-jump arc: 12 moves, horizontal 3.570 blocks, clearance 2.970, avg 5.949 m/s (from (94.68, 141.42, -8.38))
+[2026-09-17 00:33:59.681] [info] sprint-jump arc: 15 moves, horizontal 4.567 blocks, clearance 3.967, avg 6.089 m/s (from (98.85, 141.42, -8.38))
+[2026-09-17 00:34:00.295] [info] sprint-jump arc: 12 moves, horizontal 3.635 blocks, clearance 3.035, avg 6.058 m/s (from (104.03, 139.42, -8.38))
+[2026-09-17 00:34:00.681] [info] fps 83.6 | pos (110.33, 140.18, -8.38) | chunks 174 | stream-meshed 182
+[2026-09-17 00:34:00.981] [info] stream: released 15 chunk(s), 242 resident, 163 meshed
+[2026-09-17 00:34:01.390] [info] sprint-jump arc: 18 moves, horizontal 5.486 blocks, clearance 4.886, avg 6.096 m/s (from (108.27, 139.42, -8.38))
+[2026-09-17 00:34:02.148] [info] sprint-jump arc: 15 moves, horizontal 4.535 blocks, clearance 3.935, avg 6.046 m/s (from (114.36, 135.42, -8.38))
+[2026-09-17 00:34:02.598] [info] sprint-jump arc: 9 moves, horizontal 2.689 blocks, clearance 2.089, avg 5.975 m/s (from (119.50, 133.42, -8.38))
+[2026-09-17 00:34:02.687] [info] fps 84.3 | pos (122.80, 134.42, -8.38) | chunks 176 | stream-meshed 195
+[2026-09-17 00:34:03.210] [info] sprint-jump arc: 12 moves, horizontal 3.689 blocks, clearance 3.089, avg 6.149 m/s (from (122.80, 134.42, -8.38))
+[2026-09-17 00:34:03.422] [info] stream: released 15 chunk(s), 242 resident, 165 meshed
+[2026-09-17 00:34:03.842] [info] sprint-jump arc: 9 moves, horizontal 2.719 blocks, clearance 2.119, avg 6.043 m/s (from (127.11, 134.42, -8.41))
+[2026-09-17 00:34:04.438] [info] sprint-jump arc: 12 moves, horizontal 3.699 blocks, clearance 3.099, avg 6.166 m/s (from (130.45, 135.42, -8.50))
+[2026-09-17 00:34:04.679] [info] fps 82.9 | pos (135.82, 136.17, -8.62) | chunks 178 | stream-meshed 208
+[2026-09-17 00:34:05.052] [info] sprint-jump arc: 12 moves, horizontal 3.668 blocks, clearance 3.068, avg 6.114 m/s (from (134.76, 135.42, -8.63))
+[2026-09-17 00:34:05.203] [info] autosave: 0 chunk(s) queued for async write, level written (ticks=3310)
+[2026-09-17 00:34:05.647] [info] sprint-jump arc: 12 moves, horizontal 3.663 blocks, clearance 3.063, avg 6.105 m/s (from (139.04, 135.42, -8.60))
+[2026-09-17 00:34:05.828] [info] stream: released 15 chunk(s), 242 resident, 167 meshed
+[2026-09-17 00:34:06.431] [info] sprint-jump arc: 12 moves, horizontal 3.664 blocks, clearance 3.064, avg 6.106 m/s (from (143.31, 135.42, -8.46))
+[2026-09-17 00:34:06.694] [info] fps 81.3 | pos (148.98, 136.25, -8.34) | chunks 180 | stream-meshed 221
+[2026-09-17 00:34:07.036] [info] sprint-jump arc: 12 moves, horizontal 3.664 blocks, clearance 3.064, avg 6.106 m/s (from (147.58, 135.42, -8.36))
+[2026-09-17 00:34:07.739] [info] sprint-jump arc: 14 moves, horizontal 4.280 blocks, clearance 3.680, avg 6.114 m/s (from (151.86, 135.42, -8.35))
+[2026-09-17 00:34:08.338] [info] stream: released 15 chunk(s), 242 resident, 167 meshed
+[2026-09-17 00:34:08.638] [info] sprint-jump arc: 14 moves, horizontal 4.258 blocks, clearance 3.658, avg 6.083 m/s (from (156.74, 134.42, -8.54))
+[2026-09-17 00:34:08.700] [info] fps 82.2 | pos (161.61, 133.42, -8.53) | chunks 180 | stream-meshed 234
+[2026-09-17 00:34:09.341] [info] sprint-jump arc: 14 moves, horizontal 4.258 blocks, clearance 3.658, avg 6.083 m/s (from (161.61, 133.42, -8.53))
+[2026-09-17 00:34:09.951] [info] sprint-jump arc: 12 moves, horizontal 3.642 blocks, clearance 3.042, avg 6.070 m/s (from (166.47, 132.42, -8.53))
+[2026-09-17 00:34:10.555] [info] sprint-jump arc: 12 moves, horizontal 3.659 blocks, clearance 3.059, avg 6.099 m/s (from (170.72, 132.42, -8.55))
+[2026-09-17 00:34:10.716] [info] fps 85.0 | pos (175.71, 133.00, -8.56) | chunks 180 | stream-meshed 234
+[2026-09-17 00:34:10.787] [info] stream: released 15 chunk(s), 242 resident, 167 meshed
+[2026-09-17 00:34:11.209] [info] sprint-jump arc: 9 moves, horizontal 2.715 blocks, clearance 2.115, avg 6.034 m/s (from (174.99, 132.42, -8.56))
+[2026-09-17 00:34:11.801] [info] sprint stop at tick 3430 (pos 181.70, 133.00, -8.56)
+[2026-09-17 00:34:11.801] [info] sprint-jump arc: 12 moves, horizontal 3.370 blocks, clearance 2.770, avg 5.616 m/s (from (178.33, 133.42, -8.56))
+[2026-09-17 00:34:12.714] [info] fps 85.2 | pos (182.73, 134.00, -8.56) | chunks 180 | stream-meshed 247
+[2026-09-17 00:34:12.842] [info] sprint start at tick 3450 (pos 182.91, 134.00, -8.56)
+[2026-09-17 00:34:13.826] [info] sprint-jump arc: 9 moves, horizontal 2.293 blocks, clearance 1.693, avg 5.095 m/s (from (186.31, 134.42, -8.56))
+[2026-09-17 00:34:14.398] [info] stream: released 15 chunk(s), 242 resident, 167 meshed
+[2026-09-17 00:34:14.730] [info] fps 79.8 | pos (193.06, 135.12, -8.56) | chunks 180 | stream-meshed 260
+[2026-09-17 00:34:14.759] [info] sprint-jump arc: 12 moves, horizontal 3.217 blocks, clearance 2.617, avg 5.361 m/s (from (190.14, 135.42, -8.56))
+[2026-09-17 00:34:15.362] [info] sprint-jump arc: 12 moves, horizontal 3.577 blocks, clearance 2.977, avg 5.962 m/s (from (193.94, 135.42, -8.56))
+[2026-09-17 00:34:16.015] [info] autosave: 0 chunk(s) queued for async write, level written (ticks=3510)
+[2026-09-17 00:34:16.063] [info] sprint-jump arc: 12 moves, horizontal 3.297 blocks, clearance 2.697, avg 5.495 m/s (from (198.80, 135.42, -8.56))
+[2026-09-17 00:34:16.728] [info] fps 82.2 | pos (206.42, 134.68, -8.57) | chunks 180 | stream-meshed 260
+[2026-09-17 00:34:16.826] [info] sprint-jump arc: 14 moves, horizontal 3.984 blocks, clearance 3.384, avg 5.691 m/s (from (203.03, 135.42, -8.57))
+[2026-09-17 00:34:16.996] [info] stream: released 15 chunk(s), 242 resident, 167 meshed
+[2026-09-17 00:34:18.223] [info] sprint-jump arc: 12 moves, horizontal 3.149 blocks, clearance 2.549, avg 5.248 m/s (from (211.12, 134.42, -8.55))
+[2026-09-17 00:34:18.742] [info] fps 85.9 | pos (217.57, 135.18, -8.49) | chunks 180 | stream-meshed 273
+[2026-09-17 00:34:18.972] [info] sprint-jump arc: 12 moves, horizontal 3.216 blocks, clearance 2.616, avg 5.360 m/s (from (215.80, 134.42, -8.49))
+[2026-09-17 00:34:19.729] [info] sprint-jump arc: 9 moves, horizontal 2.302 blocks, clearance 1.702, avg 5.116 m/s (from (221.42, 134.42, -8.49))
+[2026-09-17 00:34:19.826] [info] stream: released 15 chunk(s), 242 resident, 167 meshed
+[2026-09-17 00:34:20.541] [info] sprint-jump arc: 9 moves, horizontal 2.349 blocks, clearance 1.749, avg 5.221 m/s (from (225.26, 135.42, -8.49))
+[2026-09-17 00:34:20.743] [info] fps 82.4 | pos (229.16, 136.75, -8.49) | chunks 180 | stream-meshed 286
+[2026-09-17 00:34:21.244] [info] sprint-jump arc: 12 moves, horizontal 3.278 blocks, clearance 2.678, avg 5.464 m/s (from (228.86, 136.42, -8.49))
+[2026-09-17 00:34:22.628] [info] stream: released 15 chunk(s), 242 resident, 167 meshed
+[2026-09-17 00:34:22.746] [info] fps 87.7 | pos (240.06, 135.80, -8.48) | chunks 180 | stream-meshed 299
+[2026-09-17 00:34:22.936] [info] sprint-jump arc: 12 moves, horizontal 3.149 blocks, clearance 2.549, avg 5.248 m/s (from (237.76, 135.42, -8.48))
+[2026-09-17 00:34:23.597] [info] sprint-jump arc: 9 moves, horizontal 2.323 blocks, clearance 1.723, avg 5.163 m/s (from (242.74, 135.42, -8.48))
+[2026-09-17 00:34:24.354] [info] sprint-jump arc: 12 moves, horizontal 3.218 blocks, clearance 2.618, avg 5.363 m/s (from (246.60, 136.42, -8.48))
+[2026-09-17 00:34:24.763] [info] fps 90.8 | pos (252.28, 137.25, -8.48) | chunks 180 | stream-meshed 299
+[2026-09-17 00:34:25.159] [info] sprint-jump arc: 14 moves, horizontal 3.858 blocks, clearance 3.258, avg 5.511 m/s (from (251.06, 136.42, -8.48))
+[2026-09-17 00:34:25.396] [info] stream: released 15 chunk(s), 242 resident, 167 meshed
+[2026-09-17 00:34:26.562] [info] sprint-jump arc: 17 moves, horizontal 4.947 blocks, clearance 4.347, avg 5.820 m/s (from (257.36, 134.42, -8.48))
+[2026-09-17 00:34:26.763] [info] fps 82.0 | pos (263.19, 130.77, -8.48) | chunks 180 | stream-meshed 312
+[2026-09-17 00:34:26.855] [info] autosave: 0 chunk(s) queued for async write, level written (ticks=3710)
+[2026-09-17 00:34:27.868] [info] sprint-jump arc: 12 moves, horizontal 3.318 blocks, clearance 2.718, avg 5.530 m/s (from (266.82, 129.42, -8.48))
+[2026-09-17 00:34:28.213] [info] stream: released 15 chunk(s), 242 resident, 167 meshed
+[2026-09-17 00:34:28.770] [info] fps 89.4 | pos (274.31, 129.80, -8.48) | chunks 180 | stream-meshed 325
+[2026-09-17 00:34:28.874] [info] sprint-jump arc: 12 moves, horizontal 3.188 blocks, clearance 2.588, avg 5.314 m/s (from (271.98, 129.42, -8.48))
+[2026-09-17 00:34:29.743] [info] sprint-jump arc: 12 moves, horizontal 3.169 blocks, clearance 2.569, avg 5.282 m/s (from (277.29, 129.42, -8.47))
+[2026-09-17 00:34:30.342] [info] sprint-jump arc: 9 moves, horizontal 2.349 blocks, clearance 1.749, avg 5.220 m/s (from (281.99, 129.42, -8.47))
+[2026-09-17 00:34:30.784] [info] fps 91.7 | pos (287.04, 131.00, -8.47) | chunks 180 | stream-meshed 325
+[2026-09-17 00:34:30.986] [info] stream: released 15 chunk(s), 242 resident, 167 meshed
+[2026-09-17 00:34:31.195] [info] sprint stop at tick 3788 (pos 288.33, 131.02, -8.59)
+[2026-09-17 00:34:31.493] [info] sprint-jump arc: 14 moves, horizontal 2.745 blocks, clearance 2.145, avg 3.922 m/s (from (286.46, 130.42, -8.47))
+[2026-09-17 00:34:32.784] [info] fps 80.5 | pos (289.64, 128.00, -8.63) | chunks 180 | stream-meshed 338
+[2026-09-17 00:34:34.784] [info] fps 81.5 | pos (287.95, 130.00, -7.67) | chunks 180 | stream-meshed 338
+[2026-09-17 00:34:36.785] [info] fps 82.9 | pos (290.01, 128.00, -8.29) | chunks 180 | stream-meshed 338
+[2026-09-17 00:34:38.784] [info] fps 88.8 | pos (290.01, 128.00, -8.29) | chunks 180 | stream-meshed 338
+[2026-09-17 00:34:40.784] [info] fps 88.0 | pos (290.01, 128.00, -8.29) | chunks 180 | stream-meshed 338
+[2026-09-17 00:34:42.791] [info] fps 82.2 | pos (290.01, 128.00, -8.29) | chunks 180 | stream-meshed 338
+[2026-09-17 00:34:44.802] [info] fps 86.9 | pos (290.01, 128.00, -8.29) | chunks 180 | stream-meshed 338
+[2026-09-17 00:34:46.807] [info] fps 85.9 | pos (290.01, 128.00, -8.29) | chunks 180 | stream-meshed 338
+[2026-09-17 00:34:48.819] [info] fps 78.5 | pos (290.01, 128.00, -8.29) | chunks 180 | stream-meshed 338
+[2026-09-17 00:34:50.823] [info] fps 95.5 | pos (290.01, 128.00, -8.29) | chunks 180 | stream-meshed 338
+[2026-09-17 00:34:52.837] [info] fps 91.0 | pos (290.01, 128.00, -8.29) | chunks 180 | stream-meshed 338
+[2026-09-17 00:34:54.837] [info] fps 86.2 | pos (290.01, 128.00, -8.29) | chunks 180 | stream-meshed 338
+[2026-09-17 00:34:56.849] [info] fps 85.5 | pos (290.01, 128.00, -8.29) | chunks 180 | stream-meshed 338
+[2026-09-17 00:34:58.856] [info] fps 82.7 | pos (290.01, 128.00, -8.29) | chunks 180 | stream-meshed 338
+[2026-09-17 00:35:00.866] [info] fps 82.6 | pos (290.01, 128.00, -8.29) | chunks 180 | stream-meshed 338
+[2026-09-17 00:35:02.876] [info] fps 72.3 | pos (290.01, 128.00, -8.29) | chunks 180 | stream-meshed 338
+[2026-09-17 00:35:04.891] [info] fps 72.0 | pos (290.01, 128.00, -8.29) | chunks 180 | stream-meshed 338
+[2026-09-17 00:35:06.906] [info] fps 72.0 | pos (290.01, 128.00, -8.29) | chunks 180 | stream-meshed 338
+[2026-09-17 00:35:08.921] [info] fps 72.1 | pos (290.01, 128.00, -8.29) | chunks 180 | stream-meshed 338
+[2026-09-17 00:35:10.923] [info] fps 72.0 | pos (290.01, 128.00, -8.29) | chunks 180 | stream-meshed 338
+[2026-09-17 00:35:12.924] [info] fps 72.0 | pos (290.01, 128.00, -8.29) | chunks 180 | stream-meshed 338
+[2026-09-17 00:35:14.925] [info] fps 72.0 | pos (290.01, 128.00, -8.29) | chunks 180 | stream-meshed 338
+[2026-09-17 00:35:16.926] [info] fps 72.0 | pos (290.01, 128.00, -8.29) | chunks 180 | stream-meshed 338
+[2026-09-17 00:35:18.926] [info] fps 72.0 | pos (290.01, 128.00, -8.29) | chunks 180 | stream-meshed 338
+[2026-09-17 00:35:20.940] [info] fps 72.0 | pos (290.01, 128.00, -8.29) | chunks 180 | stream-meshed 338
+[2026-09-17 00:35:22.941] [info] fps 72.0 | pos (290.01, 128.00, -8.29) | chunks 180 | stream-meshed 338
+[2026-09-17 00:35:24.954] [info] fps 72.0 | pos (290.01, 128.00, -8.29) | chunks 180 | stream-meshed 338
+[2026-09-17 00:35:26.954] [info] fps 69.5 | pos (290.01, 128.00, -8.29) | chunks 180 | stream-meshed 338
+[2026-09-17 00:35:28.955] [info] fps 72.0 | pos (290.01, 128.00, -8.29) | chunks 180 | stream-meshed 338
+[2026-09-17 00:35:30.970] [info] fps 72.0 | pos (290.01, 128.00, -8.29) | chunks 180 | stream-meshed 338
+[2026-09-17 00:35:32.075] [info] autosave: 0 chunk(s) queued for async write, level written (ticks=3910)
+[2026-09-17 00:35:32.976] [info] fps 71.7 | pos (290.01, 128.00, -8.29) | chunks 180 | stream-meshed 338
+[2026-09-17 00:35:34.977] [info] fps 72.0 | pos (290.01, 128.00, -8.29) | chunks 180 | stream-meshed 338
+[2026-09-17 00:35:36.984] [info] fps 70.3 | pos (288.44, 131.25, -9.29) | chunks 180 | stream-meshed 338
+[2026-09-17 00:35:38.977] [info] fps 68.4 | pos (288.41, 129.00, -7.86) | chunks 180 | stream-meshed 338
+[2026-09-17 00:35:40.998] [info] fps 71.2 | pos (287.66, 130.00, -8.48) | chunks 180 | stream-meshed 338
+[2026-09-17 00:35:42.110] [info] autosave: 0 chunk(s) queued for async write, level written (ticks=4110)
+[2026-09-17 00:35:43.005] [info] fps 68.7 | pos (288.24, 130.25, -8.51) | chunks 180 | stream-meshed 338
+[2026-09-17 00:35:45.006] [info] fps 72.0 | pos (288.15, 130.00, -8.65) | chunks 180 | stream-meshed 338
+[2026-09-17 00:35:47.019] [info] fps 70.6 | pos (287.83, 130.00, -8.03) | chunks 180 | stream-meshed 338
+[2026-09-17 00:35:49.019] [info] fps 69.5 | pos (284.73, 130.00, -6.49) | chunks 180 | stream-meshed 338
+[2026-09-17 00:35:51.027] [info] fps 71.2 | pos (283.02, 129.00, -6.37) | chunks 180 | stream-meshed 338
+[2026-09-17 00:35:52.141] [info] autosave: 0 chunk(s) queued for async write, level written (ticks=4310)
+[2026-09-17 00:35:53.027] [info] fps 72.5 | pos (283.02, 129.00, -6.37) | chunks 180 | stream-meshed 338
+[2026-09-17 00:35:53.496] [info] sprint start at tick 4337 (pos 282.49, 129.00, -6.38)
+[2026-09-17 00:35:54.103] [info] sprint-jump arc: 9 moves, horizontal 2.191 blocks, clearance 1.591, avg 4.868 m/s (from (281.31, 129.42, -6.39))
+[2026-09-17 00:35:54.660] [info] sprint-jump arc: 9 moves, horizontal 2.381 blocks, clearance 1.781, avg 5.291 m/s (from (277.93, 130.42, -6.03))
+[2026-09-17 00:35:55.040] [info] fps 71.0 | pos (273.11, 132.25, -5.50) | chunks 180 | stream-meshed 338
+[2026-09-17 00:35:55.457] [info] sprint-jump arc: 14 moves, horizontal 3.863 blocks, clearance 3.263, avg 5.518 m/s (from (274.32, 131.42, -5.61))
+[2026-09-17 00:35:56.569] [info] sprint stop at tick 4398 (pos 264.30, 130.00, -5.27)
+[2026-09-17 00:35:56.569] [info] sprint-jump arc: 12 moves, horizontal 2.639 blocks, clearance 2.039, avg 4.398 m/s (from (266.94, 130.42, -5.27))
+[2026-09-17 00:35:57.056] [info] fps 72.0 | pos (263.84, 131.00, -5.27) | chunks 180 | stream-meshed 338
+[2026-09-17 00:35:58.274] [info] sprint start at tick 4431 (pos 261.17, 133.42, -5.25)
+[2026-09-17 00:35:58.624] [info] sprint-jump arc: 9 moves, horizontal 1.864 blocks, clearance 1.264, avg 4.142 m/s (from (261.17, 133.42, -5.25))
+[2026-09-17 00:35:59.061] [info] fps 70.7 | pos (256.67, 135.25, -5.12) | chunks 180 | stream-meshed 338
+[2026-09-17 00:35:59.200] [info] stream: released 15 chunk(s), 242 resident, 180 meshed
+[2026-09-17 00:35:59.527] [info] sprint-jump arc: 12 moves, horizontal 3.195 blocks, clearance 2.595, avg 5.325 m/s (from (257.84, 134.42, -5.16))
+[2026-09-17 00:35:59.972] [info] sprint-jump arc: 9 moves, horizontal 2.641 blocks, clearance 2.041, avg 5.870 m/s (from (254.06, 134.42, -5.04))
+[2026-09-17 00:36:00.173] [info] sprint stop at tick 4467 (pos 250.28, 136.00, -4.90)
+[2026-09-17 00:36:00.478] [info] sprint-jump arc: 9 moves, horizontal 0.614 blocks, clearance 0.014, avg 1.365 m/s (from (250.45, 135.42, -4.92))
+[2026-09-17 00:36:01.061] [info] fps 70.5 | pos (248.02, 135.23, -4.73) | chunks 180 | stream-meshed 338
+[2026-09-17 00:36:01.528] [info] sprint start at tick 4493 (pos 247.46, 135.00, -4.71)
+[2026-09-17 00:36:02.340] [info] autosave: 0 chunk(s) queued for async write, level written (ticks=4510)
+[2026-09-17 00:36:02.436] [info] sprint-jump arc: 14 moves, horizontal 3.704 blocks, clearance 3.104, avg 5.291 m/s (from (245.72, 135.42, -4.61))
+[2026-09-17 00:36:02.769] [info] stream: released 15 chunk(s), 242 resident, 179 meshed
+[2026-09-17 00:36:03.068] [info] fps 69.3 | pos (238.99, 135.18, -4.22) | chunks 180 | stream-meshed 339
+[2026-09-17 00:36:03.416] [info] sprint-jump arc: 14 moves, horizontal 3.850 blocks, clearance 3.250, avg 5.501 m/s (from (240.79, 134.42, -4.32))
+[2026-09-17 00:36:04.160] [info] sprint-jump arc: 12 moves, horizontal 3.101 blocks, clearance 2.501, avg 5.168 m/s (from (235.40, 133.42, -4.18))
+[2026-09-17 00:36:04.215] [info] sprint stop at tick 4544 (pos 232.30, 133.42, -4.26)
+[2026-09-17 00:36:05.091] [info] sprint start at tick 4561 (pos 231.13, 134.00, -4.30)
+[2026-09-17 00:36:05.093] [info] fps 70.7 | pos (231.13, 134.00, -4.30) | chunks 180 | stream-meshed 339
+[2026-09-17 00:36:05.874] [info] sprint-jump arc: 12 moves, horizontal 3.128 blocks, clearance 2.528, avg 5.213 m/s (from (229.65, 134.42, -4.28))
+[2026-09-17 00:36:06.294] [info] stream: released 15 chunk(s), 242 resident, 173 meshed
+[2026-09-17 00:36:06.756] [info] sprint-jump arc: 12 moves, horizontal 3.271 blocks, clearance 2.671, avg 5.451 m/s (from (225.28, 134.42, -4.15))
+[2026-09-17 00:36:07.118] [info] fps 70.6 | pos (219.41, 135.18, -3.91) | chunks 180 | stream-meshed 346
+[2026-09-17 00:36:07.353] [info] sprint-jump arc: 12 moves, horizontal 3.587 blocks, clearance 2.987, avg 5.978 m/s (from (221.43, 134.42, -3.95))
+[2026-09-17 00:36:08.103] [info] sprint-jump arc: 12 moves, horizontal 2.962 blocks, clearance 2.362, avg 4.936 m/s (from (216.26, 134.42, -3.87))
+[2026-09-17 00:36:08.158] [info] sprint stop at tick 4619 (pos 213.30, 134.42, -3.87)
+[2026-09-17 00:36:09.119] [info] fps 79.4 | pos (211.65, 135.00, -3.85) | chunks 180 | stream-meshed 346
+[2026-09-17 00:36:09.755] [info] sprint start at tick 4650 (pos 209.81, 135.00, -3.82)
+[2026-09-17 00:36:10.101] [info] stream: released 15 chunk(s), 242 resident, 171 meshed
+[2026-09-17 00:36:10.756] [info] sprint-jump arc: 12 moves, horizontal 3.137 blocks, clearance 2.537, avg 5.228 m/s (from (208.05, 135.42, -3.79))
+[2026-09-17 00:36:11.123] [info] fps 77.4 | pos (202.47, 136.25, -3.60) | chunks 180 | stream-meshed 355
+[2026-09-17 00:36:11.464] [info] sprint-jump arc: 12 moves, horizontal 3.272 blocks, clearance 2.672, avg 5.453 m/s (from (203.68, 135.42, -3.64))
+[2026-09-17 00:36:12.166] [info] sprint-jump arc: 12 moves, horizontal 3.279 blocks, clearance 2.679, avg 5.466 m/s (from (199.17, 135.42, -3.47))
+[2026-09-17 00:36:12.799] [info] stream: released 15 chunk(s), 242 resident, 169 meshed
+[2026-09-17 00:36:13.104] [info] sprint-jump arc: 12 moves, horizontal 3.220 blocks, clearance 2.620, avg 5.367 m/s (from (194.34, 135.42, -3.22))
+[2026-09-17 00:36:13.105] [info] autosave: 0 chunk(s) queued for async write, level written (ticks=4710)
+[2026-09-17 00:36:13.138] [info] fps 86.9 | pos (191.13, 135.00, -3.03) | chunks 180 | stream-meshed 366
+[2026-09-17 00:36:14.770] [info] sprint-jump arc: 14 moves, horizontal 3.718 blocks, clearance 3.118, avg 5.312 m/s (from (185.35, 134.42, -2.64))
+[2026-09-17 00:36:15.154] [info] fps 90.3 | pos (179.16, 134.25, -2.16) | chunks 180 | stream-meshed 366
+[2026-09-17 00:36:15.521] [info] sprint-jump arc: 14 moves, horizontal 3.965 blocks, clearance 3.365, avg 5.665 m/s (from (180.72, 133.42, -2.30))
+[2026-09-17 00:36:15.667] [info] stream: released 15 chunk(s), 242 resident, 169 meshed
+[2026-09-17 00:36:16.485] [info] sprint-jump arc: 14 moves, horizontal 3.987 blocks, clearance 3.387, avg 5.696 m/s (from (175.83, 132.42, -1.91))
+[2026-09-17 00:36:17.158] [info] fps 83.9 | pos (167.74, 132.00, -1.50) | chunks 180 | stream-meshed 377
+[2026-09-17 00:36:17.382] [info] sprint stop at tick 4791 (pos 166.33, 132.02, -1.43)
+[2026-09-17 00:36:17.444] [info] sprint-jump arc: 9 moves, horizontal 2.220 blocks, clearance 1.620, avg 4.933 m/s (from (168.31, 131.42, -1.53))
+[2026-09-17 00:36:17.949] [info] sprint start at tick 4802 (pos 165.09, 132.00, -1.38)
+[2026-09-17 00:36:18.701] [info] sprint stop at tick 4817 (pos 161.30, 132.12, -1.18)
+[2026-09-17 00:36:18.756] [info] sprint-jump arc: 12 moves, horizontal 2.342 blocks, clearance 1.742, avg 3.904 m/s (from (163.64, 132.42, -1.31))
+[2026-09-17 00:36:19.172] [info] fps 88.6 | pos (160.95, 133.02, -1.08) | chunks 180 | stream-meshed 377
+[2026-09-17 00:36:19.669] [info] sprint start at tick 4836 (pos 160.09, 133.00, -1.01)
+[2026-09-17 00:36:19.759] [info] stream: released 15 chunk(s), 242 resident, 169 meshed
+[2026-09-17 00:36:20.500] [info] sprint-jump arc: 12 moves, horizontal 2.880 blocks, clearance 2.280, avg 4.800 m/s (from (159.45, 133.42, -1.00))
+[2026-09-17 00:36:21.181] [info] fps 72.3 | pos (152.47, 133.50, -0.59) | chunks 180 | stream-meshed 388
+[2026-09-17 00:36:21.265] [info] sprint-jump arc: 12 moves, horizontal 3.201 blocks, clearance 2.601, avg 5.335 m/s (from (155.09, 133.42, -0.77))
+[2026-09-17 00:36:21.964] [info] sprint-jump arc: 12 moves, horizontal 3.275 blocks, clearance 2.675, avg 5.459 m/s (from (150.66, 133.42, -0.47))
+[2026-09-17 00:36:22.507] [info] stream: released 15 chunk(s), 242 resident, 167 meshed
+[2026-09-17 00:36:22.985] [info] sprint-jump arc: 12 moves, horizontal 3.389 blocks, clearance 2.789, avg 5.648 m/s (from (146.46, 133.42, -0.19))
+[2026-09-17 00:36:23.186] [info] fps 76.2 | pos (142.02, 133.00, 0.07) | chunks 187 | stream-meshed 408
+[2026-09-17 00:36:23.939] [info] autosave: 0 chunk(s) queued for async write, level written (ticks=4910)
+[2026-09-17 00:36:24.040] [info] sprint-jump arc: 12 moves, horizontal 3.151 blocks, clearance 2.551, avg 5.251 m/s (from (139.81, 133.42, 0.16))
+[2026-09-17 00:36:24.646] [info] sprint-jump arc: 12 moves, horizontal 3.565 blocks, clearance 2.965, avg 5.941 m/s (from (136.08, 133.42, 0.32))
+[2026-09-17 00:36:25.187] [info] fps 91.5 | pos (129.19, 134.25, 0.38) | chunks 187 | stream-meshed 408
+[2026-09-17 00:36:25.443] [info] chunk (0, -1) loaded from disk
+[2026-09-17 00:36:25.444] [info] stream: released 15 chunk(s), 257 resident, 174 meshed
+[2026-09-17 00:36:25.736] [info] sprint-jump arc: 14 moves, horizontal 3.764 blocks, clearance 3.164, avg 5.377 m/s (from (130.65, 133.42, 0.40))
+[2026-09-17 00:36:25.846] [info] remeshed 2 chunk(s) in 4.53 ms (last mesh 4.47 ms)
+[2026-09-17 00:36:26.096] [info] remeshed 2 chunk(s) in 4.62 ms (last mesh 4.49 ms)
+[2026-09-17 00:36:26.159] [info] placed stone at (122, 131, 0); consumed 1 from slot 0 (61 left)
+[2026-09-17 00:36:26.183] [info] remeshed 6 chunk(s) in 23.25 ms (last mesh 2.48 ms)
+[2026-09-17 00:36:26.374] [info] sprint-jump arc: 12 moves, horizontal 3.568 blocks, clearance 2.968, avg 5.947 m/s (from (126.30, 132.42, 0.40))
+[2026-09-17 00:36:26.379] [info] remeshed 2 chunk(s) in 4.25 ms (last mesh 4.20 ms)
+[2026-09-17 00:36:27.034] [info] sprint stop at tick 4967 (pos 119.28, 132.00, 0.72)
+[2026-09-17 00:36:27.187] [info] fps 82.7 | pos (119.19, 132.25, 0.75) | chunks 184 | stream-meshed 417
+[2026-09-17 00:36:27.347] [info] sprint-jump arc: 9 moves, horizontal 0.685 blocks, clearance 0.085, avg 1.522 m/s (from (119.52, 131.42, 0.69))
+[2026-09-17 00:36:28.702] [info] placed stone at (113, 134, 0); consumed 1 from slot 0 (60 left)
+[2026-09-17 00:36:28.721] [info] remeshed 6 chunk(s) in 19.14 ms (last mesh 2.89 ms)
+[2026-09-17 00:36:29.187] [info] fps 95.0 | pos (114.30, 134.75, 0.76) | chunks 184 | stream-meshed 417
+[2026-09-17 00:36:30.010] [info] chunk (-1, -1) loaded from disk
+[2026-09-17 00:36:30.011] [info] stream: released 15 chunk(s), 257 resident, 171 meshed
+[2026-09-17 00:36:30.430] [info] remeshed 3 chunk(s) in 6.23 ms (last mesh 2.88 ms)
+[2026-09-17 00:36:30.680] [info] remeshed 3 chunk(s) in 6.68 ms (last mesh 2.47 ms)
+[2026-09-17 00:36:30.951] [info] remeshed 3 chunk(s) in 6.79 ms (last mesh 2.82 ms)
+[2026-09-17 00:36:31.201] [info] remeshed 3 chunk(s) in 6.15 ms (last mesh 2.60 ms)
+[2026-09-17 00:36:31.202] [info] fps 90.6 | pos (108.28, 137.00, 1.10) | chunks 185 | stream-meshed 429
+[2026-09-17 00:36:31.459] [info] remeshed 3 chunk(s) in 8.42 ms (last mesh 4.10 ms)
+[2026-09-17 00:36:31.513] [info] placed stone at (103, 138, 1); consumed 1 from slot 0 (59 left)
+[2026-09-17 00:36:31.542] [info] remeshed 9 chunk(s) in 28.66 ms (last mesh 2.61 ms)
+[2026-09-17 00:36:31.749] [info] remeshed 3 chunk(s) in 6.56 ms (last mesh 2.70 ms)
+[2026-09-17 00:36:32.008] [info] remeshed 3 chunk(s) in 8.93 ms (last mesh 3.45 ms)
+[2026-09-17 00:36:32.278] [info] remeshed 3 chunk(s) in 14.53 ms (last mesh 6.64 ms)
+[2026-09-17 00:36:32.541] [info] remeshed 3 chunk(s) in 5.77 ms (last mesh 2.61 ms)
+[2026-09-17 00:36:32.809] [info] remeshed 3 chunk(s) in 14.39 ms (last mesh 6.67 ms)
+[2026-09-17 00:36:33.058] [info] remeshed 1 chunk(s) in 6.87 ms (last mesh 6.80 ms)
+[2026-09-17 00:36:33.216] [info] fps 86.9 | pos (103.52, 139.00, 1.44) | chunks 185 | stream-meshed 429
+[2026-09-17 00:36:33.327] [info] remeshed 1 chunk(s) in 6.88 ms (last mesh 6.82 ms)
+[2026-09-17 00:36:33.548] [info] sprint start at tick 5089 (pos 103.00, 139.00, 1.43)
+[2026-09-17 00:36:33.573] [info] remeshed 1 chunk(s) in 4.20 ms (last mesh 4.16 ms)
+[2026-09-17 00:36:33.836] [info] remeshed 1 chunk(s) in 2.80 ms (last mesh 2.77 ms)
+[2026-09-17 00:36:34.084] [info] remeshed 1 chunk(s) in 5.42 ms (last mesh 5.35 ms)
+[2026-09-17 00:36:34.346] [info] remeshed 1 chunk(s) in 6.28 ms (last mesh 6.23 ms)
+[2026-09-17 00:36:34.601] [info] autosave: 5 chunk(s) queued for async write, level written (ticks=5110)
+[2026-09-17 00:36:34.605] [info] remeshed 1 chunk(s) in 3.72 ms (last mesh 3.68 ms)
+[2026-09-17 00:36:34.715] [info] sprint-jump arc: 12 moves, horizontal 3.170 blocks, clearance 2.570, avg 5.283 m/s (from (100.03, 138.42, 1.49))
+[2026-09-17 00:36:34.870] [info] chunk (-2, 0) loaded from disk
+[2026-09-17 00:36:34.878] [info] chunk (-2, -1) loaded from disk
+[2026-09-17 00:36:34.879] [info] stream: released 16 chunk(s), 256 resident, 172 meshed
+[2026-09-17 00:36:34.881] [info] remeshed 1 chunk(s) in 2.76 ms (last mesh 2.73 ms)
+[2026-09-17 00:36:35.229] [info] fps 80.0 | pos (95.25, 137.23, 1.65) | chunks 182 | stream-meshed 439
+[2026-09-17 00:36:35.306] [info] remeshed 5 chunk(s) in 20.59 ms (last mesh 3.95 ms)
+[2026-09-17 00:36:35.576] [info] remeshed 4 chunk(s) in 14.16 ms (last mesh 2.28 ms)
+[2026-09-17 00:36:35.857] [info] remeshed 4 chunk(s) in 22.57 ms (last mesh 5.31 ms)
+[2026-09-17 00:36:36.124] [info] remeshed 3 chunk(s) in 19.91 ms (last mesh 5.57 ms)
+[2026-09-17 00:36:36.388] [info] remeshed 3 chunk(s) in 18.55 ms (last mesh 5.53 ms)
+[2026-09-17 00:36:36.656] [info] remeshed 3 chunk(s) in 10.55 ms (last mesh 3.63 ms)
+[2026-09-17 00:36:36.902] [info] sprint-jump arc: 9 moves, horizontal 2.246 blocks, clearance 1.646, avg 4.990 m/s (from (88.54, 136.42, 1.59))
+[2026-09-17 00:36:36.913] [info] remeshed 3 chunk(s) in 10.89 ms (last mesh 3.35 ms)
+[2026-09-17 00:36:36.967] [info] sprint stop at tick 5151 (pos 86.30, 137.42, 1.51)
+[2026-09-17 00:36:37.181] [info] remeshed 4 chunk(s) in 14.55 ms (last mesh 3.12 ms)
+[2026-09-17 00:36:37.235] [info] fps 82.0 | pos (86.19, 138.25, 1.48) | chunks 184 | stream-meshed 439
+[2026-09-17 00:36:37.447] [info] remeshed 3 chunk(s) in 9.04 ms (last mesh 3.69 ms)
+[2026-09-17 00:36:37.721] [info] remeshed 3 chunk(s) in 11.43 ms (last mesh 3.66 ms)
+[2026-09-17 00:36:37.970] [info] remeshed 3 chunk(s) in 11.51 ms (last mesh 4.12 ms)
+[2026-09-17 00:36:38.243] [info] remeshed 3 chunk(s) in 13.60 ms (last mesh 4.13 ms)
+[2026-09-17 00:36:38.511] [info] remeshed 3 chunk(s) in 10.02 ms (last mesh 3.63 ms)
+[2026-09-17 00:36:38.765] [info] remeshed 3 chunk(s) in 9.42 ms (last mesh 3.25 ms)
+[2026-09-17 00:36:39.040] [info] remeshed 3 chunk(s) in 19.16 ms (last mesh 4.97 ms)
+[2026-09-17 00:36:39.235] [info] fps 91.9 | pos (82.04, 142.18, 1.39) | chunks 184 | stream-meshed 439
+[2026-09-17 00:36:39.305] [info] remeshed 3 chunk(s) in 18.28 ms (last mesh 5.59 ms)
+[2026-09-17 00:36:39.603] [info] remeshed 2 chunk(s) in 9.02 ms (last mesh 2.20 ms)
+[2026-09-17 00:36:39.833] [info] remeshed 4 chunk(s) in 6.31 ms (last mesh 3.03 ms)
+[2026-09-17 00:36:39.908] [info] chunk (-3, -1) loaded from disk
+[2026-09-17 00:36:39.908] [info] stream: released 16 chunk(s), 255 resident, 171 meshed
+[2026-09-17 00:36:40.276] [info] remeshed 4 chunk(s) in 19.55 ms (last mesh 4.40 ms)
+[2026-09-17 00:36:40.346] [info] remeshed 3 chunk(s) in 11.76 ms (last mesh 4.52 ms)
+[2026-09-17 00:36:40.558] [info] remeshed 3 chunk(s) in 8.84 ms (last mesh 2.15 ms)
+[2026-09-17 00:36:40.614] [info] remeshed 3 chunk(s) in 15.91 ms (last mesh 3.44 ms)
+[2026-09-17 00:36:40.833] [info] remeshed 4 chunk(s) in 13.01 ms (last mesh 3.51 ms)
+[2026-09-17 00:36:40.883] [info] remeshed 1 chunk(s) in 2.21 ms (last mesh 2.19 ms)
+[2026-09-17 00:36:41.107] [info] remeshed 4 chunk(s) in 21.91 ms (last mesh 5.38 ms)
+[2026-09-17 00:36:41.172] [info] remeshed 1 chunk(s) in 4.40 ms (last mesh 4.35 ms)
+[2026-09-17 00:36:41.243] [info] fps 80.0 | pos (75.59, 144.17, 1.14) | chunks 184 | stream-meshed 450
+[2026-09-17 00:36:41.391] [info] remeshed 4 chunk(s) in 21.57 ms (last mesh 5.36 ms)
+[2026-09-17 00:36:41.664] [info] remeshed 4 chunk(s) in 24.44 ms (last mesh 5.44 ms)
+[2026-09-17 00:36:41.928] [info] remeshed 4 chunk(s) in 11.69 ms (last mesh 2.20 ms)
+[2026-09-17 00:36:42.194] [info] remeshed 4 chunk(s) in 13.04 ms (last mesh 3.52 ms)
+[2026-09-17 00:36:42.469] [info] remeshed 4 chunk(s) in 16.90 ms (last mesh 3.30 ms)
+[2026-09-17 00:36:42.736] [info] remeshed 4 chunk(s) in 13.44 ms (last mesh 3.51 ms)
+[2026-09-17 00:36:42.980] [info] sprint start at tick 5260 (pos 71.88, 146.00, 1.17)
+[2026-09-17 00:36:42.992] [info] remeshed 3 chunk(s) in 11.77 ms (last mesh 3.54 ms)
+[2026-09-17 00:36:43.242] [info] fps 84.5 | pos (70.90, 146.00, 1.19) | chunks 184 | stream-meshed 450
+[2026-09-17 00:36:43.260] [info] remeshed 3 chunk(s) in 17.35 ms (last mesh 5.03 ms)
+[2026-09-17 00:36:43.530] [info] remeshed 3 chunk(s) in 9.11 ms (last mesh 3.14 ms)
+[2026-09-17 00:36:43.840] [info] remeshed 3 chunk(s) in 17.98 ms (last mesh 4.59 ms)
+[2026-09-17 00:36:44.096] [info] remeshed 3 chunk(s) in 21.16 ms (last mesh 5.82 ms)
+[2026-09-17 00:36:44.356] [info] remeshed 3 chunk(s) in 21.71 ms (last mesh 6.02 ms)
+[2026-09-17 00:36:44.690] [info] stream: released 16 chunk(s), 254 resident, 171 meshed
+[2026-09-17 00:36:45.241] [info] fps 41.3 | pos (62.05, 144.77, 1.61) | chunks 182 | stream-meshed 461
+[2026-09-17 00:36:45.837] [info] autosave: 6 chunk(s) queued for async write, level written (ticks=5310)
+[2026-09-17 00:36:46.735] [info] sprint stop at tick 5328 (pos 54.30, 143.18, 1.92)
+[2026-09-17 00:36:46.839] [info] sprint-jump arc: 9 moves, horizontal 1.391 blocks, clearance 0.791, avg 3.091 m/s (from (55.69, 142.42, 1.86))
+[2026-09-17 00:36:47.264] [info] fps 70.6 | pos (53.94, 144.02, 2.00) | chunks 182 | stream-meshed 461
+[2026-09-17 00:36:49.255] [info] fps 87.4 | pos (53.63, 144.00, 2.01) | chunks 182 | stream-meshed 461
+[2026-09-17 00:36:51.271] [info] fps 85.8 | pos (53.63, 144.00, 2.01) | chunks 182 | stream-meshed 461
+[2026-09-17 00:36:52.188] [info] sprint start at tick 5436 (pos 53.13, 144.00, 2.00)
+[2026-09-17 00:36:53.157] [info] stream: released 16 chunk(s), 253 resident, 169 meshed
+[2026-09-17 00:36:53.257] [info] fps 82.5 | pos (47.94, 144.00, 1.74) | chunks 181 | stream-meshed 473
+[2026-09-17 00:36:54.333] [info] sprint stop at tick 5475 (pos 43.30, 141.77, 1.75)
+[2026-09-17 00:36:55.270] [info] fps 88.5 | pos (41.59, 142.00, 1.76) | chunks 181 | stream-meshed 473
+[2026-09-17 00:36:56.099] [info] autosave: 0 chunk(s) queued for async write, level written (ticks=5510)
+[2026-09-17 00:36:57.286] [info] fps 76.9 | pos (33.78, 144.00, 1.77) | chunks 181 | stream-meshed 473
+[2026-09-17 00:36:57.675] [info] stream: released 16 chunk(s), 252 resident, 168 meshed
+[2026-09-17 00:36:59.286] [info] fps 84.5 | pos (25.92, 144.00, 1.80) | chunks 181 | stream-meshed 486
+[2026-09-17 00:37:01.299] [info] fps 87.8 | pos (17.88, 142.00, 1.75) | chunks 181 | stream-meshed 486
+[2026-09-17 00:37:01.863] [info] stream: released 16 chunk(s), 251 resident, 168 meshed
+[2026-09-17 00:37:03.307] [info] fps 76.8 | pos (12.28, 140.92, -1.09) | chunks 188 | stream-meshed 506
+[2026-09-17 00:37:05.312] [info] fps 90.7 | pos (6.02, 137.16, -5.42) | chunks 188 | stream-meshed 506
+[2026-09-17 00:37:06.655] [info] autosave: 0 chunk(s) queued for async write, level written (ticks=5710)
+[2026-09-17 00:37:07.319] [info] fps 93.7 | pos (0.86, 134.00, -8.49) | chunks 188 | stream-meshed 506
+[2026-09-17 00:37:09.319] [info] fps 93.1 | pos (1.28, 134.00, -8.76) | chunks 188 | stream-meshed 506
+[2026-09-17 00:37:11.339] [info] fps 88.0 | pos (1.28, 134.00, -8.76) | chunks 188 | stream-meshed 506
+[2026-09-17 00:37:13.340] [info] fps 81.9 | pos (1.28, 134.00, -8.76) | chunks 188 | stream-meshed 506
+[2026-09-17 00:37:15.338] [info] fps 91.7 | pos (1.28, 134.00, -8.76) | chunks 188 | stream-meshed 506
+[2026-09-17 00:37:17.355] [info] fps 92.2 | pos (1.28, 134.00, -8.76) | chunks 188 | stream-meshed 506
+[2026-09-17 00:37:19.360] [info] fps 82.7 | pos (1.28, 134.00, -8.76) | chunks 188 | stream-meshed 506
+[2026-09-17 00:37:21.367] [info] fps 93.9 | pos (1.28, 134.00, -8.76) | chunks 188 | stream-meshed 506
+[2026-09-17 00:37:23.382] [info] fps 87.2 | pos (1.28, 134.00, -8.76) | chunks 188 | stream-meshed 506
+[2026-09-17 00:37:25.388] [info] fps 89.2 | pos (1.28, 134.00, -8.76) | chunks 188 | stream-meshed 506
+[2026-09-17 00:37:27.388] [info] fps 82.5 | pos (1.28, 134.00, -8.76) | chunks 188 | stream-meshed 506
+[2026-09-17 00:37:29.395] [info] fps 84.4 | pos (1.28, 134.00, -8.76) | chunks 188 | stream-meshed 506
+[2026-09-17 00:37:31.409] [info] fps 89.7 | pos (1.28, 134.00, -8.76) | chunks 188 | stream-meshed 506
+[2026-09-17 00:37:33.416] [info] fps 87.4 | pos (1.28, 134.00, -8.76) | chunks 188 | stream-meshed 506
+[2026-09-17 00:37:35.430] [info] fps 87.7 | pos (1.28, 134.00, -8.76) | chunks 188 | stream-meshed 506
+[2026-09-17 00:37:37.437] [info] fps 94.4 | pos (1.28, 134.00, -8.76) | chunks 188 | stream-meshed 506
+[2026-09-17 00:37:39.450] [info] fps 82.7 | pos (1.28, 134.00, -8.76) | chunks 188 | stream-meshed 506
+[2026-09-17 00:37:41.458] [info] fps 87.9 | pos (1.28, 134.00, -8.76) | chunks 188 | stream-meshed 506
+[2026-09-17 00:37:43.464] [info] fps 82.2 | pos (1.28, 134.00, -8.76) | chunks 188 | stream-meshed 506
+[2026-09-17 00:37:45.479] [info] fps 86.7 | pos (1.28, 134.00, -8.76) | chunks 188 | stream-meshed 506
+[2026-09-17 00:37:47.479] [info] fps 88.5 | pos (1.28, 134.00, -8.76) | chunks 188 | stream-meshed 506
+[2026-09-17 00:37:49.479] [info] fps 84.0 | pos (1.28, 134.00, -8.76) | chunks 188 | stream-meshed 506
+[2026-09-17 00:37:51.485] [info] fps 88.4 | pos (1.28, 134.00, -8.76) | chunks 188 | stream-meshed 506
+[2026-09-17 00:37:53.500] [info] fps 81.7 | pos (1.28, 134.00, -8.76) | chunks 188 | stream-meshed 506
+[2026-09-17 00:37:55.495] [info] fps 84.9 | pos (1.28, 134.00, -8.76) | chunks 188 | stream-meshed 506
+[2026-09-17 00:37:57.513] [info] fps 77.1 | pos (1.28, 134.00, -8.76) | chunks 188 | stream-meshed 506
+[2026-09-17 00:37:59.543] [info] fps 70.0 | pos (0.90, 134.00, -9.23) | chunks 188 | stream-meshed 506
+[2026-09-17 00:38:01.569] [info] fps 73.0 | pos (1.62, 134.00, -10.59) | chunks 188 | stream-meshed 506
+[2026-09-17 00:38:03.583] [info] fps 72.0 | pos (3.04, 135.42, -9.23) | chunks 188 | stream-meshed 506
+[2026-09-17 00:38:05.355] [info] autosave: 0 chunk(s) queued for async write, level written (ticks=5910)
+[2026-09-17 00:38:05.590] [info] fps 72.2 | pos (0.59, 132.75, -9.70) | chunks 188 | stream-meshed 506
+[2026-09-17 00:38:07.603] [info] fps 72.0 | pos (3.96, 136.25, -9.23) | chunks 188 | stream-meshed 506
+[2026-09-17 00:38:08.874] [info] sprint start at tick 5980 (pos 5.37, 137.00, -9.37)
+[2026-09-17 00:38:09.611] [info] fps 72.2 | pos (1.76, 136.68, -9.44) | chunks 188 | stream-meshed 506
+[2026-09-17 00:38:09.778] [info] sprint stop at tick 5998 (pos 0.90, 134.22, -9.85)
+[2026-09-17 00:38:09.820] [info] sprint-jump arc: 17 moves, horizontal 3.859 blocks, clearance 3.259, avg 4.540 m/s (from (4.49, 137.42, -9.16))
+[2026-09-17 00:38:11.625] [info] fps 72.0 | pos (1.95, 135.18, -10.31) | chunks 188 | stream-meshed 506
+[2026-09-17 00:38:13.639] [info] fps 72.1 | pos (5.81, 138.25, -9.22) | chunks 188 | stream-meshed 506
+[2026-09-17 00:38:15.405] [info] autosave: 0 chunk(s) queued for async write, level written (ticks=6110)
+[2026-09-17 00:38:15.640] [info] fps 72.0 | pos (8.12, 139.16, -8.80) | chunks 188 | stream-meshed 506
+[2026-09-17 00:38:17.653] [info] fps 72.0 | pos (5.12, 137.00, -10.04) | chunks 188 | stream-meshed 506
+[2026-09-17 00:38:19.666] [info] fps 72.0 | pos (2.38, 131.00, -10.21) | chunks 188 | stream-meshed 506
+[2026-09-17 00:38:21.278] [info] sprint start at tick 6227 (pos 2.98, 132.00, -12.93)
+[2026-09-17 00:38:21.666] [info] fps 72.0 | pos (2.68, 132.00, -14.72) | chunks 188 | stream-meshed 506
+[2026-09-17 00:38:22.270] [info] sprint-jump arc: 9 moves, horizontal 1.879 blocks, clearance 1.279, avg 4.175 m/s (from (2.54, 132.42, -15.18))
+[2026-09-17 00:38:22.716] [info] sprint-jump arc: 9 moves, horizontal 1.591 blocks, clearance 0.991, avg 3.536 m/s (from (1.63, 133.42, -16.73))
+[2026-09-17 00:38:22.853] [info] stream: released 16 chunk(s), 273 resident, 185 meshed
+[2026-09-17 00:38:23.590] [info] sprint-jump arc: 14 moves, horizontal 2.969 blocks, clearance 2.369, avg 4.242 m/s (from (0.10, 134.42, -15.29))
+[2026-09-17 00:38:23.646] [info] sprint stop at tick 6267 (pos -0.30, 133.42, -12.14)
+[2026-09-17 00:38:23.674] [info] fps 66.3 | pos (-0.30, 133.42, -12.14) | chunks 190 | stream-meshed 521
+[2026-09-17 00:38:25.687] [info] fps 72.0 | pos (3.50, 135.75, -8.83) | chunks 190 | stream-meshed 521
+[2026-09-17 00:38:25.799] [info] autosave: 0 chunk(s) queued for async write, level written (ticks=6310)
+[2026-09-17 00:38:27.687] [info] fps 72.0 | pos (6.51, 137.50, -6.84) | chunks 190 | stream-meshed 521
+[2026-09-17 00:38:28.161] [info] sprint start at tick 6357 (pos 6.17, 137.00, -6.68)
+[2026-09-17 00:38:28.619] [info] sprint stop at tick 6366 (pos 3.89, 138.25, -7.84)
+[2026-09-17 00:38:29.062] [info] sprint-jump arc: 15 moves, horizontal 2.651 blocks, clearance 2.051, avg 3.535 m/s (from (5.12, 137.42, -7.24))
+[2026-09-17 00:38:29.687] [info] fps 72.0 | pos (4.19, 136.00, -8.09) | chunks 190 | stream-meshed 521
+[2026-09-17 00:38:31.703] [info] fps 72.0 | pos (8.70, 138.00, -5.27) | chunks 190 | stream-meshed 521
+[2026-09-17 00:38:33.716] [info] fps 71.9 | pos (8.70, 138.00, -5.26) | chunks 190 | stream-meshed 521
