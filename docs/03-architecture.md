@@ -24,6 +24,35 @@ opencraft/
 - **同仓异进程**：`opencraft`（客户端+内嵌服务端）与 `opencraft-server`（独立服务端）链接同一 `game` 库；从第一天就是服务端权威——后补代价极高（Veloren 教训）。
 - 双循环：服务端/逻辑 20 TPS 固定步长（决定性，输入在 tick 头生效）；客户端渲染可变帧率 + partial-tick 插值。
 
+### 1.1 权威侧现状（T-A1 建立，2026-09-16）
+
+> T-A1 之前本节只是一条**意图**：权威侧实际不存在（`engine/net` 为空、`game/server`
+> 只有 worldgen + storage、客户端直接改世界）。T-A1 建立了它，但**尚未网络化**。
+
+- **权威侧 = `opencraft::sim::WorldSim`**（`game/server/sim/`）：持有区块/光照/流体/地形/存档。
+  四个写入口（`write_block` / `set_fluid_at` / `place_water_source` / `remove_water_source`）
+  **全部 `private`**；流体经**私有嵌套类**适配 `voxel::IFluidWorld`，
+  故引擎要求的 `set_fluid_at` 从外部也不可达 ⇒ **写权限由编译器保证，不是约定**。
+  `WorldSim` 禁拷贝与移动（旧 `WorldSource` 可拷贝且含自指 FluidSim，是隐患）。
+- **客户端 = `client::WorldSource` 退化为纯 `const` 只读视图**，只持 `const WorldSim*`。
+  仍实现 `render::IBlockSource` / `physics::IBlockSource` / `IFluidSource` 的只读部分，
+  故渲染/物理/射线/HUD 的调用签名一行未改。
+- **通道 = `opencraft::game::IAuthority`**（`game/common/include/opencraft/game/protocol.hpp`）：
+  `submit` / `tick` / `take_changes` / `autosave_pass`。
+  请求 `ActionRequest` 与结果 `ActionResult` 为**值语义可序列化数据**
+  （glm 向量 + u16 + 枚举 + 预留 `sequence`），无回调/指针/共享可变状态
+  ⇒ **M3 换成网络通道时不改调用点**。
+- **校验只在权威侧一处**（可达判定按"格子最近点"、replaceable、玩家 AABB、
+  hardness<0、`is_water_source`）。客户端已删除自己那份 `check_placement`，
+  避免同规则两处漂移。扣物品在 `accepted` 之后 ⇒ 被拒绝不吃物品。
+- **回推只带脏区块集**：进程内客户端渲染的就是权威侧那份存储，方块状态无需转运。
+- ⚠ **tick 当前由客户端驱动**。**独立服务端进程仍不存在**，M3 建立时须**自持 20 TPS**。
+- ⚠ `kReachDistance` 单一真相源在 `game/protocol.hpp`（客户端不再有自己那份）。
+
+**M3 必做清单**（T-A1 刻意留下的接缝，见 `docs/tasks/T-A1.ruling.md`）：
+① 库存上收（需玩家/会话概念）② 挖掘计时上收（反作弊）③ 逐方块事件
+（`WorldChanges` 已留加宽点）④ 独立服务端进程 + 自持 20 TPS ⑤ `sequence` 填上（预测/和解）。
+
 ## 2. 线程模型
 
 - 主线程（客户端）：输入采样、渲染提交、GPU 上传，**每帧 2–4ms 预算制**，只做调度与结果采纳。
