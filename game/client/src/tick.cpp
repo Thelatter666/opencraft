@@ -355,9 +355,16 @@ void run_tick(const TickContext &ctx) {
 
     // ── autosave cadence: 200 ticks = ~10 s of game time (T009) ──────────
     if (ctx.save.maybe_autosave_tick()) {
-        const std::size_t chunks = ctx.authority.autosave_pass();
+        // The window in request form (T-D4): the same streaming request the
+        // frame loop sends, without a generation budget, plus the persist flag.
+        // The release window travels with it, so the resident set also tightens
+        // on ticks that generate nothing.
+        gam::StreamRequest autosave = make_stream_request(ctx.curr_state.position);
+        autosave.persist = true;
+        const gam::StreamResult result = ctx.authority.stream(autosave);
         ctx.save.write_level_now(make_level_data(ctx));
-        OC_LOG_INFO("autosave: {} chunk(s) queued for async write, level written (ticks={})", chunks, ctx.game_ticks);
+        OC_LOG_INFO("autosave: {} chunk(s) queued for async write, level written (ticks={})", result.persisted_chunks,
+                    ctx.game_ticks);
     }
 }
 

@@ -61,15 +61,18 @@ constexpr double kEyeStanding = 1.62;
     return {buffer.data(), buffer.data() + buffer.size()};
 }
 
-// Generates the spawn chunk and its 4 side neighbors, so rays that leave the
-// column still land somewhere loaded. (The sim is not copyable - the fluid
-// simulation points back into it - so it is filled in place.)
+// Loads the spawn chunk and its 4 side neighbors, so rays that leave the column
+// still land somewhere loaded. T-D4 made the per-chunk loader private (stream()
+// is the world-management verb), so the square is filled through a request;
+// radius 1 around the origin is exactly the 3x3 these tests want. (The sim is
+// not copyable - the fluid simulation points back into it - so it is filled in
+// place.)
 void load_spawn_area(srv::WorldSim &sim) {
-    for (int cx = -1; cx <= 1; ++cx) {
-        for (int cz = -1; cz <= 1; ++cz) {
-            sim.ensure_chunk(cx, cz);
-        }
-    }
+    gam::StreamRequest req;
+    req.generate_radius = 1;
+    req.unload_radius = 1;
+    req.generate_budget = 9;
+    CHECK(sim.stream(req).loaded_total == 9);
 }
 
 } // namespace

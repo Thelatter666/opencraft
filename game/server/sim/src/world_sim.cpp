@@ -37,6 +37,16 @@ void for_each_fluid_cell(const voxel::Chunk &chunk, Fn &&visit) {
 // a request the client's own aim accepted.
 constexpr double kReachEpsilon = 1e-6;
 
+// Chebyshev distance, in chunks. Both streaming windows are squares (the shape
+// the client's offset loop has always used), so the hysteresis band is the same
+// width in all four directions; a circular test would leave diagonal chunks with
+// less slack than the cardinal ones.
+[[nodiscard]] int chunk_distance(int cx, int cz, int center_cx, int center_cz) {
+    const int dx = cx > center_cx ? cx - center_cx : center_cx - cx;
+    const int dz = cz > center_cz ? cz - center_cz : center_cz - cz;
+    return dx > dz ? dx : dz;
+}
+
 } // namespace
 
 WorldSim::WorldSim(const std::uint64_t seed)
@@ -170,6 +180,79 @@ game::ActionResult WorldSim::apply_scoop(const game::ActionRequest &req) {
 
 // ── world lifecycle ─────────────────────────────────────────────────────────
 
+game::StreamResult WorldSim::stream(const game::StreamRequest &req) {
+    game::StreamResult result;
+
+    // 1. Generate, nearest-first, up to the caller's frame budget. The order is
+    //    the one the client's own offset loop used, so what streams in first is
+    //    unchanged; what is new is that the loop can no longer run unbudgeted.
+    const int radius = req.generate_radius > 0 ? req.generate_radius : 0;
+    if (req.generate_budget > 0) {
+        int budget = req.generate_budget;
+        for (const auto &[dx, dz] : generate_offsets(radius)) {
+            if (budget == 0) {
+                break;
+            }
+            const int cx = req.center_cx + dx;
+            const int cz = req.center_cz + dz;
+            if (chunks_.find(cx, cz) != nullptr) {
+                continue; // already resident: re-generating it would throw the edits away
+            }
+            if (ensure_chunk(cx, cz)) {
+                --budget;
+                result.loaded_chunks.emplace_back(cx, cz);
+            }
+        }
+    }
+
+    // 2. Release what left the retention window. The sweep walks the resident
+    //    set rather than a ring around the centre, so a chunk that streamed in
+    //    around a previous position (the startup square, a teleported player)
+    //    is released too. unload_chunk persists the dirty ones before dropping
+    //    their state - that is the whole point of the ordering.
+    const int keep = req.unload_radius > 0 ? req.unload_radius : 0;
+    std::vector<std::pair<int, int>> leaving;
+    for (const auto &[cx, cz] : resident_) {
+        if (chunk_distance(cx, cz, req.center_cx, req.center_cz) > keep) {
+            leaving.emplace_back(cx, cz);
+        }
+    }
+    // resident_ is already sorted, but say it out loud: the result feeds logs
+    // and tests, and their order must not depend on the container.
+    std::sort(leaving.begin(), leaving.end());
+    for (const auto &[cx, cz] : leaving) {
+        if (unload_chunk(cx, cz)) {
+            result.unloaded_chunks.emplace_back(cx, cz);
+        }
+    }
+
+    // 3. The persistence window, in request form (the T009 cadence pass).
+    if (req.persist) {
+        result.persisted_chunks = autosave_pass();
+    }
+
+    result.loaded_total = chunks_.loaded_count();
+    return result;
+}
+
+const std::vector<std::pair<int, int>> &WorldSim::generate_offsets(int radius) {
+    if (gen_offsets_radius_ == radius) {
+        return gen_offsets_;
+    }
+    gen_offsets_.clear();
+    gen_offsets_.reserve(static_cast<std::size_t>(2 * radius + 1) * static_cast<std::size_t>(2 * radius + 1));
+    for (int dx = -radius; dx <= radius; ++dx) {
+        for (int dz = -radius; dz <= radius; ++dz) {
+            gen_offsets_.emplace_back(dx, dz);
+        }
+    }
+    std::sort(gen_offsets_.begin(), gen_offsets_.end(), [](const auto &a, const auto &b) {
+        return a.first * a.first + a.second * a.second < b.first * b.first + b.second * b.second;
+    });
+    gen_offsets_radius_ = radius;
+    return gen_offsets_;
+}
+
 bool WorldSim::ensure_chunk(int cx, int cz) {
     voxel::Chunk &chunk = chunks_.get_or_load(cx, cz);
     // Detect a fresh chunk: get_or_load hands out an empty one when absent.
@@ -188,13 +271,13 @@ bool WorldSim::ensure_chunk(int cx, int cz) {
             light_.init_chunk(cx, cz);
             wake_fluid_at_chunk_border(cx, cz);
             OC_LOG_INFO("chunk ({}, {}) loaded from disk", cx, cz);
-            return true;
+            return mark_resident(cx, cz);
         }
     }
     generator_.generate_chunk(cx, cz, chunk);
     light_.init_chunk(cx, cz);
     wake_fluid_at_chunk_border(cx, cz);
-    return true;
+    return mark_resident(cx, cz);
 }
 
 bool WorldSim::neighbors_ready(int cx, int cz) const {
@@ -263,8 +346,12 @@ bool WorldSim::unload_chunk(int cx, int cz) {
             save_->store_chunk_sync(cx, cz, payload.data(), payload.size());
         }
     }
+    // Light goes with the blocks: forget_chunk also drops the deferred offers
+    // addressed to this chunk, so a later re-init cannot replay an offer against
+    // a reloaded world (T006's rule; no second mechanism is invented here).
     light_.forget_chunk(cx, cz);
     static_cast<void>(chunks_.unload(voxel::Chunk::chunk_coord(cx * voxel::Chunk::kSizeX, cz * voxel::Chunk::kSizeZ)));
+    resident_.erase({cx, cz});
     return true;
 }
 
