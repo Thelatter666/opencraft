@@ -595,11 +595,15 @@ int main() {
                 // The shader takes one scalar scale, and the only drop type is a
                 // cube (0.25^3, research/11 §4.2); a non-cubic entity kind would
                 // need a scale vector here.
-                glUniform1f(crack_shader.uniform_location("u_scale"),
-                            static_cast<float>(entity_types.def_of(drop.type).height));
+                const float side = static_cast<float>(entity_types.def_of(drop.type).height);
+                glUniform1f(crack_shader.uniform_location("u_scale"), side);
+                // The cube geometry is [0,1]^3 and the shader scales a_pos BEFORE
+                // u_mvp, so what must be centred is the SCALED cube: translate by
+                // half of `side`, not by 0.5 (0.5 put the cube a third of a block
+                // under the floor, where it was invisible - found on-machine).
                 const glm::mat4 model = glm::translate(glm::mat4(1.0f), centre) *
                                         glm::rotate(glm::mat4(1.0f), ticks * 0.05f, glm::vec3(0.0f, 1.0f, 0.0f)) *
-                                        glm::translate(glm::mat4(1.0f), glm::vec3(-0.5f));
+                                        glm::translate(glm::mat4(1.0f), glm::vec3(-0.5f * side));
                 const glm::mat4 item_mvp = projection * view * model;
                 glUniformMatrix4fv(crack_shader.uniform_location("u_mvp"), 1, GL_FALSE, &item_mvp[0][0]);
                 // build_cube_geometry face order: f0 top, f1 bottom, f2..f5 sides.
