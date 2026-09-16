@@ -1,0 +1,23 @@
+T-D4 acceptance 3: pacing over the generation edge must not release anything
+generation radius 7, unload radius 9 (hysteresis 2 chunks = 32 blocks); each row is a fresh launch
+
+session        x        released   loaded-from-disk       last fps
+pace1_x0.5     0.5      0          8                      fps 72.5
+pace2_x32.5    32.5     0          8                      fps 72.5
+pace3_x0.5     0.5      0          8                      fps 72.0
+pace4_x32.5    32.5     0          8                      fps 72.0
+
+contrast: same world, but a 4-chunk step (x 0.5 -> 64.5) leaves the band:
+fps 72.0
+
+note on the contrast row (x=64.5, released = 0):
+  a FRESH session's resident set only ever holds (a) the startup 5x5 around the
+  origin and (b) the player's own generation window, so a 4-chunk step in a new
+  session has nothing behind it to release - the trailing chunks were never
+  generated in that session. On this machine the release event is therefore
+  observable when the player leaves an area the session had loaded, which is
+  what the 300-block displacement does (p4b): released 25 chunk(s).
+  The quantitative band behaviour (2 chunks free, beyond the band releases the
+  trailing columns, zero hysteresis churns) is asserted in
+  tests/test_chunk_streaming.cpp, whose request-level entry point is the same
+  stream() the client drives.

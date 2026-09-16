@@ -1,0 +1,20 @@
+[2026-09-16 23:48:09.392] [info] OpenCraft 0.1.0 starting
+[2026-09-16 23:48:09.681] [info] GL 4.1 Metal - 89.4 / glad loaded
+[2026-09-16 23:48:09.681] [info] save: loaded level.ocd (seed=0x4f50454e43524146, ticks=3996, player=(300.50, 131.00, 0.50), hp=20.0)
+[2026-09-16 23:48:09.686] [info] chunk (0, 0) loaded from disk
+[2026-09-16 23:48:09.692] [info] chunk (-1, 0) loaded from disk
+[2026-09-16 23:48:09.697] [info] chunk (0, -1) loaded from disk
+[2026-09-16 23:48:09.720] [info] chunk (-1, -1) loaded from disk
+[2026-09-16 23:48:09.734] [info] chunk (1, -1) loaded from disk
+[2026-09-16 23:48:09.748] [info] chunk (-2, 0) loaded from disk
+[2026-09-16 23:48:09.789] [info] chunk (-2, -1) loaded from disk
+[2026-09-16 23:48:09.882] [info] startup gen: 25 chunks, total 200.5 ms, avg 8.02 ms/chunk
+[2026-09-16 23:48:09.882] [info] atlas: 144x144 px, 9 tiles/row, crack tiles at 63
+[2026-09-16 23:48:10.012] [info] stream: released 25 chunk(s), 2 resident, 0 meshed
+[2026-09-16 23:48:11.921] [info] fps 41.9 | pos (300.50, 130.77, 0.50) | chunks 113 | stream-meshed 113
+[2026-09-16 23:48:13.943] [info] fps 65.7 | pos (300.50, 122.39, 0.50) | chunks 113 | stream-meshed 113
+[2026-09-16 23:48:15.957] [info] fps 72.0 | pos (300.50, 118.37, 0.50) | chunks 113 | stream-meshed 113
+[2026-09-16 23:48:17.971] [info] fps 72.0 | pos (300.50, 118.00, 0.50) | chunks 113 | stream-meshed 113
+[2026-09-16 23:48:19.971] [info] fps 72.0 | pos (300.50, 118.00, 0.50) | chunks 113 | stream-meshed 113
+[2026-09-16 23:48:21.984] [info] fps 72.0 | pos (300.50, 118.00, 0.50) | chunks 113 | stream-meshed 113
+[2026-09-16 23:48:22.276] [info] autosave: 0 chunk(s) queued for async write, level written (ticks=4195)

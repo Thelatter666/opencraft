@@ -1,0 +1,11 @@
+== saved world /tmp/td4/saves_edited/world (seed 0x4f50454e43524146) ==
+chunk (0, 0): present in the region file
+chunk (0, -1): present in the region file
+
+cell                     file                        worldgen (same seed)     verdict
+(   1,132,   0)   stone                       air                      PLAYER EDIT survives on disk
+(   0,131,   0)   water + flowing water       grass_block              PLAYER EDIT survives on disk
+(   0,132,  -1)   water + water source        air                      PLAYER EDIT survives on disk
+(   0,132,   0)   water + flowing water       air                      PLAYER EDIT survives on disk
+(   3,131,   3)   dirt                        dirt                     same as worldgen
+(   3,140,   3)   air                         air                      same as worldgen
