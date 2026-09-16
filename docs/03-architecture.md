@@ -38,10 +38,19 @@ opencraft/
   仍实现 `render::IBlockSource` / `physics::IBlockSource` / `IFluidSource` 的只读部分，
   故渲染/物理/射线/HUD 的调用签名一行未改。
 - **通道 = `opencraft::game::IAuthority`**（`game/common/include/opencraft/game/protocol.hpp`）：
-  `submit` / `tick` / `take_changes` / `autosave_pass`。
-  请求 `ActionRequest` 与结果 `ActionResult` 为**值语义可序列化数据**
-  （glm 向量 + u16 + 枚举 + 预留 `sequence`），无回调/指针/共享可变状态
-  ⇒ **M3 换成网络通道时不改调用点**。
+  客户端对世界的全部动作都经过**五个动词**：
+  `submit`（挖/放/倒水/舀水等动作）、`tick`（权威侧 20 TPS）、`take_changes`（回推）、
+  `autosave_pass`（持久化窗口）、**`stream`（区块流式与卸载，T-D4 新增）**。
+  请求与结果为**值语义可序列化数据**（坐标 + int + bool + 枚举 + 预留 `sequence`），
+  无回调/指针/共享可变状态 ⇒ **M3 换成网络通道时不改调用点**。
+- **`stream()` 的顺序约束**（T-D4）：一个动词内按固定顺序做完
+  ① 生成（按 `generate_budget` 预算，近者优先）→ ② 释放超出 `unload_radius` 的区块
+  （**脏区块先落盘再释放**）→ ③ `persist` 窗口到期则跑自动存档。
+  ⚠ 该顺序**由权威侧一处保证**，故持久化**不拆成独立动词**（否则调用方可能先卸后存 ⇒ 丢数据）。
+- ⚠ **逐区块的 `ensure_chunk` / `unload_chunk` 已收为 `private`**
+  ⇒ 客户端**连编译期都调不到**。世界管理只能经 `stream()`。
+- ⚠ **滞回量** `kUnloadHysteresis = 2`（`unload_radius − generate_radius`）：可调常量，
+  **不进规格**（不是 ⚖ 对齐数值），只记备忘，避免把调参变成改规格。
 - **校验只在权威侧一处**（可达判定按"格子最近点"、replaceable、玩家 AABB、
   hardness<0、`is_water_source`）。客户端已删除自己那份 `check_placement`，
   避免同规则两处漂移。扣物品在 `accepted` 之后 ⇒ 被拒绝不吃物品。
@@ -52,6 +61,21 @@ opencraft/
 **M3 必做清单**（T-A1 刻意留下的接缝，见 `docs/tasks/T-A1.ruling.md`）：
 ① 库存上收（需玩家/会话概念）② 挖掘计时上收（反作弊）③ 逐方块事件
 （`WorldChanges` 已留加宽点）④ 独立服务端进程 + 自持 20 TPS ⑤ `sequence` 填上（预测/和解）。
+
+### 1.2 ★ 架构约束的编码范式（T-A1 / T-D4 确立，后续架构卡的默认做法）
+
+**把架构约束编码进类型系统 / 访问说明符 / 接口形状，而不是写进注释或文档。**
+文档会过期、注释会被忽略，编译器不会。本项目的三个实例：
+
+| 约束 | 编码方式 | 卡 |
+|---|---|---|
+| 权威侧唯一写权限 | 四个写入口 → `private`；流体写路径 → **私有嵌套类**实现 | T-A1 |
+| 世界状态不可拷贝（内含自指） | `WorldSim` 拷贝与移动 `= delete` | T-A1 |
+| 客户端不得直接管理区块 | `ensure_chunk` / `unload_chunk` → `private`，只能经 `stream()` | T-D4 |
+| "先落盘后释放"的顺序 | 合并为单动词 `stream()`，顺序由实现内部保证（不拆 `persist`） | T-D4 |
+
+判据：**如果一条约束违反了也不会编译失败，它就只是一条建议。**
+后续架构卡在写"禁止 X""必须先 A 后 B"时，应先问：能不能让编译器替我们拦住？
 
 ## 2. 线程模型
 
