@@ -26,6 +26,8 @@
 
 #include "opencraft/game/protocol.hpp"
 #include "opencraft/render/mesher.hpp"
+#include "opencraft/sim/entity_store.hpp"
+#include "opencraft/sim/item_sim.hpp"
 #include "opencraft/storage/world_save.hpp"
 #include "opencraft/voxel/block_registry.hpp"
 #include "opencraft/voxel/chunk_manager.hpp"
@@ -40,6 +42,11 @@ namespace opencraft::server {
 // (T006) + FluidSim (T-F1) wired together, plus the action rules that gate
 // every write. It answers the same read queries the client's renderer,
 // physics, raycasting and HUD need (render::IBlockSource and friends).
+//
+// T-E1 added the entity layer to that list: the drops are a SECOND system plane
+// next to the chunks (docs/03 §6: 实体与方块在不同系统面) - they live in
+// EntityStore, they are stepped by item_sim's rules, and they are NOT persisted
+// with chunk data. This class is the only writer of both planes.
 //
 // Coordinate convention (unchanged from T004): CHUNK STORAGE coordinates -
 // block (wx, wy, wz) addresses Chunk::get_block(lx, wy, lz) directly, so the
@@ -132,6 +139,26 @@ public:
 
     // ── reads (renderer, physics, raycast, HUD, action validation) ──────────
     [[nodiscard]] const voxel::BlockRegistry &registry() const { return registry_; }
+
+    // ── entities (T-E1) ─────────────────────────────────────────────────────
+    // The item registry lives HERE, not on the client, because the authority
+    // decides what a broken block drops - so the item id space has to be the
+    // authority's. The client reads it through its view, exactly as it reads
+    // the block registry. (Before this card both ends built their own
+    // create_default(): they agreed only because the table is deterministic.)
+    [[nodiscard]] const game::ItemRegistry &items() const { return items_; }
+
+    // Per-type entity parameters (box, gravity, drag, health) - docs/03 §6's
+    // "物理参数按实体类型实例化，非全局单例". Read-only: it is content, fixed at
+    // construction.
+    [[nodiscard]] const game::EntityTypeRegistry &entity_types() const { return entity_types_; }
+
+    // Read-only view of the drop store: the client renders from it and filters
+    // its pickup candidates with it. No write method exists on it, the same
+    // compiler-enforced split the client's block view has.
+    [[nodiscard]] const EntityStore &entities() const { return entities_; }
+
+    [[nodiscard]] const ItemRules &item_rules() const { return item_rules_; }
 
     [[nodiscard]] const voxel::LightEngine &light() const { return light_; }
 
@@ -229,6 +256,12 @@ private:
     [[nodiscard]] game::ActionResult apply_place(const game::ActionRequest &req);
     [[nodiscard]] game::ActionResult apply_pour(const game::ActionRequest &req);
     [[nodiscard]] game::ActionResult apply_scoop(const game::ActionRequest &req);
+    // T-E1: hands one dropped stack over. The authority owns the drop and the
+    // pickup rules; the inventory is still the client's, which is why the
+    // client reads the stack from its view before asking (and why the request
+    // names the item it expects - a reused entity slot must not be able to hand
+    // over a different item).
+    [[nodiscard]] game::ActionResult apply_pickup(const game::ActionRequest &req);
 
     // Re-evaluates the fluid around a chunk that just entered memory: the new
     // chunk holds fluid no neighbour has seen yet, and the neighbours' border
@@ -257,6 +290,32 @@ private:
         WorldSim *sim_;
     };
 
+    // The drop simulation's view of the world (T-E1). A private nested type for
+    // the same reason FluidWorld is one: the item rules need collision, block
+    // lookups and chunk residency, but nothing outside the authority needs to
+    // reach the world through them.
+    //
+    // `solid_at` here is the AUTHORITY's, which reads an unloaded chunk as
+    // solid - so a drop can never fall into the streaming void. It never gets
+    // asked: step_items skips a drop whose own chunk is not in memory.
+    class EntityWorld final : public IItemWorld {
+    public:
+        explicit EntityWorld(WorldSim &sim) : sim_(&sim) {}
+
+        [[nodiscard]] std::uint16_t block_at(int wx, int wy, int wz) const override {
+            return sim_->block_at(wx, wy, wz);
+        }
+
+        [[nodiscard]] bool solid_at(int wx, int wy, int wz) const override { return sim_->solid_at(wx, wy, wz); }
+
+        [[nodiscard]] bool liquid_at(int wx, int wy, int wz) const override { return sim_->liquid_at(wx, wy, wz); }
+
+        [[nodiscard]] bool chunk_loaded(int cx, int cz) const override { return sim_->chunk_ready(cx, cz); }
+
+    private:
+        WorldSim *sim_;
+    };
+
     voxel::BlockRegistry registry_;
     std::uint16_t water_block_id_ = 0;
     voxel::ChunkManager chunks_;
@@ -265,6 +324,19 @@ private:
     worldgen::TerrainGenerator generator_;
     FluidWorld fluid_world_;
     voxel::FluidSim fluid_;
+    // ── entity layer (T-E1) ─────────────────────────────────────────────────
+    // The item registry is content and lives with the world (see items()).
+    // Construction order matters for entity_world_ only: it points back at
+    // *this, exactly like fluid_world_.
+    game::ItemRegistry items_;
+    game::EntityTypeRegistry entity_types_;
+    EntityStore entities_;
+    EntityWorld entity_world_;
+    // The hazard classification is resolved ONCE from the block registry, so
+    // the per-tick world query is a bit lookup rather than a string hash (the
+    // T-F1 lesson about new per-voxel query channels).
+    ItemBlockHazard item_hazard_;
+    ItemRules item_rules_;
     // Chunks the fluid layer made stale; flushed into pending_chunks_ by tick().
     std::vector<std::pair<int, int>> fluid_dirty_;
     // Push-back accumulated since the last take_changes().

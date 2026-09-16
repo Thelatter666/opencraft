@@ -43,6 +43,21 @@ public:
     // chunk before that would bake wrong (air) border faces.
     [[nodiscard]] bool neighbors_ready(int cx, int cz) const { return authority_->neighbors_ready(cx, cz); }
 
+    // ── entities (T-E1) ─────────────────────────────────────────────────────
+    // Same const-forwarder shape as the block registry above, and the same
+    // reason: the drop store is authoritative state, so the client gets a view
+    // of it, not a copy. It has no write method, so "the client cannot move a
+    // drop" is a compile error rather than a convention.
+    [[nodiscard]] const server::EntityStore &entities() const { return authority_->entities(); }
+
+    // Per-type entity parameters - the box the pickup filter needs, and the
+    // block-form lookup the dropped-item renderer needs.
+    [[nodiscard]] const game::EntityTypeRegistry &entity_types() const { return authority_->entity_types(); }
+
+    // The item registry (T-E1 moved it to the authority: it decides what a
+    // broken block drops, so the item id space is the world's).
+    [[nodiscard]] const game::ItemRegistry &items() const { return authority_->items(); }
+
     // ── render::IBlockSource (meshing + voxel raycast) ──────────────────────
     [[nodiscard]] std::uint16_t block_at(int wx, int wy, int wz) const override {
         return authority_->block_at(wx, wy, wz);
