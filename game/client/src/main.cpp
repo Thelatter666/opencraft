@@ -40,6 +40,7 @@
 #include "opencraft/physics/player_state.hpp"
 #include "opencraft/render/mesher.hpp"
 #include "opencraft/render/rhi.hpp"
+#include "opencraft/sim/world_sim.hpp"
 #include "opencraft/storage/level_file.hpp"
 #include "opencraft/storage/world_save.hpp"
 #include "particles.hpp"
@@ -52,6 +53,7 @@ namespace render = opencraft::render; // short alias used by the GPU glue below
 namespace phy = opencraft::physics;
 namespace gam = opencraft::game;
 namespace client = opencraft::client;
+namespace srv = opencraft::server;
 
 namespace {
 
@@ -103,8 +105,7 @@ int main() {
     // the working directory (./build/opencraft -> build/saves/world).
     opencraft::storage::WorldSave save("saves", "world");
     const std::optional<opencraft::storage::LevelData> stored_level = save.try_read_level();
-    const std::uint64_t world_seed =
-        stored_level.has_value() ? stored_level->seed : opencraft::client::WorldSource::kSeed;
+    const std::uint64_t world_seed = stored_level.has_value() ? stored_level->seed : srv::WorldSim::kSeed;
     std::uint64_t game_ticks = stored_level.has_value() ? stored_level->tick_count : 0;
     if (stored_level.has_value()) {
         OC_LOG_INFO("save: loaded level.ocd (seed={:#x}, ticks={}, player=({:.2f}, {:.2f}, {:.2f}), hp={:.1f})",
@@ -114,18 +115,23 @@ int main() {
         OC_LOG_INFO("save: no level.ocd, new world with seed {:#x}", world_seed);
     }
 
-    // ── world ───────────────────────────────────────────────────────────────
-    opencraft::client::WorldSource world(world_seed);
-    world.attach_save(&save);
+    // ── authoritative side + client view (T-A1) ─────────────────────────────
+    // The world simulation - and with it the only write access to the world -
+    // lives in server::WorldSim. The client gets a read-only view of it plus
+    // the request channel; both halves run in this process (docs/03 §1:
+    // 客户端+内嵌服务端), which is what M3 turns into a real connection.
+    srv::WorldSim authority(world_seed);
+    authority.attach_save(&save);
+    client::WorldSource world(authority);
 
     // Spawn: generate the center chunk first, then scan 5x5 surface columns
     // (T009 card item) - or reuse the persisted player position.
-    static_cast<void>(world.ensure_chunk(0, 0));
+    static_cast<void>(authority.ensure_chunk(0, 0));
     const glm::dvec3 spawn_pos = [&] {
         if (stored_level.has_value() && stored_level->has_player) {
             return glm::dvec3(stored_level->player_x, stored_level->player_y, stored_level->player_z);
         }
-        const glm::dvec3 scanned = world.find_spawn();
+        const glm::dvec3 scanned = authority.find_spawn();
         OC_LOG_INFO("spawn scan: surface at ({:.1f}, {:.1f}, {:.1f})", scanned.x, scanned.y, scanned.z);
         return scanned;
     }();
@@ -138,7 +144,7 @@ int main() {
     for (int cx = -2; cx <= 2; ++cx) {
         for (int cz = -2; cz <= 2; ++cz) {
             const auto t0 = std::chrono::steady_clock::now();
-            if (world.ensure_chunk(cx, cz)) {
+            if (authority.ensure_chunk(cx, cz)) {
                 const double ms =
                     std::chrono::duration<double, std::milli>(std::chrono::steady_clock::now() - t0).count();
                 total_gen_ms += ms;
@@ -270,8 +276,8 @@ int main() {
     bool prev_esc = false;
     // ── items + inventory (T-I2) ────────────────────────────────────────────
     // One item registry per process, exactly like the block registry inside
-    // WorldSource. It owns the item -> block links, so it must outlive the
-    // interaction state that holds the inventory.
+    // the authoritative WorldSim. It owns the item -> block links, so it must
+    // outlive the interaction state that holds the inventory.
     const gam::ItemRegistry item_registry = gam::ItemRegistry::create_default();
     // Input edges, inventory, targeting and the T-D1 sprint-jump QA counters
     // live in one object (see interaction.hpp). The launch kit gives the
@@ -331,6 +337,7 @@ int main() {
     // above (nothing is copied - see tick.hpp).
     const client::TickContext tick_ctx{
         .world = world,
+        .authority = authority,
         .save = save,
         .block_colors = block_colors,
         .window = window,
@@ -445,7 +452,7 @@ int main() {
                 if (gen_left == 0) {
                     break;
                 }
-                if (world.ensure_chunk(pcx + dx, pcz + dz)) {
+                if (authority.ensure_chunk(pcx + dx, pcz + dz)) {
                     --gen_left;
                 }
             }
@@ -684,7 +691,7 @@ int main() {
     glfwDestroyWindow(window);
 
     // ── exit: force flush (T009: 退出时强制 flush，QUIT 与窗口关闭共用此路径) ──
-    world.autosave_pass();
+    authority.autosave_pass();
     save.write_level_now(client::make_level_data(tick_ctx));
     save.flush();
     OC_LOG_INFO("save: flushed on exit (ticks={}, chunks cached={})", game_ticks, save.cached_region_count());

@@ -32,15 +32,17 @@ add_executable(opencraft_tests
     test_item_stack.cpp
     test_inventory.cpp
     test_inventory_wiring.cpp
+    test_authority.cpp
 )
 
 # opencraft_worldgen PUBLIC-links opencraft_voxel and opencraft_noise;
 # opencraft_render PUBLIC-links opencraft_voxel, so all engine headers
 # propagate from here. opencraft_physics brings the T007 headless simulation;
 # opencraft_game the T008 interaction primitives; opencraft_storage the T009
-# persistence layer (PUBLIC zstd headers feed the compression-ratio test).
+# persistence layer (PUBLIC zstd headers feed the compression-ratio test);
+# opencraft_sim the T-A1 authoritative side (its world simulation).
 target_link_libraries(opencraft_tests PRIVATE opencraft_worldgen opencraft_render opencraft_physics opencraft_game
-    opencraft_storage doctest::doctest_with_main)
+    opencraft_storage opencraft_sim doctest::doctest_with_main)
 
 # test_sprint_feel.cpp asserts the sprint FOV easing declared in the
 # client's header-only fov.hpp (T-D1), and test_camera_spring.cpp the T-D13
