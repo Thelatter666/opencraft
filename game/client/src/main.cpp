@@ -25,6 +25,7 @@
 #include "chunk_renderer.hpp"
 #include "client_config.hpp"
 #include "cube_geometry.hpp"
+#include "death_screen.hpp"
 #include "fov.hpp"
 #include "hud.hpp"
 #include "interaction.hpp"
@@ -45,6 +46,7 @@
 #include "opencraft/storage/world_save.hpp"
 #include "particles.hpp"
 #include "pause_menu.hpp"
+#include "player_life.hpp"
 #include "shaders.hpp"
 #include "tick.hpp"
 #include "world.hpp"
@@ -141,14 +143,29 @@ int main() {
 
     // Spawn: scan 5x5 surface columns inside the square just generated (T009
     // card item) - or reuse the persisted player position.
-    const glm::dvec3 spawn_pos = [&] {
-        if (stored_level.has_value() && stored_level->has_player) {
-            return glm::dvec3(stored_level->player_x, stored_level->player_y, stored_level->player_z);
-        }
-        const glm::dvec3 scanned = authority.find_spawn();
-        OC_LOG_INFO("spawn scan: surface at ({:.1f}, {:.1f}, {:.1f})", scanned.x, scanned.y, scanned.z);
-        return scanned;
-    }();
+    //
+    // T-D45 splits two things that used to be one (card §2.4):
+    //   * `spawn_pos` is where the SESSION starts - still "resume where you
+    //     quit", which is why it cannot be the respawn point;
+    //   * `life.respawn_pos` is where a death sends the player back. It is the
+    //     persisted `spawn_x/y/z` - a field level_file.hpp has had all along,
+    //     which the client used to overwrite with the player position on every
+    //     save (that is what made it drift and useless) - and a new world fills
+    //     it from the same scan the session start uses.
+    client::PlayerLife life;
+    const bool has_save = stored_level.has_value() && stored_level->has_player;
+    // The scan is the fallback in both cases, so it runs only when there is no
+    // usable persisted point to prefer.
+    glm::dvec3 spawn_scan{0.0, 0.0, 0.0};
+    if (!has_save || stored_level->spawn_y <= 0.0) {
+        spawn_scan = authority.find_spawn();
+        OC_LOG_INFO("spawn scan: surface at ({:.1f}, {:.1f}, {:.1f})", spawn_scan.x, spawn_scan.y, spawn_scan.z);
+    }
+    life.respawn_pos =
+        client::choose_respawn_point(has_save, has_save ? *stored_level : opencraft::storage::LevelData{}, spawn_scan);
+    const glm::dvec3 spawn_pos =
+        has_save ? glm::dvec3(stored_level->player_x, stored_level->player_y, stored_level->player_z) : spawn_scan;
+    OC_LOG_INFO("respawn point: ({:.1f}, {:.1f}, {:.1f})", life.respawn_pos.x, life.respawn_pos.y, life.respawn_pos.z);
 
     // ── atlas + font ────────────────────────────────────────────────────────
     const opencraft::client::AtlasImage atlas_image = opencraft::client::generate_atlas(world.registry());
@@ -255,6 +272,17 @@ int main() {
         curr_state.fall_distance = stored_level->fall_distance;
         curr_state.pose = static_cast<phy::Pose>(stored_level->pose & 1U);
         curr_state.on_ground = stored_level->on_ground;
+        // ── T-D45 §2.4: a 0-health save is a death nobody resolved ──────────
+        // Health is persisted but the inventory is not, and nothing heals, so
+        // restoring health 0 verbatim started the session as a corpse that could
+        // not recover. The load path treats it as a RESPAWN instead: full health
+        // at the respawn point. (Not a drop - the inventory is not in the file,
+        // and the launch kit is granted below.)
+        if (client::save_needs_respawn(curr_state.health)) {
+            client::respawn_player(curr_state, life);
+            OC_LOG_WARN("save: stored health {:.1f}; respawning at ({:.1f}, {:.1f}, {:.1f}) at full health",
+                        stored_level->health, life.respawn_pos.x, life.respawn_pos.y, life.respawn_pos.z);
+        }
     }
     prev_state = curr_state;
 
@@ -268,6 +296,13 @@ int main() {
     // pause menu (the non-idempotent AUTO-JUMP toggle button).
     bool prev_menu_clicked = false;
     bool prev_esc = false;
+    // T-D45: the death screen's click-edge state, and last frame's life state -
+    // the cursor mode is handed over on the edge, not every frame.
+    bool prev_death_clicked = false;
+    bool prev_dead = false;
+    // The gamerule skeleton's one rule (gamerule.hpp): what a death leaves the
+    // player holding. Read by the death drop and by the respawn button.
+    const client::GameRules rules{};
     // ── items + inventory (T-I2) ────────────────────────────────────────────
     // ONE item registry per process, and since T-E1 it lives in the authority
     // (world.items()): the authority decides what a broken block drops, so the
@@ -342,7 +377,6 @@ int main() {
         .block_colors = block_colors,
         .window = window,
         .world_seed = world_seed,
-        .spawn_pos = spawn_pos,
         .game_ticks = game_ticks,
         .view_yaw = view_yaw,
         .view_pitch = view_pitch,
@@ -353,12 +387,18 @@ int main() {
         .dirty_chunks = dirty_chunks,
         .particles = particles,
         .state = interact,
+        .life = life,
+        .rules = rules,
     };
 
     // HUD inputs that outlive the frame loop; every referenced object is a
     // const local declared above.
     const client::HudResources hud_res{world, shader, ui_flat_shader, ui_text_shader, font};
     const client::PauseMenuResources pause_res{window, ui_flat_shader, ui_text_shader, font};
+    // T-D45: the death screen draws through the same four GL handles, and is a
+    // separate module because every responsive click coordinate in the
+    // repository is bound to the pause menu's layout.
+    const client::DeathScreenResources death_res{window, ui_flat_shader, ui_text_shader, font};
 
     // ── main loop ───────────────────────────────────────────────────────────
     double last_frame = glfwGetTime();
@@ -388,9 +428,33 @@ int main() {
     while (glfwWindowShouldClose(window) == GLFW_FALSE) {
         glfwPollEvents();
 
-        // ESC edge: toggle pause in both directions.
+        // ── T-D45: coming back / handing over the cursor ────────────────────
+        // The death screen is modal exactly like the pause menu: it owns the
+        // pointer (its button needs one) and it cannot be paused over. The hand
+        // over happens on the EDGE, so nothing re-locks the cursor every frame
+        // the player spends dead.
+        if (life.dead != prev_dead) {
+            if (life.dead) {
+                mining.reset();
+                glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+            } else {
+                glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+                cursor_anchored = false;
+                // The teleport must not sweep the camera across the world (the
+                // spring follows a target, and the target just moved hundreds of
+                // blocks); seeding it at the respawn point makes the first frame
+                // after a respawn start where the player is.
+                camera.reset(curr_state.position.x, curr_state.position.y, curr_state.position.z,
+                             curr_state.pose == phy::Pose::Sneaking ? client::kEyeSneaking : client::kEyeStanding);
+            }
+            prev_dead = life.dead;
+        }
+
+        // ESC edge: toggle pause in both directions. A dead player cannot pause
+        // - the death screen is the modal state, and pausing under it would put
+        // two overlays on top of each other with two live button sets.
         const bool esc_down = client::key_pressed(window, GLFW_KEY_ESCAPE) != 0;
-        if (esc_down && !prev_esc) {
+        if (esc_down && !prev_esc && !life.dead) {
             paused = !paused;
             if (paused) {
                 mining.reset();
@@ -404,7 +468,11 @@ int main() {
         prev_esc = esc_down;
 
         // ── mouse look ──────────────────────────────────────────────────────
-        if (!paused) {
+        // T-D45: not while dead - the cursor is loose so the RESPAWN button can
+        // be clicked, and a loose cursor that still turns the view is the "the
+        // camera is spinning while I am dead" bug. The ticks below keep running
+        // (the world does not stop for a death screen); only the looking stops.
+        if (!paused && !life.dead) {
             if (!cursor_anchored) {
                 glfwGetCursorPos(window, &last_cursor_x, &last_cursor_y);
                 cursor_anchored = true;
@@ -418,7 +486,8 @@ int main() {
                 last_cursor_x = x;
                 last_cursor_y = y;
             }
-
+        }
+        if (!paused) {
             // ── fixed-step simulation ───────────────────────────────────────────
             const double now = glfwGetTime();
             // T-D13: the partial-tick LERP's ramp bends where this frame's tick
@@ -809,7 +878,7 @@ int main() {
         glEnable(GL_DEPTH_TEST);
 
         // ── HUD: hotbar (the inventory's 9 cells + item name + counts) and
-        //    health hearts (T009) ─────────────────────────────────────────
+        //    health hearts (T009); hidden while dead (T-D45) ────────────────
         const client::HudState hud_state{
             .fb_width = fb_width,
             .fb_height = fb_height,
@@ -819,11 +888,37 @@ int main() {
             .vessels = interact.vessels,
             .selected_slot = interact.selected_slot,
             .health = curr_state.health,
+            .dead = life.dead,
         };
         client::draw_hud(hud_res, hud_state);
 
-        // ── pause menu (drawn over the live scene; no ticks while paused) ───
-        if (paused) {
+        // ── the death screen (T-D45) ────────────────────────────────────────
+        // Modal: it replaces the pause menu while the player is dead (ESC is
+        // ignored in that state, above). The click is edge-detected so a held
+        // button cannot respawn the player repeatedly - and the whole 动作 runs
+        // here, in one place: respawn, then the inventory rule (§5.6/§2.6), then
+        // the client-side presentation that belonged to the corpse.
+        if (life.dead) {
+            const client::DeathScreenOut screen =
+                client::draw_death_screen(death_res, prev_death_clicked, fb_width, fb_height);
+            prev_death_clicked = screen.clicked;
+            if (screen.respawn_clicked) {
+                client::respawn_player(curr_state, life);
+                client::respawn_clear_inventory(interact.inventory, rules);
+                interact.refresh_selection();
+                // The teleport must not leave the crosshair's wireframe around a
+                // block hundreds of blocks away (interaction.hpp).
+                interact.clear_live_state();
+                prev_state = curr_state;
+                prev_death_clicked = true; // the button is still held this frame
+                OC_LOG_INFO("respawned at ({:.2f}, {:.2f}, {:.2f}); health {:.1f}, {} slot(s) in hand",
+                            curr_state.position.x, curr_state.position.y, curr_state.position.z, curr_state.health,
+                            interact.inventory.used_slots());
+            }
+            glEnable(GL_DEPTH_TEST);
+            glEnable(GL_CULL_FACE);
+            glDisable(GL_BLEND);
+        } else if (paused) {
             const client::PauseMenuOut menu =
                 client::draw_pause_menu(pause_res, auto_jump_enabled, prev_menu_clicked, fb_width, fb_height);
             if (menu.resume) {

@@ -46,6 +46,10 @@ const char *action_reject_reason(const ActionReject reject) {
         return "a baby cannot breed";
     case ActionReject::BreedingCooldown:
         return "mob is still on its breeding cooldown";
+    case ActionReject::UnknownItem:
+        return "no such item";
+    case ActionReject::BadStackCount:
+        return "stack count out of range";
     }
     return "";
 }

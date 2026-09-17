@@ -480,7 +480,13 @@ void step_player(PlayerState &s, const InputState &in, const IBlockSource &world
             // at tick start means the landing is a water landing.
             const double fallen = s.fall_peak_y - s.position.y;
             if (!water && fallen > cfg.fall_damage_offset) {
-                s.health -= std::floor(fallen - cfg.fall_damage_offset);
+                // T-D45: the raw subtraction used to run past 0 (a 30-block
+                // fall left health at −7). The ⚖ amount is unchanged; only the
+                // result is clamped, to the same [0, 20] the client's own
+                // damage entry (client/player_life.hpp) clamps to. 20 = the ⚖
+                // 10 hearts of docs/01 §3, not a new number.
+                constexpr double kMaxHealth = 20.0;
+                s.health = std::clamp(s.health - std::floor(fallen - cfg.fall_damage_offset), 0.0, kMaxHealth);
             }
         }
         if (sub_ceiling) {

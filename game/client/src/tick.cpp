@@ -42,9 +42,11 @@ storage::LevelData make_level_data(const TickContext &ctx) {
     level.seed = ctx.world_seed;
     level.tick_count = ctx.game_ticks;
     level.has_player = true;
-    level.spawn_x = ctx.spawn_pos.x;
-    level.spawn_y = ctx.spawn_pos.y;
-    level.spawn_z = ctx.spawn_pos.z;
+    // T-D45: the RESPAWN point, not the session position. This field used to be
+    // written from ctx.spawn_pos, which after a load IS the last quit position
+    // (main.cpp) - so it drifted with the player and was useless as a respawn
+    // point. Only the client's own life state is written here now.
+    write_respawn_point(level, ctx.life);
     level.player_x = ctx.curr_state.position.x;
     level.player_y = ctx.curr_state.position.y;
     level.player_z = ctx.curr_state.position.z;
@@ -82,10 +84,100 @@ namespace {
     return pose;
 }
 
+// One damage instance, logged - the QA trail for the death path. The rule itself
+// is player_life.hpp's; this only reports what it did. A discarded hit (the
+// player is already dead) is logged at DEBUG, because a mob standing on a corpse
+// produces one per tick.
+void log_damage(const TickContext &ctx, const DamageResolution &hit, const char *what, const glm::dvec3 &at) {
+    if (!hit.damage.applied) {
+        OC_LOG_DEBUG("{} for {:.1f} ignored: the player is dead", what, hit.damage.amount);
+        return;
+    }
+    OC_LOG_INFO("{} for {:.1f} at ({:.2f}, {:.2f}, {:.2f}); health now {:.1f}", what, hit.damage.amount, at.x, at.y,
+                at.z, hit.damage.health);
+    if (hit.damage.died) {
+        OC_LOG_INFO("player died at ({:.2f}, {:.2f}, {:.2f}); {} stack(s) dropped, {} refused (slots left: {})",
+                    ctx.life.death_pos.x, ctx.life.death_pos.y, ctx.life.death_pos.z, hit.drop.dropped,
+                    hit.drop.refused, ctx.state.inventory.used_slots());
+        if (hit.drop.refused > 0) {
+            // The authority only refuses a drop for a reason the client can see
+            // (§4: the chunk is not resident); those stacks stay in the cells and
+            // the respawn clears them.
+            OC_LOG_WARN("death drop: {} stack(s) refused by the authority and left in the inventory", hit.drop.refused);
+        }
+    }
+}
+
+// The state a corpse (or a player who just respawned elsewhere) must not keep:
+// the mining progress, the crack overlay, the target highlight and the entity
+// pick. Shared by the three places a death or a respawn passes through, so none
+// of them can forget one of the fields.
+void clear_live_state(const TickContext &ctx) {
+    ctx.mining.reset();
+    ctx.state.clear_live_state();
+}
+
+// The part of a logic tick that runs whether or not the player is alive: the
+// authority's own step, the push-back drain and the autosave cadence. Factored
+// out by T-D45 so the dead tick cannot drift from the live one - a caller that
+// stops draining take_changes() grows the authority's buffer without bound, and
+// a dead player is not a reason to stop simulating the world.
+void world_tail(const TickContext &ctx) {
+    // T-M2: the mob AI is the first system that has to notice the player without
+    // an action happening, so the pose goes over once per logic tick, before the
+    // authoritative step reads it.
+    ctx.authority.observe_actor(actor_pose(ctx));
+    ctx.authority.tick();
+    const gam::WorldChanges changes = ctx.authority.take_changes();
+    ctx.dirty_chunks.insert(ctx.dirty_chunks.end(), changes.dirty_chunks.begin(), changes.dirty_chunks.end());
+
+    // ── what the mobs did to the player (T-M2, T-D45) ────────────────────────
+    // The authority simulates the mobs but does not own the player's hit points
+    // (T-A1 kept the player out of its vocabulary), so the damage arrives as an
+    // event and is applied here, where the health that the HUD renders lives.
+    // ⚠ Still deliberately NOT modelled: hurt invulnerability, armour, knockback
+    // - the player-combat card's work. What T-D45 added is the consequence: the
+    // health is clamped at both ends and reaching 0 is a death (once).
+    for (const gam::ActorEvent &event : changes.actor_events) {
+        if (event.amount <= 0.0) {
+            continue;
+        }
+        const DamageResolution hit = take_damage(ctx.state.inventory, ctx.authority, ctx.rules, ctx.curr_state.health,
+                                                 ctx.life, event.amount, event.position, actor_pose(ctx));
+        log_damage(ctx, hit, event.kind == gam::ActorEventKind::Explosion ? "explosion" : "mob melee", event.position);
+    }
+
+    // ── autosave cadence: 200 ticks = ~10 s of game time (T009) ──────────
+    if (ctx.save.maybe_autosave_tick()) {
+        // The window in request form (T-D4): the same streaming request the
+        // frame loop sends, without a generation budget, plus the persist flag.
+        // The release window travels with it, so the resident set also tightens
+        // on ticks that generate nothing.
+        gam::StreamRequest autosave = make_stream_request(ctx.curr_state.position);
+        autosave.persist = true;
+        const gam::StreamResult result = ctx.authority.stream(autosave);
+        ctx.save.write_level_now(make_level_data(ctx));
+        OC_LOG_INFO("autosave: {} chunk(s) queued for async write, level written (ticks={})", result.persisted_chunks,
+                    ctx.game_ticks);
+    }
+}
+
 } // namespace
 
 // One 20 TPS logic tick: physics -> targeting -> mining -> placement.
 void run_tick(const TickContext &ctx) {
+    // ── T-D45: a dead player takes no tick ───────────────────────────────────
+    // No input mapping, no physics step, no targeting and no verbs: the corpse
+    // cannot move, dig, place, attack, pick up or select (§2.5), and "moving
+    // while dead" is IMPOSSIBLE rather than ignored, because the step that reads
+    // the keys never runs. The WORLD keeps running - a death screen is a client
+    // UI state, not a server pause - through the very same tail a live tick
+    // uses, so the push-back and the autosave cadence cannot drift apart.
+    if (!may_act(ctx.life)) {
+        clear_live_state(ctx);
+        world_tail(ctx);
+        return;
+    }
     // ── input mapping (WASD + space + shift + ctrl) ──────────────────────
     // T-D1: S maps to the explicit InputState::backward field (T007 had
     // no backward flag and simulated it as a 180° yaw flip; the physics
@@ -125,7 +217,31 @@ void run_tick(const TickContext &ctx) {
     }
 
     ctx.prev_state = ctx.curr_state;
+    // ── T-D45: the physics step computes the fall, the single entry applies it
+    //    (§2.1) ───────────────────────────────────────────────────────────────
+    // step_player still derives ⚖ floor(d − 3) itself - its own tests assert the
+    // number straight off the state, and that arithmetic is frozen - so the tick
+    // takes the difference it produced, restores the health and feeds it through
+    // take_fall_damage(). One place moves the hit points (clamp + the alive ->
+    // dead edge + the death drop) instead of a second copy of the rule that
+    // would only differ in which bugs it has.
+    const double health_before_step = ctx.curr_state.health;
     phy::step_player(ctx.curr_state, in, ctx.world);
+    {
+        const DamageResolution fall =
+            take_fall_damage(ctx.state.inventory, ctx.authority, ctx.rules, ctx.curr_state.health, ctx.life,
+                             health_before_step, actor_pose(ctx));
+        log_damage(ctx, fall, "fall", ctx.curr_state.position);
+        if (fall.damage.died) {
+            // The landing killed the player: the rest of the tick belongs to a
+            // dead player, and running it would let one frame's worth of verbs
+            // (targeting, mining, placement) happen after the death.
+            ctx.prev_state = ctx.curr_state;
+            clear_live_state(ctx);
+            world_tail(ctx);
+            return;
+        }
+    }
 
     // Sprint transitions come from the physics state machine (explicit
     // state per the T-D1 contract) — log them for QA evidence.
@@ -508,48 +624,14 @@ void run_tick(const TickContext &ctx) {
         }
     }
 
-    // ── fluid scheduled ticks (T-F1): one step per game tick, exactly like
-    //    the rest of the simulation. The authority advances the fluid layer and
-    //    pushes back every chunk it made stale; the client only collects them
-    //    for the remesh pass (the same list the actions above pushed into).
-    // T-M2: the mob AI is the first system that has to notice the player without
-    // an action happening, so the pose goes over once per logic tick, before the
-    // authoritative step reads it.
-    ctx.authority.observe_actor(actor_pose(ctx));
-    ctx.authority.tick();
-    const gam::WorldChanges changes = ctx.authority.take_changes();
-    ctx.dirty_chunks.insert(ctx.dirty_chunks.end(), changes.dirty_chunks.begin(), changes.dirty_chunks.end());
-
-    // ── what the mobs did to the player (T-M2) ───────────────────────────────
-    // The authority simulates the mobs but does not own the player's hit points
-    // (T-A1 kept the player out of its vocabulary), so the damage arrives as an
-    // event and is applied here, where the health that the HUD renders lives.
-    // ⚠ Deliberately NOT modelled: hurt invulnerability, armour, knockback and
-    // death - the player-combat card's work. Health floors at 0, and a player at
-    // 0 keeps playing (there is no death state yet).
-    for (const gam::ActorEvent &event : changes.actor_events) {
-        if (event.amount <= 0.0) {
-            continue;
-        }
-        ctx.curr_state.health = std::max(0.0, ctx.curr_state.health - event.amount);
-        OC_LOG_INFO("{} for {:.1f} at ({:.2f}, {:.2f}, {:.2f}); health now {:.1f}",
-                    event.kind == gam::ActorEventKind::Explosion ? "explosion" : "mob melee", event.amount,
-                    event.position.x, event.position.y, event.position.z, ctx.curr_state.health);
-    }
-
-    // ── autosave cadence: 200 ticks = ~10 s of game time (T009) ──────────
-    if (ctx.save.maybe_autosave_tick()) {
-        // The window in request form (T-D4): the same streaming request the
-        // frame loop sends, without a generation budget, plus the persist flag.
-        // The release window travels with it, so the resident set also tightens
-        // on ticks that generate nothing.
-        gam::StreamRequest autosave = make_stream_request(ctx.curr_state.position);
-        autosave.persist = true;
-        const gam::StreamResult result = ctx.authority.stream(autosave);
-        ctx.save.write_level_now(make_level_data(ctx));
-        OC_LOG_INFO("autosave: {} chunk(s) queued for async write, level written (ticks={})", result.persisted_chunks,
-                    ctx.game_ticks);
-    }
+    // ── fluid scheduled ticks + the authoritative step + the save cadence ────
+    // T-F1: one fluid step per game tick, exactly like the rest of the
+    // simulation. The authority advances the fluid layer and pushes back every
+    // chunk it made stale; the client only collects them for the remesh pass
+    // (the same list the actions above pushed into). T-M2's mob pass and the
+    // mob -> player damage events ride the same tail, and T-D45 made that tail a
+    // named function so a dead player's tick uses the identical one.
+    world_tail(ctx);
 }
 
 } // namespace opencraft::client

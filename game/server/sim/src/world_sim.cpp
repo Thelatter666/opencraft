@@ -81,6 +81,8 @@ game::ActionResult WorldSim::submit(const game::ActionRequest &req) {
         return apply_attack(req);
     case game::ActionKind::Feed:
         return apply_feed(req);
+    case game::ActionKind::DropItems:
+        return apply_drop_items(req);
     }
     return {false, game::ActionReject::UnknownBlock}; // unreachable: every kind is handled above
 }
@@ -282,6 +284,39 @@ game::ActionResult WorldSim::apply_pickup(const game::ActionRequest &req) {
     // place_one_block uses.
     entities_.erase(drop->id);
     return {true, game::ActionReject::None};
+}
+
+// ── T-D45: the death drop ───────────────────────────────────────────────────
+
+game::ActionResult WorldSim::apply_drop_items(const game::ActionRequest &req) {
+    const std::uint16_t item = req.item_or_block;
+    // 0 is the registry's reserved "empty" entry, not a thing anyone can drop,
+    // and an id past the table is content drift. Both are UnknownItem.
+    if (item == game::ItemRegistry::kEmptyId || !items_.has_numeric(item)) {
+        return {false, game::ActionReject::UnknownItem};
+    }
+    // The client's count is re-derived against the item's own ⚖ stack limit
+    // (docs/01 §5: 堆叠 64/16/1) - a request cannot conjure an oversized stack.
+    const int count = req.target.x;
+    const int limit = game::stack_limit_of(items_, item);
+    if (count <= 0 || limit <= 0 || count > limit) {
+        return {false, game::ActionReject::BadStackCount};
+    }
+    // The drop appears at the actor's MIDDLE, the same convention the mob loot
+    // uses (spawn_item_stack_at takes the box's centre and derives the feet);
+    // that is why the request carries the corpse's height and not just a point.
+    const glm::dvec3 centre = req.actor.feet + glm::dvec3(0.0, req.actor.height * 0.5, 0.0);
+    const auto [cx, cz] =
+        voxel::Chunk::chunk_coords(static_cast<int>(std::floor(centre.x)), static_cast<int>(std::floor(centre.z)));
+    if (!chunk_ready(cx, cz)) {
+        // A drop in an unloaded chunk would be frozen (item_sim skips it) - and
+        // worse, it would be invisible to the player who is standing there. The
+        // client keeps the stack in its cell when this comes back.
+        return {false, game::ActionReject::ChunkNotLoaded};
+    }
+    return spawn_item_stack_at(entities_, entity_types_, item_rules_, item, count, centre) != EntityStore::kNoEntity
+               ? game::ActionResult{true, game::ActionReject::None}
+               : game::ActionResult{false, game::ActionReject::UnknownItem};
 }
 
 // ── mobs (T-M2) ─────────────────────────────────────────────────────────────

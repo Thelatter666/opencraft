@@ -40,6 +40,10 @@ struct HudState {
     VesselIds vessels;
     int selected_slot = 0;
     double health = 0.0;
+    // T-D45 (appended; the fields above keep their order): the player is dead,
+    // so the HUD is not drawn at all. The death screen is the whole UI in that
+    // state, and a hotbar under a "you died" panel reads as a bug.
+    bool dead = false;
 };
 
 // Depth test is disabled on entry and restored on exit (as before).

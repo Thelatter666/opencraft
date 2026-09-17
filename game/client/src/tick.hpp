@@ -20,6 +20,7 @@
 #include "opencraft/storage/level_file.hpp"
 #include "opencraft/storage/world_save.hpp"
 #include "particles.hpp"
+#include "player_life.hpp"
 
 // Forward declaration: the tick only holds the handle, so no GLFW include.
 struct GLFWwindow;
@@ -40,7 +41,6 @@ struct TickContext {
     const std::vector<glm::vec3> &block_colors;
     GLFWwindow *window;
     const std::uint64_t &world_seed;
-    const glm::dvec3 &spawn_pos;
     std::uint64_t &game_ticks;
     double &view_yaw;
     double &view_pitch;
@@ -51,6 +51,10 @@ struct TickContext {
     std::vector<std::pair<int, int>> &dirty_chunks;
     std::vector<Particle> &particles;
     InteractionState &state;
+    // T-D45: the player's life cycle - alive/dead, where the corpse is, and the
+    // respawn point - plus the one gamerule the death path reads.
+    PlayerLife &life;
+    const GameRules &rules;
 };
 
 // GLFW_KEY_* poll; main.cpp drives the menu keys through this too.

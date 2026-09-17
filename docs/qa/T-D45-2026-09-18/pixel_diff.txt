@@ -1,0 +1,2 @@
+docs/qa/T-D45-2026-09-18/01_death_screen_and_drops.png vs docs/qa/T-D45-2026-09-18/02_dead_inputs_ignored.png: 10256 differing pixel(s) of 957440
+  bounding box: x 576..702, y 440..570
