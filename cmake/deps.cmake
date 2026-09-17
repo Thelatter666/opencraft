@@ -50,6 +50,21 @@ FetchContent_Declare(
 
 FetchContent_MakeAvailable(fastnoise_lite)
 
+# stb_image (T-A2): PNG decoding for the external art-asset pipeline
+# (docs/tasks/T-A2.md §4; consumer: game/client/src/asset_atlas.cpp).
+# Public domain - the header opens with "stb_image - v2.30 - public domain
+# image loader". The GitHub API reports NOASSERTION only because the repository
+# bundles several licenses, so the source header is the authority. stb ships no
+# CMakeLists and no release tags, so MakeAvailable only populates the source
+# directory (same shape as fastnoise_lite above) and the commit is pinned.
+FetchContent_Declare(
+    stb
+    GIT_REPOSITORY https://github.com/nothings/stb.git
+    GIT_TAG 2c980bb59875b0d32144a71867fbdebb2f77cd20
+)
+
+FetchContent_MakeAvailable(stb)
+
 # zstd (T009): region-file chunk compression (docs/03 §7, research/03 §5.2).
 # Static lib only; we consume the C API. SOURCE_SUBDIR points at the bundled
 # CMake project (the repo root is plain Makefiles).

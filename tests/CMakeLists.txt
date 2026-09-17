@@ -42,6 +42,7 @@ add_executable(opencraft_tests
     test_mob_spawn.cpp
     test_mob_authority.cpp
     test_player_death.cpp
+    test_asset_atlas.cpp
 )
 
 # opencraft_worldgen PUBLIC-links opencraft_voxel and opencraft_noise;
@@ -50,8 +51,10 @@ add_executable(opencraft_tests
 # opencraft_game the T008 interaction primitives; opencraft_storage the T009
 # persistence layer (PUBLIC zstd headers feed the compression-ratio test);
 # opencraft_sim the T-A1 authoritative side (its world simulation).
-target_link_libraries(opencraft_tests PRIVATE opencraft_worldgen opencraft_render opencraft_physics opencraft_game
-    opencraft_storage opencraft_sim doctest::doctest_with_main)
+# opencraft_client_assets brings the T-A2 atlas generator + asset loader, so
+# test_asset_atlas.cpp exercises the client's own code rather than a copy.
+target_link_libraries(opencraft_tests PRIVATE opencraft_client_assets opencraft_worldgen opencraft_render
+    opencraft_physics opencraft_game opencraft_storage opencraft_sim doctest::doctest_with_main)
 
 # test_sprint_feel.cpp asserts the sprint FOV easing declared in the
 # client's header-only fov.hpp (T-D1), and test_camera_spring.cpp the T-D13

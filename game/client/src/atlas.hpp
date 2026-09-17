@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include <filesystem>
 #include <vector>
 
 #include "opencraft/voxel/block_registry.hpp"
@@ -17,6 +18,11 @@ namespace opencraft::client {
 // Each tile is 16x16 RGBA; the atlas is the smallest square tile grid that
 // fits everything.
 //
+// T-A2: each of those tiles can be overridden by an external file
+// (assets/blocks/<id>_<slot>.png) - see asset_atlas.hpp for the file rules.
+// The procedural painters below stay in the build as the fallback, so a
+// checkout with no art looks exactly as it did before that channel existed.
+//
 // Compliance note: all patterns are abstract procedural motifs (dithers,
 // stripes, cell grids) with low-saturation palettes per block type - nothing
 // is modeled after any specific game's texture art.
@@ -32,6 +38,16 @@ struct AtlasImage {
     return static_cast<std::uint16_t>(registry_size * 3);
 }
 
+// Builds the atlas for `registry`, taking each block tile from
+// `<assets_root>/blocks/<id>_<slot>.png` when that file exists and is a usable
+// 16x16 PNG, and painting the procedural pattern otherwise (T-A2; the layout
+// and the fallback rule are frozen in docs/tasks/T-A2.md §3.1/§3.3). Tile
+// indices and the atlas size formula are untouched by this: the asset channel
+// only ever replaces the pixels inside a tile.
+[[nodiscard]] AtlasImage generate_atlas(const voxel::BlockRegistry &registry, const std::filesystem::path &assets_root);
+
+// Convenience overload for production callers: resolves the asset tree with
+// client::resolve_assets_root() (see asset_atlas.hpp) and reports the outcome.
 [[nodiscard]] AtlasImage generate_atlas(const voxel::BlockRegistry &registry);
 
 } // namespace opencraft::client

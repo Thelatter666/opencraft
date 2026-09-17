@@ -1,18 +1,23 @@
 #include "atlas.hpp"
 
+#include "asset_atlas.hpp"
+
+#include "opencraft/core/log.hpp"
 #include "opencraft/render/mesher.hpp"
 
 #include <algorithm>
 #include <array>
 #include <cmath>
 #include <cstdint>
+#include <optional>
 #include <string>
 
 namespace opencraft::client {
 
 namespace {
 
-constexpr int kTileSize = 16;
+// The tile side is kTileSize from asset_atlas.hpp: one definition for the atlas
+// layout and the asset file rule, which are the same number by contract.
 
 std::uint32_t rgba(int r, int g, int b, int a = 255) {
     return (static_cast<std::uint32_t>(a & 0xFF) << 24) | (static_cast<std::uint32_t>(b & 0xFF) << 16) |
@@ -223,9 +228,28 @@ void paint_crack_tile(AtlasImage &atlas, int tx0, int ty0, int stage) {
     }
 }
 
+// Copies one tile that came from an asset file (T-A2) into its atlas slot. A
+// straight row copy: load_tile_png() already flipped the PNG's top-down rows
+// into the atlas' bottom-up ones.
+void blit_tile(AtlasImage &atlas, int tx0, int ty0, const TilePixels &tile) {
+    for (int py = 0; py < kTileSize; ++py) {
+        const std::uint32_t *src = tile.data() + static_cast<std::size_t>(py) * kTileSize;
+        std::uint32_t *dst = atlas.pixels.data() + static_cast<std::size_t>((ty0 + py) * atlas.width + tx0);
+        std::copy(src, src + kTileSize, dst);
+    }
+}
+
 } // namespace
 
 AtlasImage generate_atlas(const voxel::BlockRegistry &registry) {
+    const std::filesystem::path assets_root = resolve_assets_root();
+    if (assets_root.empty()) {
+        OC_LOG_INFO("atlas: no assets/ tree found; every block tile is procedural");
+    }
+    return generate_atlas(registry, assets_root);
+}
+
+AtlasImage generate_atlas(const voxel::BlockRegistry &registry, const std::filesystem::path &assets_root) {
     const std::size_t tile_count = registry.size() * 3 + 10; // blocks + 10 crack stages
     const int side = static_cast<int>(std::ceil(std::sqrt(static_cast<double>(tile_count))));
     const int tiles_per_row = std::max(1, side);
@@ -237,12 +261,27 @@ AtlasImage generate_atlas(const voxel::BlockRegistry &registry) {
     atlas.pixels.assign(static_cast<std::size_t>(atlas.width) * static_cast<std::size_t>(atlas.height),
                         rgba(30, 30, 34));
 
+    std::size_t tiles_from_files = 0;
     for (std::uint16_t id = 0; id < registry.size(); ++id) {
+        const std::string &block_id = registry.string_of(id);
         for (int slot = 0; slot < 3; ++slot) {
             const std::uint16_t tile = render::tile_index(id, slot);
             const int tx = (tile % static_cast<std::uint16_t>(tiles_per_row)) * kTileSize;
             const int ty = (tile / static_cast<std::uint16_t>(tiles_per_row)) * kTileSize;
-            paint_tile(atlas, tx, ty, id, slot, registry.string_of(id));
+
+            // T-A2: an external file wins when there is one. Air is skipped on
+            // purpose - it has no faces, so its three tiles are never sampled
+            // and looking up air_top.png would only ever waste a stat.
+            std::optional<TilePixels> asset;
+            if (!assets_root.empty() && id != voxel::BlockRegistry::kAirId) {
+                asset = load_block_tile(assets_root, block_id, slot);
+            }
+            if (asset.has_value()) {
+                blit_tile(atlas, tx, ty, *asset);
+                ++tiles_from_files;
+            } else {
+                paint_tile(atlas, tx, ty, id, slot, block_id);
+            }
         }
     }
     for (int stage = 0; stage < 10; ++stage) {
@@ -250,6 +289,10 @@ AtlasImage generate_atlas(const voxel::BlockRegistry &registry) {
         const int tx = (tile % static_cast<std::uint16_t>(tiles_per_row)) * kTileSize;
         const int ty = (tile / static_cast<std::uint16_t>(tiles_per_row)) * kTileSize;
         paint_crack_tile(atlas, tx, ty, stage);
+    }
+    if (!assets_root.empty()) {
+        OC_LOG_INFO("atlas: {}/{} block tiles loaded from {}/blocks", tiles_from_files, registry.size() * 3,
+                    assets_root.string());
     }
     return atlas;
 }
