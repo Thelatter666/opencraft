@@ -1,0 +1,10 @@
+T-R3 empirical measurement: surface complexity of real .vox models
+method: parse SIZE/XYZI; count voxel faces with no orthogonally-adjacent voxel
+(4 verts + 2 tris per exposed face, no greedy merging)
+
+3x3x3.vox        SIZE=(3, 3, 3)        voxels=    20 exposed_faces=    72 verts=    288 tris=    144
+shelf.vox        SIZE=(45, 45, 45)     voxels=  1602 exposed_faces=  6326 verts=  25304 tris=  12652
+chr_knight.vox   SIZE=(20, 21, 20)     voxels=   398 exposed_faces=   730 verts=   2920 tris=   1460
+chr_sword.vox    SIZE=(20, 21, 20)     voxels=   334 exposed_faces=   510 verts=   2040 tris=   1020
+teapot.vox       SIZE=(126, 80, 61)    voxels= 28411 exposed_faces= 55964 verts= 223856 tris= 111928
+castle.vox       SIZE=(21, 21, 21)     voxels=  2628 exposed_faces=  3696 verts=  14784 tris=   7392

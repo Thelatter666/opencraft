@@ -1,0 +1,26 @@
+T-R3 许可核验记录（访问日期 2026-09-18）
+工具：curl -sS -x http://127.0.0.1:7890 （本机需代理；直连亦可，见下）
+生成方式：对每个 URL 记录 HTTP 状态码与文件大小；正文另存 qa_*.txt
+
+URL                                                                      HTTP   SIZE
+---                                                                      ----   ----
+https://ephtracy.github.io/                                              200    4326
+https://ephtracy.github.io/mv_main.html                                  200    64188
+https://ephtracy.github.io/LICENSE.txt                                   404    9379
+https://raw.githubusercontent.com/ephtracy/voxel-model/master/LICENSE    200    1065
+https://raw.githubusercontent.com/ephtracy/voxel-model/master/MagicaVoxel-file-format-vox.txt 200    6593
+https://raw.githubusercontent.com/ephtracy/voxel-model/master/MagicaVoxel-file-format-vox-extension.txt 200    3333
+https://raw.githubusercontent.com/eisenwave/voxel-io/master/LICENSE      200    1070
+https://raw.githubusercontent.com/Deins/VoxReader/master/LICENSE         200    1070
+https://raw.githubusercontent.com/guillaumechereau/goxel/master/README.md 200    3002
+https://api.github.com/repos/ephtracy/voxel-model                        200    5750
+https://api.github.com/repos/eisenwave/voxel-io                          200    5859
+https://api.github.com/repos/Deins/VoxReader                             200    5493
+https://api.github.com/repos/guillaumechereau/goxel                      200    6029
+https://api.github.com/repos/ephtracy/ephtracy.github.io/releases/tags/0.99.7 200    5878
+https://api.github.com/repos/ephtracy/ephtracy.github.io/releases/tags/0.99.6 200    9380
+
+本机发行包下载与校验
+  MagicaVoxel-0.99.6.2-macos-10.15.zip  size=3809852
+  sha256=4ee661e41da07f8c2b2b1c916bd1e18f7c5229900f30467eeea73ad74e861226
+  解包后 find -iname '*license*' -o -iname '*copying*' => 0 命中（只有 readme.txt）
