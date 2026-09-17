@@ -1,0 +1,74 @@
+=== per-function token comparison (comments excluded; comments checked separately) ===
+
+-- box_collides -> box_collides: 265 tokens old, 0 removed
+   [literals OK] {'0.0': 1, '1': 2}
+
+-- highest_surface_below -> highest_surface_below: 302 tokens old, 0 removed
+   [literals OK] {'1.0': 1, '0.0': 1, '1': 2, '1e-12': 2}
+
+-- move_axis_y -> sweep_axis_y: 216 tokens old, 15 removed
+   [ledger]  2x '&' -> the by-reference out-flag parameter is gone (AxisSweep replaces it)
+   [ledger]  4x '(' -> signature relabeling: the removed static_cast<int>() call and its argument list
+   [ledger]  4x ')' -> signature relabeling: same static_cast pair
+   [ledger]  6x '.' -> signature relabeling: `s.position.y` -> `position.y` / `s.velocity` gone
+   [ledger]  1x '0.0' -> `return 0.0` -> AxisSweep::delta default 0.0 / `velocity.x = 0.0` moved to the wrapper
+   [ledger]  2x '<' -> signature relabeling: the removed `static_cast<int>` angle brackets
+   [ledger]  2x '>' -> signature relabeling: the removed `static_cast<int>` angle brackets
+   [ledger]  1x 'PlayerState' -> -> the `half_width` / `height` arguments (kHalfWidth is passed by the caller)
+   [ledger]  2x 'bool' -> the bool out-flag parameter is gone (AxisSweep replaces it)
+   [ledger]  2x 'hit_ceiling' -> -> AxisSweep::ceiling
+   [ledger]  2x 'hit_ground' -> -> AxisSweep::ground (returned instead of written through a reference)
+   [ledger]  1x 'int' -> same fold: std::floor already yields the integral double
+   [ledger]  1x 'move_axis_y' -> -> renamed sweep_axis_y
+   [ledger] 14x 's' -> the PlayerState parameter -> position/half_width/height arguments
+   [ledger]  2x 'static_cast' -> the (double)(int) round-trip folded into std::floor (bit-identical for |v| < 2^31)
+   [LITERALS] old={'0.0': 4, '1.0': 1} new={'0.0': 3, '1.0': 1}
+
+-- move_axis_x -> sweep_axis_x: 201 tokens old, 12 removed
+   [ledger]  1x '&' -> the by-reference out-flag parameter is gone (AxisSweep replaces it)
+   [ledger]  7x '.' -> signature relabeling: `s.position.y` -> `position.y` / `s.velocity` gone
+   [ledger]  2x '0.0' -> `return 0.0` -> AxisSweep::delta default 0.0 / `velocity.x = 0.0` moved to the wrapper
+   [ledger]  6x ':' -> `PlayerState::kHalfWidth` -> the `half_width` argument
+   [ledger]  5x 'PlayerState' -> -> the `half_width` / `height` arguments (kHalfWidth is passed by the caller)
+   [ledger]  1x 'bool' -> the bool out-flag parameter is gone (AxisSweep replaces it)
+   [ledger]  2x 'hit_wall' -> -> AxisSweep::hit
+   [ledger]  4x 'kHalfWidth' -> -> the `half_width` argument
+   [ledger]  1x 'move_axis_x' -> -> renamed sweep_axis_x (the shared geometry)
+   [ledger] 11x 's' -> the PlayerState parameter -> position/half_width/height arguments
+   [ledger]  1x 'velocity' -> -> the velocity response moved to the caller (player: zeroed in move_axis_*; entity: x restitution)
+   [ledger]  1x 'x' -> `s.velocity.x = 0.0` moved to the caller wrapper (same line there)
+   [LITERALS] old={'0.0': 4, '1.0': 1} new={'0.0': 2, '1.0': 1}
+
+-- move_axis_z -> sweep_axis_z: 201 tokens old, 12 removed
+   [ledger]  1x '&' -> the by-reference out-flag parameter is gone (AxisSweep replaces it)
+   [ledger]  7x '.' -> signature relabeling: `s.position.y` -> `position.y` / `s.velocity` gone
+   [ledger]  2x '0.0' -> `return 0.0` -> AxisSweep::delta default 0.0 / `velocity.x = 0.0` moved to the wrapper
+   [ledger]  6x ':' -> `PlayerState::kHalfWidth` -> the `half_width` argument
+   [ledger]  5x 'PlayerState' -> -> the `half_width` / `height` arguments (kHalfWidth is passed by the caller)
+   [ledger]  1x 'bool' -> the bool out-flag parameter is gone (AxisSweep replaces it)
+   [ledger]  2x 'hit_wall' -> -> AxisSweep::hit
+   [ledger]  4x 'kHalfWidth' -> -> the `half_width` argument
+   [ledger]  1x 'move_axis_z' -> -> renamed sweep_axis_z
+   [ledger] 11x 's' -> the PlayerState parameter -> position/half_width/height arguments
+   [ledger]  1x 'velocity' -> -> the velocity response moved to the caller (player: zeroed in move_axis_*; entity: x restitution)
+   [ledger]  1x 'z' -> `s.velocity.z = 0.0` moved to the caller wrapper (same line there)
+   [LITERALS] old={'0.0': 4, '1.0': 1} new={'0.0': 2, '1.0': 1}
+
+=== comments ===
+  old bodies: 3 comment tokens
+  not present verbatim in the new bodies: 0
+
+=== the duplicate that disappeared from item_sim.hpp ===
+  1242 tokens of hand-copied collision code removed
+  item_sim.hpp still defines/calls 'box_collides(': 0 line(s) []
+  item_sim.hpp still defines/calls 'highest_surface_below(': 0 line(s) []
+  item_sim.hpp still defines/calls 'move_axis_y(': 0 line(s) []
+  item_sim.hpp still defines/calls 'sweep_axis_y(': 1 line(s) ['            physics::sweep_axis_y(e.position, def.half_width, def.height, world, e.velocity.y / substeps);']
+  [relocated OK] move_axis_y: 1x '0.0' no longer in this body, 55 occurrence(s) elsewhere in the new tree
+  [relocated OK] move_axis_x: 2x '0.0' no longer in this body, 55 occurrence(s) elsewhere in the new tree
+  [relocated OK] move_axis_z: 2x '0.0' no longer in this body, 55 occurrence(s) elsewhere in the new tree
+
+=== verdict ===
+  unexplained token removals: 0
+  bodies whose literal multiset changed: 3 (all relocations above)
+  literal VALUES that disappeared from the tree: 0 {}

@@ -1,0 +1,20 @@
+[2026-09-17 23:48:19.774] [info] OpenCraft 0.1.0 starting
+[2026-09-17 23:48:19.933] [info] GL 4.1 Metal - 89.4 / glad loaded
+[2026-09-17 23:48:19.933] [info] save: no level.ocd, new world with seed 0x4f50454e43524146
+[2026-09-17 23:48:20.159] [info] startup gen: 25 chunks, total 225.1 ms, avg 9.01 ms/chunk
+[2026-09-17 23:48:20.159] [info] spawn scan: surface at (0.5, 132.0, 0.5)
+[2026-09-17 23:48:20.159] [info] atlas: 144x144 px, 9 tiles/row, crack tiles at 63
+[2026-09-17 23:48:22.202] [info] fps 43.1 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-17 23:48:24.224] [info] fps 69.1 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-17 23:48:26.237] [info] fps 72.0 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-17 23:48:28.245] [info] fps 72.3 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-17 23:48:30.257] [info] fps 73.0 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-17 23:48:32.270] [info] fps 73.5 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-17 23:48:32.299] [info] autosave: 0 chunk(s) queued for async write, level written (ticks=199)
+2026-09-17 23:48:32.493 opencraft[22487:305390] error messaging the mach port for IMKCFRunLoopWakeUpReliable
+[2026-09-17 23:48:34.264] [info] fps 71.4 | pos (0.50, 132.00, 0.07) | chunks 113 | stream-meshed 104
+[2026-09-17 23:48:36.278] [info] fps 70.3 | pos (0.50, 132.00, -2.04) | chunks 126 | stream-meshed 117
+[2026-09-17 23:48:38.291] [info] fps 72.5 | pos (0.50, 133.00, -6.90) | chunks 126 | stream-meshed 117
+[2026-09-17 23:48:40.298] [info] fps 72.7 | pos (0.50, 133.00, -6.90) | chunks 126 | stream-meshed 117
+[2026-09-17 23:48:42.291] [info] fps 73.4 | pos (0.50, 133.00, -6.90) | chunks 126 | stream-meshed 117
+[2026-09-17 23:48:42.516] [info] autosave: 0 chunk(s) queued for async write, level written (ticks=399)

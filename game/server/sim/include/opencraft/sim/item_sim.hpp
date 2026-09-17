@@ -24,6 +24,7 @@
 #include "opencraft/game/item_registry.hpp"
 #include "opencraft/game/item_stack.hpp"
 #include "opencraft/physics/block_source.hpp"
+#include "opencraft/physics/sweep.hpp"
 #include "opencraft/sim/entity_store.hpp"
 #include "opencraft/voxel/block_registry.hpp"
 #include "opencraft/voxel/chunk.hpp"
@@ -156,26 +157,11 @@ private:
     std::vector<bool> destroys_;
 };
 
-namespace item_detail {
-
-// Working AABB in doubles (the same reasoning as the physics layer's private
-// Box: the simulation needs doubles, and core::AABB is float-based).
-struct EntityBox {
-    double min_x;
-    double min_y;
-    double min_z;
-    double max_x;
-    double max_y;
-    double max_z;
-};
-
-} // namespace item_detail
-
-// The AABB of an entity of this type, from its feet-centre position.
-[[nodiscard]] inline item_detail::EntityBox entity_box(const Entity &entity, const game::EntityDef &def) {
-    return {entity.position.x - def.half_width, entity.position.y,
-            entity.position.z - def.half_width, entity.position.x + def.half_width,
-            entity.position.y + def.height,     entity.position.z + def.half_width};
+// The AABB of an entity of this type, from its feet-centre position -
+// `physics::box_of` (T-D40), so the drop is described by the same box type and
+// the same arithmetic the player and every future mob use.
+[[nodiscard]] inline physics::Box entity_box(const Entity &entity, const game::EntityDef &def) {
+    return physics::box_of(entity.position, def.half_width, def.height);
 }
 
 // The same box in the (min, max) dvec3 form the shared pickup predicate speaks
@@ -184,139 +170,11 @@ struct EntityBox {
 // disagree about which corner is which.
 [[nodiscard]] inline std::pair<glm::dvec3, glm::dvec3> entity_box_corners(const Entity &entity,
                                                                           const game::EntityDef &def) {
-    const item_detail::EntityBox box = entity_box(entity, def);
+    const physics::Box box = entity_box(entity, def);
     return {glm::dvec3{box.min_x, box.min_y, box.min_z}, glm::dvec3{box.max_x, box.max_y, box.max_z}};
 }
 
 namespace item_detail {
-
-// Strict voxel overlap: a box face exactly touching a block face is NOT a
-// collision, which keeps a clamped-against-wall drop quiescent.
-//
-// Height-aware through `shape_top_at`, like the player's box: a block that
-// collides only up to 0.5 does not block a box whose feet are at or above that
-// face. Reusing the contract (not the code - engine/physics is frozen for this
-// card, and the player's helpers are file-private there) is what keeps partial
-// blocks consistent for drops when they land.
-[[nodiscard]] inline bool box_collides(const physics::IBlockSource &world, const EntityBox &b) {
-    const int x0 = static_cast<int>(std::floor(b.min_x));
-    const int x1 = static_cast<int>(std::floor(b.max_x));
-    const int y0 = static_cast<int>(std::floor(b.min_y));
-    const int y1 = static_cast<int>(std::floor(b.max_y));
-    const int z0 = static_cast<int>(std::floor(b.min_z));
-    const int z1 = static_cast<int>(std::floor(b.max_z));
-    for (int bx = x0; bx <= x1; ++bx) {
-        for (int by = y0; by <= y1; ++by) {
-            for (int bz = z0; bz <= z1; ++bz) {
-                const double top = world.shape_top_at(bx, by, bz);
-                if (top > 0.0 && b.max_x > bx && b.min_x < bx + 1 && b.max_y > by && b.min_y < by + top &&
-                    b.max_z > bz && b.min_z < bz + 1) {
-                    return true;
-                }
-            }
-        }
-    }
-    return false;
-}
-
-// Highest collision surface within [bottom_y, from_y] across the box footprint
-// - the face a descent is clamped to, so a drop lands ON a partial block rather
-// than on the full block above it. Returns < 0 when there is nothing to land on.
-[[nodiscard]] inline double highest_surface_below(const physics::IBlockSource &world, const EntityBox &b, double from_y,
-                                                  double bottom_y) {
-    const int x0 = static_cast<int>(std::floor(b.min_x));
-    const int x1 = static_cast<int>(std::floor(b.max_x));
-    const int y0 = static_cast<int>(std::floor(bottom_y));
-    const int y1 = static_cast<int>(std::floor(from_y));
-    const int z0 = static_cast<int>(std::floor(b.min_z));
-    const int z1 = static_cast<int>(std::floor(b.max_z));
-    double best = -1.0;
-    for (int bx = x0; bx <= x1; ++bx) {
-        for (int by = y0; by <= y1; ++by) {
-            for (int bz = z0; bz <= z1; ++bz) {
-                const double top = world.shape_top_at(bx, by, bz);
-                if (top <= 0.0 || !(b.max_x > bx && b.min_x < bx + 1 && b.max_z > bz && b.min_z < bz + 1)) {
-                    continue;
-                }
-                const double surface = static_cast<double>(by) + top;
-                if (surface <= from_y + 1e-12 && surface >= bottom_y - 1e-12 && surface > best) {
-                    best = surface;
-                }
-            }
-        }
-    }
-    return best;
-}
-
-// Per-axis clamped moves, Y → X → Z (docs/03 §6.1). Each axis is solved against
-// the single leading block layer/column, which is sufficient because a substep
-// is shorter than one block.
-[[nodiscard]] inline double move_axis_y(Entity &e, const game::EntityDef &def, const physics::IBlockSource &world,
-                                        const ItemRules &rules, double dy, bool &hit_ground, bool &hit_ceiling) {
-    if (dy == 0.0) {
-        return 0.0;
-    }
-    const double before = e.position.y;
-    e.position.y += dy;
-    if (!box_collides(world, entity_box(e, def))) {
-        return e.position.y - before;
-    }
-    if (dy < 0.0) {
-        const double surface = highest_surface_below(world, entity_box(e, def), before, e.position.y);
-        e.position.y = surface >= 0.0 ? surface : std::floor(e.position.y) + 1.0;
-        hit_ground = true;
-    } else {
-        const int by = static_cast<int>(std::floor(e.position.y + def.height));
-        e.position.y = static_cast<double>(by) - def.height;
-        hit_ceiling = true;
-    }
-    // ★ restitution (T-D36 项 1) is the whole collision response: 0 stops the
-    // drop dead on contact, a calibrated value would bounce it back.
-    e.velocity.y = -e.velocity.y * rules.restitution;
-    return e.position.y - before;
-}
-
-[[nodiscard]] inline double move_axis_x(Entity &e, const game::EntityDef &def, const physics::IBlockSource &world,
-                                        const ItemRules &rules, double dx) {
-    if (dx == 0.0) {
-        return 0.0;
-    }
-    const double before = e.position.x;
-    e.position.x += dx;
-    if (!box_collides(world, entity_box(e, def))) {
-        return e.position.x - before;
-    }
-    if (dx > 0.0) {
-        const int bx = static_cast<int>(std::floor(e.position.x + def.half_width));
-        e.position.x = static_cast<double>(bx) - def.half_width;
-    } else {
-        const int bx = static_cast<int>(std::floor(e.position.x - def.half_width));
-        e.position.x = static_cast<double>(bx) + 1.0 + def.half_width;
-    }
-    e.velocity.x = -e.velocity.x * rules.restitution;
-    return e.position.x - before;
-}
-
-[[nodiscard]] inline double move_axis_z(Entity &e, const game::EntityDef &def, const physics::IBlockSource &world,
-                                        const ItemRules &rules, double dz) {
-    if (dz == 0.0) {
-        return 0.0;
-    }
-    const double before = e.position.z;
-    e.position.z += dz;
-    if (!box_collides(world, entity_box(e, def))) {
-        return e.position.z - before;
-    }
-    if (dz > 0.0) {
-        const int bz = static_cast<int>(std::floor(e.position.z + def.half_width));
-        e.position.z = static_cast<double>(bz) - def.half_width;
-    } else {
-        const int bz = static_cast<int>(std::floor(e.position.z - def.half_width));
-        e.position.z = static_cast<double>(bz) + 1.0 + def.half_width;
-    }
-    e.velocity.z = -e.velocity.z * rules.restitution;
-    return e.position.z - before;
-}
 
 // Slipperiness of the block under the drop - the block half of the friction
 // product (docs/03 §6 / research/07 §7.2). Probed one layer below the feet.
@@ -355,12 +213,26 @@ inline void step_item_motion(Entity &e, const game::EntityDef &def, const physic
         substeps = 1;
     }
     for (int i = 0; i < substeps; ++i) {
-        bool ground = false;
-        bool ceiling = false;
-        static_cast<void>(item_detail::move_axis_y(e, def, world, rules, e.velocity.y / substeps, ground, ceiling));
-        static_cast<void>(item_detail::move_axis_x(e, def, world, rules, e.velocity.x / substeps));
-        static_cast<void>(item_detail::move_axis_z(e, def, world, rules, e.velocity.z / substeps));
-        if (ground) {
+        const physics::AxisSweep y =
+            physics::sweep_axis_y(e.position, def.half_width, def.height, world, e.velocity.y / substeps);
+        // ★ restitution (T-D36 项 1) is the whole collision response: 0 stops
+        // the drop dead on contact, a calibrated value would bounce it back.
+        // It stays HERE, not in the shared sweep: the player answers the same
+        // clamp by zeroing the component instead (T-D40).
+        if (y.hit) {
+            e.velocity.y = -e.velocity.y * rules.restitution;
+        }
+        const physics::AxisSweep x =
+            physics::sweep_axis_x(e.position, def.half_width, def.height, world, e.velocity.x / substeps);
+        if (x.hit) {
+            e.velocity.x = -e.velocity.x * rules.restitution;
+        }
+        const physics::AxisSweep z =
+            physics::sweep_axis_z(e.position, def.half_width, def.height, world, e.velocity.z / substeps);
+        if (z.hit) {
+            e.velocity.z = -e.velocity.z * rules.restitution;
+        }
+        if (y.ground) {
             e.on_ground = true;
         }
     }
@@ -391,7 +263,8 @@ inline void step_item_motion(Entity &e, const game::EntityDef &def, const physic
 namespace item_detail {
 
 // Does the drop's box overlap a block that destroys it (research/11 §4.4)?
-[[nodiscard]] inline bool touches_hazard(const IItemWorld &world, const ItemBlockHazard &hazard, const EntityBox &b) {
+[[nodiscard]] inline bool touches_hazard(const IItemWorld &world, const ItemBlockHazard &hazard,
+                                         const physics::Box &b) {
     const int x0 = static_cast<int>(std::floor(b.min_x));
     const int x1 = static_cast<int>(std::floor(b.max_x));
     const int y0 = static_cast<int>(std::floor(b.min_y));
@@ -430,8 +303,8 @@ namespace item_detail {
     if (a.stack.count + b.stack.count > limit) {
         return false; // ⚖ 合并后不超过堆叠上限
     }
-    const EntityBox box_a = entity_box(a, types.def_of(a.type));
-    const EntityBox box_b = entity_box(b, types.def_of(b.type));
+    const physics::Box box_a = entity_box(a, types.def_of(a.type));
+    const physics::Box box_b = entity_box(b, types.def_of(b.type));
     const double inflate_x = (rules.merge_box_x - (box_a.max_x - box_a.min_x)) * 0.5;
     const double inflate_y = (rules.merge_box_y - (box_a.max_y - box_a.min_y)) * 0.5;
     const double inflate_z = (rules.merge_box_z - (box_a.max_z - box_a.min_z)) * 0.5;
@@ -588,7 +461,7 @@ inline void step_items(EntityStore &store, const IItemWorld &world, const ItemBl
         if (e == nullptr) {
             continue;
         }
-        const item_detail::EntityBox box = entity_box(*e, types.def_of(e->type));
+        const physics::Box box = entity_box(*e, types.def_of(e->type));
         const glm::dvec3 middle{(box.min_x + box.max_x) * 0.5, (box.min_y + box.max_y) * 0.5,
                                 (box.min_z + box.max_z) * 0.5};
         if (glm::length(middle - center) <= radius) {
