@@ -34,6 +34,18 @@ const char *action_reject_reason(const ActionReject reject) {
         return "dropped item out of pickup range";
     case ActionReject::EntityNotLoaded:
         return "dropped item is in an unloaded chunk";
+    case ActionReject::NotAMob:
+        return "target entity is not a mob";
+    case ActionReject::OutOfAttackRange:
+        return "target out of melee reach";
+    case ActionReject::NotBreedable:
+        return "that mob cannot be bred";
+    case ActionReject::WrongFood:
+        return "held item is not that mob's food";
+    case ActionReject::MobNotAdult:
+        return "a baby cannot breed";
+    case ActionReject::BreedingCooldown:
+        return "mob is still on its breeding cooldown";
     }
     return "";
 }

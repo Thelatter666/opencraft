@@ -37,12 +37,107 @@
 #include <glm/glm.hpp>
 
 #include "opencraft/game/item_stack.hpp"
+#include "opencraft/game/mob_goal.hpp"
 
 namespace opencraft::server {
 
 // Stable handle to a live entity. 0 means "none"; slot indices are 1-based so
 // that a default-constructed id is never valid.
 using EntityId = std::uint32_t;
+
+// "No entity", spelled early: MobAi below is declared BEFORE Entity (Entity
+// holds a MobAi by value, so the order is forced) and therefore cannot name
+// Entity::kNoId. Entity::kNoId is defined as this value, so there is still one
+// number with one meaning.
+inline constexpr EntityId kNoEntityId = 0;
+
+// The player, as a target of a mob's goals (T-M2).
+//
+// The player is NOT an entity in this store - T-A1 left the player out of the
+// authority's vocabulary on purpose - but a mob still has to be able to say
+// "I am chasing THAT". Rather than widen EntityId to an optional pair
+// everywhere, the actor gets one reserved id. It cannot collide with a real one:
+// ids are slot index + 1, so a store would need 4 billion live slots.
+inline constexpr EntityId kActorId = 0xFFFFFFFFu;
+
+// Per-instance mob AI state (T-M2). It sits in every Entity because the store's
+// slot layout is one struct per entity (T-E1's deliberate choice - what crosses
+// a wire in M3 is one contiguous struct), and the drop rules simply never touch
+// it.
+//
+// Everything here is state that the goal stack writes and the next tick reads.
+// It is deliberately flat and copyable: no pointers, no containers - this is a
+// snapshot payload.
+struct MobAi {
+    // What the goal stack has running (game/mob_goal.hpp).
+    game::GoalMask running_goals = 0;
+
+    // ── perception (research/11 §1.3.3) ─────────────────────────────────────
+    // ⚖ The base game's sensors scan every 20 ticks with a random first delay;
+    // R-12 recommends the same for the goal stack, and the reason is
+    // behavioural, not just performance: a mob that re-rays every tick locks on
+    // the instant you round a corner, which reads as robotic. The timer counts
+    // down and is re-staggered per-mob on spawn, so 70 mobs do not all ray on
+    // the same tick.
+    int perception_timer = 0;
+    // The snapshot: does the mob see the actor right now (range AND line of
+    // sight), refreshed on the perception schedule.
+    bool sees_actor = false;
+    // ⚠ The distance is refreshed EVERY tick, not on the 20-tick schedule. It
+    // is one subtraction against the raycast that costs a std::function and a
+    // voxel walk, and two goals need it per tick: the fuse counts up and down
+    // with the distance, and the tempt goal's start/stop thresholds are
+    // distances. Only the sight snapshot is allowed to be stale.
+    double actor_distance = 0.0;
+    bool actor_known = false; // has the authority been told where the player is at all
+
+    // ── targeting ───────────────────────────────────────────────────────────
+    EntityId target = kNoEntityId;     // what the mob is going after (may be kActorId)
+    EntityId revenge_on = kNoEntityId; // who last hurt it (⚖ 反击)
+    int revenge_ticks = 0;             // how long the grudge lasts (⚠ 待校准 knob)
+    int attack_cooldown = 0;           // ticks until the next melee hit (⚠ knob)
+    int fuse = 0;                      // > 0 while this mob's fuse burns (⚖ 30 ticks)
+    // ⚖ research/11 §1.5.1: 受击后的无敌帧 10 tick, during which damage no larger
+    // than the last hit is ignored and a larger one settles only the difference
+    // - which needs both the window and the amount that opened it.
+    int hurt_cooldown = 0;
+    double last_hurt_amount = 0.0;
+
+    // ── breeding (research/11 §6.2) ─────────────────────────────────────────
+    bool in_love = false;
+    int love_ticks = 0;     // ⚖ 求偶超时 30 秒; counts down while looking
+    int mating_ticks = 0;   // ⚖ 交配约 2.5 秒 of contact
+    int breed_cooldown = 0; // ⚖ 5 分钟
+    bool baby = false;
+    int growth_ticks = 0; // ⚖ 幼体成长 24000 tick; 0 when adult
+
+    // ── panic / fleeing (research/11 §1.5.7) ────────────────────────────────
+    int panic_ticks = 0;
+    int flee_check_timer = 0;
+
+    // ── navigation ──────────────────────────────────────────────────────────
+    // ⚠ This is the SIMPLIFIED pathfinder the card allows (see mob_sim.hpp's
+    // header note): a destination plus a persistent side preference, not a node
+    // path. `nav_side` is what turns "blocked, try a detour" into wall
+    // following - without it a mob oscillates left/right against a wall.
+    glm::dvec3 move_target{0.0, 0.0, 0.0};
+    bool has_move_target = false;
+    int nav_side = 0;
+    int nav_stuck_ticks = 0;
+    glm::dvec3 nav_last_position{0.0, 0.0, 0.0};
+
+    // ── presentation ────────────────────────────────────────────────────────
+    // The yaw the renderer draws the mob with. It is simulation state rather
+    // than a render-only value because the LookAtPlayer goal WRITES it, and
+    // "the mob turned to face you" is the observable output of that goal.
+    double yaw = 0.0;
+    double pitch = 0.0;
+
+    // The RNG stream for this mob, advanced by the goals that need randomness
+    // (stroll destination, panic direction). Per-mob rather than global so one
+    // mob's decisions do not shift another's.
+    std::uint64_t rng = 0;
+};
 
 // One entity. Everything an entity has is here; the per-type numbers live in
 // game::EntityDef and are looked up by `type`.
@@ -51,7 +146,7 @@ using EntityId = std::uint32_t;
 // convention physics::PlayerState established - so "the entity stands at y" and
 // "the entity's box starts at y" are the same statement for every entity kind.
 struct Entity {
-    static constexpr EntityId kNoId = 0;
+    static constexpr EntityId kNoId = kNoEntityId;
 
     EntityId id = kNoId;
     std::uint16_t type = 0; // game::EntityTypeRegistry id
@@ -74,12 +169,20 @@ struct Entity {
     // crossing test that re-arms the merge timer above.
     glm::ivec3 last_block{0, 0, 0};
     // Hit points from the type's max_health; environment contact removes them
-    // (research/11 §4.4). Nothing else damages an entity in this card - a drop
-    // is explicitly NOT attackable.
-    int health = 0;
+    // (research/11 §4.4). A drop is explicitly NOT attackable.
+    //
+    // ⚠ double, not int (T-M2): a mob's damage is a FRACTION of a point in the
+    // sources (research/01 §10.2 gives the zombie 2.5 on easy), and truncating
+    // it would silently change a ⚖ number. Every pre-existing use is unaffected
+    // - the drop's 5 points and "health <= 0" read the same either way.
+    double health = 0.0;
 
     // Item payload. Only meaningful when the type's carries_item_stack is set.
     game::ItemStack stack{};
+
+    // Mob AI state. Only meaningful when the type's entity_class is Mob - the
+    // drop rules never read or write it (T-M2).
+    MobAi ai{};
 
     bool alive = false;
 };

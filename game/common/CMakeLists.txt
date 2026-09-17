@@ -13,6 +13,8 @@ add_library(opencraft_game STATIC
     src/inventory.cpp
     src/protocol.cpp
     src/entity_type.cpp
+    src/mob_goal.cpp
+    src/mob_type.cpp
 )
 
 target_include_directories(opencraft_game PUBLIC include)

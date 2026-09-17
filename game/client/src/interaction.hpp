@@ -18,6 +18,7 @@
 
 #include "inventory_wiring.hpp"
 #include "opencraft/game/inventory.hpp"
+#include "opencraft/sim/entity_store.hpp"
 
 namespace opencraft::client {
 
@@ -46,12 +47,26 @@ struct InteractionState {
     bool prev_w = false;
     bool prev_right = false;
     int place_cooldown = 0;
+    // Attack cadence (T-M2). The base game spaces melee swings by the tool's
+    // attack speed (docs/01 §4: a sword's is 1.6/s = 12.5 ticks) and scales the
+    // damage by how far through the cooldown the swing is. This card only needs
+    // the SPACING: the damage ramp belongs to the player-combat card, so a swing
+    // here is always full damage (game::kPunchDamage) and the timer exists so a
+    // held button does not become a machine gun.
+    int attack_cooldown = 0;
 
     // ── targeting + mining overlay ──────────────────────────────────────────
     glm::ivec3 target_pos{0, 0, 0};
     bool has_target = false;
     glm::ivec3 crack_pos{0, 0, 0};
     int crack_stage = -1; // -1 = no overlay
+
+    // ── entity target under the crosshair (T-M2) ────────────────────────────
+    // The mob the view ray enters within game::kAttackReach, or kNoEntity.
+    // Cached so the renderer can highlight it and the tick can decide whether a
+    // click is an attack/interaction or a block action.
+    server::EntityId picked_mob = server::EntityStore::kNoEntity;
+    double picked_mob_distance = 0.0;
 
     // ── hand swing + T-D1 sprint-jump arc QA counters ───────────────────────
     bool swinging = false;

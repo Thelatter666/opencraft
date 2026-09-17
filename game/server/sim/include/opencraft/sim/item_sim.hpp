@@ -381,6 +381,14 @@ inline void step_items(EntityStore &store, const IItemWorld &world, const ItemBl
             continue;
         }
         const game::EntityDef &def = types.def_of(e->type);
+        // ★ T-M2: the store also holds mobs now (one plane of entities,
+        // docs/03 §6), and the drop rules own only the Item class. Without this
+        // guard a cow would fall with the drop's gravity (0.04), merge with
+        // other cows, and evaporate after 6000 ticks. The two stepping passes
+        // are disjoint by construction, not by remembering to exclude.
+        if (def.entity_class != game::EntityClass::Item) {
+            continue;
+        }
         const auto [cx, cz] = voxel::Chunk::chunk_coords(static_cast<int>(std::floor(e->position.x)),
                                                          static_cast<int>(std::floor(e->position.z)));
         if (!world.chunk_loaded(cx, cz)) {
@@ -425,11 +433,10 @@ inline void step_items(EntityStore &store, const IItemWorld &world, const ItemBl
 // The position is the broken cell's centre, lifted by half the drop's height,
 // so the drop sits centred in the cell it came from (§4.5) and falls the last
 // half block onto the floor below.
-[[nodiscard]] inline EntityId spawn_item_drop(EntityStore &store, const game::EntityTypeRegistry &types,
-                                              const game::ItemRegistry &items, const ItemRules &rules,
-                                              const glm::ivec3 &block, const std::uint16_t block_id) {
-    const std::optional<std::uint16_t> item = items.item_for_block(block_id);
-    if (!item.has_value()) {
+[[nodiscard]] inline EntityId spawn_item_stack_at(EntityStore &store, const game::EntityTypeRegistry &types,
+                                                  const ItemRules &rules, const std::uint16_t item, const int count,
+                                                  const glm::dvec3 &centre) {
+    if (item == game::ItemRegistry::kEmptyId || count <= 0) {
         return EntityStore::kNoEntity;
     }
     // id_of throws on an unknown name, which is the intended failure mode for
@@ -438,14 +445,27 @@ inline void step_items(EntityStore &store, const IItemWorld &world, const ItemBl
     const game::EntityDef &def = types.def_of(item_type);
     Entity drop;
     drop.type = item_type;
-    drop.position = glm::dvec3(block) + glm::dvec3(0.5, 0.5 - def.height * 0.5, 0.5);
+    // `centre` is the point the drop's BOX is centred on, which is what both
+    // callers naturally have (a broken cell's centre, a dead mob's middle); the
+    // feet-centre position the store uses is derived from it here, once.
+    drop.position = centre - glm::dvec3(0.0, def.height * 0.5, 0.0);
     drop.velocity = glm::dvec3(0.0, rules.spawn_velocity_y, 0.0);
-    drop.health = def.max_health;
+    drop.health = static_cast<double>(def.max_health);
     drop.pickup_delay = rules.pickup_delay_natural;
     drop.merge_timer = rules.merge_period;
     drop.last_block = glm::ivec3(glm::floor(drop.position));
-    drop.stack = game::ItemStack::of(*item, 1);
+    drop.stack = game::ItemStack::of(item, count);
     return store.spawn(drop);
+}
+
+[[nodiscard]] inline EntityId spawn_item_drop(EntityStore &store, const game::EntityTypeRegistry &types,
+                                              const game::ItemRegistry &items, const ItemRules &rules,
+                                              const glm::ivec3 &block, const std::uint16_t block_id) {
+    const std::optional<std::uint16_t> item = items.item_for_block(block_id);
+    if (!item.has_value()) {
+        return EntityStore::kNoEntity;
+    }
+    return spawn_item_stack_at(store, types, rules, *item, 1, glm::dvec3(block) + glm::dvec3(0.5, 0.5, 0.5));
 }
 
 // Destroys every drop whose box centre lies within `radius` of `center`

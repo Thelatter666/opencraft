@@ -1,0 +1,148 @@
+[2026-09-18 01:21:13.424] [info] OpenCraft 0.1.0 starting
+[2026-09-18 01:21:13.534] [info] GL 4.1 Metal - 89.4 / glad loaded
+[2026-09-18 01:21:13.535] [info] save: no level.ocd, new world with seed 0x4f50454e43524146
+[2026-09-18 01:21:13.757] [info] startup gen: 25 chunks, total 221.6 ms, avg 8.86 ms/chunk
+[2026-09-18 01:21:13.757] [info] spawn scan: surface at (0.5, 132.0, 0.5)
+[2026-09-18 01:21:13.757] [info] atlas: 144x144 px, 9 tiles/row, crack tiles at 63
+[2026-09-18 01:21:14.644] [info] mob mossback spawned at (-62.5, 133.0, -38.6) in chunk (-4, -3)
+[2026-09-18 01:21:15.504] [info] mob mossback spawned at (-89.5, 135.0, -49.9) in chunk (-6, -4)
+[2026-09-18 01:21:15.504] [info] mob mossback spawned at (-88.3, 135.0, -50.8) in chunk (-6, -4)
+[2026-09-18 01:21:15.504] [info] mob mossback spawned at (-94.9, 133.0, -44.0) in chunk (-6, -3)
+[2026-09-18 01:21:15.504] [info] mob mossback spawned at (-93.5, 133.0, -39.3) in chunk (-6, -3)
+[2026-09-18 01:21:15.799] [info] fps 43.7 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-18 01:21:16.087] [info] mob mossback spawned at (-99.7, 133.0, -24.6) in chunk (-7, -2)
+[2026-09-18 01:21:16.087] [info] mob mossback spawned at (-98.3, 133.0, -29.8) in chunk (-7, -2)
+[2026-09-18 01:21:16.839] [info] EVIDENCE held=3 slot=0
+[2026-09-18 01:21:17.818] [info] fps 87.1 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-18 01:21:17.851] [info] EVIDENCE held=24 slot=6
+[2026-09-18 01:21:18.505] [info] mob blastbud spawned at (-57.8, 42.0, 68.3) in chunk (-4, 4)
+[2026-09-18 01:21:18.858] [info] EVIDENCE held=24 slot=6
+[2026-09-18 01:21:19.583] [info] EVIDENCE summon mossback id=9 at (0.5, 132.0, -1.5)
+[2026-09-18 01:21:19.816] [info] fps 85.8 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-18 01:21:19.858] [info] EVIDENCE held=24 slot=6
+[2026-09-18 01:21:20.872] [info] EVIDENCE held=24 slot=6
+[2026-09-18 01:21:21.830] [info] fps 94.1 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-18 01:21:21.893] [info] EVIDENCE held=24 slot=6
+[2026-09-18 01:21:22.893] [info] EVIDENCE held=24 slot=6
+[2026-09-18 01:21:23.837] [info] fps 92.4 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-18 01:21:23.851] [info] mob blastbud spawned at (79.2, 85.0, -21.4) in chunk (4, -2)
+[2026-09-18 01:21:23.851] [info] mob blastbud spawned at (75.3, 85.0, -18.0) in chunk (4, -2)
+[2026-09-18 01:21:23.851] [info] mob blastbud spawned at (76.3, 85.0, -19.6) in chunk (4, -2)
+[2026-09-18 01:21:23.851] [info] mob blastbud spawned at (78.0, 85.0, -20.0) in chunk (4, -2)
+[2026-09-18 01:21:23.900] [info] EVIDENCE held=24 slot=6
+[2026-09-18 01:21:24.914] [info] EVIDENCE held=24 slot=6
+[2026-09-18 01:21:25.844] [info] fps 92.5 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-18 01:21:25.929] [info] EVIDENCE held=24 slot=6
+[2026-09-18 01:21:25.930] [info] autosave: 0 chunk(s) queued for async write, level written (ticks=199)
+[2026-09-18 01:21:26.229] [info] EVIDENCE summon mossback id=14 at (0.5, 132.0, -1.5)
+[2026-09-18 01:21:26.928] [info] EVIDENCE held=24 slot=6
+[2026-09-18 01:21:27.851] [info] fps 90.8 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-18 01:21:27.949] [info] EVIDENCE held=24 slot=6
+[2026-09-18 01:21:28.956] [info] EVIDENCE held=24 slot=6
+[2026-09-18 01:21:29.858] [info] fps 92.7 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-18 01:21:29.962] [info] EVIDENCE held=24 slot=6
+[2026-09-18 01:21:30.719] [info] EVIDENCE rclick picked=9 picked_dist=0.76 block_hit=false t=0.00 mob_in_front=true held=24 nearest_mob_raydist=0.76 pitch_deg=0.0 probe_ptr=1
+[2026-09-18 01:21:30.719] [info] EVIDENCE nearest_mob type=mossback pos=(0.50,132.00,-0.71) dist=1.75 goals=288 target=0 actor_dist=1.21 sees=true move_target=0 has_move=0
+[2026-09-18 01:21:30.719] [info] fed mob 9 with item 24
+[2026-09-18 01:21:30.921] [info] mob blastbud spawned at (-29.6, 86.0, 70.5) in chunk (-2, 4)
+[2026-09-18 01:21:30.969] [info] EVIDENCE held=24 slot=6
+[2026-09-18 01:21:31.865] [info] fps 93.2 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-18 01:21:31.983] [info] EVIDENCE held=24 slot=6
+[2026-09-18 01:21:32.990] [info] EVIDENCE held=3 slot=0
+[2026-09-18 01:21:33.698] [info] mob blastbud spawned at (46.1, 68.0, 83.4) in chunk (2, 5)
+[2026-09-18 01:21:33.699] [info] mob blastbud spawned at (47.2, 68.0, 84.0) in chunk (2, 5)
+[2026-09-18 01:21:33.865] [info] fps 94.5 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-18 01:21:34.004] [info] EVIDENCE held=3 slot=0
+2026-09-18 01:21:34.746 opencraft[51895:665852] error messaging the mach port for IMKCFRunLoopWakeUpReliable
+[2026-09-18 01:21:35.177] [info] EVIDENCE held=3 slot=0
+[2026-09-18 01:21:35.435] [info] 1 mob(s) removed beyond 128 blocks
+[2026-09-18 01:21:35.872] [info] fps 89.2 | pos (0.50, 132.00, -3.56) | chunks 126 | stream-meshed 117
+[2026-09-18 01:21:36.194] [info] EVIDENCE held=3 slot=0
+[2026-09-18 01:21:36.196] [info] autosave: 0 chunk(s) queued for async write, level written (ticks=399)
+[2026-09-18 01:21:36.345] [info] mob hollow_wretch spawned at (67.3, 85.0, -15.1) in chunk (4, -1)
+[2026-09-18 01:21:37.205] [info] EVIDENCE held=3 slot=0
+[2026-09-18 01:21:37.872] [info] fps 94.0 | pos (0.50, 133.00, -5.18) | chunks 126 | stream-meshed 117
+[2026-09-18 01:21:38.215] [info] EVIDENCE held=3 slot=0
+[2026-09-18 01:21:39.220] [info] EVIDENCE held=24 slot=6
+[2026-09-18 01:21:39.885] [info] fps 93.2 | pos (0.50, 133.00, -5.18) | chunks 126 | stream-meshed 117
+[2026-09-18 01:21:40.062] [info] EVIDENCE summon mossback id=18 at (0.5, 133.0, -7.2)
+[2026-09-18 01:21:40.228] [info] EVIDENCE held=24 slot=6
+[2026-09-18 01:21:41.240] [info] EVIDENCE held=24 slot=6
+[2026-09-18 01:21:41.885] [info] fps 94.5 | pos (0.50, 133.00, -5.18) | chunks 126 | stream-meshed 117
+[2026-09-18 01:21:42.261] [info] EVIDENCE held=24 slot=6
+[2026-09-18 01:21:42.261] [info] mob blastbud spawned at (-48.6, 97.0, 70.5) in chunk (-4, 4)
+[2026-09-18 01:21:43.268] [info] EVIDENCE held=24 slot=6
+[2026-09-18 01:21:43.886] [info] fps 94.5 | pos (0.50, 133.00, -5.18) | chunks 126 | stream-meshed 117
+[2026-09-18 01:21:44.282] [info] EVIDENCE held=24 slot=6
+[2026-09-18 01:21:44.531] [info] EVIDENCE rclick picked=18 picked_dist=0.76 block_hit=false t=0.00 mob_in_front=true held=24 nearest_mob_raydist=0.76 pitch_deg=0.0 probe_ptr=1
+[2026-09-18 01:21:44.531] [info] EVIDENCE nearest_mob type=mossback pos=(0.50,133.00,-6.39) dist=1.75 goals=288 target=0 actor_dist=1.21 sees=true move_target=0 has_move=0
+[2026-09-18 01:21:44.531] [info] fed mob 18 with item 24
+[2026-09-18 01:21:45.282] [info] EVIDENCE held=24 slot=6
+[2026-09-18 01:21:45.892] [info] fps 93.9 | pos (0.50, 133.00, -5.18) | chunks 126 | stream-meshed 117
+[2026-09-18 01:21:46.303] [info] EVIDENCE held=24 slot=6
+[2026-09-18 01:21:46.304] [info] autosave: 0 chunk(s) queued for async write, level written (ticks=599)
+[2026-09-18 01:21:47.151] [info] mob blastbud spawned at (52.4, 118.0, -19.6) in chunk (3, -2)
+[2026-09-18 01:21:47.151] [info] mob blastbud spawned at (52.7, 118.0, -18.1) in chunk (3, -2)
+[2026-09-18 01:21:47.302] [info] EVIDENCE held=3 slot=0
+[2026-09-18 01:21:47.892] [info] fps 86.0 | pos (0.50, 133.00, -5.18) | chunks 126 | stream-meshed 117
+[2026-09-18 01:21:48.309] [info] EVIDENCE held=3 slot=0
+[2026-09-18 01:21:49.323] [info] EVIDENCE held=3 slot=0
+[2026-09-18 01:21:49.428] [info] mob mossback born at (0.4, 133.0, -5.3)
+[2026-09-18 01:21:49.892] [info] fps 93.5 | pos (0.50, 133.00, -5.18) | chunks 126 | stream-meshed 117
+[2026-09-18 01:21:50.344] [info] EVIDENCE held=3 slot=0
+[2026-09-18 01:21:51.352] [info] EVIDENCE held=3 slot=0
+[2026-09-18 01:21:51.906] [info] fps 93.2 | pos (0.50, 133.00, -5.18) | chunks 126 | stream-meshed 117
+[2026-09-18 01:21:52.365] [info] EVIDENCE held=3 slot=0
+[2026-09-18 01:21:53.386] [info] EVIDENCE held=3 slot=0
+[2026-09-18 01:21:53.386] [info] mob hollow_wretch spawned at (-49.3, 47.0, -83.6) in chunk (-4, -6)
+[2026-09-18 01:21:53.899] [info] fps 92.5 | pos (0.50, 133.00, -5.18) | chunks 126 | stream-meshed 117
+[2026-09-18 01:21:54.385] [info] EVIDENCE held=3 slot=0
+[2026-09-18 01:21:54.506] [info] EVIDENCE summon hollow_wretch id=24 at (0.5, 133.0, -7.2)
+[2026-09-18 01:21:55.400] [info] EVIDENCE held=3 slot=0
+[2026-09-18 01:21:55.857] [info] mob event: melee 3.0 damage at (0.5, 133.0, -5.2)
+[2026-09-18 01:21:55.857] [info] mob melee for 3.0 at (0.50, 133.00, -5.18); health now 17.0
+[2026-09-18 01:21:55.906] [info] fps 93.7 | pos (0.50, 133.00, -5.18) | chunks 126 | stream-meshed 117
+[2026-09-18 01:21:56.406] [info] EVIDENCE held=3 slot=0
+[2026-09-18 01:21:56.406] [info] autosave: 0 chunk(s) queued for async write, level written (ticks=799)
+[2026-09-18 01:21:56.864] [info] mob event: melee 3.0 damage at (0.5, 133.0, -5.2)
+[2026-09-18 01:21:56.864] [info] mob melee for 3.0 at (0.50, 133.00, -5.18); health now 14.0
+[2026-09-18 01:21:57.413] [info] EVIDENCE held=3 slot=0
+[2026-09-18 01:21:57.871] [info] mob event: melee 3.0 damage at (0.5, 133.0, -5.2)
+[2026-09-18 01:21:57.871] [info] mob melee for 3.0 at (0.50, 133.00, -5.18); health now 11.0
+[2026-09-18 01:21:57.920] [info] fps 93.3 | pos (0.50, 133.00, -5.18) | chunks 126 | stream-meshed 117
+[2026-09-18 01:21:58.434] [info] EVIDENCE held=3 slot=0
+[2026-09-18 01:21:58.892] [info] mob event: melee 3.0 damage at (0.5, 133.0, -5.2)
+[2026-09-18 01:21:58.892] [info] mob melee for 3.0 at (0.50, 133.00, -5.18); health now 8.0
+[2026-09-18 01:21:59.441] [info] EVIDENCE held=3 slot=0
+[2026-09-18 01:21:59.899] [info] mob event: melee 3.0 damage at (0.5, 133.0, -5.2)
+[2026-09-18 01:21:59.899] [info] mob melee for 3.0 at (0.50, 133.00, -5.18); health now 5.0
+[2026-09-18 01:21:59.934] [info] fps 95.2 | pos (0.50, 133.00, -5.18) | chunks 126 | stream-meshed 117
+[2026-09-18 01:22:00.455] [info] EVIDENCE held=3 slot=0
+[2026-09-18 01:22:00.913] [info] mob event: melee 3.0 damage at (0.5, 133.0, -5.2)
+[2026-09-18 01:22:00.914] [info] mob melee for 3.0 at (0.50, 133.00, -5.18); health now 2.0
+[2026-09-18 01:22:01.476] [info] EVIDENCE held=3 slot=0
+[2026-09-18 01:22:01.934] [info] mob event: melee 3.0 damage at (0.5, 133.0, -5.2)
+[2026-09-18 01:22:01.934] [info] mob melee for 3.0 at (0.50, 133.00, -5.18); health now 0.0
+[2026-09-18 01:22:01.941] [info] fps 94.9 | pos (0.50, 133.00, -5.18) | chunks 126 | stream-meshed 117
+[2026-09-18 01:22:02.482] [info] EVIDENCE held=3 slot=0
+[2026-09-18 01:22:02.934] [info] mob event: melee 3.0 damage at (0.5, 133.0, -5.2)
+[2026-09-18 01:22:02.934] [info] mob melee for 3.0 at (0.50, 133.00, -5.18); health now 0.0
+[2026-09-18 01:22:03.103] [info] EVIDENCE summon blastbud id=25 at (0.5, 133.0, -7.2)
+[2026-09-18 01:22:03.497] [info] EVIDENCE held=3 slot=0
+[2026-09-18 01:22:03.941] [info] mob event: melee 3.0 damage at (0.5, 133.0, -5.2)
+[2026-09-18 01:22:03.941] [info] mob melee for 3.0 at (0.50, 133.00, -5.18); health now 0.0
+[2026-09-18 01:22:03.954] [info] fps 95.2 | pos (0.50, 133.00, -5.18) | chunks 126 | stream-meshed 117
+[2026-09-18 01:22:04.497] [info] EVIDENCE held=3 slot=0
+[2026-09-18 01:22:04.601] [info] blast at (0.5, 133.0, -7.2): 2 drop(s) destroyed
+[2026-09-18 01:22:04.601] [info] mob event: explosion 32.7 damage at (0.5, 133.0, -7.2)
+[2026-09-18 01:22:04.601] [info] explosion for 32.7 at (0.50, 133.00, -7.18); health now 0.0
+[2026-09-18 01:22:05.518] [info] EVIDENCE held=3 slot=0
+[2026-09-18 01:22:05.955] [info] fps 94.0 | pos (0.50, 133.00, -5.18) | chunks 126 | stream-meshed 117
+[2026-09-18 01:22:06.517] [info] EVIDENCE held=3 slot=0
+[2026-09-18 01:22:06.519] [info] autosave: 0 chunk(s) queued for async write, level written (ticks=999)
+[2026-09-18 01:22:07.538] [info] EVIDENCE held=3 slot=0
+[2026-09-18 01:22:07.747] [info] mob blastbud spawned at (-12.9, 29.0, 32.8) in chunk (-1, 2)
+[2026-09-18 01:22:07.747] [info] mob blastbud spawned at (-12.3, 29.0, 32.0) in chunk (-1, 2)
+[2026-09-18 01:22:07.961] [info] fps 95.3 | pos (0.50, 133.00, -5.18) | chunks 126 | stream-meshed 117
+[2026-09-18 01:22:08.545] [info] EVIDENCE held=3 slot=0
+[2026-09-18 01:22:09.559] [info] EVIDENCE held=3 slot=0

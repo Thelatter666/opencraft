@@ -58,6 +58,10 @@ public:
     // broken block drops, so the item id space is the world's).
     [[nodiscard]] const game::ItemRegistry &items() const { return authority_->items(); }
 
+    // The mob roster (T-M2): the renderer reads a mob's body from its
+    // EntityDef, and the tick asks whether the held item is that species' food.
+    [[nodiscard]] const game::MobRegistry &mobs() const { return authority_->mobs(); }
+
     // ── render::IBlockSource (meshing + voxel raycast) ──────────────────────
     [[nodiscard]] std::uint16_t block_at(int wx, int wy, int wz) const override {
         return authority_->block_at(wx, wy, wz);

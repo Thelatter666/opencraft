@@ -29,6 +29,25 @@
 
 namespace opencraft::game {
 
+// Which per-tick system owns an entity type.
+//
+// T-M2 needed this and T-E1 could not have known it: the store holds ONE plane
+// of entities (docs/03 §6), and until this card every entity in it was a drop,
+// so step_items() could treat the whole store as drops. The moment a mob shares
+// the store, that stops being true - the drop pass would apply item gravity
+// (0.04), item merging and the 6000-tick item despawn to a cow.
+//
+// The alternative was a second EntityStore, which is worse: the two planes
+// would have to see each other (a mob's explosion destroys drops; a mob is not
+// a valid pickup target), and "iterate every entity" would become "iterate both
+// and remember which is which". One store, one discriminator, and each stepping
+// pass asserts the class it owns - so the two rule sets are disjoint by
+// construction rather than by remembering to exclude.
+enum class EntityClass : std::uint8_t {
+    Item = 0, // stepped by server/sim/item_sim.hpp
+    Mob = 1,  // stepped by server/sim/mob_sim.hpp
+};
+
 // Static description of an entity type. Data only, exactly like BlockDef /
 // ItemDef: no per-instance state, no behaviour switch inside.
 struct EntityDef {
@@ -64,6 +83,11 @@ struct EntityDef {
     // holds the stack either way (one struct, one slot layout); this flag is
     // what tells a reader whether the stack means anything.
     bool carries_item_stack = false;
+
+    // Appended last on purpose (T-M2): every existing positional initialiser of
+    // this struct keeps compiling and keeps meaning what it meant, because a
+    // trailing defaulted field is simply omitted.
+    EntityClass entity_class = EntityClass::Item;
 };
 
 // String-id to runtime numeric-id mapping (docs/03 §7), mirroring the other two

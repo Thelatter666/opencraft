@@ -16,6 +16,7 @@
 // 服务端); M3 puts a network channel in front of the same verbs, which is why
 // the request/result types live in game/common and carry plain data.
 
+#include <algorithm>
 #include <cstdint>
 #include <optional>
 #include <set>
@@ -28,6 +29,8 @@
 #include "opencraft/render/mesher.hpp"
 #include "opencraft/sim/entity_store.hpp"
 #include "opencraft/sim/item_sim.hpp"
+#include "opencraft/sim/mob_sim.hpp"
+#include "opencraft/sim/mob_spawn.hpp"
 #include "opencraft/storage/world_save.hpp"
 #include "opencraft/voxel/block_registry.hpp"
 #include "opencraft/voxel/chunk_manager.hpp"
@@ -105,6 +108,12 @@ public:
     // T-A1 rule) instead of by everyone keeping two call sites in step.
     [[nodiscard]] game::StreamResult stream(const game::StreamRequest &req) override;
 
+    // T-M2: where the player is, once per logic tick. The mob AI is the first
+    // system that has to notice the player WITHOUT an action happening, so the
+    // authority needs a per-tick input that no other verb provides; M3's player
+    // state packet carries exactly these fields.
+    void observe_actor(const game::ActorPose &pose) override;
+
     [[nodiscard]] bool chunk_ready(int cx, int cz) const { return chunks_.find(cx, cz) != nullptr; }
 
     // Chunks currently in memory - the streaming working set. Bounded by
@@ -159,6 +168,40 @@ public:
     [[nodiscard]] const EntityStore &entities() const { return entities_; }
 
     [[nodiscard]] const ItemRules &item_rules() const { return item_rules_; }
+
+    // ── mobs (T-M2) ─────────────────────────────────────────────────────────
+    // The roster's AI content (game::MobDef per type). Read-only: it is content,
+    // fixed at construction, exactly like entity_types().
+    [[nodiscard]] const game::MobRegistry &mobs() const { return mobs_; }
+
+    [[nodiscard]] const MobRules &mob_rules() const { return mob_rules_; }
+
+    [[nodiscard]] const MobSpawnRules &mob_spawn_rules() const { return spawn_rules_; }
+
+    // ⚖ docs/01 §7's 和平/简单/普通/困难. Peaceful suppresses hostile spawning
+    // (and zeroes the damage a hostile would do); the client does not drive this
+    // yet - the difficulty menu is M2c UI work - so it defaults to 普通.
+    [[nodiscard]] game::Difficulty difficulty() const { return difficulty_; }
+
+    // Puts one mob of `type` into the world at `position` (feet centre) and
+    // returns its entity id, or kNoEntity when that type is not a mob.
+    //
+    // ⚠ This is the ONE public writer on this class, and it is deliberate - with
+    // the reasoning written down, because "everything that writes is private" is
+    // a rule this project enforces rather than a habit:
+    //   * what it writes is the ENTITY plane, not the block/fluid plane. The
+    //     client's immutability comes from holding a CONST WorldSim
+    //     (client::WorldSource) and from the private block writers, neither of
+    //     which this touches: a client still cannot reach it;
+    //   * the mob verbs this card adds (Attack / Feed) and the actor-event
+    //     channel cannot be tested or demonstrated at the authority level without
+    //     a way to put a mob in front of the player - and "implemented but
+    //     unreachable" is the failure mode this project keeps paying for;
+    //   * it is the shape the /summon verb takes once there is a command layer
+    //     (M3+), where it becomes an ops-permission verb rather than a call.
+    [[nodiscard]] EntityId summon_mob(std::uint16_t type, const glm::dvec3 &position);
+
+    void set_difficulty(const game::Difficulty difficulty) { difficulty_ = difficulty; }
 
     [[nodiscard]] const voxel::LightEngine &light() const { return light_; }
 
@@ -247,6 +290,26 @@ private:
     // pick up in MC).
     bool remove_water_source(int wx, int wy, int wz);
 
+    // ── mob pass (T-M2) ─────────────────────────────────────────────────────
+    // One tick of AI over every mob, then the deferred half of it: kills (with
+    // their loot), births and blasts. The split exists because the mob walk may
+    // not spawn entities (EntityStore::for_each_entity forbids it), so the walk
+    // reports what should happen and this applies it.
+    void step_mob_pass();
+
+    // The spawner's per-tick pass: hostile attempts in the 24-128 ring, the
+    // once-per-chunk passive population, and the >128 removal.
+    void spawn_pass();
+
+    // ⚖ research/11 §1.5.1: the player's melee reach is 3 blocks. The mob's box
+    // grown by that must overlap the actor's own box - the same "inflate and
+    // intersect" shape the mobs use against each other, and the reason a client
+    // can pick a target and the authority can agree with it.
+    [[nodiscard]] bool in_attack_reach(const game::ActionRequest &req, const Entity &mob) const;
+
+    [[nodiscard]] game::ActionResult apply_attack(const game::ActionRequest &req);
+    [[nodiscard]] game::ActionResult apply_feed(const game::ActionRequest &req);
+
     // ── action rules ────────────────────────────────────────────────────────
     // Shared gate: target inside the world, in a loaded chunk, inside ⚖ reach.
     [[nodiscard]] game::ActionReject gate(const game::ActionRequest &req) const;
@@ -316,6 +379,37 @@ private:
         WorldSim *sim_;
     };
 
+    // The mob simulation's view of the world (T-M2). A private nested type for
+    // the same reason FluidWorld and EntityWorld are: the AI needs collision,
+    // block lookups, chunk residency and light, and nothing outside the authority
+    // needs to reach the world through them.
+    class MobWorld final : public IMobWorld {
+    public:
+        explicit MobWorld(WorldSim &sim) : sim_(&sim) {}
+
+        [[nodiscard]] std::uint16_t block_at(int wx, int wy, int wz) const override {
+            return sim_->block_at(wx, wy, wz);
+        }
+
+        [[nodiscard]] bool solid_at(int wx, int wy, int wz) const override { return sim_->solid_at(wx, wy, wz); }
+
+        [[nodiscard]] bool liquid_at(int wx, int wy, int wz) const override { return sim_->liquid_at(wx, wy, wz); }
+
+        [[nodiscard]] bool chunk_loaded(int cx, int cz) const override { return sim_->chunk_ready(cx, cz); }
+
+        // ⚖ docs/01 §6's "光照等级 0" is the EFFECTIVE level: a cell is dark only
+        // when neither the sky nor a block light reaches it. There is no emitting
+        // block yet, so in practice this is the skylight column test - which is
+        // why hostiles appear under a roof and not on open grass.
+        [[nodiscard]] int light_at(int wx, int wy, int wz) const override {
+            const voxel::LightLevels levels = sim_->light().light_at(wx, wy, wz);
+            return std::max<int>(levels.sky, levels.block);
+        }
+
+    private:
+        WorldSim *sim_;
+    };
+
     voxel::BlockRegistry registry_;
     std::uint16_t water_block_id_ = 0;
     voxel::ChunkManager chunks_;
@@ -350,6 +444,29 @@ private:
     std::vector<std::pair<int, int>> gen_offsets_;
     int gen_offsets_radius_ = -1;
     storage::WorldSave *save_ = nullptr;
+
+    // ── mob layer (T-M2) ────────────────────────────────────────────────────
+    // Construction order matters for mob_world_ only: it points back at *this,
+    // exactly like fluid_world_ and entity_world_.
+    game::MobRegistry mobs_;
+    MobWorld mob_world_;
+    MobRules mob_rules_;
+    MobSpawnRules spawn_rules_;
+    // Chunks whose one-shot passive population has already happened (docs/01 §6).
+    PassiveChunkLedger passive_ledger_;
+    game::Difficulty difficulty_ = game::Difficulty::Normal;
+    // The actor's pose, or nothing while no viewer has been seen (a headless
+    // test, a server with no players): with no pose the mobs age and fall but
+    // nothing notices, which is what keeps the other cards' tests unchanged.
+    std::optional<game::ActorPose> actor_;
+    // Actor events accumulated since the last take_changes().
+    std::vector<game::ActorEvent> pending_events_;
+    // One authoritative tick counter for the spawner's cadence and rotation. The
+    // client's game_ticks is NOT reused: the authority must be able to run its own
+    // clock (M3's standalone server).
+    std::uint64_t tick_counter_ = 0;
+    // The world seed the mobile population is derived from.
+    std::uint64_t mob_seed_ = 0;
 };
 
 } // namespace opencraft::server

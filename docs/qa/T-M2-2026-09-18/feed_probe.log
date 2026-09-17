@@ -1,0 +1,48 @@
+[2026-09-18 01:11:37.918] [info] OpenCraft 0.1.0 starting
+[2026-09-18 01:11:38.049] [info] GL 4.1 Metal - 89.4 / glad loaded
+[2026-09-18 01:11:38.049] [info] save: no level.ocd, new world with seed 0x4f50454e43524146
+[2026-09-18 01:11:38.271] [info] startup gen: 25 chunks, total 221.7 ms, avg 8.87 ms/chunk
+[2026-09-18 01:11:38.271] [info] spawn scan: surface at (0.5, 132.0, 0.5)
+[2026-09-18 01:11:38.271] [info] atlas: 144x144 px, 9 tiles/row, crack tiles at 63
+[2026-09-18 01:11:39.490] [info] EVIDENCE summon mossback id=1 at (0.5, 132.0, -1.5)
+[2026-09-18 01:11:39.900] [info] mob mossback spawned at (-94.9, 133.0, -44.0) in chunk (-6, -3)
+[2026-09-18 01:11:39.900] [info] mob mossback spawned at (-93.5, 133.0, -39.3) in chunk (-6, -3)
+[2026-09-18 01:11:39.900] [info] mob mossback spawned at (-95.2, 133.0, -41.4) in chunk (-6, -3)
+[2026-09-18 01:11:39.900] [info] mob mossback spawned at (-94.2, 132.0, -24.1) in chunk (-6, -2)
+[2026-09-18 01:11:40.299] [info] fps 44.4 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-18 01:11:40.533] [info] mob mossback spawned at (-102.1, 133.0, -45.1) in chunk (-7, -3)
+[2026-09-18 01:11:40.533] [info] mob mossback spawned at (-98.9, 133.0, -46.2) in chunk (-7, -3)
+[2026-09-18 01:11:42.319] [info] fps 89.8 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-18 01:11:43.013] [info] mob blastbud spawned at (-57.8, 42.0, 68.3) in chunk (-4, 4)
+[2026-09-18 01:11:44.332] [info] fps 85.8 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-18 01:11:45.789] [info] EVIDENCE rclick picked=0 picked_dist=0.00 block_hit=false t=0.00 mob_in_front=false held=24 nearest_mob_raydist=-1.00 pitch_deg=0.0 probe_ptr=0
+[2026-09-18 01:11:45.789] [info] EVIDENCE nearest_mob type=mossback pos=(3.43,133.00,8.13) dist=8.20 goals=256 target=0 actor_dist=8.24 sees=true move_target=11.114204218626185 has_move=0
+[2026-09-18 01:11:46.339] [info] fps 86.9 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-18 01:11:47.443] [info] EVIDENCE rclick picked=0 picked_dist=0.00 block_hit=true t=2.06 mob_in_front=false held=24 nearest_mob_raydist=-1.00 pitch_deg=51.7 probe_ptr=0
+[2026-09-18 01:11:47.443] [info] EVIDENCE nearest_mob type=mossback pos=(3.43,133.00,8.13) dist=8.20 goals=256 target=0 actor_dist=8.24 sees=true move_target=11.114204218626185 has_move=0
+[2026-09-18 01:11:48.353] [info] fps 95.2 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-18 01:11:48.353] [info] mob blastbud spawned at (79.2, 85.0, -21.4) in chunk (4, -2)
+[2026-09-18 01:11:48.353] [info] mob blastbud spawned at (75.3, 85.0, -18.0) in chunk (4, -2)
+[2026-09-18 01:11:48.353] [info] mob blastbud spawned at (76.3, 85.0, -19.6) in chunk (4, -2)
+[2026-09-18 01:11:48.353] [info] mob blastbud spawned at (78.0, 85.0, -20.0) in chunk (4, -2)
+[2026-09-18 01:11:49.061] [info] EVIDENCE rclick picked=0 picked_dist=0.00 block_hit=true t=1.92 mob_in_front=false held=24 nearest_mob_raydist=-1.00 pitch_deg=57.4 probe_ptr=0
+[2026-09-18 01:11:49.061] [info] EVIDENCE nearest_mob type=mossback pos=(3.43,133.00,8.13) dist=8.20 goals=256 target=0 actor_dist=8.24 sees=true move_target=11.114204218626185 has_move=0
+[2026-09-18 01:11:50.352] [info] fps 95.0 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-18 01:11:50.416] [info] autosave: 0 chunk(s) queued for async write, level written (ticks=199)
+[2026-09-18 01:11:50.727] [info] EVIDENCE rclick picked=0 picked_dist=0.00 block_hit=true t=1.82 mob_in_front=false held=24 nearest_mob_raydist=-1.00 pitch_deg=63.2 probe_ptr=0
+[2026-09-18 01:11:50.727] [info] EVIDENCE nearest_mob type=mossback pos=(3.43,133.00,8.13) dist=8.20 goals=256 target=0 actor_dist=8.24 sees=true move_target=11.114204218626185 has_move=0
+[2026-09-18 01:11:52.359] [info] fps 94.9 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-18 01:11:52.394] [info] EVIDENCE rclick picked=0 picked_dist=0.00 block_hit=true t=1.74 mob_in_front=false held=24 nearest_mob_raydist=-1.00 pitch_deg=68.9 probe_ptr=0
+[2026-09-18 01:11:52.394] [info] EVIDENCE nearest_mob type=mossback pos=(3.43,133.00,8.13) dist=8.20 goals=256 target=0 actor_dist=8.24 sees=true move_target=11.114204218626185 has_move=0
+[2026-09-18 01:11:54.047] [info] EVIDENCE rclick picked=0 picked_dist=0.00 block_hit=true t=1.68 mob_in_front=false held=24 nearest_mob_raydist=-1.00 pitch_deg=74.6 probe_ptr=0
+[2026-09-18 01:11:54.047] [info] EVIDENCE nearest_mob type=mossback pos=(3.43,133.00,8.13) dist=8.20 goals=256 target=0 actor_dist=8.24 sees=true move_target=11.114204218626185 has_move=0
+[2026-09-18 01:11:54.359] [info] fps 89.5 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-18 01:11:55.411] [info] mob blastbud spawned at (-29.6, 86.0, 70.5) in chunk (-2, 4)
+[2026-09-18 01:11:55.713] [info] EVIDENCE rclick picked=0 picked_dist=0.00 block_hit=true t=1.64 mob_in_front=false held=24 nearest_mob_raydist=-1.00 pitch_deg=80.4 probe_ptr=0
+[2026-09-18 01:11:55.713] [info] EVIDENCE nearest_mob type=mossback pos=(3.43,133.00,8.13) dist=8.20 goals=256 target=0 actor_dist=8.24 sees=true move_target=11.114204218626185 has_move=0
+[2026-09-18 01:11:56.373] [info] fps 94.2 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-18 01:11:57.326] [info] EVIDENCE rclick picked=0 picked_dist=0.00 block_hit=true t=1.62 mob_in_front=false held=24 nearest_mob_raydist=-1.00 pitch_deg=86.1 probe_ptr=0
+[2026-09-18 01:11:57.326] [info] EVIDENCE nearest_mob type=mossback pos=(3.43,133.00,8.13) dist=8.20 goals=256 target=0 actor_dist=8.24 sees=true move_target=11.114204218626185 has_move=0
+[2026-09-18 01:11:58.185] [info] mob blastbud spawned at (46.1, 68.0, 83.4) in chunk (2, 5)
+[2026-09-18 01:11:58.185] [info] mob blastbud spawned at (47.2, 68.0, 84.0) in chunk (2, 5)
+[2026-09-18 01:11:58.380] [info] fps 94.4 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104

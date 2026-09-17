@@ -54,8 +54,13 @@ WorldSim::WorldSim(const std::uint64_t seed)
     : registry_(voxel::BlockRegistry::create_default()), light_world_(chunks_, registry_, {}), light_(light_world_),
       generator_(seed, registry_), fluid_world_(*this), fluid_(fluid_world_),
       items_(game::ItemRegistry::create_default()), entity_types_(game::EntityTypeRegistry::create_default()),
-      entity_world_(*this), item_hazard_(registry_) {
+      // T-M2: the mob roster registers its own entity types INTO entity_types_,
+      // so a mob's body, gravity, drag and hit points live in the same EntityDef
+      // a dropped item's do (docs/03 §6) while the AI content stays in MobDef.
+      entity_world_(*this), item_hazard_(registry_), mobs_(game::MobRegistry::create_default(entity_types_, items_)),
+      mob_world_(*this) {
     water_block_id_ = registry_.id_of("water");
+    mob_seed_ = seed;
 }
 
 // ── command channel ─────────────────────────────────────────────────────────
@@ -72,16 +77,28 @@ game::ActionResult WorldSim::submit(const game::ActionRequest &req) {
         return apply_scoop(req);
     case game::ActionKind::PickUp:
         return apply_pickup(req);
+    case game::ActionKind::Attack:
+        return apply_attack(req);
+    case game::ActionKind::Feed:
+        return apply_feed(req);
     }
     return {false, game::ActionReject::UnknownBlock}; // unreachable: every kind is handled above
 }
 
 void WorldSim::tick() {
+    ++tick_counter_;
     fluid_.step();
     // T-E1: the entity layer advances on the same authoritative step, in its own
     // system plane (docs/03 §6). It runs before the early-out below: the drop
     // simulation has nothing to do with whether the fluid made a chunk stale.
+    // The two entity passes are disjoint by type class (EntityDef::entity_class),
+    // so neither can step the other's entities.
     step_items(entities_, entity_world_, item_hazard_, item_rules_, entity_types_, items_);
+    // T-M2: mobs next, then the spawner. Order matters: the spawner's cap counts
+    // what the AI pass left alive, and the mobs that died this tick are gone
+    // before the cap is read.
+    step_mob_pass();
+    spawn_pass();
     if (fluid_dirty_.empty()) {
         return;
     }
@@ -94,7 +111,19 @@ void WorldSim::tick() {
 game::WorldChanges WorldSim::take_changes() {
     game::WorldChanges changes;
     changes.dirty_chunks.swap(pending_chunks_);
+    // T-M2: what the mobs did to the player since the last drain. The player's hit
+    // points live on the client (T-A1 kept the player out of this vocabulary), so
+    // this is how a melee hit or a blast reaches the health that renders it.
+    changes.actor_events.swap(pending_events_);
     return changes;
+}
+
+void WorldSim::observe_actor(const game::ActorPose &pose) {
+    actor_ = pose;
+}
+
+EntityId WorldSim::summon_mob(const std::uint16_t type, const glm::dvec3 &position) {
+    return spawn_mob(entities_, mobs_, type, position, mob_seed_, mob_rules_);
 }
 
 // ── action rules ────────────────────────────────────────────────────────────
@@ -217,6 +246,13 @@ game::ActionResult WorldSim::apply_pickup(const game::ActionRequest &req) {
     if (drop == nullptr) {
         return {false, game::ActionReject::UnknownEntity};
     }
+    // T-M2: the store holds mobs as well as drops, and a mob's stack is EMPTY
+    // (item id 0). A request naming a mob with item id 0 would otherwise match the
+    // check below and hand the client a DELETE of a live mob - so the class is
+    // checked before anything reads the stack.
+    if (mobs_.is_mob(drop->type)) {
+        return {false, game::ActionReject::NotAMob};
+    }
     // The client names the item it read from its view. The store reuses slots,
     // so this is what stops a stale id from handing over somebody else's item.
     if (req.item_or_block != drop->stack.item) {
@@ -246,6 +282,179 @@ game::ActionResult WorldSim::apply_pickup(const game::ActionRequest &req) {
     // place_one_block uses.
     entities_.erase(drop->id);
     return {true, game::ActionReject::None};
+}
+
+// ── mobs (T-M2) ─────────────────────────────────────────────────────────────
+
+// The chunk window the spawner probes, in CHUNKS. The ⚖ ring is 24-128 blocks
+// (docs/01 §6), and a chunk is 16 blocks across, so a candidate chunk must be at
+// least ceil(24/16) = 2 chunks away (at distance 1 part of the chunk is inside the
+// 24-block exclusion zone) and at most 128/16 = 8 chunks away (beyond that a mob
+// would be removed by the very next despawn sweep).
+static constexpr int kSpawnChunkMin = 2;
+static constexpr int kSpawnChunkMax = 8;
+
+void WorldSim::step_mob_pass() {
+    if (entities_.alive_count() == 0) {
+        return;
+    }
+    const MobStepResult result = step_mobs(entities_, mob_world_, entity_types_, mobs_, mob_rules_, difficulty_,
+                                           actor_.has_value() ? &*actor_ : nullptr, mob_seed_);
+
+    // Blasts first: an explosion may destroy drops, and the drops it destroys
+    // should not also be stepped by this tick's item pass (which already ran, so
+    // the order here is only about a single tick's bookkeeping, not correctness).
+    for (const MobBlast &blast : result.blasts) {
+        const std::size_t destroyed = destroy_items_in_radius(entities_, entity_types_, blast.position, blast.radius);
+        OC_LOG_INFO("blast at ({:.1f}, {:.1f}, {:.1f}): {} drop(s) destroyed", blast.position.x, blast.position.y,
+                    blast.position.z, destroyed);
+    }
+    for (const EntityId id : result.dead) {
+        const Entity *mob = entities_.find(id);
+        if (mob == nullptr) {
+            continue;
+        }
+        // Read everything off the entity BEFORE killing it: kill_mob spawns the
+        // loot, and spawning can move the store's slot vector out from under a
+        // pointer held across it.
+        const std::string name = entity_types_.string_of(mob->type);
+        const glm::dvec3 where = mob->position;
+        const std::size_t dropped = kill_mob(entities_, entity_types_, item_rules_, mobs_, id);
+        OC_LOG_INFO("mob {} died at ({:.1f}, {:.1f}, {:.1f}); {} drop(s)", name, where.x, where.y, where.z, dropped);
+    }
+    for (const MobBirth &birth : result.births) {
+        const EntityId id = spawn_mob(entities_, mobs_, birth.type, birth.position, mob_seed_, mob_rules_);
+        const game::MobDef *def = mobs_.find(birth.type);
+        Entity *baby = entities_.find(id);
+        if (baby != nullptr && def != nullptr) {
+            baby->ai.baby = true;
+            baby->ai.growth_ticks = def->baby_growth_ticks; // ⚖ 幼体成长 24000 tick
+            OC_LOG_INFO("mob {} born at ({:.1f}, {:.1f}, {:.1f})", entity_types_.string_of(birth.type),
+                        birth.position.x, birth.position.y, birth.position.z);
+        }
+    }
+    if (!result.events.empty()) {
+        for (const game::ActorEvent &event : result.events) {
+            OC_LOG_INFO("mob event: {} {:.1f} damage at ({:.1f}, {:.1f}, {:.1f})",
+                        event.kind == game::ActorEventKind::Explosion ? "explosion" : "melee", event.amount,
+                        event.position.x, event.position.y, event.position.z);
+        }
+        pending_events_.insert(pending_events_.end(), result.events.begin(), result.events.end());
+    }
+}
+
+void WorldSim::spawn_pass() {
+    // No viewer, no spawning: the ring, the cap and the light rule are all
+    // defined relative to a player, and a world nobody is watching stays empty
+    // (which is also what keeps a headless test's entity population at zero).
+    if (!actor_.has_value()) {
+        return;
+    }
+    const glm::dvec3 player = actor_->feet;
+    const auto player_chunk =
+        voxel::Chunk::chunk_coords(static_cast<int>(std::floor(player.x)), static_cast<int>(std::floor(player.z)));
+    const int loaded = static_cast<int>(resident_.size());
+    if (loaded == 0) {
+        return;
+    }
+    // Candidate chunks: the ring's worth of the resident set, in the (sorted)
+    // resident order so the sequence is deterministic. The rotation spreads the
+    // attempts over all of them instead of always probing the same few.
+    std::vector<std::pair<int, int>> candidates;
+    for (const auto &[cx, cz] : resident_) {
+        const int dx = cx > player_chunk.first ? cx - player_chunk.first : player_chunk.first - cx;
+        const int dz = cz > player_chunk.second ? cz - player_chunk.second : player_chunk.second - cz;
+        const int distance = dx > dz ? dx : dz;
+        if (distance >= kSpawnChunkMin && distance <= kSpawnChunkMax) {
+            candidates.emplace_back(cx, cz);
+        }
+    }
+    if (candidates.empty()) {
+        return;
+    }
+    const std::size_t start = static_cast<std::size_t>(tick_counter_ % candidates.size());
+    for (int attempt = 0; attempt < spawn_rules_.attempts_per_call; ++attempt) {
+        const auto &[cx, cz] = candidates[(start + static_cast<std::size_t>(attempt)) % candidates.size()];
+        const MobSpawnResult spawned = spawn_in_chunk(entities_, mob_world_, mobs_, spawn_rules_, passive_ledger_,
+                                                      mob_seed_, player, difficulty_, cx, cz, tick_counter_, loaded);
+        for (const EntityId id : spawned.spawned) {
+            const Entity *mob = entities_.find(id);
+            if (mob != nullptr) {
+                OC_LOG_INFO("mob {} spawned at ({:.1f}, {:.1f}, {:.1f}) in chunk ({}, {})",
+                            entity_types_.string_of(mob->type), mob->position.x, mob->position.y, mob->position.z, cx,
+                            cz);
+            }
+        }
+    }
+    // ⚖ >128 格即时消除 (docs/01 §6). Runs every tick, once per player, over every
+    // mob: it is the rule that keeps a wandering mob from accumulating.
+    const std::size_t removed = despawn_distant_mobs(entities_, mobs_, spawn_rules_, player);
+    if (removed > 0) {
+        OC_LOG_INFO("{} mob(s) removed beyond {} blocks", removed, spawn_rules_.despawn_range);
+    }
+}
+
+bool WorldSim::in_attack_reach(const game::ActionRequest &req, const Entity &mob) const {
+    // ⚖ research/11 §1.5.1's "玩家近战到达距离 3 格" read literally: how far the
+    // actor can REACH, i.e. the distance from their eyes to the nearest point of
+    // the target's box - which is what the client's own pick measures (a ray
+    // entry point ≤ 3 blocks). An "inflate the mob's box and intersect the actor's
+    // box" test looks equivalent but is not: it lets a 3-block reach become a
+    // 6.6-block one, because both boxes are already a body wide.
+    const game::EntityDef &def = entity_types_.def_of(mob.type);
+    const physics::Box box = physics::box_of(mob.position, def.half_width, def.height);
+    const glm::dvec3 eye = req.actor.feet + glm::dvec3(0.0, req.actor.eye_height, 0.0);
+    const glm::dvec3 nearest{glm::clamp(eye.x, box.min_x, box.max_x), glm::clamp(eye.y, box.min_y, box.max_y),
+                             glm::clamp(eye.z, box.min_z, box.max_z)};
+    return glm::length(eye - nearest) <= game::kAttackReach;
+}
+
+game::ActionResult WorldSim::apply_attack(const game::ActionRequest &req) {
+    // T-M2. The mob's own rules (hit points, the invulnerability window, the
+    // grudge it forms, whether it panics) are mob_sim's; this only validates that
+    // the client may hit THAT entity from THAT place.
+    if (req.target.x <= 0) {
+        return {false, game::ActionReject::UnknownEntity};
+    }
+    const Entity *mob = entities_.find(static_cast<EntityId>(req.target.x));
+    if (mob == nullptr) {
+        return {false, game::ActionReject::UnknownEntity};
+    }
+    if (mobs_.find(mob->type) == nullptr) {
+        return {false, game::ActionReject::NotAMob}; // a drop is not a target
+    }
+    if (!in_attack_reach(req, *mob)) {
+        return {false, game::ActionReject::OutOfAttackRange};
+    }
+    // Bare-handed damage. The full attack model (swing speed, the 84.8% damage
+    // ramp, crits, knockback, tool damage) is a player-combat card's work - this is
+    // the minimum that makes the passive roster's drops reachable.
+    const double damage = game::kPunchDamage;
+    if (damage_mob(entities_, mobs_, mob->id, damage, kActorId, mob_rules_)) {
+        // The drop count is not interesting here; the tick's own death pass is what
+        // reports it. An attack that kills therefore erases and loots immediately
+        // rather than waiting for the next step_mobs.
+        (void) kill_mob(entities_, entity_types_, item_rules_, mobs_, mob->id);
+    }
+    return {true, game::ActionReject::None};
+}
+
+game::ActionResult WorldSim::apply_feed(const game::ActionRequest &req) {
+    if (req.target.x <= 0) {
+        return {false, game::ActionReject::UnknownEntity};
+    }
+    const Entity *mob = entities_.find(static_cast<EntityId>(req.target.x));
+    if (mob == nullptr) {
+        return {false, game::ActionReject::UnknownEntity};
+    }
+    if (mobs_.find(mob->type) == nullptr) {
+        return {false, game::ActionReject::NotAMob};
+    }
+    if (!in_attack_reach(req, *mob)) {
+        return {false, game::ActionReject::OutOfAttackRange};
+    }
+    const game::ActionReject reject = feed_mob(entities_, mobs_, mob->id, req.item_or_block);
+    return {reject == game::ActionReject::None, reject};
 }
 
 // ── world lifecycle ─────────────────────────────────────────────────────────

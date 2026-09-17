@@ -1,0 +1,142 @@
+[2026-09-18 01:24:20.432] [info] OpenCraft 0.1.0 starting
+[2026-09-18 01:24:20.560] [info] GL 4.1 Metal - 89.4 / glad loaded
+[2026-09-18 01:24:20.560] [info] save: no level.ocd, new world with seed 0x4f50454e43524146
+[2026-09-18 01:24:20.779] [info] startup gen: 25 chunks, total 219.2 ms, avg 8.77 ms/chunk
+[2026-09-18 01:24:20.779] [info] spawn scan: surface at (0.5, 132.0, 0.5)
+[2026-09-18 01:24:20.779] [info] atlas: 144x144 px, 9 tiles/row, crack tiles at 63
+[2026-09-18 01:24:21.616] [info] mob mossback spawned at (-62.5, 133.0, -38.6) in chunk (-4, -3)
+[2026-09-18 01:24:21.778] [info] EVIDENCE render entities=1 mobs_drawn=1 first=(-62.5,133.0,-38.6) eye=(0.5,133.6,0.5)
+[2026-09-18 01:24:22.445] [info] mob mossback spawned at (-94.9, 133.0, -44.0) in chunk (-6, -3)
+[2026-09-18 01:24:22.445] [info] mob mossback spawned at (-93.5, 133.0, -39.3) in chunk (-6, -3)
+[2026-09-18 01:24:22.445] [info] mob mossback spawned at (-95.2, 133.0, -41.4) in chunk (-6, -3)
+[2026-09-18 01:24:22.445] [info] mob mossback spawned at (-94.2, 132.0, -24.1) in chunk (-6, -2)
+[2026-09-18 01:24:22.654] [info] EVIDENCE render entities=5 mobs_drawn=5 first=(-62.5,133.0,-38.6) eye=(0.5,133.6,0.5)
+[2026-09-18 01:24:22.823] [info] fps 43.6 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-18 01:24:23.023] [info] mob mossback spawned at (-105.2, 129.0, -10.5) in chunk (-7, -1)
+[2026-09-18 01:24:23.023] [info] mob mossback spawned at (-106.3, 129.0, -9.9) in chunk (-7, -1)
+[2026-09-18 01:24:23.294] [info] EVIDENCE render entities=7 mobs_drawn=7 first=(-62.5,133.0,-38.6) eye=(0.5,133.6,0.5)
+[2026-09-18 01:24:23.710] [info] EVIDENCE render entities=7 mobs_drawn=7 first=(-62.5,133.0,-38.6) eye=(0.5,133.6,0.5)
+[2026-09-18 01:24:23.855] [info] EVIDENCE held=24 slot=6
+[2026-09-18 01:24:24.128] [info] EVIDENCE render entities=7 mobs_drawn=7 first=(-62.5,133.0,-38.6) eye=(0.5,133.6,0.5)
+[2026-09-18 01:24:24.273] [info] EVIDENCE summon mossback id=8 at (0.5, 132.0, -1.5)
+[2026-09-18 01:24:24.559] [info] EVIDENCE render entities=8 mobs_drawn=8 first=(-62.5,133.0,-38.6) eye=(0.5,133.6,0.5)
+[2026-09-18 01:24:24.834] [info] fps 88.2 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-18 01:24:24.869] [info] EVIDENCE held=24 slot=6
+[2026-09-18 01:24:24.982] [info] EVIDENCE render entities=8 mobs_drawn=8 first=(-62.5,133.0,-38.6) eye=(0.5,133.6,0.5)
+[2026-09-18 01:24:25.503] [info] EVIDENCE render entities=8 mobs_drawn=8 first=(-62.5,133.0,-38.6) eye=(0.5,133.6,0.5)
+[2026-09-18 01:24:25.531] [info] mob blastbud spawned at (-57.8, 42.0, 68.3) in chunk (-4, 4)
+[2026-09-18 01:24:25.876] [info] EVIDENCE held=24 slot=6
+[2026-09-18 01:24:25.996] [info] EVIDENCE render entities=9 mobs_drawn=9 first=(-62.5,133.0,-38.6) eye=(0.5,133.6,0.5)
+[2026-09-18 01:24:26.413] [info] EVIDENCE render entities=9 mobs_drawn=9 first=(-62.5,133.0,-38.6) eye=(0.5,133.6,0.5)
+[2026-09-18 01:24:26.827] [info] EVIDENCE render entities=9 mobs_drawn=9 first=(-62.5,133.0,-38.6) eye=(0.5,133.6,0.5)
+[2026-09-18 01:24:26.848] [info] fps 87.7 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-18 01:24:26.889] [info] EVIDENCE held=24 slot=6
+[2026-09-18 01:24:27.265] [info] EVIDENCE render entities=9 mobs_drawn=9 first=(-62.5,133.0,-38.6) eye=(0.5,133.6,0.5)
+[2026-09-18 01:24:27.684] [info] EVIDENCE render entities=9 mobs_drawn=9 first=(-62.5,133.0,-38.6) eye=(0.5,133.6,0.5)
+[2026-09-18 01:24:27.889] [info] EVIDENCE held=24 slot=6
+[2026-09-18 01:24:28.106] [info] EVIDENCE render entities=9 mobs_drawn=9 first=(-62.5,133.0,-38.6) eye=(0.5,133.6,0.5)
+[2026-09-18 01:24:28.523] [info] EVIDENCE render entities=9 mobs_drawn=9 first=(-62.5,133.0,-38.6) eye=(0.5,133.6,0.5)
+[2026-09-18 01:24:28.848] [info] fps 94.0 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-18 01:24:28.910] [info] EVIDENCE held=24 slot=6
+[2026-09-18 01:24:28.954] [info] EVIDENCE render entities=9 mobs_drawn=9 first=(-62.5,133.0,-38.6) eye=(0.5,133.6,0.5)
+[2026-09-18 01:24:29.392] [info] EVIDENCE render entities=9 mobs_drawn=9 first=(-62.5,133.0,-38.6) eye=(0.5,133.6,0.5)
+[2026-09-18 01:24:29.808] [info] EVIDENCE render entities=9 mobs_drawn=9 first=(-62.5,133.0,-38.6) eye=(0.5,133.6,0.5)
+[2026-09-18 01:24:29.917] [info] EVIDENCE held=24 slot=6
+[2026-09-18 01:24:30.225] [info] EVIDENCE render entities=9 mobs_drawn=9 first=(-62.5,133.0,-38.6) eye=(0.5,133.6,0.5)
+[2026-09-18 01:24:30.640] [info] EVIDENCE render entities=9 mobs_drawn=9 first=(-62.5,133.0,-38.6) eye=(0.5,133.6,0.5)
+[2026-09-18 01:24:30.854] [info] fps 94.9 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-18 01:24:30.875] [info] mob blastbud spawned at (79.2, 85.0, -21.4) in chunk (4, -2)
+[2026-09-18 01:24:30.875] [info] mob blastbud spawned at (75.3, 85.0, -18.0) in chunk (4, -2)
+[2026-09-18 01:24:30.875] [info] mob blastbud spawned at (76.3, 85.0, -19.6) in chunk (4, -2)
+[2026-09-18 01:24:30.875] [info] mob blastbud spawned at (78.0, 85.0, -20.0) in chunk (4, -2)
+[2026-09-18 01:24:30.931] [info] EVIDENCE held=24 slot=6
+[2026-09-18 01:24:31.056] [info] EVIDENCE render entities=13 mobs_drawn=13 first=(-62.5,133.0,-38.6) eye=(0.5,133.6,0.5)
+[2026-09-18 01:24:31.065] [info] EVIDENCE summon hollow_wretch id=14 at (0.5, 132.0, -1.5)
+[2026-09-18 01:24:31.327] [info] mob event: melee 3.0 damage at (0.5, 132.0, 0.5)
+[2026-09-18 01:24:31.328] [info] mob melee for 3.0 at (0.50, 132.00, 0.50); health now 17.0
+[2026-09-18 01:24:31.475] [info] EVIDENCE render entities=14 mobs_drawn=14 first=(-62.5,133.0,-38.6) eye=(0.5,133.6,0.5)
+[2026-09-18 01:24:31.912] [info] EVIDENCE render entities=14 mobs_drawn=14 first=(-62.5,133.0,-38.6) eye=(0.5,133.6,0.5)
+[2026-09-18 01:24:31.938] [info] EVIDENCE held=24 slot=6
+[2026-09-18 01:24:32.329] [info] EVIDENCE render entities=14 mobs_drawn=14 first=(-62.5,133.0,-38.6) eye=(0.5,133.6,0.5)
+[2026-09-18 01:24:32.348] [info] mob event: melee 3.0 damage at (0.5, 132.0, 0.5)
+[2026-09-18 01:24:32.349] [info] mob melee for 3.0 at (0.50, 132.00, 0.50); health now 14.0
+[2026-09-18 01:24:32.746] [info] EVIDENCE render entities=14 mobs_drawn=14 first=(-62.5,133.0,-38.6) eye=(0.5,133.6,0.5)
+[2026-09-18 01:24:32.855] [info] fps 95.0 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-18 01:24:32.952] [info] EVIDENCE held=24 slot=6
+[2026-09-18 01:24:32.954] [info] autosave: 0 chunk(s) queued for async write, level written (ticks=199)
+[2026-09-18 01:24:33.218] [info] EVIDENCE render entities=14 mobs_drawn=14 first=(-62.5,133.0,-38.6) eye=(0.5,133.6,0.5)
+[2026-09-18 01:24:33.355] [info] mob event: melee 3.0 damage at (0.5, 132.0, 0.5)
+[2026-09-18 01:24:33.355] [info] mob melee for 3.0 at (0.50, 132.00, 0.50); health now 11.0
+[2026-09-18 01:24:33.667] [info] EVIDENCE render entities=14 mobs_drawn=14 first=(-62.5,133.0,-38.6) eye=(0.5,133.6,0.5)
+[2026-09-18 01:24:33.959] [info] EVIDENCE held=24 slot=6
+[2026-09-18 01:24:34.085] [info] EVIDENCE render entities=14 mobs_drawn=14 first=(-62.5,133.0,-38.6) eye=(0.5,133.6,0.5)
+[2026-09-18 01:24:34.363] [info] mob event: melee 3.0 damage at (0.5, 132.0, 0.5)
+[2026-09-18 01:24:34.363] [info] mob melee for 3.0 at (0.50, 132.00, 0.50); health now 8.0
+[2026-09-18 01:24:34.516] [info] EVIDENCE render entities=14 mobs_drawn=14 first=(-62.5,133.0,-38.6) eye=(0.5,133.6,0.5)
+[2026-09-18 01:24:34.862] [info] fps 90.2 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-18 01:24:34.945] [info] EVIDENCE render entities=14 mobs_drawn=14 first=(-62.5,133.0,-38.6) eye=(0.5,133.6,0.5)
+[2026-09-18 01:24:34.966] [info] EVIDENCE held=24 slot=6
+[2026-09-18 01:24:35.363] [info] EVIDENCE render entities=14 mobs_drawn=14 first=(-62.5,133.0,-38.6) eye=(0.5,133.6,0.5)
+[2026-09-18 01:24:35.376] [info] mob event: melee 3.0 damage at (0.5, 132.0, 0.5)
+[2026-09-18 01:24:35.376] [info] mob melee for 3.0 at (0.50, 132.00, 0.50); health now 5.0
+[2026-09-18 01:24:35.781] [info] EVIDENCE render entities=14 mobs_drawn=14 first=(-62.5,133.0,-38.6) eye=(0.5,133.6,0.5)
+[2026-09-18 01:24:35.980] [info] EVIDENCE held=24 slot=6
+[2026-09-18 01:24:36.196] [info] EVIDENCE render entities=14 mobs_drawn=14 first=(-62.5,133.0,-38.6) eye=(0.5,133.6,0.5)
+[2026-09-18 01:24:36.383] [info] mob event: melee 3.0 damage at (0.5, 132.0, 0.5)
+[2026-09-18 01:24:36.383] [info] mob melee for 3.0 at (0.50, 132.00, 0.50); health now 2.0
+[2026-09-18 01:24:36.613] [info] EVIDENCE render entities=14 mobs_drawn=14 first=(-62.5,133.0,-38.6) eye=(0.5,133.6,0.5)
+[2026-09-18 01:24:36.862] [info] fps 96.0 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-18 01:24:37.001] [info] EVIDENCE held=24 slot=6
+[2026-09-18 01:24:37.030] [info] EVIDENCE render entities=14 mobs_drawn=14 first=(-62.5,133.0,-38.6) eye=(0.5,133.6,0.5)
+[2026-09-18 01:24:37.397] [info] mob event: melee 3.0 damage at (0.5, 132.0, 0.5)
+[2026-09-18 01:24:37.397] [info] mob melee for 3.0 at (0.50, 132.00, 0.50); health now 0.0
+[2026-09-18 01:24:37.447] [info] EVIDENCE render entities=14 mobs_drawn=14 first=(-62.5,133.0,-38.6) eye=(0.5,133.6,0.5)
+[2026-09-18 01:24:37.877] [info] EVIDENCE render entities=14 mobs_drawn=14 first=(-62.5,133.0,-38.6) eye=(0.5,133.6,0.5)
+[2026-09-18 01:24:37.959] [info] mob blastbud spawned at (-29.6, 86.0, 70.5) in chunk (-2, 4)
+[2026-09-18 01:24:38.001] [info] EVIDENCE held=24 slot=6
+[2026-09-18 01:24:38.294] [info] EVIDENCE render entities=15 mobs_drawn=15 first=(-62.5,133.0,-38.6) eye=(0.5,133.6,0.5)
+[2026-09-18 01:24:38.404] [info] mob event: melee 3.0 damage at (0.5, 132.0, 0.5)
+[2026-09-18 01:24:38.404] [info] mob melee for 3.0 at (0.50, 132.00, 0.50); health now 0.0
+[2026-09-18 01:24:38.426] [info] EVIDENCE summon blastbud id=16 at (0.5, 132.0, -1.5)
+[2026-09-18 01:24:38.711] [info] EVIDENCE render entities=16 mobs_drawn=16 first=(-62.5,133.0,-38.6) eye=(0.5,133.6,0.5)
+[2026-09-18 01:24:38.861] [info] fps 95.5 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-18 01:24:39.007] [info] EVIDENCE held=24 slot=6
+[2026-09-18 01:24:39.128] [info] EVIDENCE render entities=16 mobs_drawn=16 first=(-62.5,133.0,-38.6) eye=(0.5,133.6,0.5)
+[2026-09-18 01:24:39.417] [info] mob event: melee 3.0 damage at (0.5, 132.0, 0.5)
+[2026-09-18 01:24:39.418] [info] mob melee for 3.0 at (0.50, 132.00, 0.50); health now 0.0
+[2026-09-18 01:24:39.538] [info] EVIDENCE render entities=16 mobs_drawn=16 first=(-62.5,133.0,-38.6) eye=(0.5,133.6,0.5)
+[2026-09-18 01:24:39.931] [info] blast at (0.5, 132.0, -1.5): 3 drop(s) destroyed
+[2026-09-18 01:24:39.931] [info] mob event: explosion 32.7 damage at (0.5, 132.0, -1.5)
+[2026-09-18 01:24:39.931] [info] explosion for 32.7 at (0.50, 132.00, -1.50); health now 0.0
+[2026-09-18 01:24:39.981] [info] EVIDENCE render entities=13 mobs_drawn=13 first=(-62.5,133.0,-38.6) eye=(0.5,133.6,0.5)
+[2026-09-18 01:24:40.022] [info] EVIDENCE held=24 slot=6
+[2026-09-18 01:24:40.398] [info] EVIDENCE render entities=13 mobs_drawn=13 first=(-62.5,133.0,-38.6) eye=(0.5,133.6,0.5)
+[2026-09-18 01:24:40.730] [info] mob blastbud spawned at (46.1, 68.0, 83.4) in chunk (2, 5)
+[2026-09-18 01:24:40.730] [info] mob blastbud spawned at (47.2, 68.0, 84.0) in chunk (2, 5)
+[2026-09-18 01:24:40.816] [info] EVIDENCE render entities=15 mobs_drawn=15 first=(-62.5,133.0,-38.6) eye=(0.5,133.6,0.5)
+[2026-09-18 01:24:40.876] [info] fps 95.2 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-18 01:24:41.028] [info] EVIDENCE held=24 slot=6
+[2026-09-18 01:24:41.232] [info] EVIDENCE render entities=15 mobs_drawn=15 first=(-62.5,133.0,-38.6) eye=(0.5,133.6,0.5)
+[2026-09-18 01:24:41.649] [info] EVIDENCE render entities=15 mobs_drawn=15 first=(-62.5,133.0,-38.6) eye=(0.5,133.6,0.5)
+[2026-09-18 01:24:42.042] [info] EVIDENCE held=24 slot=6
+[2026-09-18 01:24:42.080] [info] EVIDENCE render entities=15 mobs_drawn=15 first=(-62.5,133.0,-38.6) eye=(0.5,133.6,0.5)
+[2026-09-18 01:24:42.503] [info] EVIDENCE render entities=15 mobs_drawn=15 first=(-62.5,133.0,-38.6) eye=(0.5,133.6,0.5)
+[2026-09-18 01:24:42.876] [info] fps 95.0 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-18 01:24:42.917] [info] EVIDENCE render entities=15 mobs_drawn=15 first=(-62.5,133.0,-38.6) eye=(0.5,133.6,0.5)
+[2026-09-18 01:24:43.049] [info] EVIDENCE held=24 slot=6
+[2026-09-18 01:24:43.051] [info] autosave: 0 chunk(s) queued for async write, level written (ticks=399)
+[2026-09-18 01:24:43.336] [info] EVIDENCE render entities=15 mobs_drawn=15 first=(-62.5,133.0,-38.6) eye=(0.5,133.6,0.5)
+[2026-09-18 01:24:43.355] [info] mob blastbud spawned at (110.9, 118.0, -10.9) in chunk (6, -1)
+[2026-09-18 01:24:43.753] [info] EVIDENCE render entities=16 mobs_drawn=16 first=(-62.5,133.0,-38.6) eye=(0.5,133.6,0.5)
+[2026-09-18 01:24:44.063] [info] EVIDENCE held=24 slot=6
+[2026-09-18 01:24:44.169] [info] EVIDENCE render entities=16 mobs_drawn=16 first=(-62.5,133.0,-38.6) eye=(0.5,133.6,0.5)
+[2026-09-18 01:24:44.586] [info] EVIDENCE render entities=16 mobs_drawn=16 first=(-62.5,133.0,-38.6) eye=(0.5,133.6,0.5)
+[2026-09-18 01:24:44.869] [info] fps 95.8 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-18 01:24:45.000] [info] EVIDENCE render entities=16 mobs_drawn=16 first=(-62.5,133.0,-38.6) eye=(0.5,133.6,0.5)
+[2026-09-18 01:24:45.084] [info] EVIDENCE held=24 slot=6
+[2026-09-18 01:24:45.419] [info] EVIDENCE render entities=16 mobs_drawn=16 first=(-62.5,133.0,-38.6) eye=(0.5,133.6,0.5)
+[2026-09-18 01:24:45.862] [info] EVIDENCE render entities=16 mobs_drawn=16 first=(-62.5,133.0,-38.6) eye=(0.5,133.6,0.5)
+[2026-09-18 01:24:46.090] [info] EVIDENCE held=24 slot=6
+[2026-09-18 01:24:46.287] [info] EVIDENCE render entities=16 mobs_drawn=16 first=(-62.5,133.0,-38.6) eye=(0.5,133.6,0.5)
+[2026-09-18 01:24:46.718] [info] EVIDENCE render entities=16 mobs_drawn=16 first=(-62.5,133.0,-38.6) eye=(0.5,133.6,0.5)
+[2026-09-18 01:24:46.882] [info] fps 93.3 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104

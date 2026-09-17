@@ -221,6 +221,41 @@ struct StandInVisual {
     return {0.55f, 0.55f, 0.58f};
 }
 
+// ── Mob stand-in skins (T-M2) ─────────────────────────────────────────────
+// A mob is drawn as two boxes (a body and a head) textured with tiles from the
+// block atlas, because there is no mob model, no mob texture set and no
+// flat-colour box shader in the engine yet - inventing any of those is an art /
+// render card's work, not this one's.
+//
+// The names and the colour CHOICES are original (docs/04 red line 2/5): a
+// Mossback is a brown egg with a green crown (it grazes), a Hollow Wretch is
+// grey rock, and a Blastbud is a green pod with a pale cap. The look is a
+// placeholder that makes behaviour observable; the report says so explicitly.
+struct MobSkin {
+    const char *body_block;
+    const char *head_block;
+    // Head size as a fraction of the body's width/height, and how far forward it
+    // sits. Chosen for readability, not measured from anything.
+    double head_scale = 0.6;
+    double head_forward = 0.35;
+};
+
+[[nodiscard]] inline MobSkin mob_skin(std::string_view mob_id) {
+    // ⚠ BLOCK ids, not item ids: these index the block atlas (block*3 + face).
+    // Getting that wrong is a hard crash, not a wrong colour - found on-machine by
+    // exactly that crash ("unknown block id: loam_clod").
+    if (mob_id == "mossback") {
+        return {"dirt", "grass_block", 0.7, 0.4}; // brown body, green crown: it grazes
+    }
+    if (mob_id == "hollow_wretch") {
+        return {"cobblestone", "gravel", 0.55, 0.25}; // grey rock
+    }
+    if (mob_id == "blastbud") {
+        return {"leaves", "sandstone", 0.75, 0.45}; // a green pod with a pale cap
+    }
+    return {"stone", "stone", 0.6, 0.3}; // an unknown mob still renders
+}
+
 // ── Starting kit ──────────────────────────────────────────────────────────
 
 // One cell of the launch kit, by item string id and count.
