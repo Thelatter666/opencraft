@@ -1,0 +1,21 @@
+palette: 33 keys, max saturation 0.480 (key 'u' (78, 122, 150))
+tile                    sq   i  chars
+bedrock_bottom           3@(10, 2)   0  fgh
+bedrock_side             3@( 3, 5)   0  fgh
+bedrock_top              3@( 8, 0)   0  fgh
+cobblestone_bottom       3@( 7, 3)   1  fghi
+cobblestone_side         2@( 8, 0)   1  fghi
+cobblestone_top          2@( 6, 0)   1  fghi
+gravel_bottom            2@( 9, 2)   0  bfgh
+gravel_side              2@( 8, 0)   0  bfgh
+gravel_top               2@( 4, 0)   0  bfgh
+obsidian_bottom          2@( 0, 0)   1  fik
+obsidian_side            3@(13, 0)   1  fik
+obsidian_top             2@( 0, 0)   1  fik
+sandstone_bottom         3@(10, 4)   0  de
+sandstone_side           3@( 6, 6)   0  cde
+sandstone_top            3@( 6, 1)   0  de
+snow_block_bottom        4@( 4, 0)  24  ij
+snow_block_side          4@( 5, 0)  28  ij
+snow_block_top           4@( 0, 2)  18  ij
+wrote 18 tiles to assets/blocks
