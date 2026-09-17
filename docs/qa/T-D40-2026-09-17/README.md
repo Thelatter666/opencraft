@@ -13,7 +13,7 @@
 | `opencraft_tests` md5 | `7b1c8cb83056d5d307ca5151aba8f7aa` | `e67c46bacb12ff5d9e956936ef48af70` |
 | `libopencraft_physics.a` md5 | `feec02d6899d9d4fd93193c6f40b32e6` | `dc9472af1130e4050dc45c0857b093e6` |
 
-测试：两边都是 **359 test cases / 10198 assertions，0 failed**（`logs/` 无、见主报告）。
+测试：两边都是 **359 test cases / 10198 assertions，0 failed**（完整测试输出见主报告 §3，测试文件本卡零改动）。
 环境：macOS 24.6.0（arm64），窗口 `486 @ (320,89) 1280×748`（按 PID 反查）；每次运行前确认无残留实例，
 取证结束后 kill 自己的实例（`run_scene.sh` / `run_move.sh` / `run_jump.sh` 内建）。
 
