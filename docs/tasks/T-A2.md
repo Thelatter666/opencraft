@@ -58,9 +58,13 @@ PM 在 HEAD 上核实的事实（不是推测）：
 assets/
 ├── CREDITS.md              ← 证据链（本卡建模板）
 ├── README.md               ← 美术总监的落笔规范（本卡建）
-└── blocks/                 ← 方块贴图
-    └── <block_id>_<slot>.png      slot ∈ {top, side, bottom}
+├── blocks/                 ← 方块贴图
+│   └── <block_id>_<slot>.png      slot ∈ {top, side, bottom}
+└── items/                  ← 物品图标（本卡建目录占位，通道归内容卡）
 ```
+
+> **变更记录 2026-09-18**：`items/` 由开发者依据 §1「为物品图标留出同类通道」建立，
+> PM 裁决**不构成越界**（白名单为 `assets/**`），补入冻结布局以保持卡面与实际一致。
 
 命名示例：`dirt_side.png`、`grass_block_top.png`、`grass_block_side.png`。
 
