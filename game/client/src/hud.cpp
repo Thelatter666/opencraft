@@ -17,6 +17,12 @@
 namespace opencraft::client {
 
 void draw_hud(const HudResources &res, const HudState &state) {
+    if (state.dead) {
+        // T-D45: nothing of the HUD survives a death. Returning before the
+        // depth-test toggle below leaves the GL state exactly as the caller
+        // left it, which is what the contract on the declaration asks for.
+        return;
+    }
     glDisable(GL_DEPTH_TEST);
 
     constexpr float kSlotPx = 24.0f;

@@ -75,6 +75,23 @@ enum class ActionKind : std::uint8_t {
     // The authority decides whether that item tempts that species, whether the
     // mob is an adult, and whether its breeding cooldown has elapsed.
     Feed,
+    // ── T-D45 death drop (appended; every earlier verb keeps its meaning) ────
+    // Turn ONE inventory stack into an ordinary world drop. ⚖ docs/01 §7: 死亡
+    // 掉落全部物品与经验 - the client sends one of these per non-empty cell of
+    // its 41, then clears that cell.
+    //
+    // Field reuse (the request has no free-form payload, and this card may only
+    // APPEND to the enum): `item_or_block` carries the item id, `target.x` the
+    // stack count, `actor.feet` where the drop appears (the death position).
+    // Same shape as PickUp, which borrows `target.x` for an entity id.
+    //
+    // The drop itself is spawned by the authority through the SAME
+    // spawn_item_stack_at() a broken block and a dead mob use - the point of the
+    // verb is that the client does not get a second copy of the drop physics
+    // (T-E1 owns it, research/11 §4.1). The authority re-checks the item id, the
+    // count and that the destination chunk is resident; it does NOT re-check the
+    // actor's reach, because dying is not a reachable-distance action.
+    DropItems,
 };
 
 // The actor geometry the authority validates against. Value data on purpose:
@@ -128,6 +145,9 @@ enum class ActionReject : std::uint8_t {
     WrongFood,        // the held item is not what tempts this species
     MobNotAdult,      // a baby cannot breed
     BreedingCooldown, // the mob is still on its ⚖ 5-minute breeding cooldown
+    // ── T-D45 DropItems (appended; every earlier code keeps its value) ───────
+    UnknownItem,   // no item with that id in the registry (or the empty id)
+    BadStackCount, // stack count outside [1, that item's max_stack]
 };
 
 [[nodiscard]] const char *action_reject_reason(ActionReject reject);

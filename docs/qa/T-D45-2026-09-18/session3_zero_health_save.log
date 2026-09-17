@@ -1,0 +1,15 @@
+[2026-09-18 03:08:07.371] [info] OpenCraft 0.1.0 starting
+[2026-09-18 03:08:07.472] [info] GL 4.1 Metal - 89.4 / glad loaded
+[2026-09-18 03:08:07.472] [info] save: loaded level.ocd (seed=0x4f50454e43524146, ticks=398, player=(24.50, 144.00, 0.50), hp=0.0)
+[2026-09-18 03:08:07.699] [info] startup gen: 25 chunks, total 226.7 ms, avg 9.07 ms/chunk
+[2026-09-18 03:08:07.699] [info] respawn point: (0.5, 132.0, 0.5)
+[2026-09-18 03:08:07.699] [info] atlas: 144x144 px, 9 tiles/row, crack tiles at 63
+[2026-09-18 03:08:07.702] [warning] save: stored health 0.0; respawning at (0.5, 132.0, 0.5) at full health
+[2026-09-18 03:08:08.488] [info] mob mossback spawned at (-62.5, 133.0, -38.6) in chunk (-4, -3)
+[2026-09-18 03:08:09.194] [info] mob mossback spawned at (-78.4, 138.0, -61.5) in chunk (-5, -4)
+[2026-09-18 03:08:09.735] [info] fps 42.3 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-18 03:08:10.077] [info] mob mossback spawned at (-99.7, 133.0, -24.6) in chunk (-7, -2)
+[2026-09-18 03:08:10.077] [info] mob mossback spawned at (-98.3, 133.0, -29.8) in chunk (-7, -2)
+[2026-09-18 03:08:10.077] [info] mob mossback spawned at (-98.9, 133.0, -29.2) in chunk (-7, -2)
+[2026-09-18 03:08:10.077] [info] mob mossback spawned at (-105.2, 129.0, -10.5) in chunk (-7, -1)
+[2026-09-18 03:08:10.077] [info] mob mossback spawned at (-106.3, 129.0, -9.9) in chunk (-7, -1)

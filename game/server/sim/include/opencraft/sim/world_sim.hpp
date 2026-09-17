@@ -326,6 +326,20 @@ private:
     // over a different item).
     [[nodiscard]] game::ActionResult apply_pickup(const game::ActionRequest &req);
 
+    // T-D45: the death drop. Turns the stack named by one request into an
+    // ordinary world drop at the actor's feet - the client sends one per
+    // non-empty inventory cell when its player dies (⚖ docs/01 §7 死亡掉落全部
+    // 物品). It spawns through the SAME spawn_item_stack_at() a broken block and
+    // a dead mob use, which is the point: the item physics has one owner.
+    //
+    // What it re-checks: the item exists, the count is within that item's
+    // max_stack, and the destination chunk is resident. What it does NOT check:
+    // reach - dying is not a reachable-distance action, and the client's own
+    // inventory is what it is turning into world state (the inventory moves up
+    // to the authority in M3, at which point this verb's inputs become the
+    // authority's own).
+    [[nodiscard]] game::ActionResult apply_drop_items(const game::ActionRequest &req);
+
     // Re-evaluates the fluid around a chunk that just entered memory: the new
     // chunk holds fluid no neighbour has seen yet, and the neighbours' border
     // columns face a cell that used to be unloaded (docs/research/10 §7.2 -

@@ -89,6 +89,23 @@ struct InteractionState {
         refresh_selection();
     }
 
+    // Drops everything that only means something for a LIVE player (T-D45 §2.5):
+    // the crack overlay, the target highlight, the entity pick under the crosshair
+    // and the two retry cooldowns. A corpse must keep none of it, and neither must
+    // a player who has just respawned somewhere else - a stale target would draw
+    // its wireframe around a block hundreds of blocks away. The mining tracker is
+    // not in here (it is a separate object in the tick's context); its callers
+    // reset it alongside.
+    void clear_live_state() {
+        crack_stage = -1;
+        has_target = false;
+        picked_mob = server::EntityStore::kNoEntity;
+        picked_mob_distance = 0.0;
+        swinging = false;
+        place_cooldown = 0;
+        attack_cooldown = 0;
+    }
+
     // Re-reads the cache from the inventory. Call after anything that can
     // change the selected cell: a key, a placement, a vessel swap, load.
     void refresh_selection() {
