@@ -269,10 +269,13 @@ int main() {
     bool prev_menu_clicked = false;
     bool prev_esc = false;
     // ── items + inventory (T-I2) ────────────────────────────────────────────
-    // One item registry per process, exactly like the block registry inside
-    // the authoritative WorldSim. It owns the item -> block links, so it must
-    // outlive the interaction state that holds the inventory.
-    const gam::ItemRegistry item_registry = gam::ItemRegistry::create_default();
+    // ONE item registry per process, and since T-E1 it lives in the authority
+    // (world.items()): the authority decides what a broken block drops, so the
+    // item id space has to be the world's. Until this card both ends built
+    // their own create_default() and agreed only because the table is
+    // deterministic. The reference is a view, not an owner - the authority is
+    // constructed above and outlives the interaction state below.
+    const gam::ItemRegistry &item_registry = world.items();
     // Input edges, inventory, targeting and the T-D1 sprint-jump QA counters
     // live in one object (see interaction.hpp). The launch kit gives the
     // player something to see on the first frame.
@@ -544,6 +547,90 @@ int main() {
         std::vector<const client::ChunkRenderable *> order;
         client::draw_chunk_opaque_pass(renderables, shader, eye_f, order);
         client::draw_chunk_translucent_pass(renderables, shader, eye_f, order);
+
+        // ── dropped items (T-E1) ────────────────────────────────────────────
+        // A drop is drawn as its block's cube at 1/4 scale through the crack
+        // shader - the same three per-face-group draws the held item uses, so
+        // the atlas, the shader and the geometry are all reused and nothing in
+        // engine/render had to change.
+        //
+        // Both animations come from the entity's AGE, i.e. from simulation
+        // state, so a frozen drop (chunk unloaded) also stops animating:
+        // research/11 §4.5 - rotation 1 rad/s, vertical bob Y ∈ [0.0625, 0.2625]
+        // over π s. The physical position never moves for them; this is the
+        // render layer's effect alone.
+        {
+            const srv::EntityStore &drops = authority.entities();
+            const gam::EntityTypeRegistry &entity_types = authority.entity_types();
+            std::vector<float> item_points; // the no-block-form fallback (one tinted point each)
+            bool item_pass_ready = false;
+            drops.for_each_entity([&](const srv::Entity &drop) {
+                if (drop.stack.empty()) {
+                    return;
+                }
+                const float ticks = static_cast<float>(drop.age) + static_cast<float>(alpha);
+                const float bob = 0.1625f + 0.1f * std::sin(ticks * 0.1f); // centre of [0.0625, 0.2625]
+                const glm::vec3 centre = glm::vec3(drop.position) + glm::vec3(0.0f, bob, 0.0f);
+                const std::uint16_t block = item_registry.def_of(drop.stack.item).block;
+                if (block == gam::kNoBlock) {
+                    // Food, tools and armour have no generated texture yet
+                    // (T-I2's stand-in tint). One coloured point keeps them
+                    // visible without inventing an icon set in a physics card.
+                    const glm::vec3 tint = client::item_tint(item_registry.string_of(drop.stack.item));
+                    item_points.insert(item_points.end(), {centre.x, centre.y, centre.z, tint.r, tint.g, tint.b, 1.0f});
+                    return;
+                }
+                if (!item_pass_ready) {
+                    crack_shader.use();
+                    glUniform1i(crack_shader.uniform_location("u_atlas"), 0);
+                    glUniform1f(crack_shader.uniform_location("u_tiles_per_row"), tiles_per_row);
+                    glUniform1f(crack_shader.uniform_location("u_texel"), texel);
+                    glUniform3f(crack_shader.uniform_location("u_offset"), 0.0f, 0.0f, 0.0f);
+                    // The cube geometry is [0,1]^3, so it is shifted to its own
+                    // centre before the rotation.
+                    glDisable(GL_CULL_FACE); // overlay winding is mirrored (see the crack pass)
+                    crack_vao.bind();
+                    item_pass_ready = true;
+                }
+                // The shader takes one scalar scale, and the only drop type is a
+                // cube (0.25^3, research/11 §4.2); a non-cubic entity kind would
+                // need a scale vector here.
+                const float side = static_cast<float>(entity_types.def_of(drop.type).height);
+                glUniform1f(crack_shader.uniform_location("u_scale"), side);
+                // The cube geometry is [0,1]^3 and the shader scales a_pos BEFORE
+                // u_mvp, so what must be centred is the SCALED cube: translate by
+                // half of `side`, not by 0.5 (0.5 put the cube a third of a block
+                // under the floor, where it was invisible - found on-machine).
+                const glm::mat4 model = glm::translate(glm::mat4(1.0f), centre) *
+                                        glm::rotate(glm::mat4(1.0f), ticks * 0.05f, glm::vec3(0.0f, 1.0f, 0.0f)) *
+                                        glm::translate(glm::mat4(1.0f), glm::vec3(-0.5f * side));
+                const glm::mat4 item_mvp = projection * view * model;
+                glUniformMatrix4fv(crack_shader.uniform_location("u_mvp"), 1, GL_FALSE, &item_mvp[0][0]);
+                // build_cube_geometry face order: f0 top, f1 bottom, f2..f5 sides.
+                glUniform1f(crack_shader.uniform_location("u_tile"), static_cast<float>(block * 3 + 1));
+                glDrawArrays(GL_TRIANGLES, 12, 24); // sides
+                glUniform1f(crack_shader.uniform_location("u_tile"), static_cast<float>(block * 3 + 0));
+                glDrawArrays(GL_TRIANGLES, 0, 6); // top
+                glUniform1f(crack_shader.uniform_location("u_tile"), static_cast<float>(block * 3 + 2));
+                glDrawArrays(GL_TRIANGLES, 6, 6); // bottom
+            });
+            if (item_pass_ready) {
+                glEnable(GL_CULL_FACE);
+            }
+            if (!item_points.empty()) {
+                glDepthMask(GL_FALSE);
+                particle_shader.use();
+                glUniformMatrix4fv(particle_shader.uniform_location("u_mvp"), 1, GL_FALSE, &mvp[0][0]);
+                glUniform1f(particle_shader.uniform_location("u_point_px"),
+                            7.0f * static_cast<float>(fb_height) / 720.0f);
+                particle_vao.bind();
+                particle_vbo.bind();
+                glBufferData(GL_ARRAY_BUFFER, static_cast<GLsizeiptr>(item_points.size() * sizeof(float)),
+                             item_points.data(), GL_STREAM_DRAW);
+                glDrawArrays(GL_POINTS, 0, static_cast<GLsizei>(item_points.size() / 7));
+                glDepthMask(GL_TRUE);
+            }
+        }
 
         // ── break particles (T009): depth-tested points, no depth writes ────
         {

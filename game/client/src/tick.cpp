@@ -10,14 +10,17 @@
 
 #include "client_config.hpp"
 #include "opencraft/core/log.hpp"
+#include "opencraft/game/pickup.hpp"
 #include "opencraft/game/raycast.hpp"
 #include "opencraft/physics/auto_jump.hpp"
 #include "opencraft/physics/input_state.hpp"
 #include "opencraft/physics/player_physics.hpp"
+#include "opencraft/sim/item_sim.hpp"
 #include "world.hpp"
 
 namespace phy = opencraft::physics;
 namespace gam = opencraft::game;
+namespace srv = opencraft::server;
 
 namespace opencraft::client {
 
@@ -336,6 +339,62 @@ void run_tick(const TickContext &ctx) {
         ctx.state.swing_start = glfwGetTime();
     }
     ctx.state.prev_right = right_held;
+
+    // ── item pickup (T-E1) ───────────────────────────────────────────────
+    // The drop belongs to the authority, the inventory is still the client's
+    // (T-A1 kept it out of the request vocabulary; M3 moves it). So the split
+    // is: the client reads the drops from its read-only view, filters them with
+    // the SAME predicate the authority applies (game/pickup.hpp - one copy, the
+    // kReachDistance arrangement), and asks only for the ones that (a) are in
+    // the box and (b) fit.
+    //
+    // Two orderings are load-bearing:
+    //   * the candidate list is snapshotted before any submission, because
+    //     submitting mutates the store - the visited slot can be freed and
+    //     handed to another drop;
+    //   * the inventory is modified on a COPY first and committed after the
+    //     verdict, so ⚖ 装不下就留在地上 (research/11 §4.2) needs no rollback
+    //     and the inventory only ever moves on the accepted side of a request
+    //     (the rule T-A1 established for placing a block).
+    {
+        const gam::ActorPose pose = actor_pose(ctx);
+        const srv::EntityStore &drops = ctx.world.entities();
+        const gam::EntityTypeRegistry &types = ctx.world.entity_types();
+        std::vector<std::pair<srv::EntityId, gam::ItemStack>> candidates;
+        drops.for_each_entity([&](const srv::Entity &drop) {
+            if (drop.pickup_delay > 0) {
+                return; // ⚖ 10 ticks for a natural drop, research/11 §4.2
+            }
+            const auto [box_min, box_max] = srv::entity_box_corners(drop, types.def_of(drop.type));
+            if (!gam::pickup_box_contains(pose, box_min, box_max)) {
+                return;
+            }
+            candidates.emplace_back(drop.id, drop.stack);
+        });
+        for (const auto &[id, stack] : candidates) {
+            if (stack.empty()) {
+                continue;
+            }
+            gam::Inventory next_inventory = ctx.state.inventory;
+            gam::ItemStack remainder = stack;
+            if (next_inventory.add_item(remainder).remaining != 0) {
+                continue; // the drop stays on the ground until there is room
+            }
+            gam::ActionRequest pick;
+            pick.kind = gam::ActionKind::PickUp;
+            pick.target = {static_cast<int>(id), 0, 0};
+            pick.item_or_block = stack.item;
+            pick.actor = pose;
+            if (!ctx.authority.submit(pick).accepted) {
+                continue; // refused: the drop stays where it is, nothing changed
+            }
+            ctx.state.inventory = std::move(next_inventory);
+            // The hotbar count and the held-item cache follow the pickup, so
+            // the HUD shows the new count on this frame (the pickup has no
+            // other feedback in this card - 不做库存拾取的 UI 反馈).
+            ctx.state.refresh_selection();
+        }
+    }
 
     // ── hotbar selection (keys 1..9 select the 9 inventory hotbar cells; the
     //    key-0 bucket slot is gone, the vessels are ordinary items now) ─────

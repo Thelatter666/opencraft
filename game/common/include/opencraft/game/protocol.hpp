@@ -32,6 +32,19 @@ enum class ActionKind : std::uint8_t {
     PlaceBlock, // write `item_or_block` at `target`
     PourWater,  // place a water source at `target`
     ScoopWater, // remove the water source at `target`
+    // T-E1: hand one dropped item stack to the actor. `target.x` carries the
+    // ENTITY id of the drop and `item_or_block` the item id the client read
+    // from its own view; the authority re-checks both, so a stale entity id
+    // (the store reuses slots) can never hand over a different item. The other
+    // two target components are unused.
+    //
+    // This is the one verb whose effect lands on the client's side of the
+    // split: the authority owns the drop and the pickup rules, while the
+    // inventory is still the client's (T-A1 kept it out of this vocabulary on
+    // purpose; M3 moves it). The client reads the stack WHILE the drop still
+    // holds it - the same read-then-spend ordering place_one_block uses - and
+    // only asks once its own dry run says the stack fits.
+    PickUp,
 };
 
 // The actor geometry the authority validates against. Value data on purpose:
@@ -65,6 +78,12 @@ enum class ActionReject : std::uint8_t {
     CellOccupied,    // PlaceBlock / PourWater into a cell that is not replaceable
     IntersectsActor, // PlaceBlock into the actor's own AABB
     NotAWaterSource, // ScoopWater where there is no source
+    // ── T-E1 PickUp (appended; every earlier code keeps its value) ──────────
+    UnknownEntity,      // no live entity with that id
+    EntityItemMismatch, // the entity holds a different item than the client claims
+    PickupDelayActive,  // the drop's ⚖ pickup delay (10 ticks natural) has not elapsed
+    OutOfPickupRange,   // outside the actor's pick-up box (game/pickup.hpp)
+    EntityNotLoaded,    // the drop's chunk is not in memory: its timers are paused
 };
 
 [[nodiscard]] const char *action_reject_reason(ActionReject reject);

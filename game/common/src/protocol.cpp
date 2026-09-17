@@ -24,6 +24,16 @@ const char *action_reject_reason(const ActionReject reject) {
         return "cell overlaps the actor";
     case ActionReject::NotAWaterSource:
         return "no water source";
+    case ActionReject::UnknownEntity:
+        return "no such dropped item";
+    case ActionReject::EntityItemMismatch:
+        return "dropped item holds a different item";
+    case ActionReject::PickupDelayActive:
+        return "dropped item cannot be picked up yet";
+    case ActionReject::OutOfPickupRange:
+        return "dropped item out of pickup range";
+    case ActionReject::EntityNotLoaded:
+        return "dropped item is in an unloaded chunk";
     }
     return "";
 }

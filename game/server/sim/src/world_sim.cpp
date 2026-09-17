@@ -4,6 +4,7 @@
 #include <cmath>
 
 #include "opencraft/core/log.hpp"
+#include "opencraft/game/pickup.hpp"
 #include "opencraft/game/placement.hpp"
 #include "opencraft/physics/player_state.hpp"
 
@@ -51,7 +52,9 @@ constexpr double kReachEpsilon = 1e-6;
 
 WorldSim::WorldSim(const std::uint64_t seed)
     : registry_(voxel::BlockRegistry::create_default()), light_world_(chunks_, registry_, {}), light_(light_world_),
-      generator_(seed, registry_), fluid_world_(*this), fluid_(fluid_world_) {
+      generator_(seed, registry_), fluid_world_(*this), fluid_(fluid_world_),
+      items_(game::ItemRegistry::create_default()), entity_types_(game::EntityTypeRegistry::create_default()),
+      entity_world_(*this), item_hazard_(registry_) {
     water_block_id_ = registry_.id_of("water");
 }
 
@@ -67,12 +70,18 @@ game::ActionResult WorldSim::submit(const game::ActionRequest &req) {
         return apply_pour(req);
     case game::ActionKind::ScoopWater:
         return apply_scoop(req);
+    case game::ActionKind::PickUp:
+        return apply_pickup(req);
     }
     return {false, game::ActionReject::UnknownBlock}; // unreachable: every kind is handled above
 }
 
 void WorldSim::tick() {
     fluid_.step();
+    // T-E1: the entity layer advances on the same authoritative step, in its own
+    // system plane (docs/03 §6). It runs before the early-out below: the drop
+    // simulation has nothing to do with whether the fluid made a chunk stale.
+    step_items(entities_, entity_world_, item_hazard_, item_rules_, entity_types_, items_);
     if (fluid_dirty_.empty()) {
         return;
     }
@@ -127,6 +136,24 @@ game::ActionResult WorldSim::apply_dig(const game::ActionRequest &req) {
         return {false, game::ActionReject::Unbreakable};
     }
     write_block(req.target.x, req.target.y, req.target.z, 0);
+    // T-E1: a broken block leaves its item behind (research/11 §4.1-4.4). The
+    // drop is authoritative state: it is spawned HERE, by the same call that
+    // removed the block, so "the block is gone" and "its drop exists" cannot
+    // drift apart. A block with no item form (water - T-I1 ruling S-3) simply
+    // leaves nothing.
+    const EntityId drop = spawn_item_drop(entities_, entity_types_, items_, item_rules_, req.target, id);
+    if (drop != EntityStore::kNoEntity) {
+        // ★ The ONE resident log this card adds (the card allows exactly one,
+        // and names this site: a successful dig had no resident log at all, so
+        // "did a drop appear" could only be answered by a temporary probe). It
+        // carries the item, the count, the entity id and the spawn position -
+        // everything the on-machine acceptance needs to tie a screenshot of a
+        // drop to the dig that produced it.
+        const Entity *entity = entities_.find(drop);
+        OC_LOG_INFO("item drop {} spawned at ({:.2f}, {:.2f}, {:.2f}) [entity {}]",
+                    items_.string_of(entity->stack.item), entity->position.x, entity->position.y, entity->position.z,
+                    drop);
+    }
     return {true, game::ActionReject::None};
 }
 
@@ -175,6 +202,49 @@ game::ActionResult WorldSim::apply_scoop(const game::ActionRequest &req) {
     if (!remove_water_source(req.target.x, req.target.y, req.target.z)) {
         return {false, game::ActionReject::NotAWaterSource};
     }
+    return {true, game::ActionReject::None};
+}
+
+game::ActionResult WorldSim::apply_pickup(const game::ActionRequest &req) {
+    // T-E1. The gate() rules are deliberately NOT reused: a drop is not a block
+    // cell, so `target.y` bounds and ⚖ block reach say nothing about it. The
+    // checks below are the whole of the pickup rule, and each one is a reason
+    // the client cannot decide for itself.
+    if (req.target.x < 0) {
+        return {false, game::ActionReject::UnknownEntity};
+    }
+    Entity *drop = entities_.find(static_cast<EntityId>(req.target.x));
+    if (drop == nullptr) {
+        return {false, game::ActionReject::UnknownEntity};
+    }
+    // The client names the item it read from its view. The store reuses slots,
+    // so this is what stops a stale id from handing over somebody else's item.
+    if (req.item_or_block != drop->stack.item) {
+        return {false, game::ActionReject::EntityItemMismatch};
+    }
+    const auto [cx, cz] = voxel::Chunk::chunk_coords(static_cast<int>(std::floor(drop->position.x)),
+                                                     static_cast<int>(std::floor(drop->position.z)));
+    if (!chunk_ready(cx, cz)) {
+        // A drop in an unloaded chunk is frozen - its timers do not run, so it
+        // is not pickable either (research/11 §4.4). In-process unreachable
+        // (the client cannot see such a drop), kept because the rule is the
+        // authority's and M3 puts a network in front of it.
+        return {false, game::ActionReject::EntityNotLoaded};
+    }
+    if (drop->pickup_delay > 0) {
+        return {false, game::ActionReject::PickupDelayActive};
+    }
+    const game::EntityDef &def = entity_types_.def_of(drop->type);
+    const auto [box_min, box_max] = entity_box_corners(*drop, def);
+    if (!game::pickup_box_contains(req.actor, box_min, box_max)) {
+        return {false, game::ActionReject::OutOfPickupRange};
+    }
+    // The whole stack goes, or nothing does: the client only asks when its own
+    // dry run says the stack fits, and MC's partial fill (what does not fit
+    // stays on the ground) is left to the card that needs it. The client read
+    // the stack BEFORE this call, the same read-then-spend ordering
+    // place_one_block uses.
+    entities_.erase(drop->id);
     return {true, game::ActionReject::None};
 }
 

@@ -166,4 +166,16 @@ const ItemDef &ItemRegistry::def_of(std::uint16_t numeric_id) const {
     return defs_[numeric_id];
 }
 
+std::optional<std::uint16_t> ItemRegistry::item_for_block(const std::uint16_t block) const {
+    if (block == kNoBlock) {
+        return std::nullopt;
+    }
+    for (std::uint16_t item = 0; item < defs_.size(); ++item) {
+        if (defs_[item].block == block) {
+            return item;
+        }
+    }
+    return std::nullopt;
+}
+
 } // namespace opencraft::game

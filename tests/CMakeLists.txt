@@ -34,6 +34,9 @@ add_executable(opencraft_tests
     test_inventory_wiring.cpp
     test_authority.cpp
     test_chunk_streaming.cpp
+    test_entity_store.cpp
+    test_item_drop.cpp
+    test_drop_authority.cpp
 )
 
 # opencraft_worldgen PUBLIC-links opencraft_voxel and opencraft_noise;

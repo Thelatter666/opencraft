@@ -110,6 +110,17 @@ public:
 
     [[nodiscard]] const ItemDef &def_of(std::uint16_t numeric_id) const;
 
+    // The item a block leaves behind when it is broken, or nullopt when the
+    // block has none (air, water - research/01 §7 / T-I1 ruling S-3: water is
+    // carried in a vessel and is not an item). T-E1's drop rule: the authority
+    // asks this when a dig succeeds.
+    //
+    // Scans in ascending item id so an item set that maps two items to one
+    // block still answers deterministically; the launch set is 1:1. The block
+    // id is a BLOCK numeric id, meaningful only against the block registry this
+    // item set was built for (see create_default).
+    [[nodiscard]] std::optional<std::uint16_t> item_for_block(std::uint16_t block) const;
+
     [[nodiscard]] std::uint16_t empty() const { return kEmptyId; }
 
     [[nodiscard]] std::size_t size() const { return defs_.size(); }
