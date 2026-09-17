@@ -1,0 +1,10 @@
+docs/qa/T-A4-2026-09-18/00_before42.png vs docs/qa/T-A4-2026-09-18/01_after60.png
+  differing pixels: 70081 of 957440
+  bounding box: x 442..916, y 293..734
+  most common colours in b at changed pixels:
+    rgb( 64, 64, 68) x14907
+    rgb( 43, 43, 47) x13792
+    rgb(141,142,147) x9721
+    rgb( 75, 75, 79) x8578
+    rgb(106, 95, 65) x5752
+    rgb( 29, 26, 35) x5685
