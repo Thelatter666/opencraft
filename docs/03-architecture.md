@@ -108,8 +108,20 @@ EMPTY → GENERATING(地形/装饰) → LIGHTING → MESHING → LIVE
 
 ## 6. 物理与实体
 
+- **★ 体素碰撞的唯一入口：`opencraft/physics/sweep.hpp`（T-D40 建立）**。
+  公开提供 `physics::Box` / `box_of` / `box_collides` / `highest_surface_below` /
+  `sweep_axis_x|y|z`（返回 `AxisSweep`）。
+  **任何让 AABB 在体素世界移动的新代码都必须走这里**（生物卡 T-M2 的前置）。
+  - 只依赖 `IBlockSource`；依赖方向严格为 **实体 → physics**，不可倒过来。
+  - 语义：高度感知（T-D8，用 `shape_top_at`）、"面贴面不算碰撞"、逐轴 Y→X→Z、子步防穿透。
+  - **只抽几何，不抽响应**：玩家撞墙清零速度 vs 掉落物乘 `restitution` 属内容差异，各留调用侧。
+- ⚠ **`auto_jump.hpp` 的 `overlaps_solid` 是"故意不共享"的第 4 份**，不是漏抽：
+  它只用 `solid_at`（**全方块**语义），与 `box_collides`（高度感知）**语义不同**。
+  统一会改变含半砖世界的 auto-jump 行为 ⇒ 属语义变更，**不得**在纯重构中顺手合并
+  （T-D40 裁决 2）。
 - 实体：AABB + swept collision（先轴分离滑动，防穿墙）；方块命中用 DDA voxel raycast（与渲染选取共用，保证"指哪挖哪"）。
-- 实体管理：EnTT ECS；生物 AI 行为树/目标栈；实体与方块在不同系统面（实体存 `entities/`，方块存区块）。
+- 实体管理：**实体层已建立（T-E1）**：类型注册表 + 稠密槽池（升序 id = 确定顺序遍历）+ 每类型
+  `EntityDef` 物理参数 + 权威侧持有实体状态。**目前未引入 EnTT**（避免与网络化边界复杂化）。
 - 执行序（对齐 JE 主循环，来源 `research/07 §1.2`）：乘客在其载具**之后** tick（载具先算、乘客继承）；
   方块实体在所有实体**之后** tick；区块遍历为随机顺序、实体遍历为确定顺序。载具/坐骑实现须遵守此序。
 - 物理参数**按实体类型实例化**，非全局单例（下落方块重力 0.04 为玩家一半、船/矿车/坐骑速度各异，
