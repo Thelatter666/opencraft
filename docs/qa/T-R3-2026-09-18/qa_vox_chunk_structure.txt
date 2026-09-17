@@ -1,0 +1,252 @@
+== 3x3x3.vox  magic=b'VOX ' version=150 bytes=29518
+   chunk counts: LAYRx8, MATLx256, RGBAx1, SIZEx1, XYZIx1, nGRPx1, nSHPx1, nTRNx2, rOBJx11, MAINx1
+   MAIN n=0 m=29498
+     SIZE n=12 m=0 size=(3, 3, 3)
+     XYZI n=84 m=0 numVoxels=20
+     nTRN n=28 m=0
+     nGRP n=16 m=0
+     nTRN n=43 m=0
+     nSHP n=20 m=0
+     LAYR n=26 m=0
+     LAYR n=26 m=0
+     LAYR n=26 m=0
+     LAYR n=26 m=0
+     LAYR n=26 m=0
+     LAYR n=26 m=0
+     LAYR n=26 m=0
+   ...
+
+== 8x8x8.vox  magic=b'VOX ' version=150 bytes=29758
+   chunk counts: LAYRx8, MATLx256, RGBAx1, SIZEx1, XYZIx1, nGRPx1, nSHPx1, nTRNx2, rOBJx11, MAINx1
+   MAIN n=0 m=29738
+     SIZE n=12 m=0 size=(8, 8, 8)
+     XYZI n=324 m=0 numVoxels=80
+     nTRN n=28 m=0
+     nGRP n=16 m=0
+     nTRN n=43 m=0
+     nSHP n=20 m=0
+     LAYR n=26 m=0
+     LAYR n=26 m=0
+     LAYR n=26 m=0
+     LAYR n=26 m=0
+     LAYR n=26 m=0
+     LAYR n=26 m=0
+     LAYR n=26 m=0
+   ...
+
+== castle.vox  magic=b'VOX ' version=150 bytes=39951
+   chunk counts: LAYRx8, MATLx256, RGBAx1, SIZEx1, XYZIx1, nGRPx1, nSHPx1, nTRNx2, rOBJx11, MAINx1
+   MAIN n=0 m=39931
+     SIZE n=12 m=0 size=(21, 21, 21)
+     XYZI n=10516 m=0 numVoxels=2628
+     nTRN n=28 m=0
+     nGRP n=16 m=0
+     nTRN n=44 m=0
+     nSHP n=20 m=0
+     LAYR n=26 m=0
+     LAYR n=26 m=0
+     LAYR n=26 m=0
+     LAYR n=26 m=0
+     LAYR n=26 m=0
+     LAYR n=26 m=0
+     LAYR n=26 m=0
+   ...
+
+== chr_knight.vox  magic=b'VOX ' version=150 bytes=31031
+   chunk counts: LAYRx8, MATLx256, RGBAx1, SIZEx1, XYZIx1, nGRPx1, nSHPx1, nTRNx2, rOBJx11, MAINx1
+   MAIN n=0 m=31011
+     SIZE n=12 m=0 size=(20, 21, 20)
+     XYZI n=1596 m=0 numVoxels=398
+     nTRN n=28 m=0
+     nGRP n=16 m=0
+     nTRN n=44 m=0
+     nSHP n=20 m=0
+     LAYR n=26 m=0
+     LAYR n=26 m=0
+     LAYR n=26 m=0
+     LAYR n=26 m=0
+     LAYR n=26 m=0
+     LAYR n=26 m=0
+     LAYR n=26 m=0
+   ...
+
+== chr_sword.vox  magic=b'VOX ' version=150 bytes=30775
+   chunk counts: LAYRx8, MATLx256, RGBAx1, SIZEx1, XYZIx1, nGRPx1, nSHPx1, nTRNx2, rOBJx11, MAINx1
+   MAIN n=0 m=30755
+     SIZE n=12 m=0 size=(20, 21, 20)
+     XYZI n=1340 m=0 numVoxels=334
+     nTRN n=28 m=0
+     nGRP n=16 m=0
+     nTRN n=44 m=0
+     nSHP n=20 m=0
+     LAYR n=26 m=0
+     LAYR n=26 m=0
+     LAYR n=26 m=0
+     LAYR n=26 m=0
+     LAYR n=26 m=0
+     LAYR n=26 m=0
+     LAYR n=26 m=0
+   ...
+
+== doom.vox  magic=b'VOX ' version=150 bytes=45015
+   chunk counts: LAYRx8, MATLx256, RGBAx1, SIZEx1, XYZIx1, nGRPx1, nSHPx1, nTRNx2, rOBJx11, MAINx1
+   MAIN n=0 m=44995
+     SIZE n=12 m=0 size=(126, 126, 126)
+     XYZI n=15580 m=0 numVoxels=3894
+     nTRN n=28 m=0
+     nGRP n=16 m=0
+     nTRN n=44 m=0
+     nSHP n=20 m=0
+     LAYR n=26 m=0
+     LAYR n=26 m=0
+     LAYR n=26 m=0
+     LAYR n=26 m=0
+     LAYR n=26 m=0
+     LAYR n=26 m=0
+     LAYR n=26 m=0
+   ...
+
+== menger.vox  magic=b'VOX ' version=150 bytes=669439
+   chunk counts: LAYRx8, MATLx256, RGBAx1, SIZEx1, XYZIx1, nGRPx1, nSHPx1, nTRNx2, rOBJx11, MAINx1
+   MAIN n=0 m=669419
+     SIZE n=12 m=0 size=(81, 81, 81)
+     XYZI n=640004 m=0 numVoxels=160000
+     nTRN n=28 m=0
+     nGRP n=16 m=0
+     nTRN n=44 m=0
+     nSHP n=20 m=0
+     LAYR n=26 m=0
+     LAYR n=26 m=0
+     LAYR n=26 m=0
+     LAYR n=26 m=0
+     LAYR n=26 m=0
+     LAYR n=26 m=0
+     LAYR n=26 m=0
+   ...
+
+== monu1.vox  magic=b'VOX ' version=150 bytes=657207
+   chunk counts: LAYRx8, MATLx256, RGBAx1, SIZEx1, XYZIx1, nGRPx1, nSHPx1, nTRNx2, rOBJx11, MAINx1
+   MAIN n=0 m=657187
+     SIZE n=12 m=0 size=(126, 126, 118)
+     XYZI n=627772 m=0 numVoxels=156942
+     nTRN n=28 m=0
+     nGRP n=16 m=0
+     nTRN n=44 m=0
+     nSHP n=20 m=0
+     LAYR n=26 m=0
+     LAYR n=26 m=0
+     LAYR n=26 m=0
+     LAYR n=26 m=0
+     LAYR n=26 m=0
+     LAYR n=26 m=0
+     LAYR n=26 m=0
+   ...
+
+== monu10.vox  magic=b'VOX ' version=150 bytes=632495
+   chunk counts: LAYRx8, MATLx256, RGBAx1, SIZEx1, XYZIx1, nGRPx1, nSHPx1, nTRNx2, rOBJx11, MAINx1
+   MAIN n=0 m=632475
+     SIZE n=12 m=0 size=(72, 72, 126)
+     XYZI n=603060 m=0 numVoxels=150764
+     nTRN n=28 m=0
+     nGRP n=16 m=0
+     nTRN n=44 m=0
+     nSHP n=20 m=0
+     LAYR n=26 m=0
+     LAYR n=26 m=0
+     LAYR n=26 m=0
+     LAYR n=26 m=0
+     LAYR n=26 m=0
+     LAYR n=26 m=0
+     LAYR n=26 m=0
+   ...
+
+== monu9.vox  magic=b'VOX ' version=150 bytes=160767
+   chunk counts: LAYRx8, MATLx256, RGBAx1, SIZEx1, XYZIx1, nGRPx1, nSHPx1, nTRNx2, rOBJx11, MAINx1
+   MAIN n=0 m=160747
+     SIZE n=12 m=0 size=(97, 97, 79)
+     XYZI n=131332 m=0 numVoxels=32832
+     nTRN n=28 m=0
+     nGRP n=16 m=0
+     nTRN n=44 m=0
+     nSHP n=20 m=0
+     LAYR n=26 m=0
+     LAYR n=26 m=0
+     LAYR n=26 m=0
+     LAYR n=26 m=0
+     LAYR n=26 m=0
+     LAYR n=26 m=0
+     LAYR n=26 m=0
+   ...
+
+== nature.vox  magic=b'VOX ' version=150 bytes=332779
+   chunk counts: LAYRx8, MATLx256, RGBAx1, SIZEx1, XYZIx1, nGRPx1, nSHPx1, nTRNx2, rOBJx11, MAINx1
+   MAIN n=0 m=332759
+     SIZE n=12 m=0 size=(120, 120, 60)
+     XYZI n=303344 m=0 numVoxels=75835
+     nTRN n=28 m=0
+     nGRP n=16 m=0
+     nTRN n=44 m=0
+     nSHP n=20 m=0
+     LAYR n=26 m=0
+     LAYR n=26 m=0
+     LAYR n=26 m=0
+     LAYR n=26 m=0
+     LAYR n=26 m=0
+     LAYR n=26 m=0
+     LAYR n=26 m=0
+   ...
+
+== room.vox  magic=b'VOX ' version=150 bytes=386014
+   chunk counts: IMAPx1, LAYRx8, MATLx256, RGBAx1, SIZEx1, XYZIx1, nGRPx1, nSHPx1, nTRNx2, rOBJx14, MAINx1
+   MAIN n=0 m=385994
+     SIZE n=12 m=0 size=(118, 121, 60)
+     XYZI n=330148 m=0 numVoxels=82536
+     nTRN n=28 m=0
+     nGRP n=16 m=0
+     nTRN n=44 m=0
+     nSHP n=20 m=0
+     LAYR n=26 m=0
+     LAYR n=26 m=0
+     LAYR n=26 m=0
+     LAYR n=26 m=0
+     LAYR n=26 m=0
+     LAYR n=26 m=0
+     LAYR n=26 m=0
+   ...
+
+== shelf.vox  magic=b'VOX ' version=150 bytes=35847
+   chunk counts: LAYRx8, MATLx256, RGBAx1, SIZEx1, XYZIx1, nGRPx1, nSHPx1, nTRNx2, rOBJx11, MAINx1
+   MAIN n=0 m=35827
+     SIZE n=12 m=0 size=(45, 45, 45)
+     XYZI n=6412 m=0 numVoxels=1602
+     nTRN n=28 m=0
+     nGRP n=16 m=0
+     nTRN n=44 m=0
+     nSHP n=20 m=0
+     LAYR n=26 m=0
+     LAYR n=26 m=0
+     LAYR n=26 m=0
+     LAYR n=26 m=0
+     LAYR n=26 m=0
+     LAYR n=26 m=0
+     LAYR n=26 m=0
+   ...
+
+== teapot.vox  magic=b'VOX ' version=150 bytes=143083
+   chunk counts: LAYRx8, MATLx256, RGBAx1, SIZEx1, XYZIx1, nGRPx1, nSHPx1, nTRNx2, rOBJx11, MAINx1
+   MAIN n=0 m=143063
+     SIZE n=12 m=0 size=(126, 80, 61)
+     XYZI n=113648 m=0 numVoxels=28411
+     nTRN n=28 m=0
+     nGRP n=16 m=0
+     nTRN n=44 m=0
+     nSHP n=20 m=0
+     LAYR n=26 m=0
+     LAYR n=26 m=0
+     LAYR n=26 m=0
+     LAYR n=26 m=0
+     LAYR n=26 m=0
+     LAYR n=26 m=0
+     LAYR n=26 m=0
+   ...
+

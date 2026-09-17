@@ -1,0 +1,964 @@
+<!-- ephtracy content page --->
+
+<h2>MagicaVoxel @ ephtracy [Win/Mac] <span id="version" class="badge">0.99.7.2 [7/12/2025]</span></h2>
+
+<p>A free lightweight GPU-based voxel art editor and interactive path tracing renderer. <a class="btn btn-link" href="https://youtu.be/WPPFnHQWwFk" role="button">Feature Demo</a> <a class="btn btn-link" href="https://youtu.be/mfKx4j-C6nI" role="button">Demo2</a></p>
+<li><b>License</b>
+    <ul class="squarelist">
+        <li> Free to use for any project. </li>
+        <li> Credits to the software are appreciated. </li>
+        <li> Selling or distributing the software (original or modified) in other packages are disallowed. </li>
+    </ul>
+</li>
+
+<div>    
+    <a class="btn btn-primary" href="https://github.com/ephtracy/ephtracy.github.io/releases/tag/0.99.7" role="button"> Download 0.99.7.2 (Beta)</a>
+    <a class="btn btn-primary" href="https://github.com/ephtracy/ephtracy.github.io/releases/tag/0.01" role="button"> Plugin (Denoiser) </a>
+    <a class="btn btn-primary" href="https://github.com/ephtracy/ephtracy.github.io/releases" role="button">Previous Versions</a>
+    <a class="btn btn-primary" href="https://github.com/ephtracy/voxel-model/tree/master/language" role="button">Language</a>
+    <a class="btn btn-primary" href="https://github.com/ephtracy/voxel-model" role="button">Vox Format</a>
+</div>
+<div id="mv-carousel" class="carousel slide" data-ride="carousel">
+    <ol class="carousel-indicators">
+    <li data-target="#mv-carousel" data-slide-to="0" class="active"></li>
+    <li data-target="#mv-carousel" data-slide-to="1"></li>
+    <li data-target="#mv-carousel" data-slide-to="2"></li>
+    <li data-target="#mv-carousel" data-slide-to="3"></li>
+    <li data-target="#mv-carousel" data-slide-to="4"></li>
+    <li data-target="#mv-carousel" data-slide-to="5"></li>
+    <li data-target="#mv-carousel" data-slide-to="6"></li>
+    <li data-target="#mv-carousel" data-slide-to="7"></li>
+    </ol>
+
+    <!-- Wrapper for slides, put your images there -->
+    <div class="carousel-inner">
+
+    <div class="item active">
+      <img src="image/sample0.png" alt="0">
+      <div class="carousel-caption"></div>
+    </div>
+
+    <div class="item">
+      <img src="image/sample1.jpg" alt="1">
+      <div class="carousel-caption"></div>
+    </div>
+
+    <div class="item">
+      <img src="image/sample2.jpg" alt="2">
+      <div class="carousel-caption"></div>
+    </div>
+
+    <div class="item">
+      <img src="image/sample3.jpg" alt="3">
+      <div class="carousel-caption"></div>
+    </div>
+
+     <div class="item">
+      <img src="image/sample4.jpg" alt="4">
+      <div class="carousel-caption"></div>
+    </div>
+
+       <div class="item">
+      <img src="image/sample6.jpg" alt="5">
+      <div class="carousel-caption"></div>
+    </div>
+
+    <div class="item">
+      <img src="image/sample7.jpg" alt="6">
+      <div class="carousel-caption"></div>
+    </div>
+
+    <div class="item">
+      <img src="image/snap2018-09-19-15-59-58.png" alt="7">
+      <div class="carousel-caption"></div>
+    </div>
+
+    </div>
+
+    <!-- Controls -->
+    <a class="left carousel-control" href="#ss-carousel_ss" role="button" data-slide="prev"  onclick="$('#mv-carousel').carousel('prev')" id="mv_carousel_left">
+        <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
+        <span class="sr-only">Previous</span>
+    </a>
+    <a class="right carousel-control" href="#ss-carousel_ss" role="button" data-slide="next"  onclick="$('#mv-carousel').carousel('next')" id="mv_carousel_right">
+        <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
+        <span class="sr-only">Next</span>
+    </a>
+</div>
+
+<div class="row">
+    <div class="col-lg-10 col-md-10 col-sm-9">
+        <div class="panel panel-primary" id="update_log_container">
+            <div class="panel-heading">
+                <h3 class="panel-title">Update Log</h3>
+            </div>
+            <div>
+                <div class="updatelog_header text-warning">Thanks for the Support</div>
+                
+                <a href="https://www.patreon.com/bePatron?u=2650949" data-patreon-widget-type="become-patron-button">Become a Patron!</a><script async src="https://c6.patreon.com/becomePatronButton.bundle.js"></script>
+                 
+                <div>
+                    <form action="https://www.paypal.com/donate" method="post" target="_top">
+                    <input type="hidden" name="hosted_button_id" value="FSF6FNP37CLGL" />
+                    <input type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif" border="0" name="submit" title="PayPal - The safer, easier way to pay online!" alt="Donate with PayPal button" />
+                    <img alt="" border="0" src="https://www.paypal.com/en_US/i/scr/pixel.gif" width="1" height="1" />
+                    </form>
+                </div>
+            </div>
+            
+                <div id="faq">
+                    <div class="updatelog_header text-warning">FAQ</div>
+                    <ul class="decimallist">
+                        <li><kbd>win64 : VCOMP140.DLL</kbd> You may need to download this for windows:  <a href="https://www.microsoft.com/en-ca/download/details.aspx?id=48145"> Visual C++ Redistributable for Visual Studio 2015</a></li>
+                        <li><kbd>win64 : VCOMP100.DLL</kbd> You may need to download this for windows:  <a href="https://www.microsoft.com/en-us/download/details.aspx?id=26999"> Microsoft Visual C++ 2010 SP1 Redistributable Package (x64) </a></li>
+                        <li><kbd>macOS : unable to open the app</kbd>: go to  Security and Privacy panel to allow the app open.</li>
+                        <li><kbd>macOS : Black screen</kbd>: move magicavoxel.app outside the folder and then move it back.</li>
+                        <li><kbd>macOS : too slow at retina resolution</kbd>: disable <kbd>Brush->Display->HDPI</kbd>.</li>                 
+                        <li><kbd>UI is too small</kbd>: <kbd>CTRL +/-</kbd> to scale the ui. or change <kbd>ui_scale</kbd> in the config.txt file.</li>
+                        <li><kbd>Multiple objects in the world editor</kbd>: press <kbd>TAB or double-click</kbd> the background.</li>
+                        <li><kbd>No middle mouse button</kbd>: <kbd>space + left drag</kbd> to pan camera, <kbd>z + left drag</kbd> to zoom camera.</li>
+                        <li><kbd>Black screen in the renderer</kbd>: GPU cards or the driver don't meet the requirement.</li>
+                        <li><kbd>Incomplete scene in the renderer</kbd>: enable Sample>Geometry>Sparse. Also increase config.txt->render->dense_buffer/sparse_buffer.</li>
+                        <li><kbd>Part of the model is under the ground</kbd>: go to the world editor, move the object above the ground (or press G).</li>
+                        <li><kbd>Models are deleted by mistake</kbd>: The model can be recovered from the Trash.</li>
+                        <li><kbd>Program crashed</kbd>: The model can be recovered from "/cache/backup.vox".</li>
+                        <li><kbd>Save screenshots for the whole window</kbd>: CTRL+6 or CTRL+F6.</li>
+                        <li><kbd>Exported models are not centered</kbd>: <kbd>enable IO->Export->Local</kbd>.</li>
+                        <li><kbd>Program crashed by corrupted backup model files</kbd>: delete the backup files in the <kbd> cache </kbd> folder.</li>
+                     </ul>
+                 </div>
+            
+                    <div id="update_099_7.2">
+                    <div class="updatelog_header text-warning">0.99.7.2 - 7/12/2025</div>
+                    <ul class="decimallist">
+                        <li>Animation
+                            <ul class="squarelist"></li>
+                                <li> Drag and drop multiple image sprites or models into the editor view and select "Import Sprites".</li>
+                                <li> Click Edit->Tool->Frame in world editor to only duplicate current frame modesl without key frames.</li>
+                                <li> Shift+Drag animated objects will also translate all key frames.</li>
+                                <li> Show dialog when current model is not saved as key frame.</li>
+                                <li> Animation playback range is saved into "META" chunk of the file.</li>
+                            </ul>
+                        </li>
+                        <li>World and Model Edit
+                            <ul class="squarelist">
+                                <li> Modify rename_prefix/suffix in config.txt to change how multiple objects are renamed. </li>
+                                <li> Added 90 degree rotation gizmo. </li>
+                                <li> CTRL/CTRL+SHIFT/CTRL+SHIFT+ALT for 1/2/normal-axis move in model editor.</li>
+                            </ul>
+                        </li>
+                        <li>Misc
+                            <ul class="squarelist">
+                                <li> Bug fixes. </li>
+                                <li> IO->File->Recover to local models and palettes only from corrupted files. </li>
+                            </ul>
+                        </li>
+                     </ul>
+                     </div>
+            
+                    <div id="update_099_7.1">
+                    <div class="updatelog_header text-warning">0.99.7.1 - 5/29/2023</div>
+                    <ul class="decimallist">
+                        <li>Animation (on the top, click left the arrow button)
+                            <ul class="squarelist">
+                                <li> Define the custom active timeline range (0-360) for the animation using the top two markers or in the popup menu.</li>
+                                <li> Auto animation placyback.</li>
+                                <li> Denoiser can be auto enabled for each frame of animation and turntable rendering.</li>
+                            </ul>
+                        </li>
+                        <li>Palette
+                            <ul class="squarelist">
+                                <li> use ctrl+drag to move (swap) multiple selected colors in the palette. </li>
+                                <li> change/increase the H/S/V/R/G/B values of colors in group. </li>
+                                <li> copy and paste selected colors to another palette. </li>
+                            </ul>
+                        </li>
+                        <li>Layer
+                            <ul class="squarelist">
+                                <li> Sort layers by names in the popup menu. </li>
+                                <li> Select objects on the current selected layer. </li>
+                                <li> use ctrl+shift+A to select all visible and invisible objects. </li>
+                            </ul>
+                        </li>
+                     </ul>
+                     </div>
+            
+                     <div id="update_099_7">
+                     <div class="updatelog_header text-warning">0.99.7.0 - 12/18/2021</div>
+                     <ul class="decimallist">
+                        <li>Animation Panel (on the top, click left the arrow button)
+                            <ul class="squarelist">
+                                <li> Click + to add a new frame.</li>
+                                <li> Click + to replace an existing frame (otherwise, the frame won't be automatically updated).</li>
+                                <li> Click - to delete frames. </li>
+                                <li> Click the frame marker to select the frame. </li>
+                                <li> Click the frame marker with CTRL/SHIFT to select/deselect multiple frames. </li>
+                                <li> Drag on the selected frames to move them.</li>
+                                <li> Drag on the selected frames with CTRL+SHIFT to duplicate them.</li>
+                                <li> Right-Click the animation panel to open the menu (select all/inverse/none, and reverse frames).</li>
+                                <li> Can Pack multiple models into an animation, or vice versa.</li>
+                                <li> Can edit the models in local/global timeline.</li>
+                                <li> Can have animation for both models and objects.</li>
+                                <li> To move/duplicate animations, first put the animated models in a group object.</li>
+                                <li> There are issues with the pivots in this version. Try to keep the frame models the same size.</li>
+                            </ul>
+                        </li>
+                        <li>Animation Rendering (Render->Image->Anim)
+                            <ul class="squarelist">
+                                <li> Define the start and end frames.</li>
+                                <li> Click "Render" button to Render.</li>
+                                <li> Most of the rendering and camera settings can be modified in the console now.</li>
+                            </ul>
+                        </li>
+                        <li>Transform Edit (Scene Editor)
+                            <ul class="squarelist">
+                                <li> Copy/Paste Transform/Rotation/Translation of objects. </li>
+                                <li> Explicitly edit the position of objects </li>
+                                <li> New gizmo </li>
+                            </ul>
+                        </li>
+                     </ul>
+                     </div>
+            
+                     <div id="update_099_6.4">
+                    <div class="updatelog_header text-warning">0.99.6.4 - 09/05/2021</div>
+                    <ul class="decimallist">
+                        <li>New Pattern Library Panel (Star icon on the right panel)
+                            <ul class="squarelist">
+                                <li> Create (or import) all assets in a single project. </li>
+                                <li> Load the asset project as a pattern library. </li>
+                                <li> Drag and drop assets into the scene. </li>
+                                <li> Enable "Match" to automatically match the pattern palette to the scene palette. </li>
+                                <li> Resize panel to display more patterns. </li>
+                            </ul>
+                        </li>
+                        <li>New Scene Outline Panel (Second icon on the right panel)
+                            <ul class="squarelist">
+                                <li> Right-click menu to rename objects, expand/close groups, hide/unhide objects. </li>
+                                <li> Double-click to enter an group or a model. Then you can select and edit inner objects/voxels. </li>
+                                <li> Click the active objects (in the current group) to select them. Press SHIFT/CTRL for multi-selection.</li>
+                                <li> Click the circle icon to hide objects. </li>
+                                <li> The layer color is shown on the right. </li>
+                                <li> Use the arrow keys to change the order of objects. Press SHIFT to move to first/last. </li>
+                                <li> You can create new object, rename object even in the model editor mode. </li>
+                            </ul>
+                        </li>
+                        <li>New Layer Panel (In the world editor)
+                            <ul class="squarelist">
+                                <li> Click on the left of the circle to change the layer of the selected objects (triangle will be shown).</li>
+                                <li> Click the circle to hide the layer.</li>
+                                <li> Click ion the right of the circle to select the active layer (new created objects will use this layer).</li>
+                                <li> Right-click the name to show the menu to rename, hide layers.</li>
+                                <li> Right-click the circle to change the color of the layer.</li>
+                            </ul>
+                        </li>
+                        <li>Camera Panel (The bottom panel)
+                            <ul class="squarelist">
+                                <li> Fov: change the camera field of view.</li>
+                                <li> Speed: change the camera speed in the free mode.</li>
+                                <li> Mouse: change the mouse sensitivity.</li>
+                            </ul>
+                        </li>
+                        <li>Multi-Language Translation
+                            <ul class="squarelist">
+                                <li> Check the repo: <a href="https://github.com/ephtracy/voxel-model/tree/master/language">Language</a> </li>
+                                <li> Copy and paste the files (font, dict, locale) to the /config folder </li>
+                                <li> "dict.txt" defines the dictionary for translation. </li>
+                                <li> "font/" defines the freetype fonts. </li>
+                                <li> "locale.txt" defines the font and dict files. </li>                                
+                            </ul>
+                        </li>
+                     </ul>
+                     </div>
+                        
+                     <div id="update_099_6.2">
+                    <div class="updatelog_header text-warning">0.99.6.2 - 09/26/2020</div>
+                    <ul class="decimallist">
+                        <li>New Unified Material System[06/30/2020]
+                            <ul class="squarelist">
+                                <li> <kbd>Blend Material</kbd>: weighted blending Metal/Plastic/Glass/Cloud materials (similar to Disney Principled BRDF).</li>
+                                <li> <kbd>SSS Material</kbd>: sub-surface scattering. <kbd>transparency</kbd> tp control light transmission. <kbd>density</kbd> to control light scattering.</li>
+                                <li> <kbd>Aborb/Scatter/Emissive Media Material</kbd>: emissive cloud. can be contained in the glass with <kbd>ior > 1</kbd>.</li>
+                                <li> <kbd>Improved Alpha Blending</kbd>: glass material, absorb media type, density = 0, ior = 0, transparency > 0 </li>
+                            </ul>
+                        </li>
+                        <li>New Transform and Voxel Shader Brushes[09/26/2020]
+                            <ul class="squarelist">
+                                <li> Refactored the brush menu and add icons.</li>
+                                <li> <kbd>Voxel Shader Brush</kbd> to use Voxel Shaders interactively and directly.</li>
+                                <li> <kbd>Transform->Scale Brush</kbd> : live scale models, point sampled, low quality but fast.</li>
+                                <li> <kbd>Transform->Wrap Brush</kbd> : live wrap/crop models with mirroring and spacing modes.</li>
+                                <li> <kbd>Geometry Mode->Line/Square/Circle</kbd>: the old center mode is combined with the old line mode </li>
+                                <li> <kbd>World Editor->Pattern and Wrap Brush</kbd>: can create patterns from selected object (check the pattern model menu on the right panel). </li>
+                            </ul>
+                        </li>
+                        <li>Rotate Transform Brush [09/26/2020]
+                            <ul class="squarelist">
+                                <li> Axis rotate : press any inner circle. </li>
+                                <li> Screen rotate : press the outer circle. </li>
+                                <li> Sphere rotate : press any point inside the outer circle. </li>
+                                <li> Snap rotate : press <kbd> SHIFT </kbd> or <kbd> SHIFT+ALT </kbd> to snap angle to multiple of 5 or 15. </li>
+                            </ul>
+                        </li>
+                        <li>Voxel Shader[09/13/2020]
+                            <ul class="squarelist">
+                                <li> no need to define <kbd>id</kbd> for arguments. </li>
+                                <li> use <kbd>var</kbd> to define alias of arguments. same as <kbd>float var = i_args[id];</kbd>. </li>
+                                <li> can import and export arguments values. </li>
+                                <li> can display compile errors in the console window. </li>
+                                <li> can get color selections via: <kbd>color_sel()</kbd>. </li>
+                                <li> can get palette color via: <kbd>palette().</kbd> </li>
+                                <li> increase number of arguments to <kbd>16</kbd>. </li>
+                                <li> add interation number to the interface. </li>
+                            </ul>
+                        </li>
+                        <li>Editing[09/26/2020]
+                            <ul class="squarelist">
+                                <li> Boolean operations for groups and objects. </li>
+                                <li> <kbd>Modify->Mask/Texture</kbd>: mask and texture models with pattern models. </li>
+                                <li> <kbdPalette->Sort</kbd>: only sorts selected colors if number of selection is greater than one. </li>
+                                <li> command <knd>log</kbd>: display count of models, scene size, count of voxels for each color, etc. </li>
+                                <li> command <knd>shear [axis] [scale] [scale]</kbd> shear model, e.g. <kbd> shear z 0.2 0.2 </kbd>. </li>
+                            </ul>
+                        </li>
+                        <li>Camera Control Panel[09/26/2020]
+                            <ul class="squarelist">
+                                <li> click the arrow on the bottom bar to show the camera control panel. </li>
+                                <li> can change camera global/local position, pitch/yaw/roll angles, save/load camera slots, etc. </li>
+                                <li> press SHIFT to change values in smaller steps. </li>
+                                <li> the nine values can also be modified by cmds <kbd>cam x/y/z tx/ty/tz rx/ry/rz</kbd></li>
+                            </ul>
+                        </li>
+                        <li>Pattern Pack[09/26/2020]
+                            <ul class="squarelist">
+                                <li> can load all the models in a project as a pattern pack. </li>
+                                <li> can create pattern pack from multiple selected objects. </li>
+                                <li> use left/right mouse button to rotate the preview model; use mouse wheel to zoom in/out. </li>
+                                <li> use <kbd> 1/2 </kbd> to select previous/next color in the palette. </li>
+                                <li> use <kbd> 3/4 </kbd to switch to previous/next pattern model in the pack. </li>
+                                <li> use <kbd> ctrl+alt </kbd> to switch to pattern tool. </li>
+                                <li> use <kbd> ctrl </kbd> to switch to free move tool. </li>
+                                <li> use <kbd> ESC </kbd> to switch between pattern/move brush and select brush in the world editor. </li>
+                            </ul>
+                        </li>
+                     </ul>
+                     </div>
+            
+                    <div id="update_099_5.1">
+                    <div class="updatelog_header text-warning">0.99.5.1 - 6/5/2020</div>
+                    <ul class="decimallist">
+                        <li>Scene Editor
+                            <ul class="squarelist">
+                                <li> Double-click to enter/leave objects.</li>
+                                <li> Right-double-click to leave objects.</li>
+                                <li> New option to allow double-click to directly enter into a model.</li>
+                                <li> New option to allow <kbd> SHIFT + drag </kbd> to duplicate/reference objects.</li>
+                                <li> The latency of swiching between model editor and scene editor is reduced.</li>
+                                <li> <kbd> Ref-R </kbd> recursively convert reference to duplicate.</li>
+                                <li> Reset rotation to identity tool.</li>
+                            </ul>
+                        </li>
+                        <li>Brush
+                            <ul class="squarelist">
+                                <li> New brush selection tool: Brush modes (V/F/B/L/C/P) and options (mirror/axis) can be applied.</li>
+                                <li> New resizable box brushe use gizmo to resize the box; press enter or other stroke/edit to commit. </li>
+                                <li> New SDF brush: box brush + voxel shader. </li>
+                                <li> <kbd> ctrl + alt + drag </kbd> to resize voxel brush. </li>
+                                <li> Sculpt Brushes can be applied to either selected or unselected regions.</li>
+                                <li> Region options are also applied to remove/replace voxel color brushes.</li>
+                            </ul>
+                        </li>
+                        <li>Live Crop and Fit
+                            <ul class="squarelist">
+                                <li> Fit tool allows fitting the size of multiple objects</li>
+                                <li> Crop tool allows live resizing the canvas: drag arrow body to resize, drag arrow head to move</li>
+                                <li> New <kbd> 1/2 </kbd> tool.</li>
+                            </ul>
+                        </li>
+                        <li>IO panel
+                            <ul class="squarelist">
+                                <li> export/import palette/materials/rendering/camera/notes settings in text format. </li>
+                                <li> determine which components are saved in the vox file. </li>
+                                <li> export options: only export selected objects; export models in local space. </li>
+                                <li> import options: match similar colors in the palette; only import colors/materials for selected palette region. </li>
+                            </ul>
+                        </li>
+                        <li>Voxel Shader panel
+                            <ul class="squarelist">
+                                <li> Can bind user defined arguments to the interface via comments. </li>
+                                <li> live update by using the box brush. </li>
+                            </ul>
+                        </li>                        
+                        <li>Palette Note panel
+                            <ul class="squarelist">
+                                <li> add note to each row of the palette. </li>
+                            </ul>
+                        </li>
+                        <li>Display
+                            <ul class="squarelist">
+                                <li> AO and constant shading modes.</li>
+                                <li> Toggle background objects fading.</li>
+                                <li> Change grid/edge/selection/background color.</li>
+                            </ul>
+                        </li>                       
+                     </ul>
+                    </div>
+            
+                    <div id="update_099_5">
+                    <div class="updatelog_header text-warning">0.99.5 - 05/13/2020</div>
+                    <ul class="decimallist">
+                        <li>Model Editor [04/05/2020]
+                            <ul class="squarelist">
+                                <li> Canvas size for single object increases to <kbd>256x256x256</kbd>.</li>
+                                <li> Rendering method in the editor view is changed to pure <kbd>Ray Casting</kbd>. </li>
+                                <li> Most of the brushes and edit commands are shader-based (GPU accelerated). </li>
+                                <li> Undo/Redo commands are compressed to reduce memory usage. (can undo up to 100 commands) </li>
+                                <li> Can import jpeg images and export jpeg screenshot. </li>                                
+                            </ul>
+                        </li>
+                        <li>Multiple Color Selection in the Palette [04/27/2020]
+                            <ul class="squarelist">
+                                <li> the color and material modification (and some other cmds) can be applied to multiple colors now. </li>
+                                <li> e.g., <kbd>rand</kbd> cmd now uses the multiple selection as random range. </li>
+                                <li> <kbd>click</kbd> : single cursor selection; </li>
+                                <li> <kbd>drag</kbd> : multiple selection; </li>
+                                <li> <kbd>shift + drag</kbd> : add selection; </li>
+                                <li> <kbd>shift + alt + drag</kbd> : remove selection; </li>
+                                <li> can copy and paste color code from the right-click menu. </li>
+                                <li> can select voxels by colors from the right-click menu. </li>
+                                <li> can select colors by voxels from the right-click menu. </li>
+                            </ul>
+                        </li>
+                     </ul>
+                 </div>
+        
+                <div id="update_099_4">
+                    <div class="updatelog_header text-warning">0.99.4.2 - 9/8/2019</div>
+                    <ul class="decimallist">
+                        <li>Intel Open Image Denoiser [0.99.4.2]
+                            <ul class="squarelist">
+                                <li> <kbd>Requirement</kbd>: <kbd>64bit system, 4GB memory</kbd> </li>
+                                <li> <kbd>Installation</kbd>: download <kbd>plugin.zip</kbd> and extract the content to the program folder.</li>
+                                <li> <kbd>Image->Filter->Denoise</kbd>: denoise rendered images in the preview mode. use mouse wheel to zoom in/out, left-drag to move image.</li>
+                                <li> <kbd>Image->MRT</kbd>: render additional albedo and normal images to help the denoiser to preserve details. note that it does not always improve the quality.</li>
+                                <li> <kbd>Sample->Bounce->Clamp</kbd>: clamp energy to reduce noises. </li>
+                            </ul>
+                        </li>
+                        <li>Image based Lighting [0.99.4.1]
+                            <ul class="squarelist">
+                                <li> <kbd>Sky->IBL</kbd>: Image Based Lighting. use ".hdr" format panorama images to light the scene.</li>
+                                <li> <kbd>Fog</kbd>: add Equi-angular sampling back to reduce noises. support fogs in othogonal views in a bounding volume.</li>
+                                <li> <kbd>Media</kbd>: enable <kbd>Sample->TR-Shadow</kbd> to allow single direct lighting; enable <kbd>Sample->MIS-Cloud</kbd> to allow multiple direct lighting (very expensive).
+                                <li> <kbd>Color</kbd> all color options have their own color pickers which support HSV, RGB, H-Block and Hex values. </li>
+                                <li> <kbd>Palette Menu</kbd> right click the palette view to show the pop-up menu.</li>                                
+                            </ul>
+                        </li>
+                        <li>Cloud [0.99.4]
+                            <ul class="squarelist">
+                                <li> <kbd>Matter->Cloud</kbd>: Media material which supports multiple scattering inside volume.</li>
+                                <li> <kbd>Sample->MIS-GGX</kbd>: Multiple Importance Sampling (MIS) for GGX surfaces (Metal/Plastic/Glass) for better reflection. </li>
+                                <li> <kbd>Sample->TR-Shadow</kbd>: Translucent Shadow which allows light passing though glass and cloud voxels. Only <kbd>Glass->Attenuation</kbd> can affect the light color.</li>
+                                <li> can adjust <kbd>Bounce->Diffuse/Specular/Scatter</kbd> path depths separately.</li>
+                                <li> can assign glass/cloud materials to sphere/cylinder shape voxels (for experiments only).</li>
+                                <li> the renderer pipeline is refactored, which needs more time to improve, optimize and fix bugs.</li>
+                                <li> some features such as fog scattering requires more researches.</li>
+                                <li> frame drops and noises are expected.</li>
+                            </ul>
+                        </li>
+                </div>
+            
+                <div id="update_099_3">
+                    <div class="updatelog_header text-warning">0.99.3 - 2/10/2019</div>
+                    <ul class="decimallist">
+                        <li>Final Image Render : Render->Image Settings (Right Panel)
+                            <ul class="squarelist">
+                                <li> Photo Mode: up to <kbd>12000 x 12000</kbd> size images. Bloom effect is not available.</li>
+                                <li> Turntable Mode: spinning camera animation with <kbd>Motion Blur</kbd>. Saved as <kbd>name (frame index).png</kbd> image sequence.</li>
+                                <li> Both modes can render in the background. </li>
+                                <li> You may need to disable <kbd>vsyn</kbd> in the GPU panel for this program. </li>
+                            </ul>
+                        </li>
+                        
+                        <li>Lens
+                            <ul class="squarelist">
+                                <li> Panorama Projection: <kbd>Lens->Pano</kbd>. Set image size <kbd> width = height x 2</kbd></li>
+                                <li> Focus: can fix or set focus distance by numbers.</li>
+                                <li> Depth of Field effect can be enabled in all camera projection modes. </li>
+                                <li> Fixed bugs for camera blades (images become darker) and grids. </li>
+                            </ul>
+                        </li>
+
+                        <li>Camera Control
+                            <ul class="squarelist">
+                                <li> <kbd>X+left click</kbd> to set the camera rotation center in both editing and rendering modes. </li>
+                            </ul>
+                        </li>
+                        
+                        <li>Export
+                            <ul class="squarelist">
+                                <li> add <kbd>slices/cubes/point clouds</kbd> export options</li>
+                                <li> export settings (scale, axis, etc.) can be found in <kbd>config/config.txt/io_*</kbd> </li>
+                                <li> export objects are named as <kbd>[project name]-[index]-[object name].[ext]</kbd> </li>
+                                <li> the vertices of the mesh exports are using their global positions in the world editor. </li>
+                            </ul>
+                        </li>
+                        
+                        <li>Config
+                            <ul class="squarelist">
+                                <li> can modify <kbd>edge/ground/background/fade color</kbd> of the editor </li>
+                                <li> add <kbd>hotkey.txt</kbd> in <kbd>config/</kbd> folder to bind keys to commands. </li>
+                                <li> the keys <kbd>A-Z</kbd>, <kbd>0-9</kbd>, <kbd>F1-F12</kbd> are recommended. </li>
+                                <li> <kbd>repeat</kbd> token means that you can hold the keys to automatically perform multiple times of actions, e.g. undo/redo </kbd>
+                                <li> commands may be refactored in the future. The feature is not robust. Use it carefully. </li>
+                            </ul>
+                        </li>
+                </div>
+            
+                <div id="update_099_2">
+                    <div class="updatelog_header text-warning">0.99.2 - 9/29/2018</div>
+                    <ul class="decimallist">
+                        <li>New Interface
+                            <ul class="squarelist">
+                                <li> Redesigned the interface</li>
+                                <li> Slidable and resizable panels</li>
+                                <li> SDF font rendering</li>
+                                <li> <kbd>CTRL+/-</kbd> to scale UI size</li>
+                                <li> a basic object list to show the scene graph, will be improved in future updates</li>
+                            </ul>
+                        </li>
+                        
+                        <li>Renderer
+                            <ul class="squarelist">
+                                <li> Large Sparse Volume: <kbd>Sample->Geometry->SV</kbd> the rendering volume increases to <kbd>2048x2048x1024</kbd>. But the total number of solid voxels is still limited. SV Mode works with cubic voxel only</li>
+                                <li> Voxel Shapes: new <kbd>Clay</kbd> shape with the previous supported shapes (<kbd>Lego</kbd>, <kbd>Marching Cubes</kbd>, etc.)</li>
+                                <li> World Scale: rectangular voxels</li>
+                                <li> Pixelated Illumination: <kbd>Sample->PX</kbd></li>
+                                <li> Can show sun disk in the sky; added Ozone attenuation</li>
+                                <li> Fix bugs in orthogonal views</li>
+                                <li> Voxel shapes and SV mode will be improved in future updates</li>
+                            </ul>
+                        </li>
+
+                        <li>Palette
+                            <ul class="squarelist">
+                                <li> <kbd>CTRL+Drag</kbd>: swap (move) color </li>
+                                <li> <kbd>CTRL+SHIFT+Drag</kbd>: duplicate color </li>
+                                <li> cmd <kbd>pal sort [+-hsvrgb]</kbd>: sort palette colors (e.g. <kbd>pal sort vsh</kbd>) </li>
+                            </ul>
+                        </li>
+                        
+                        <li>Voxel Shader
+                            <ul class="squarelist">
+                                <li> add <kbd>xs_shader</kbd> in config.txt</li>
+                                <li> can execute subfolder shaders: <kbd>xs sub/poly</kbd> </li>
+                            </ul>
+                        </li>
+                </div>
+
+                <div id="update_099_1">
+                <div class="updatelog_header text-warning">0.99.1 - 3/12/2018</div>
+                <ul class="decimallist">
+                     <li>Renderer (hidden menu)
+                        <ul class="squarelist">
+                            <li> Atmospheric Scattering Skydome: Rayleigh/Mie scattering</li>
+                            <li> Bladed Bokeu: for large depth of field </li>
+                            <li> Stretched Bloom Filter </li>
+                            <li> Grids: can change Spacing, Width, and Color </li>
+                            <li> Field of View (FOV): change range to: <kbd>1-360</kbd> </li>
+                            <li> Fix some bugs: e.g. Bloom dark points</li>
+                            <li> More options are saved into file, format is changed as well </li>
+                        </ul>
+                    </li>
+
+                    <li>Editor
+                        <ul class="squarelist">
+                            <li> Align Objects in Editor </li>
+                            <li> New object is using last model size </li>
+                            <li> Fix importing files with unicode paths </li>
+                            <li> Add default export and snapshots folders in config </li>
+                        </ul>
+                    </li>
+                </div>
+
+          <div id="update_099">
+            <div class="updatelog_header text-warning">0.99 - 11/23/2017</div>
+            <ul class="decimallist">
+                 <li>World Editor
+                    <ul class="squarelist">
+                        <li> Support multiple objects </li>
+                        <li> Larger scene area: (<kbd>-1024</kbd>, <kbd>+1024</kbd>) </li>
+                        <li> Group objects</li>
+                        <li> Reference objects/groups: modifying one of the references will affect the others </li>
+                        <li> Transform objects: rotate, flip, move</li>
+                        <li> Rectangle select: <kbd>SHIFT</kbd> to add selection, <kbd>ALT+SHIFT</kbd> to remove selection </li>
+                        <li> Translation gizmo and free movement: <kbd>Shift+move</kbd> to get a referenced copy </li>
+                        <li> Union combine objects </li>
+                        <li> Copy/paste objects between world editor and model editor </li>
+                        <li> Hide objects </li>
+                        <li> Change order of objects for drawing and combination</li>
+                        <li> Layers: to hide objects with same layer tag </li>
+                        <li> Hotkey <kbd>TAB</kbd> to switch between model editor and world editor</li>
+                        <li> Hotkey <kbd>TAB</kbd>/<kbd>SHIFT+TAB</kbd> to enter/leave groups</li>
+                    </ul>
+                </li>
+
+                <li>Renderer
+                    <ul class="squarelist">
+                        <li> Performance optimizations </li>
+                        <li> Support larger volumes: <kbd>512x512x512</kbd>, <kbd>1024x512x256</kbd> or <kbd>1024x1024x128</kbd> </li>
+                        <li> Can copy/paste materials using <kbd>CTRL+C/V</kbd> or <kbd>Matter->C/P</kbd> </li>
+                        <li> Rendering settings are saved into file: lighting, lens, ground/edge colors, etc. </li>
+                        <li> Blooming effect is automatically calculated, and can be paused as well </li>
+                        <li> Can display constant color background: <kbd>View->Back</kbd> </li>
+                    </ul>
+                </li>
+
+               <li>View Cube
+                    <ul class="squarelist">
+                        <li> Smooth camera transition </li>
+                        <li> Click the cube face/edge/vertex to set to 26 standard view angles (90/45) </li>
+                        <li> Left-drag the view cube to rotate view </li>
+                        <li> Hotkey <kbd>4</kbd> to recenter view; hotkey <kbd>5</kbd> to show one of the 6 face views (front, back, etc.)</li>
+                        <li> <kbd>Z+left drag</kbd> to zoom view</li>
+                        <li> <kbd>X+left drag</kbd> to rotate view</li>
+                        <li> <kbd>Space+left drag</kbd> to move view</li>
+                        <li> <kbd>7/8</kbd> to save/load view</li>
+                    </ul>
+               </li>
+
+                <li>Editing
+                    <ul class="squarelist">
+                        <li> Auto-saved to <kbd>cache/</kbd> folder every 25 steps </li>
+                    </ul>
+               </li>
+
+                <li>UI
+                    <ul class="squarelist">
+                        <li> UI scaling for High DPI screens: enter <kbd>ui scale 1.5</kbd> in console or change <kbd>ui_scale</kbd> in <kbd>config.txt</kbd></li>
+                        <li> Panel is scalable (some UI elements are hidden behind) </li>
+                        <li> Palette: pick color from screen: <kbd>ALT+left drag</kbd> </li>
+                        <li> Lower CPU usage: only redraw when needed </li>
+                    </ul>
+               </li>
+
+                <li>Limitations: will be improved in future version
+                    <ul class="squarelist">
+                        <li> Not stable </li>
+                        <li> Export: can only export single models, cannot export models with offsets and names </li>
+                        <li> Render: no voxel shapes </li>
+                        <li> Animation: no frame based animation </li>
+                    </ul>
+               </li>
+             </ul>
+          </div>
+
+            <div id="update_098_2">
+            <div class="updatelog_header text-warning">0.98.2 - 4/1/2017</div>
+            <ul class="decimallist">
+                 <li>Bloom
+                    <ul class="squarelist">
+                        <li> Click the button in Bloom section to calculate bloom effect when any rendering setting has been changed </li>
+                        <li> It has its own progress bar, and uses the same number of samples from the top </li>
+                        <li> When adjusting the weight with the slider, it won't restart rendering</li>
+                        <li> It will enable <kbd>Camera->ACES</kbd> automatically </li>
+                    </ul>
+                </li>
+                <li>Bokeh
+                    <ul class="squarelist">
+                        <li> It has larger aperture size for DOF (depth of field)</li>
+                    </ul>
+                </li>
+                <li>HDR Emissive Material
+                    <ul class="squarelist">
+                        <li> Formula is changed to <kbd>Emit * (10 ^ Power)</kbd> </li>
+                        <li> <kbd>Glow</kbd> is only used to enhance Bloom and Bokeh effects </li>
+                    </ul>
+                </li>
+                <li>Pause Rendering and Instant Feedback
+                    <ul class="squarelist">
+                        <li> Click <kbd>Image->||</kbd> to pause progressive rendering </li>
+                        <li> Enable <kbd>Sample->GI</kbd> </li>
+                        <li> Every change of material will be immediately displayed in viewport </li>
+                        <li> (*expensive option, higher end GPU recommended)</li>
+                    </ul>
+                </li>
+                <li>Sky Background
+                    <ul class="squarelist">
+                        <li> Enable <kbd>View->Back</kbd> (<kbd>CTRL+B</kbd>) to display sky as background</li>
+                        <li> The fading ground into horizon is controlled by <kbd>Fog</kbd> slider</li>
+                        <li> For real fog, enable <kbd>Fog</kbd> firstly</li>
+                    </ul>
+                </li>
+                <li>Ground Material
+                    <ul class="squarelist">
+                        <li> Now you can use <kbd>Alt+LButton</kbd> to click the ground, and then assign <kbd>Metal</kbd> material to it </li>
+                    </ul>
+                </li>
+                <li>Pixelated Rendering
+                    <ul class="squarelist">
+                        <li> Turn off <kbd>View->AA</kbd> to disable Anti-Aliasing and set image size small (128, e.g.)</li>
+                    </ul>
+                </li>
+            </ul>
+          </div>
+
+          <div id="update_098_1">
+            <div class="updatelog_header text-warning">0.98.1 Beta - 12/30/2016</div>
+            <ul class="decimallist">
+                <li>Selection
+                    <ul class="squarelist">
+                        <li> New <kbd>Box/Rect/Region</kbd> selection brushes </li>
+                        <li> New selection tools <kbd>Edit->Select</kbd>: Copy/Paste, Deselect/Inverse Select, etc.</li>
+                        <li> <kbd>Attach/Erase/Paint</kbd> brushes can only operate on unselected voxels </li>
+                        <li> <kbd>Move/Remove Color/Replace Color</kbd> brushes can operate on both selected and unselected voxels </li>
+                        <li> Edit Tools can only operate on selected voxels </li>
+                        <li> Transform Tools <kbd>Flip/Rot/Loop/Scale/Repeat</kbd> modify selected voxels around local center </li>
+                        <li> <kbd>Export</kbd> only exports selected voxels if selection exists </li>
+                    </ul>
+                </li>
+                <li>Selection Brushes
+                    <ul class="squarelist">
+                        <li> <kbd>+SHIFT</kbd> to add selection, <kbd>+SHIFT+ALT</kbd> to subtract selection</li>
+                        <li> Box Select: select voxels within a box </li>
+                        <li> Rect Select: select voxels within a screen rect: <kbd>K+RButton</kbd> click voxel to navigate to 90 degree view</li>
+                        <li> Region Select: select voxels within same volume, same face, or with same color</li>
+                    </ul>
+                </li>
+                <li>Pattern Brush
+                    <ul class="squarelist">
+                        <li> Can create Pattern directly from selection: very helpful for texturing surface/duplicating small shapes </li>
+                        <li> Can rotate Pattern around z, x, y axes with keys <kbd>-/+, 9, 0</kbd></li>
+                        <li> Can add local offset to Pattern with arrow and page keys</li>
+                        <li> Reset local offset to 0 with <kbd>Home</kbd> key </li>
+                    </ul>
+                </li>
+                <li>Bounding Box and Frame Grids
+                    <ul class="squarelist">
+                        <li> Can select on all six faces of bounding box now </li>
+                        <li> <kbd>View->Frame</kbd>: can change spacing, very helpful for measurement </li>
+                    </ul>
+                </li>
+                <li>Camera Setting
+                    <ul class="squarelist">
+                        <li> <kbd>Camera->ton</kbd>: ACES Filmic Tone Mapping </li>
+                        <li> <kbd>Camera->dof</kbd>: Depth of Field, click voxel with <kbd>LButton</kbd> to set camera focus </li>
+                    </ul>
+                </li>
+                <li>Misc
+                    <ul class="squarelist">
+                        <li> Command <kbd>dia [axis]</kbd>: diagonal symmetry </li>
+                        <li> Command <kbd>o slice</kbd>: export volume as an image of size (width, height x depth) </li>
+                    </ul>
+                </li>
+              </ul>
+            </div>
+
+              <div id="update_098">
+                <div class="updatelog_header text-warning">0.98 - 10/22/2016</div>
+                <ul class="decimallist">
+                <li>Frame-Based Animation
+                    <ul class="squarelist">
+                        <li> Supports up to 24 frames animation </li>
+                        <li> <kbd>Ctrl+Drag</kbd> to move frame, <kbd>Ctrl+Shift+Drag</kbd> to duplicate frame </li>
+                        <li> Press on the prev/next button to play animation (you can also change time step) </li>
+                        <li> Drag and drop multiple models to import as animation </li>
+                        <li> It can also be used for other purposes, like assets of same category</li>
+                        <li> However, features of importing and exporting anim are not fully supported yet</li>
+                    </ul>
+                </li>
+                <li>New Interface
+                    <ul class="squarelist">
+                        <li> Materials are saved into <kbd>.vox</kbd> file now </li>
+                        <li> If there are unsaved changes, the tiny button besides name field will become orange, click it to save </li>
+                        <li> Program will ask for saving changes when opening new models or closing the program </li>
+                        <li> Click the title of each panel to close it </li>
+                        <li> <kbd>Tool->Scale, Repeat, Rotate</kbd> are removed, use console commands <kbd>scale, repeat, rot</kbd> instead </li>
+                    </ul>
+                </li>
+                <li>Voxel Shader also supports generating anim now
+                    <ul class="squarelist">
+                        <li> [New inputs] </li>
+                        <li> <kbd>iFrame</kbd>: current frame index </li>
+                        <li> <kbd>iNumFrames</kbd>: total num of frames </li>
+                        <li> <kbd>iIter</kbd>: current iteration index </li>
+                        <li> <kbd>iRand</kbd>: a <kbd>vec4</kbd> random number updated every iter and frame </li>
+                        <li> [New Options] </li>
+                        <li> <kbd>-n</kbd>: specify number of iterations, eg. <kbd>xs -n 8 [shaderName]</kbd></li>
+                        <li> <kbd>-prev/-cur</kbd>: specify input frame, <kbd>-prev</kbd> for previous frame, <kbd>-cur</kbd> for current frame (default is <kbd>-prev</kbd>) </li>
+                    </ul>
+                </li>
+                </ul>
+              </div>
+
+              <div id="update_097_5">
+                <div class="updatelog_header text-warning">0.97.5 - 09/25/2016</div>
+                <ul class="decimallist">
+                <li>Fog Scattering: can scatter all types of lights (Sun/Sky/Area)
+                    <ul class="squarelist">
+                        <li> Only works in Pers/Free camera modes </li>
+                        <li> Works for glass/metal materials (can get reflection/refraction from sun light) </li>
+                        <li> Surface can also be lit by scattered light </li>
+                        <li> Can create light shafts </li>
+                        <li> Can create background with small fog density </li>
+                        <li> Fog color mainly depends on light color and in-scattering color </li>
+                    </ul>
+                </li>
+                <li>Ground is changed to infinity large in all camera modes </li>
+                <li>Optimized shaders by removing unused branches </li>
+                </ul>
+              </div>
+
+              <div id="update_097_4">
+                <div class="updatelog_header text-warning">0.97.4 - 07/05/2016</div>
+                <ul class="decimallist">
+                <li>New Emissive Area Lighting
+                    <ul class="squarelist">
+                        <li> <kbd>Emit->Power</kbd>: Radiant Flux for Area Lighting </li>
+                        <li> <kbd>Emit->Glow</kbd>: Energy loss on closer surface </li>
+                        <li> <kbd>Emit->Total</kbd>: Total power for all voxels or power density </li>
+                    </ul>
+                </li>
+                <li>Hints:
+                    <ul class="squarelist">
+                        <li> Requires <kbd>GI</kbd> option enabled for advanced effects </li>
+                        <li> Only supports Cubic/RG/RE voxel shape </li>
+                        <li> For small but strong light source (e.g. point lights), use <kbd>Emit->Total</kbd> </li>
+                        <li> It is recommended to use lower image resolution (e.g. <kbd>640x480</kbd>) when adjusting parameters </li>
+                        <li> For better quality of final image, use more samples (e.g. <kbd>5000</kbd>) </li>
+                        <li> Not very robust for this version (has several potential artifacts) </li>
+                        <li> If it is still too dark, do not forget to use <kbd>Post->E</kbd> to increase exposure</li>
+                    </ul>
+                </li>
+                <li>Fix several artifacts for <kbd>Glass</kbd> material</li>
+                </ul>
+              </div>
+
+              <div id="update_097_3">
+                <div class="updatelog_header text-warning">0.97.3 - 06/05/2016</div>
+                <ul class="decimallist">
+                <li>New Metal/Plastic Material with GGX NDF
+                <li>Post Effects
+                    <ul class="squarelist">
+                        <li> <kbd>Post->E</kbd>: Exposure, when the scene is too dark, you can increase this</li>
+                        <li> <kbd>Post->V</kbd>: Vignette </li>
+                        <li> <kbd>Camera->G</kbd>: Gamma Correction</li>
+                    </ul>
+                </li>
+                <li>Pick up Sun/Sky Color from Palette</li>
+                <li>Better Quality of Soft Shadow</li>
+                <li><kbd>Sample->GI</kbd> : on the top right, enable stochastic sampling for better indirect illumination
+                    <ul class="squarelist">
+                        <li> It's slower (~50%) and noisy (requires <kbd>3000+</kbd> samples) </li>
+                        <li> Use it for indoor scenes, larger exposure, or final render </li>
+                    </ul>
+                </li>
+                </ul>
+              </div>
+
+              <div id="update_097_2">
+                <div class="updatelog_header text-warning">0.97.2 - 03/02/2016</div>
+                <ul class="decimallist">
+                <li><kbd>Export->bake</kbd>: bake voxel mesh with ambient occlusion and soft shadow:
+                    <ul class="squarelist">
+                        <li><a href="https://skfb.ly/L7zB">Example on Sketchfab</a> </li>
+                        <li> Must support the built-in renderer, if program crashed, recover model from <kbd>cache/</kbd> directory </li>
+                        <li> It may take from several seconds to half a minute, depending on machine, model, and sample number</li>
+                        <li> Set sample number, direction and intensity of light sources in renderer mode </li>
+                        <li> <kbd>config->bake->perface</kbd>: bake per face (pixelated) or per vertex (smooth) </li>
+                        <li> <kbd>config->bake->ambient</kbd>: constant ambient color to make scene brighter </li>
+                        <li> <kbd>config->bake->gamma</kbd>: for app with gamma correction, set it to 2.2 to avoid color washed out </li>
+                    </ul>
+                </li>
+                <li>New CMD <kbd>odir</kbd>: export all models in current folder, e.g. <kbd>odir obj</kbd></li>
+                <li>Palette <kbd>ALT+DRAG</kbd>: swap palette color without changing model, make it easier to organize palette</li>
+                <li>Fixed a bug in <kbd>.qb</kbd> export </li>
+                </ul>
+              </div>
+
+              <div id="update_097_1">
+                <div class="updatelog_header text-warning">0.97.1 - 02/15/2016</div>
+                <ul class="decimallist">
+                <li>New Voxel Shader:
+                    <ul class="squarelist">
+                        <li> Supports GLSL based shader script to generate your custom volume </li>
+                        <li> Shaders are in the new folder <kbd>shader/</kbd> </li>
+                        <li> Try typing <kbd>[xs wave]</kbd> in console to start </li>
+                        <li> Basic command format is: <kbd>xs [shader name] [arg0] [arg1] [..]</kbd> </li>
+                        <li> If you want to run the shader multiple times in one run, use: <kbd>xs [num] [shader name ] [args...]</kbd> </li>
+                    </ul>
+                </li>
+                <li>New Brush Options:
+                    <ul class="squarelist">
+                        <li> [V]oxel Mode: 3D (Volume: Cube, Sphere), 2D (Flat: Square, Disc), Su (Surface, only operates on surface) </li>
+                        <li> - Added hotkeys <kbd>1</kbd>-<kbd>9</kbd> to set brush size quickly </li>
+                        <li> [C]enter Mode: supports both square and circle shape now </li>
+                        <li> [P]attern Mode: can choose using either original model color or current palette color </li>
+                        <li> - Can be applied on erasing and painting now </li>
+                    </ul>
+                </li>
+                <li>New Marching Cube Export <kbd>Export->mc</kbd>: export your voxel model as Marching Cube meshes (<kbd>.ply</kbd>) </li>
+                <li>Camera Control: use middle button to move camera </li>
+                <li>Cache Folder <kbd>cache/</kbd>: program will automatically backup model before quitting program or rendering model </li>
+                <li>Obj Export Pivot: fixed bugs for obj pivot, you can also set your custom pivot in <kbd>config.txt->file_obj</kbd> </li>
+                <li>Palette Command: added command <kbd>pal mask</kbd> to mask out unused color in palette </li>
+                <li>Fixed a little rendering bug with orth/iso camera, still not very robust though </li>
+                </ul>
+              </div>
+
+              <div id="update_097">
+                <div class="updatelog_header text-warning">0.97 - 11/30/2015</div>
+                <ul class="decimallist">
+                <li>Enhanced Brushes, Improved UI and File System:
+                    <ul class="squarelist">
+                        <li> Save and Open dialog for all Palette, Model, Export, Screenshot files </li>
+                        <li> Face Brush: extrude surface by dragging with various modes </li>
+                        <li> Voxel Brush: has been integrated with Cube and Sphere Brushes, working with mirror and axis modes now</li>
+                        <li> Circle Brush: center voxel of circle is not operated; support even diameter size </li>
+                        <li> HUD: voxel coordinates, volume size, face layers, circle radius are displayed in console now </li>
+                        <li> Camera: added <kbd>X+RButton</kbd> to select camera focus center, and yellow button to toggle auto camera focus </li>
+                        <li> Export: fixed <kbd>obj</kbd> export and more config options for isometric and 2d sprite export </li>
+                        <li> Render: <kbd>Light->0</kbd> is changed to pure color model; the ground in orth/iso mode will be infinity large </li>
+                        <li> Multiple UI improvements </li>
+                    </ul>
+                </li>
+                </ul>
+              </div>
+
+              <div id="update_096_3">
+                <div class="updatelog_header text-warning">0.96.3 - 08/15/2015</div>
+                <ul class="decimallist">
+                    <li> <kbd>Matter->Glass</kbd>: new transparent voxels with refraction and attenuation </li>
+                </ul>
+              </div>
+
+              <div id="update_096_2">
+                <div class="updatelog_header text-warning">0.96.2 - 08/09/2015</div>
+                <ul class="decimallist">
+                    <li> <kbd>Matter->Sel</kbd>: per palette material setting (use <kbd>Alt+LButton</kbd> or <kbd>LButton</kbd> to select material) </li>
+                    <li> New <kbd>Emissive</kbd> material; perfect mirror reflection (Rough = 0); over 8 light bounces </li>
+                    <li> Folder path setting in config file; bug fixed for <kbd>.obj</kbd> export </li>
+                </ul>
+              </div>
+
+              <div id="update_096_1">
+                <div class="updatelog_header text-warning">0.96.1 - 07/05/2015</div>
+                <ul class="decimallist">
+                    <li> <kbd>Export->iso</kbd>: new isometric sprites export </li>
+                    <li> <kbd>Export->obj</kbd>: color based mesh simplification for <kbd>.obj</kbd> format </li>
+                    <li> Model List: drag 'n drop folder to model list to change its root path </li>
+                </ul>
+              </div>
+
+              <div id="update_096">
+                <div class="updatelog_header text-warning">0.96 - 05/24/2015</div>
+                <ul class="decimallist">
+                    <li> Renderer supports various voxel shapes (Lego, Marching Cube, Sphere, Cylinder) and rounded corners, colored grids </li>
+                    <li> Camera supports stereographics projection, radial distortion, Escher Droste effect </li>
+                    <li> Use <kbd>F5/F7</kbd> to save/load current camera </li>
+                    <li> Performance improvement and bug fixes </li>
+                </ul>
+              </div>
+            </div>
+        </div>
+    </div>
+  </div>
