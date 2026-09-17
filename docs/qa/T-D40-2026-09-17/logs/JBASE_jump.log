@@ -1,0 +1,17 @@
+[2026-09-17 23:51:23.347] [info] OpenCraft 0.1.0 starting
+[2026-09-17 23:51:23.477] [info] GL 4.1 Metal - 89.4 / glad loaded
+[2026-09-17 23:51:23.478] [info] save: no level.ocd, new world with seed 0x4f50454e43524146
+[2026-09-17 23:51:23.703] [info] startup gen: 25 chunks, total 224.8 ms, avg 8.99 ms/chunk
+[2026-09-17 23:51:23.703] [info] spawn scan: surface at (0.5, 132.0, 0.5)
+[2026-09-17 23:51:23.703] [info] atlas: 144x144 px, 9 tiles/row, crack tiles at 63
+[2026-09-17 23:51:25.742] [info] fps 42.2 | pos (0.50, 132.42, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-17 23:51:27.757] [info] fps 69.9 | pos (0.50, 132.12, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-17 23:51:29.763] [info] fps 73.8 | pos (0.50, 133.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-17 23:51:31.764] [info] fps 74.7 | pos (0.50, 133.18, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-17 23:51:33.785] [info] fps 75.0 | pos (0.50, 132.12, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-17 23:51:35.791] [info] fps 73.7 | pos (0.50, 133.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-17 23:51:35.847] [info] autosave: 0 chunk(s) queued for async write, level written (ticks=199)
+[2026-09-17 23:51:37.791] [info] fps 73.5 | pos (0.50, 133.18, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-17 23:51:39.798] [info] fps 74.7 | pos (0.50, 132.12, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-17 23:51:41.805] [info] fps 73.7 | pos (0.50, 133.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-17 23:51:43.812] [info] fps 72.8 | pos (0.50, 133.18, 0.50) | chunks 113 | stream-meshed 104

@@ -5,78 +5,15 @@
 #include <utility>
 #include <vector>
 
+#include "opencraft/physics/sweep.hpp"
+
 namespace opencraft::physics {
 namespace {
 
-// Working AABB in double precision (opencraft::core::AABB is float-based and
-// the sim requires bit-stable doubles for the golden replay).
-struct Box {
-    double min_x;
-    double min_y;
-    double min_z;
-    double max_x;
-    double max_y;
-    double max_z;
-};
-
-[[nodiscard]] Box box_of(const PlayerState &s) {
-    const double height = s.height();
-    return Box{s.position.x - PlayerState::kHalfWidth, s.position.y,          s.position.z - PlayerState::kHalfWidth,
-               s.position.x + PlayerState::kHalfWidth, s.position.y + height, s.position.z + PlayerState::kHalfWidth};
-}
-
-// Strict voxel overlap: a box face exactly touching a block face is NOT a
-// collision, which keeps the "clamped against wall" state quiescent.
-// Height-aware (T-D8): a block occupies [by, by + shape_top_at], so a 0.5-high
-// block does not block a box whose feet are at or above its top face.
-[[nodiscard]] bool box_collides(const IBlockSource &world, const Box &b) {
-    const int x0 = static_cast<int>(std::floor(b.min_x));
-    const int x1 = static_cast<int>(std::floor(b.max_x));
-    const int y0 = static_cast<int>(std::floor(b.min_y));
-    const int y1 = static_cast<int>(std::floor(b.max_y));
-    const int z0 = static_cast<int>(std::floor(b.min_z));
-    const int z1 = static_cast<int>(std::floor(b.max_z));
-    for (int bx = x0; bx <= x1; ++bx) {
-        for (int by = y0; by <= y1; ++by) {
-            for (int bz = z0; bz <= z1; ++bz) {
-                const double top = world.shape_top_at(bx, by, bz);
-                if (top > 0.0 && b.max_x > bx && b.min_x < bx + 1 && b.max_y > by && b.min_y < by + top &&
-                    b.max_z > bz && b.min_z < bz + 1) {
-                    return true;
-                }
-            }
-        }
-    }
-    return false;
-}
-
-// Highest collision surface within [bottom_y, from_y] across the box
-// footprint — the face a descent is clamped to. Height-aware, so a partial
-// block is landed ON instead of on the full block above it. Returns < 0 when
-// the range contains nothing to stand on.
-[[nodiscard]] double highest_surface_below(const IBlockSource &world, const Box &b, double from_y, double bottom_y) {
-    const int x0 = static_cast<int>(std::floor(b.min_x));
-    const int x1 = static_cast<int>(std::floor(b.max_x));
-    const int y0 = static_cast<int>(std::floor(bottom_y));
-    const int y1 = static_cast<int>(std::floor(from_y));
-    const int z0 = static_cast<int>(std::floor(b.min_z));
-    const int z1 = static_cast<int>(std::floor(b.max_z));
-    double best = -1.0;
-    for (int bx = x0; bx <= x1; ++bx) {
-        for (int by = y0; by <= y1; ++by) {
-            for (int bz = z0; bz <= z1; ++bz) {
-                const double top = world.shape_top_at(bx, by, bz);
-                if (top <= 0.0 || !(b.max_x > bx && b.min_x < bx + 1 && b.max_z > bz && b.min_z < bz + 1)) {
-                    continue;
-                }
-                const double surface = static_cast<double>(by) + top;
-                if (surface <= from_y + 1e-12 && surface >= bottom_y - 1e-12 && surface > best) {
-                    best = surface;
-                }
-            }
-        }
-    }
-    return best;
+// The player's own body box: the shared `Box` shape (T-D40) with the player's
+// dimensions — fixed half width, pose-dependent height.
+[[nodiscard]] Box player_box(const PlayerState &s) {
+    return box_of(s.position, PlayerState::kHalfWidth, s.height());
 }
 
 // True when some solid block overlaps the box footprint one probe-layer below
@@ -206,73 +143,33 @@ void back_off_from_edge(const PlayerState &s, const IBlockSource &world, const P
     return n / clamped_n;
 }
 
-// Per-axis clamped moves (docs/research/03 §6.1: Y → X → Z). Each returns
-// the actually-moved delta; substep penetration is < 1 block, so clamping
-// against the single leading-edge block column/layer is sufficient.
+// Per-axis clamped moves (docs/research/03 §6.1: Y → X → Z). The geometry now
+// lives in `physics::sweep_axis_*` (T-D40) so the player and the entities move
+// through one implementation; what stays here is the player's own collision
+// RESPONSE — zeroing the velocity component that was just lost.
 double move_axis_y(PlayerState &s, const IBlockSource &world, double dy, bool &hit_ground, bool &hit_ceiling) {
-    if (dy == 0.0) {
-        return 0.0;
-    }
-    const double before = s.position.y;
-    s.position.y += dy;
-    if (!box_collides(world, box_of(s))) {
-        return s.position.y - before;
-    }
-    if (dy < 0.0) {
-        // Height-aware (T-D8): clamp onto the actual surface face, which for a
-        // partial block is below the full-block top. The box's own bottom keeps
-        // the search bounded to the layer it actually descended into.
-        const double surface = highest_surface_below(world, box_of(s), before, s.position.y);
-        s.position.y = surface >= 0.0 ? surface : static_cast<double>(static_cast<int>(std::floor(s.position.y))) + 1.0;
-        hit_ground = true;
-    } else {
-        const int by = static_cast<int>(std::floor(s.position.y + s.height()));
-        s.position.y = static_cast<double>(by) - s.height();
-        hit_ceiling = true;
-    }
-    return s.position.y - before;
+    const AxisSweep swept = sweep_axis_y(s.position, PlayerState::kHalfWidth, s.height(), world, dy);
+    hit_ground = hit_ground || swept.ground;
+    hit_ceiling = hit_ceiling || swept.ceiling;
+    return swept.delta;
 }
 
 double move_axis_x(PlayerState &s, const IBlockSource &world, double dx, bool &hit_wall) {
-    if (dx == 0.0) {
-        return 0.0;
+    const AxisSweep swept = sweep_axis_x(s.position, PlayerState::kHalfWidth, s.height(), world, dx);
+    if (swept.hit) {
+        s.velocity.x = 0.0;
+        hit_wall = true;
     }
-    const double before = s.position.x;
-    s.position.x += dx;
-    if (!box_collides(world, box_of(s))) {
-        return s.position.x - before;
-    }
-    if (dx > 0.0) {
-        const int bx = static_cast<int>(std::floor(s.position.x + PlayerState::kHalfWidth));
-        s.position.x = static_cast<double>(bx) - PlayerState::kHalfWidth;
-    } else {
-        const int bx = static_cast<int>(std::floor(s.position.x - PlayerState::kHalfWidth));
-        s.position.x = static_cast<double>(bx) + 1.0 + PlayerState::kHalfWidth;
-    }
-    s.velocity.x = 0.0;
-    hit_wall = true;
-    return s.position.x - before;
+    return swept.delta;
 }
 
 double move_axis_z(PlayerState &s, const IBlockSource &world, double dz, bool &hit_wall) {
-    if (dz == 0.0) {
-        return 0.0;
+    const AxisSweep swept = sweep_axis_z(s.position, PlayerState::kHalfWidth, s.height(), world, dz);
+    if (swept.hit) {
+        s.velocity.z = 0.0;
+        hit_wall = true;
     }
-    const double before = s.position.z;
-    s.position.z += dz;
-    if (!box_collides(world, box_of(s))) {
-        return s.position.z - before;
-    }
-    if (dz > 0.0) {
-        const int bz = static_cast<int>(std::floor(s.position.z + PlayerState::kHalfWidth));
-        s.position.z = static_cast<double>(bz) - PlayerState::kHalfWidth;
-    } else {
-        const int bz = static_cast<int>(std::floor(s.position.z - PlayerState::kHalfWidth));
-        s.position.z = static_cast<double>(bz) + 1.0 + PlayerState::kHalfWidth;
-    }
-    s.velocity.z = 0.0;
-    hit_wall = true;
-    return s.position.z - before;
+    return swept.delta;
 }
 
 // ── Step-assist (T-D8; docs/research/06 §6.3) ────────────────────────────────
@@ -320,11 +217,11 @@ constexpr double kStepGainEpsilon = 1e-12;
 // it. That is the classic way to get "no candidates, so no step".
 [[nodiscard]] std::vector<double> collect_step_candidates(const IBlockSource &world, const PlayerState &s,
                                                           const PhysicsConfig &cfg, double sweep_dx, double sweep_dz) {
-    const Box here = box_of(s);
+    const Box here = player_box(s);
     PlayerState moved = s;
     moved.position.x += sweep_dx;
     moved.position.z += sweep_dz;
-    const Box there = box_of(moved);
+    const Box there = player_box(moved);
     const Box b{std::min(here.min_x, there.min_x), std::min(here.min_y, there.min_y),
                 std::min(here.min_z, there.min_z), std::max(here.max_x, there.max_x),
                 std::max(here.max_y, there.max_y), std::max(here.max_z, there.max_z)};
@@ -394,7 +291,7 @@ struct SubMove {
 // contains nothing to stand on.
 [[nodiscard]] double settle_onto_surface(const IBlockSource &world, const PlayerState &s, double bottom_y,
                                          double from_y) {
-    Box b = box_of(s);
+    Box b = player_box(s);
     b.min_y = bottom_y; // only the footprint and the y-range matter here
     return highest_surface_below(world, b, from_y, bottom_y);
 }
@@ -429,7 +326,7 @@ void step_player(PlayerState &s, const InputState &in, const IBlockSource &world
     if (in.sneak) {
         s.pose = Pose::Sneaking;
     } else if (s.pose == Pose::Sneaking) {
-        Box standing = box_of(s);
+        Box standing = player_box(s);
         standing.max_y = s.position.y + PlayerState::kStandingHeight;
         if (!box_collides(world, standing)) {
             s.pose = Pose::Standing;

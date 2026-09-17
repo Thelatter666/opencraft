@@ -1,0 +1,53 @@
+== player branches ==
+X clamp (hit_x=1)                  164 tick(s)
+Z clamp (hit_z=1)                  56 tick(s)
+ceiling clamp (hit_y=1, no land)   16 tick(s)
+landing (landed=1)                 10 tick(s)
+step-assist fired (stepped=1)      1 tick(s)
+airborne ticks (g=0)               518
+sneaking ticks (pose=1)            122
+fall damage taken (hp≠20)        970  [hp=4034... = 20.0]
+
+== player case end states ==
+-- player case X wall clamp + jump -- ->    end g=1 pose=0 hp=4034000000000000
+-- player case ceiling clamp -- ->    end g=0 pose=0 hp=4034000000000000
+-- player case Z wall clamp -- ->    end g=1 pose=0 hp=4034000000000000
+-- player case step assist 0.5 -- ->    end g=0 pose=0 hp=4034000000000000
+-- player case land on 0.25 slab -- ->    end g=1 pose=0 hp=4034000000000000
+-- player case sneak edge -- ->    end g=1 pose=1 hp=4034000000000000
+-- player case ice sprint -- ->    end g=0 pose=0 hp=4034000000000000
+-- player case water swim -- ->    end g=0 pose=0 hp=4034000000000000
+-- player case void fall -- ->    end g=0 pose=0 hp=4034000000000000
+-- player case pose under ceiling -- ->    end g=1 pose=1 hp=4034000000000000
+-- player case pose under ceiling -- ->    end n=1
+-- player case pose under ceiling -- ->    end n=1
+-- player case pose under ceiling -- ->    end n=1
+-- player case pose under ceiling -- ->    end n=1
+-- player case pose under ceiling -- ->    end n=1
+-- player case pose under ceiling -- ->    end n=0
+
+== drop branches ==
+ ->    end g=1 pose=0 hp=4034000000000000
+ ->    end g=0 pose=0 hp=4034000000000000
+ ->    end g=1 pose=0 hp=4034000000000000
+ ->    end g=0 pose=0 hp=4034000000000000
+ ->    end g=1 pose=0 hp=4034000000000000
+ ->    end g=1 pose=1 hp=4034000000000000
+ ->    end g=0 pose=0 hp=4034000000000000
+ ->    end g=0 pose=0 hp=4034000000000000
+ ->    end g=0 pose=0 hp=4034000000000000
+ ->    end g=1 pose=1 hp=4034000000000000
+-- drop case drop onto plate -- ->    end n=1
+-- drop case drop onto 0.25 slab -- ->    end n=1
+-- drop case drop into corner -- ->    end n=1
+-- drop case drop on ice -- ->    end n=1
+-- drop case merge pair -- ->    end n=1
+-- drop case void fall -- ->    end n=0
+
+merge actually happened (a pair collapsed):
+n=0 n=1 n=2 
+0.25 slab landing face seen in output (y = 64.25 = 4050400000000000):
+0
+
+== determinism of the device ==
+lines:     1253   md5: 9f1da2e3fba0a0c38c130d47c3f5f3e5
