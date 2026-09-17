@@ -632,6 +632,79 @@ int main() {
             }
         }
 
+        // ── mobs (T-M2) ─────────────────────────────────────────────────────
+        // Two boxes per mob, through the same crack shader the drops use: a body
+        // of the mob's own collision box and a head cube offset along its facing.
+        // The head is what makes the AI visible - "the mob turned to look at me"
+        // is the LookAtPlayer goal's only output, and it is a simulation value
+        // (Entity::ai::yaw), not a render-side animation.
+        //
+        // ⚠ The look is a STAND-IN: the atlas tiles come from existing blocks
+        // (there is no mob texture set) and the body is a box (there is no model
+        // loader). See client::mob_skin. The numbers that matter - box size,
+        // position, facing - are the simulation's.
+        {
+            const srv::EntityStore &mobs_store = authority.entities();
+            const gam::EntityTypeRegistry &entity_types = authority.entity_types();
+            const gam::MobRegistry &mob_roster = authority.mobs();
+            const auto &blocks = authority.registry();
+            bool mob_pass_ready = false;
+            mobs_store.for_each_entity([&](const srv::Entity &mob) {
+                const gam::MobDef *def = mob_roster.find(mob.type);
+                if (def == nullptr) {
+                    return;
+                }
+                if (!mob_pass_ready) {
+                    crack_shader.use();
+                    glUniform1i(crack_shader.uniform_location("u_atlas"), 0);
+                    glUniform1f(crack_shader.uniform_location("u_tiles_per_row"), tiles_per_row);
+                    glUniform1f(crack_shader.uniform_location("u_texel"), texel);
+                    glUniform3f(crack_shader.uniform_location("u_offset"), 0.0f, 0.0f, 0.0f);
+                    glDisable(GL_CULL_FACE); // overlay winding is mirrored (see the crack pass)
+                    crack_vao.bind();
+                    mob_pass_ready = true;
+                }
+                const float yaw = static_cast<float>(mob.ai.yaw);
+                const glm::vec3 facing = glm::vec3(client::view_dir(yaw, 0.0));
+                const client::MobSkin skin = client::mob_skin(entity_types.string_of(mob.type));
+                const auto body_id = static_cast<float>(blocks.id_of(skin.body_block));
+                const auto head_id = static_cast<float>(blocks.id_of(skin.head_block));
+
+                const float half = static_cast<float>(def->physics.half_width);
+                const float height = static_cast<float>(def->physics.height);
+                // 1.0 because the shader's u_scale is a single scalar and a mob's
+                // box is not a cube: the non-uniform size goes in the model
+                // matrix instead.
+                glUniform1f(crack_shader.uniform_location("u_scale"), 1.0f);
+
+                const glm::vec3 feet = glm::vec3(mob.position);
+                const glm::vec3 body_centre = feet + glm::vec3(0.0f, height * 0.5f, 0.0f);
+                const glm::mat4 body_model = glm::translate(glm::mat4(1.0f), body_centre) *
+                                             glm::scale(glm::mat4(1.0f), glm::vec3(half * 2.0f, height, half * 2.0f)) *
+                                             glm::translate(glm::mat4(1.0f), glm::vec3(-0.5f));
+                const glm::mat4 body_mvp = projection * view * body_model;
+                glUniformMatrix4fv(crack_shader.uniform_location("u_mvp"), 1, GL_FALSE, &body_mvp[0][0]);
+                glUniform1f(crack_shader.uniform_location("u_tile"), body_id * 3.0f + 1.0f);
+                glDrawArrays(GL_TRIANGLES, 12, 24); // sides only: a mob has no top/bottom face texture
+
+                const float head_side = static_cast<float>(skin.head_scale) * half * 2.0f;
+                const glm::vec3 head_centre = feet + glm::vec3(0.0f, height - head_side * 0.5f, 0.0f) +
+                                              facing * static_cast<float>(skin.head_forward) * half * 2.0f;
+                const glm::mat4 head_model = glm::translate(glm::mat4(1.0f), head_centre) *
+                                             glm::scale(glm::mat4(1.0f), glm::vec3(head_side)) *
+                                             glm::translate(glm::mat4(1.0f), glm::vec3(-0.5f));
+                const glm::mat4 head_mvp = projection * view * head_model;
+                glUniformMatrix4fv(crack_shader.uniform_location("u_mvp"), 1, GL_FALSE, &head_mvp[0][0]);
+                glUniform1f(crack_shader.uniform_location("u_tile"), head_id * 3.0f + 0.0f);
+                glDrawArrays(GL_TRIANGLES, 0, 6); // top
+                glUniform1f(crack_shader.uniform_location("u_tile"), head_id * 3.0f + 1.0f);
+                glDrawArrays(GL_TRIANGLES, 12, 24); // sides
+            });
+            if (mob_pass_ready) {
+                glEnable(GL_CULL_FACE);
+            }
+        }
+
         // ── break particles (T009): depth-tested points, no depth writes ────
         {
             const double particles_now = glfwGetTime();

@@ -37,6 +37,10 @@ add_executable(opencraft_tests
     test_entity_store.cpp
     test_item_drop.cpp
     test_drop_authority.cpp
+    test_mob_goal.cpp
+    test_mob_ai.cpp
+    test_mob_spawn.cpp
+    test_mob_authority.cpp
 )
 
 # opencraft_worldgen PUBLIC-links opencraft_voxel and opencraft_noise;

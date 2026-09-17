@@ -1,0 +1,42 @@
+            // ══════════ TEMPORARY EVIDENCE HOOK (T-M2) ══════════════════════
+            // F6/F7/F8 put one mob of each launch type two blocks in front of the
+            // player, so the AI can be observed on-machine. It exists because the
+            // hostile half of the roster only spawns where the effective light is
+            // 0 (docs/01 §6) and this world has no day/night cycle yet, so the lit
+            // surface can never produce one - the natural spawner is what the
+            // passive evidence below shows, and the unit tests cover the hostile
+            // spawn conditions.
+            //
+            // REMOVED BEFORE THE COMMIT (this project's 打点->还原 rule for
+            // evidence): the shipped client has no such key. The patch is kept in
+            // docs/qa/T-M2-2026-09-18/ so the run can be reproduced.
+            {
+                static bool f6_prev = false;
+                static bool f7_prev = false;
+                static bool f8_prev = false;
+                const auto edge = [](GLFWwindow *win, const int key, bool &prev) {
+                    const bool down = glfwGetKey(win, key) == GLFW_PRESS;
+                    const bool rising = down && !prev;
+                    prev = down;
+                    return rising;
+                };
+                const auto summon = [&](const char *mob_id) {
+                    const glm::dvec3 facing = client::view_dir(view_yaw, 0.0);
+                    const glm::dvec3 spot = curr_state.position + facing * 2.0;
+                    const auto type = authority.entity_types().find_id(mob_id);
+                    if (type.has_value()) {
+                        const srv::EntityId id = authority.summon_mob(*type, spot);
+                        OC_LOG_INFO("EVIDENCE summon {} id={} at ({:.1f}, {:.1f}, {:.1f})", mob_id, id, spot.x,
+                                    spot.y, spot.z);
+                    }
+                };
+                if (edge(window, GLFW_KEY_F6, f6_prev)) {
+                    summon("mossback");
+                }
+                if (edge(window, GLFW_KEY_F7, f7_prev)) {
+                    summon("hollow_wretch");
+                }
+                if (edge(window, GLFW_KEY_F8, f8_prev)) {
+                    summon("blastbud");
+                }
+            }

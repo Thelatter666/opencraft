@@ -65,6 +65,15 @@ constexpr LaunchItem kLaunchItems[] = {
     {"ferrous_bloom", "Ferrous Bloom", kStackLimitLarge, EquipSlot::None, nullptr},
     {"rime_pearl", "Rime Pearl", kStackLimitMedium, EquipSlot::None, nullptr},
 
+    // Mob drops (T-M2): what a Mossback leaves behind. research/11 §6.1 gives
+    // the base game's counts for the equivalent drops (raw cut 1-3, hide 0-2)
+    // and §5.2 its nutrition (3 hunger / 1.8 saturation); the COUNTS are what
+    // the loot table uses, while the nutrition waits for the food card -
+    // ItemDef has no hunger fields yet and half-building that system here would
+    // be exactly the "已实现但不可达" pattern this project keeps paying for.
+    {"raw_haunch", "Raw Haunch", kStackLimitLarge, EquipSlot::None, nullptr},
+    {"sturdy_hide", "Sturdy Hide", kStackLimitLarge, EquipSlot::None, nullptr},
+
     // Tools of the first tier (docs/01 §5 names the tiers 木质/岩质/精铁/秘银/
     // 星钻; "timber" is that system's first tier). Durability/damage/harvest
     // level are not modelled yet -- these entries exist so the single-item

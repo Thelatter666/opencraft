@@ -1,5 +1,6 @@
 #include "tick.hpp"
 
+#include <algorithm>
 #include <cmath>
 
 // GLFW must not pull in a GL header of its own post-split (main.cpp does the
@@ -10,6 +11,7 @@
 
 #include "client_config.hpp"
 #include "opencraft/core/log.hpp"
+#include "opencraft/game/entity_pick.hpp"
 #include "opencraft/game/pickup.hpp"
 #include "opencraft/game/raycast.hpp"
 #include "opencraft/physics/auto_jump.hpp"
@@ -73,7 +75,11 @@ namespace {
 // wire - the authority derives the eye and re-checks the reach itself.
 [[nodiscard]] gam::ActorPose actor_pose(const TickContext &ctx) {
     const double eye_height = ctx.curr_state.pose == phy::Pose::Sneaking ? kEyeSneaking : kEyeStanding;
-    return gam::ActorPose{ctx.curr_state.position, ctx.curr_state.height(), eye_height};
+    gam::ActorPose pose{ctx.curr_state.position, ctx.curr_state.height(), eye_height};
+    // T-M2: the mobs need to know what the player is holding, because the tempt
+    // goal exists exactly while the breeding food is held and nothing is clicked.
+    pose.held_item = ctx.state.selected_stack.item;
+    return pose;
 }
 
 } // namespace
@@ -172,16 +178,79 @@ void run_tick(const TickContext &ctx) {
         }
         return id != 0 && !liquid; // liquids are not targetable
     };
-    const gam::VoxelRayHit hit =
-        gam::raycast_voxel(eye, view_dir(ctx.view_yaw, ctx.view_pitch), kReachDistance, ctx.world, filter);
+    const glm::dvec3 look = view_dir(ctx.view_yaw, ctx.view_pitch);
+    const gam::VoxelRayHit hit = gam::raycast_voxel(eye, look, kReachDistance, ctx.world, filter);
     ctx.state.has_target = hit.hit;
     ctx.state.target_pos = hit.block_pos;
+
+    // ── entity targeting (T-M2) ──────────────────────────────────────────
+    // The nearest mob whose box the view ray enters within ⚖ 3 blocks
+    // (research/11 §1.5.1's player melee reach, game::kAttackReach). Iterating
+    // the store's live ids rather than the entities themselves, because the ids
+    // are a snapshot: nothing below mutates the store before the pick is used.
+    {
+        ctx.state.picked_mob = srv::EntityStore::kNoEntity;
+        ctx.state.picked_mob_distance = 0.0;
+        const srv::EntityStore &entities = ctx.world.entities();
+        const gam::EntityTypeRegistry &types = ctx.world.entity_types();
+        const gam::MobRegistry &mobs = ctx.world.mobs();
+        for (const srv::EntityId id : entities.live_ids()) {
+            const srv::Entity *entity = entities.find(id);
+            if (entity == nullptr || mobs.find(entity->type) == nullptr) {
+                continue;
+            }
+            const gam::EntityDef &def = types.def_of(entity->type);
+            const auto [box_min, box_max] = srv::entity_box_corners(*entity, def);
+            const std::optional<double> distance = gam::ray_box_entry(eye, look, box_min, box_max);
+            if (!distance.has_value() || *distance > gam::kAttackReach) {
+                continue;
+            }
+            if (ctx.state.picked_mob == srv::EntityStore::kNoEntity || *distance < ctx.state.picked_mob_distance) {
+                ctx.state.picked_mob = id;
+                ctx.state.picked_mob_distance = *distance;
+            }
+        }
+    }
+    // Is the mob in front of the BLOCK the ray hit? If not, the block wins (the
+    // same nearest-hit rule the base game uses for a click).
+    const bool mob_in_front =
+        ctx.state.picked_mob != srv::EntityStore::kNoEntity && (!hit.hit || ctx.state.picked_mob_distance < hit.t);
 
     // ── mining ───────────────────────────────────────────────────────────
     const bool left_held = glfwGetMouseButton(ctx.window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS;
     const std::uint16_t target_id = hit.hit ? ctx.world.block_at(hit.block_pos.x, hit.block_pos.y, hit.block_pos.z) : 0;
-    const auto mining_tick = ctx.mining.tick(hit.block_pos, target_id, hit.hit, left_held);
-    if (left_held && hit.hit && !ctx.state.swinging) {
+    if (ctx.state.attack_cooldown > 0) {
+        --ctx.state.attack_cooldown;
+    }
+    // ── T-M2: a mob in front of the block turns a left click into an ATTACK ──
+    // The same "nearest hit wins" rule the base game applies to a click, and the
+    // reason the pick above compares distances. Digging is suspended while a mob
+    // is in front (its crack progress is reset), so aiming at a cow cannot also
+    // chew through the block behind it.
+    gam::MiningTickResult mining_tick;
+    if (mob_in_front) {
+        ctx.mining.reset();
+        ctx.state.crack_stage = -1;
+        if (left_held && ctx.state.attack_cooldown == 0) {
+            gam::ActionRequest attack;
+            attack.kind = gam::ActionKind::Attack;
+            attack.target = {static_cast<int>(ctx.state.picked_mob), 0, 0};
+            attack.actor = actor_pose(ctx);
+            const gam::ActionResult attack_result = ctx.authority.submit(attack);
+            if (attack_result.accepted) {
+                ctx.state.attack_cooldown = 12; // ⚖ docs/01 §4: ~1.6 swings/s
+                ctx.state.swinging = true;
+                ctx.state.swing_start = glfwGetTime();
+                OC_LOG_INFO("attacked mob {} at ({:.2f}, {:.2f}, {:.2f})", ctx.state.picked_mob,
+                            ctx.curr_state.position.x, ctx.curr_state.position.y, ctx.curr_state.position.z);
+            } else {
+                OC_LOG_WARN("attack refused on mob {}: {}", ctx.state.picked_mob, attack_result.reason());
+            }
+        }
+    } else {
+        mining_tick = ctx.mining.tick(hit.block_pos, target_id, hit.hit, left_held);
+    }
+    if (!mob_in_front && left_held && hit.hit && !ctx.state.swinging) {
         ctx.state.swinging = true;
         ctx.state.swing_start = glfwGetTime();
     }
@@ -245,7 +314,42 @@ void run_tick(const TickContext &ctx) {
     // broken item. Item use is therefore edge-triggered.
     const bool item_use = is_vessel_use(ctx.state.selected_use);
     const bool use_edge = !ctx.state.prev_right;
-    if (right_held && (ctx.state.place_cooldown == 0 || !ctx.state.prev_right)) {
+    // ── T-M2: feeding the picked mob ─────────────────────────────────────────
+    // The food test is local (the client reads the same roster the authority
+    // does) so a right click with a block in hand still places a block rather
+    // than asking to feed with the wrong item. The authority re-checks the item,
+    // the reach, adulthood and the cooldown - this only decides WHICH verb.
+    bool feeding = false;
+    if (mob_in_front && right_held && use_edge) {
+        const srv::Entity *picked = ctx.world.entities().find(ctx.state.picked_mob);
+        const gam::MobDef *picked_def = picked != nullptr ? ctx.world.mobs().find(picked->type) : nullptr;
+        const std::uint16_t held = ctx.state.selected_stack.item;
+        if (picked_def != nullptr && held != gam::ItemRegistry::kEmptyId && held == picked_def->tempt_item) {
+            gam::ActionRequest feed;
+            feed.kind = gam::ActionKind::Feed;
+            feed.target = {static_cast<int>(ctx.state.picked_mob), 0, 0};
+            feed.item_or_block = held;
+            feed.actor = actor_pose(ctx);
+            const gam::ActionResult feed_result = ctx.authority.submit(feed);
+            if (feed_result.accepted) {
+                // The stack is spent only after the verdict (the T-A1 ordering):
+                // a refused feed must not eat the item.
+                if (ctx.state.inventory.remove_from_slot(ctx.state.selected_slot, 1) == 1) {
+                    ctx.state.refresh_selection();
+                }
+                ctx.state.swinging = true;
+                ctx.state.swing_start = glfwGetTime();
+                OC_LOG_INFO("fed mob {} with item {}", ctx.state.picked_mob, held);
+            } else {
+                OC_LOG_WARN("feed refused on mob {}: {}", ctx.state.picked_mob, feed_result.reason());
+            }
+            feeding = true;
+            ctx.state.place_cooldown = 4; // the same retry rhythm the block path uses
+            ctx.state.swinging = true;
+            ctx.state.swing_start = glfwGetTime();
+        }
+    }
+    if (!feeding && right_held && (ctx.state.place_cooldown == 0 || !ctx.state.prev_right)) {
         if (hit.hit && (!item_use || use_edge)) {
             if (ctx.state.selected_use == ItemUse::PourVessel) {
                 // ── pour (T-F1) ──────────────────────────────────────────
@@ -408,9 +512,30 @@ void run_tick(const TickContext &ctx) {
     //    the rest of the simulation. The authority advances the fluid layer and
     //    pushes back every chunk it made stale; the client only collects them
     //    for the remesh pass (the same list the actions above pushed into).
+    // T-M2: the mob AI is the first system that has to notice the player without
+    // an action happening, so the pose goes over once per logic tick, before the
+    // authoritative step reads it.
+    ctx.authority.observe_actor(actor_pose(ctx));
     ctx.authority.tick();
     const gam::WorldChanges changes = ctx.authority.take_changes();
     ctx.dirty_chunks.insert(ctx.dirty_chunks.end(), changes.dirty_chunks.begin(), changes.dirty_chunks.end());
+
+    // ── what the mobs did to the player (T-M2) ───────────────────────────────
+    // The authority simulates the mobs but does not own the player's hit points
+    // (T-A1 kept the player out of its vocabulary), so the damage arrives as an
+    // event and is applied here, where the health that the HUD renders lives.
+    // ⚠ Deliberately NOT modelled: hurt invulnerability, armour, knockback and
+    // death - the player-combat card's work. Health floors at 0, and a player at
+    // 0 keeps playing (there is no death state yet).
+    for (const gam::ActorEvent &event : changes.actor_events) {
+        if (event.amount <= 0.0) {
+            continue;
+        }
+        ctx.curr_state.health = std::max(0.0, ctx.curr_state.health - event.amount);
+        OC_LOG_INFO("{} for {:.1f} at ({:.2f}, {:.2f}, {:.2f}); health now {:.1f}",
+                    event.kind == gam::ActorEventKind::Explosion ? "explosion" : "mob melee", event.amount,
+                    event.position.x, event.position.y, event.position.z, ctx.curr_state.health);
+    }
 
     // ── autosave cadence: 200 ticks = ~10 s of game time (T009) ──────────
     if (ctx.save.maybe_autosave_tick()) {

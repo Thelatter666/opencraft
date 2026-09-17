@@ -20,6 +20,17 @@ namespace opencraft::game {
 // client aims with it and the authoritative side re-checks it (T-A1).
 inline constexpr double kReachDistance = 4.5;
 
+// ⚖ research/11 §1.5.1: 玩家近战到达距离 3 格 (creative mode with a non-spear item
+// is 5). One copy for both ends, exactly like kReachDistance: the client picks its
+// target with it and the authority re-checks it against its own entity boxes.
+inline constexpr double kAttackReach = 3.0;
+
+// ⚖ A bare-handed hit does 1 damage. It is deliberately not on the item: ItemDef
+// has no attack field yet, and tool damage (docs/01 §5's 剑伤 4→8) is a
+// player-combat card's work. What this enables is the passive roster's drops -
+// without a damage channel of some kind, "掉落食物" would be unreachable.
+inline constexpr double kPunchDamage = 1.0;
+
 // What the client asks the authoritative side to do - one entry per
 // world-changing player action in T-A1's scope.
 //
@@ -45,6 +56,25 @@ enum class ActionKind : std::uint8_t {
     // holds it - the same read-then-spend ordering place_one_block uses - and
     // only asks once its own dry run says the stack fits.
     PickUp,
+    // ── T-M2 mobs (appended; every earlier verb keeps its meaning) ─────────
+    // Hit the mob whose entity id is in `target.x`. `target.y/z` unused; the
+    // authority re-checks the reach (research/11 §1.5.1: 玩家近战到达距离 3 格)
+    // and the mob's own collision box, so the client cannot hit from further
+    // away than it can see.
+    //
+    // This is the minimum damage channel that makes the passive roster's drops
+    // REACHABLE: the card asks for a passive mob that 掉落食物, and a loot table
+    // nothing can trigger would be the "implemented but unreachable" pattern
+    // this project keeps paying for. The full attack system (swing speed, the
+    // 84.8% damage ramp, crits, knockback, armour) is a player-combat card's
+    // work - this verb is bare-handed damage and nothing more.
+    Attack,
+    // Hand one unit of the held food to the mob whose entity id is in
+    // `target.x`; `item_or_block` carries the item id the client believes it is
+    // holding, re-checked here for the same reason PickUp re-checks its item.
+    // The authority decides whether that item tempts that species, whether the
+    // mob is an adult, and whether its breeding cooldown has elapsed.
+    Feed,
 };
 
 // The actor geometry the authority validates against. Value data on purpose:
@@ -54,6 +84,13 @@ struct ActorPose {
     glm::dvec3 feet{0.0, 0.0, 0.0}; // feet centre, same convention as PlayerState::position
     double height = 1.8;            // current pose height (1.8 standing / 1.5 sneaking)
     double eye_height = 1.62;       // eye above the feet; the authority derives the eye itself
+    // What the actor is holding (T-M2). It is part of the pose rather than of a
+    // request because the mob rules need it PER TICK and without an action: the
+    // tempt goal exists precisely when the player is holding the breeding food
+    // and is NOT clicking anything. The inventory itself is still the client's
+    // (T-A1); this is the one item id the authority is told about, and it is
+    // re-checked wherever it leads to a world change (the Feed verb).
+    std::uint16_t held_item = 0;
 };
 
 struct ActionRequest {
@@ -84,6 +121,13 @@ enum class ActionReject : std::uint8_t {
     PickupDelayActive,  // the drop's ⚖ pickup delay (10 ticks natural) has not elapsed
     OutOfPickupRange,   // outside the actor's pick-up box (game/pickup.hpp)
     EntityNotLoaded,    // the drop's chunk is not in memory: its timers are paused
+    // ── T-M2 Attack / Feed (appended; every earlier code keeps its value) ────
+    NotAMob,          // the entity exists but is not a mob (a drop is not a target)
+    OutOfAttackRange, // outside the player's melee reach (research/11 §1.5.1)
+    NotBreedable,     // that mob species is never tempted (no breeding food)
+    WrongFood,        // the held item is not what tempts this species
+    MobNotAdult,      // a baby cannot breed
+    BreedingCooldown, // the mob is still on its ⚖ 5-minute breeding cooldown
 };
 
 [[nodiscard]] const char *action_reject_reason(ActionReject reject);
@@ -94,6 +138,28 @@ struct ActionResult {
 
     // Human-readable form of `reject`; "" while accepted.
     [[nodiscard]] const char *reason() const { return action_reject_reason(reject); }
+};
+
+// What happened to the player, in the one place both ends can name it.
+enum class ActorEventKind : std::uint8_t {
+    MeleeHit = 0, // a mob's melee attack landed on the player
+    Explosion,    // a mob detonated (amount is the blast damage at the player)
+};
+
+// Something the simulation did TO the player, worth telling the client about
+// (T-M2). Value data, so it survives the M3 wire unchanged.
+//
+// The player's hit points live on the client (T-A1 kept the player out of this
+// vocabulary: 库存/血量上收 is M3 work), so a mob cannot subtract them where the
+// mobs are simulated. Instead the authority reports the event and the client,
+// which owns the health it renders, applies it. That asymmetry is temporary and
+// deliberate - it is the same split T-E1 used for PickUp, pointing the other
+// way.
+struct ActorEvent {
+    ActorEventKind kind = ActorEventKind::MeleeHit;
+    glm::dvec3 position{0.0, 0.0, 0.0}; // where it happened (impact / blast centre)
+    double amount = 0.0;                // damage to apply, already difficulty-scaled
+    std::uint16_t source_type = 0;      // the mob's entity type id (for feedback)
 };
 
 // Authoritative -> client push-back, drained once per tick: the derived work
@@ -108,9 +174,18 @@ struct WorldChanges {
     // Chunks whose baked mesh is stale (own chunk + light/fluid neighbors).
     std::vector<std::pair<int, int>> dirty_chunks;
 
-    void clear() { dirty_chunks.clear(); }
+    // T-M2: things that happened to the player this tick. Appended next to the
+    // dirty list rather than in it, because the two are consumed by different
+    // code (meshing vs the client's own health) and one is a mesh hint while
+    // the other is a game rule.
+    std::vector<ActorEvent> actor_events;
 
-    [[nodiscard]] bool empty() const { return dirty_chunks.empty(); }
+    void clear() {
+        dirty_chunks.clear();
+        actor_events.clear();
+    }
+
+    [[nodiscard]] bool empty() const { return dirty_chunks.empty() && actor_events.empty(); }
 };
 
 // ── world streaming (T-D4) ──────────────────────────────────────────────────
@@ -191,6 +266,21 @@ public:
     // chunk loading, chunk releasing or the autosave pass itself: those are
     // world management, and the world belongs to the authority.
     [[nodiscard]] virtual StreamResult stream(const StreamRequest &req) = 0;
+
+    // Where the player is, for the systems that have to notice them (T-M2).
+    //
+    // The five verbs above are all EVENT driven - they happen when the player
+    // does something. Mob AI is not: a mob has to see the player every tick it
+    // is awake, whether or not the player pressed anything, so the authority
+    // needs the viewer's pose as a per-tick input. The client already computes
+    // exactly this on every logic tick (it is the same ActorPose it attaches to
+    // each ActionRequest), and M3's player-input packet carries the same fields
+    // - so this verb is where the network's "player state" message will land.
+    //
+    // It has a default empty body, so an IAuthority that has no mobs to feed
+    // does not have to care: nothing happens to a world whose mobs never learn
+    // where the player is.
+    virtual void observe_actor(const ActorPose &pose) { (void) pose; }
 };
 
 } // namespace opencraft::game

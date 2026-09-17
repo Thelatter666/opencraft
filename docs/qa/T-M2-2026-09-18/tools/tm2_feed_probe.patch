@@ -1,0 +1,59 @@
+    // TEMPORARY EVIDENCE PROBE (T-M2): the selected cell, as a slow heartbeat, so
+    // the driving script can VERIFY a hotbar press landed instead of assuming it.
+    {
+        static int heartbeat = 0;
+        if (++heartbeat % 20 == 0) {
+            OC_LOG_INFO("EVIDENCE held={} slot={}", ctx.state.selected_stack.item, ctx.state.selected_slot);
+        }
+    }
+
+    // TEMPORARY EVIDENCE PROBE (T-M2): what the aim machine sees on a right click.
+    if (glfwGetMouseButton(ctx.window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS && !ctx.state.prev_right) {
+        const srv::Entity *probe = ctx.world.entities().find(ctx.state.picked_mob);
+        double nearest = -1.0;
+        double best = 1e9;
+        const srv::EntityStore &all = ctx.world.entities();
+        for (const srv::EntityId id : all.live_ids()) {
+            const srv::Entity *e = all.find(id);
+            if (e == nullptr || ctx.world.mobs().find(e->type) == nullptr) {
+                continue;
+            }
+            const auto [lo, hi] = srv::entity_box_corners(*e, ctx.world.entity_types().def_of(e->type));
+            if (const auto d = gam::ray_box_entry(eye, look, lo, hi); d.has_value() && *d < best) {
+                best = *d;
+                nearest = *d;
+            }
+        }
+        const double pitch_deg = ctx.view_pitch * 180.0 / 3.141592653589793;
+        OC_LOG_INFO("EVIDENCE rclick picked={} picked_dist={:.2f} block_hit={} t={:.2f} mob_in_front={} held={} "
+                    "nearest_mob_raydist={:.2f} pitch_deg={:.1f} probe_ptr={}",
+                    ctx.state.picked_mob, ctx.state.picked_mob_distance, hit.hit, hit.t, mob_in_front,
+                    ctx.state.selected_stack.item, nearest, pitch_deg, probe != nullptr ? 1 : 0);
+        // The nearest mob by plain distance, with the AI state that decides whether
+        // it should be walking over: this is what tells the two hypotheses apart
+        // (mob not there / mob there but not tempted).
+        double closest = 1e9;
+        const srv::Entity *near = nullptr;
+        for (const srv::EntityId id : all.live_ids()) {
+            const srv::Entity *e = all.find(id);
+            if (e == nullptr || ctx.world.mobs().find(e->type) == nullptr) {
+                continue;
+            }
+            const double d = glm::length(e->position - eye);
+            if (d < closest) {
+                closest = d;
+                near = e;
+            }
+        }
+        if (near != nullptr) {
+            OC_LOG_INFO("EVIDENCE nearest_mob type={} pos=({:.2f},{:.2f},{:.2f}) dist={:.2f} goals={} "
+                        "target={} actor_dist={:.2f} sees={} move_target={} has_move={}",
+                        ctx.world.entity_types().string_of(near->type), near->position.x, near->position.y,
+                        near->position.z, closest, near->ai.running_goals, near->ai.target,
+                        near->ai.actor_distance, near->ai.sees_actor, near->ai.move_target.z,
+                        near->ai.has_move_target ? 1 : 0);
+        } else {
+            OC_LOG_INFO("EVIDENCE nearest_mob none");
+        }
+    }
+
