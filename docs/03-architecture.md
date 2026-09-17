@@ -152,6 +152,7 @@ EMPTY → GENERATING(地形/装饰) → LIGHTING → MESHING → LIVE
 | 数学 | glm | MIT |
 | ECS | EnTT | MIT |
 | 噪声 | FastNoiseLite | MIT |
+| 贴图/图标 PNG 解码（美术资产，T-A2） | stb_image | public domain（源码头部自述） |
 | 脚本嵌入（后期） | sol2 + Lua | MIT |
 | 压缩 | zstd | BSD |
 | 日志 | spdlog | MIT |

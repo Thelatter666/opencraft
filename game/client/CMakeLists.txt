@@ -1,9 +1,31 @@
 find_package(OpenGL REQUIRED)
 
+# T-A2: the atlas generator and the external art-asset loader live in their own
+# static library. Neither file touches GL or GLFW, so tests/test_asset_atlas.cpp
+# links the exact code the client runs instead of a second copy of it.
+add_library(opencraft_client_assets STATIC
+    src/atlas.cpp
+    src/asset_atlas.cpp
+)
+
+target_include_directories(opencraft_client_assets PUBLIC src)
+
+# stb_image: single-header public-domain PNG decoder, consumed only by
+# asset_atlas.cpp. SYSTEM keeps its warnings out of our zero-warning build, the
+# same treatment FastNoiseLite gets in engine/noise.
+target_include_directories(opencraft_client_assets SYSTEM PRIVATE ${stb_SOURCE_DIR})
+
+target_link_libraries(opencraft_client_assets PUBLIC opencraft_render opencraft_core)
+
+if(MSVC)
+    target_compile_options(opencraft_client_assets PRIVATE /W4)
+else()
+    target_compile_options(opencraft_client_assets PRIVATE -Wall -Wextra -Wpedantic)
+endif()
+
 add_executable(opencraft
     src/main.cpp
     src/world.cpp
-    src/atlas.cpp
     src/shaders.cpp
     src/bitmap_font.cpp
     src/cube_geometry.cpp
@@ -25,7 +47,9 @@ set_target_properties(opencraft PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINA
 # the voxel layer). opencraft_storage is the T009 persistence layer.
 # opencraft_sim is the T-A1 authoritative side: the client owns it and drives
 # it in-process, but reaches its world only through the read-only view.
+# opencraft_client_assets owns atlas.cpp / asset_atlas.cpp (T-A2).
 target_link_libraries(opencraft PRIVATE
+    opencraft_client_assets
     opencraft_game
     opencraft_worldgen
     opencraft_render

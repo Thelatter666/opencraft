@@ -1,0 +1,20 @@
+[2026-09-18 04:34:37.901] [info] OpenCraft 0.1.0 starting
+[2026-09-18 04:34:37.993] [info] GL 4.1 Metal - 89.4 / glad loaded
+[2026-09-18 04:34:37.993] [info] save: no level.ocd, new world with seed 0x4f50454e43524146
+[2026-09-18 04:34:38.214] [info] startup gen: 25 chunks, total 220.5 ms, avg 8.82 ms/chunk
+[2026-09-18 04:34:38.214] [info] spawn scan: surface at (0.5, 132.0, 0.5)
+[2026-09-18 04:34:38.214] [info] respawn point: (0.5, 132.0, 0.5)
+[2026-09-18 04:34:38.214] [info] atlas: 1/63 block tiles loaded from ../assets/blocks
+[2026-09-18 04:34:38.214] [info] atlas: 144x144 px, 9 tiles/row, crack tiles at 63
+[2026-09-18 04:34:39.825] [info] mob mossback spawned at (-94.9, 133.0, -44.0) in chunk (-6, -3)
+[2026-09-18 04:34:39.825] [info] mob mossback spawned at (-93.5, 133.0, -39.3) in chunk (-6, -3)
+[2026-09-18 04:34:39.825] [info] mob mossback spawned at (-95.2, 133.0, -41.4) in chunk (-6, -3)
+[2026-09-18 04:34:39.825] [info] mob mossback spawned at (-94.2, 132.0, -24.1) in chunk (-6, -2)
+[2026-09-18 04:34:39.825] [info] mob mossback spawned at (-92.3, 132.0, -26.4) in chunk (-6, -2)
+[2026-09-18 04:34:40.239] [info] fps 45.0 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-18 04:34:40.457] [info] mob mossback spawned at (-102.1, 133.0, -45.1) in chunk (-7, -3)
+[2026-09-18 04:34:40.458] [info] mob mossback spawned at (-98.9, 133.0, -46.2) in chunk (-7, -3)
+[2026-09-18 04:34:42.256] [info] fps 92.0 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-18 04:34:42.938] [info] mob blastbud spawned at (-57.8, 42.0, 68.3) in chunk (-4, 4)
+[2026-09-18 04:34:44.271] [info] fps 95.2 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-18 04:34:46.277] [info] fps 93.7 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
