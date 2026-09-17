@@ -1,0 +1,36 @@
+[2026-09-18 06:47:34.671] [info] OpenCraft 0.1.0 starting
+[2026-09-18 06:47:34.757] [info] GL 4.1 Metal - 89.4 / glad loaded
+[2026-09-18 06:47:34.758] [info] save: loaded level.ocd (seed=0x4f50454e43524146, ticks=6765, player=(29.60, 145.00, -57.39), hp=13.0)
+[2026-09-18 06:47:34.771] [info] chunk (-1, 0) loaded from disk
+[2026-09-18 06:47:34.775] [info] chunk (0, -1) loaded from disk
+[2026-09-18 06:47:34.797] [info] chunk (-1, -1) loaded from disk
+[2026-09-18 06:47:34.829] [info] chunk (-2, 0) loaded from disk
+[2026-09-18 06:47:34.868] [info] chunk (-2, -1) loaded from disk
+[2026-09-18 06:47:34.958] [info] startup gen: 25 chunks, total 200.0 ms, avg 8.00 ms/chunk
+[2026-09-18 06:47:34.958] [info] respawn point: (0.5, 133.0, -8.5)
+[2026-09-18 06:47:34.959] [info] atlas: 0/63 block tiles loaded from ../assets/blocks
+[2026-09-18 06:47:34.959] [info] atlas: 144x144 px, 9 tiles/row, crack tiles at 63
+[2026-09-18 06:47:35.669] [info] chunk (-3, -1) loaded from disk
+[2026-09-18 06:47:35.913] [info] chunk (-3, 0) loaded from disk
+[2026-09-18 06:47:36.284] [info] chunk (6, 0) loaded from disk
+[2026-09-18 06:47:36.564] [info] chunk (7, 0) loaded from disk
+[2026-09-18 06:47:36.666] [info] mob mossback spawned at (-83.3, 135.0, -56.1) in chunk (-6, -4)
+[2026-09-18 06:47:36.666] [info] mob mossback spawned at (-92.3, 133.0, -29.8) in chunk (-6, -3)
+[2026-09-18 06:47:36.666] [info] mob mossback spawned at (-87.8, 133.0, -33.0) in chunk (-6, -3)
+[2026-09-18 06:47:36.666] [info] mob mossback spawned at (-87.6, 133.0, -33.6) in chunk (-6, -3)
+[2026-09-18 06:47:36.666] [info] mob mossback spawned at (-90.0, 133.0, -33.6) in chunk (-6, -3)
+[2026-09-18 06:47:36.984] [info] fps 46.5 | pos (29.60, 145.00, -57.39) | chunks 113 | stream-meshed 104
+[2026-09-18 06:47:37.153] [info] mob mossback spawned at (-91.5, 132.0, -71.7) in chunk (-6, -5)
+[2026-09-18 06:47:37.153] [info] mob mossback spawned at (-92.7, 132.0, -67.6) in chunk (-6, -5)
+[2026-09-18 06:47:38.993] [info] fps 92.8 | pos (29.60, 145.00, -57.39) | chunks 113 | stream-meshed 104
+[2026-09-18 06:47:41.007] [info] fps 85.7 | pos (29.60, 145.00, -57.39) | chunks 113 | stream-meshed 104
+[2026-09-18 06:47:41.716] [info] mob blastbud spawned at (5.2, 115.0, -81.7) in chunk (0, -6)
+[2026-09-18 06:47:41.716] [info] mob blastbud spawned at (6.4, 115.0, -81.4) in chunk (0, -6)
+[2026-09-18 06:47:42.986] [info] mob hollow_wretch spawned at (46.1, 65.0, -108.6) in chunk (2, -7)
+[2026-09-18 06:47:42.986] [info] mob hollow_wretch spawned at (43.0, 65.0, -110.4) in chunk (2, -7)
+[2026-09-18 06:47:42.986] [info] mob hollow_wretch spawned at (43.2, 65.0, -111.7) in chunk (2, -7)
+[2026-09-18 06:47:43.014] [info] fps 94.9 | pos (29.60, 145.00, -57.39) | chunks 113 | stream-meshed 104
+[2026-09-18 06:47:45.014] [info] fps 95.4 | pos (29.60, 145.00, -57.39) | chunks 113 | stream-meshed 104
+[2026-09-18 06:47:45.723] [info] mob blastbud spawned at (110.0, 109.0, -118.1) in chunk (6, -8)
+[2026-09-18 06:47:47.028] [info] fps 95.7 | pos (29.60, 145.00, -57.39) | chunks 113 | stream-meshed 104
+[2026-09-18 06:47:47.139] [info] autosave: 0 chunk(s) queued for async write, level written (ticks=6964)
