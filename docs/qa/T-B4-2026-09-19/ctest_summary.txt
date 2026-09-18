@@ -1,0 +1,5 @@
+459/459 Test #459: worldgen generator is thread safe ..............................................................   Passed    0.02 sec
+
+100% tests passed out of 459
+
+Total Test time (real) =   7.80 sec

@@ -1,0 +1,32 @@
+with-assets log : docs/qa/T-B4-2026-09-19/run1_startup_with_assets.log
+no-mobs log     : docs/qa/T-B4-2026-09-19/run2_startup_no_mobs_dir.log
+reference log   : /Users/happy/Desktop/opencraft/docs/qa/T-B5-2026-09-18/run1_startup_with_assets.log
+reference log   : /Users/happy/Desktop/opencraft/docs/qa/T-B5-2026-09-18/pm_verify/pm_run_with_assets.log
+
+== 1. 本卡日志的满额与三行 ==
+  load line   : mobs: 3/3 mob models loaded from ../assets/mobs
+  -> exactly 'mobs: 3/3 mob models loaded from ../assets/mobs': True
+  model lines : 3
+    mob model mossback: 705 voxels, 1544 triangles, 7 joints, 1.4 blocks tall, palette from palettes/mossback.png
+    mob model hollow_wretch: 496 voxels, 1592 triangles, 6 joints, 1.8 blocks tall, palette from palettes/hollow_wretch.png
+    mob model blastbud: 510 voxels, 1084 triangles, 6 joints, 1.7 blocks tall, palette from palettes/blastbud.png
+  -> blastbud line == expected: True
+
+== 2. Mossback / hollow_wretch 两行零回归 ==
+  mossback: mine = mob model mossback: 705 voxels, 1544 triangles, 7 joints, 1.4 blocks tall, palette from palettes/mossback.png
+    vs /Users/happy/Desktop/opencraft/docs/qa/T-B5-2026-09-18/run1_startup_with_assets.log: IDENTICAL
+    vs /Users/happy/Desktop/opencraft/docs/qa/T-B5-2026-09-18/pm_verify/pm_run_with_assets.log: IDENTICAL
+  hollow_wretch: mine = mob model hollow_wretch: 496 voxels, 1592 triangles, 6 joints, 1.8 blocks tall, palette from palettes/hollow_wretch.png
+    vs /Users/happy/Desktop/opencraft/docs/qa/T-B5-2026-09-18/run1_startup_with_assets.log: IDENTICAL
+    vs /Users/happy/Desktop/opencraft/docs/qa/T-B5-2026-09-18/pm_verify/pm_run_with_assets.log: IDENTICAL
+
+== 3. [warning] / [error] 计数 ==
+  docs/qa/T-B4-2026-09-19/run1_startup_with_assets.log: 0 warning/error line(s)
+  docs/qa/T-B4-2026-09-19/run2_startup_no_mobs_dir.log: 0 warning/error line(s)
+
+== 4. 移走 assets/mobs/ 的对照 ==
+  load line   : mobs: 0/3 mob models loaded from ../assets/mobs
+  -> exactly 'mobs: 0/3 mob models loaded from ../assets/mobs': True
+  mob model lines: 0 (must be 0)
+
+RESULT: ALL PASS
