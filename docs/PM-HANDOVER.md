@@ -146,8 +146,10 @@ HEAD 13896c8 · 438/438 测试 · 60 张贴图 · 工作区干净
   "构建通过 + 测试全绿（旧代码）"完全掩盖。判据：两树 `git status` 一脏一净。
 - 验收后 PM 清理：`git worktree remove <dir>`（分支保留）。
   删前必查：`git status --porcelain` 为空 + 已 merged main。
-- **同名 worktree 会撞车**：T-M2 遗留了一个 `T-M2-mob-ai`（分支名 `taskT-M2` 拼写异常），
-  已合入但用户未授权删除，**保留未动**（如需清理先问用户）。
+- **同名 worktree 会撞车**：T-M2 遗留树 `T-M2-mob-ai`（分支名 `taskT-M2` 拼写异常）**已于
+  2026-09-18 按用户指令清掉**（三判据=已合入/干净/证据在仓；分支保留）。
+  ⇒ 常设规则见 `docs/05 §6`「收口即清」：每卡收口当场清 worktree 与 `opencraft_scratch/`
+  验证树，长驻白名单只有主仓 `build/` 与小体量可复用二进制（`ti2input`）。
 
 ### 6.3 写卡面
 - **引用 `file:line` 前必须现数**（`wc -l` / `grep -n`）。**行号会因后续卡移位**——

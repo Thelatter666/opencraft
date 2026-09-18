@@ -383,6 +383,23 @@ git worktree add /Users/happy/Desktop/opencraft_worktree/opencraft-<task> task/T
 - 任务验收后由 PM 清理：`git worktree remove <dir>`（只删工作目录，**分支与历史保留**）。
 - 卡面必须写明本规则（见 `docs/tasks/README.md` 规则 5：路径写完整绝对路径）。
 
+### ★ 收口即清：worktree 与验证工作区的常设清理规则（用户 2026-09-18 指令）
+
+清理对象两处：① `/Users/happy/Desktop/opencraft_worktree/`（任务 worktree）；
+② `/Users/happy/Desktop/opencraft_scratch/`（PM 验收用的验证树/装置工作区，替代 `/tmp` 的持久盘）。
+
+1. **每卡收口当场清**（默认动作，不是"想起来再清"）：裁决落盘 + 合入后，按三判据删对应
+   worktree——**已合入**（`git merge-base --is-ancestor <tip> main`）、**工作树干净**
+   （`git status --porcelain` 空）、**证据已入仓**（报告与 `docs/qa/` 随分支合入，无 `/tmp` 孤儿件）。
+   scratch 里的验证树直接 `rm -rf`（其重建法写在对应 qa README）。
+2. **收口轮盘点**：`git worktree list` + `du -sh` 两目录，凡不属于**在途卡**的一律按三判据清掉。
+   长驻白名单只有两样：主仓 `build/`（真人验收入口，不可删）与小体量可复用二进制
+   （如注入工具 `ti2input`，~50 KB，源码在 `docs/qa/T-D40-*/tools/` 可重建）。
+3. **分支拼写异常不构成保留理由**（如历史遗留 `taskT-M2`）——去留只认三判据。
+4. `/tmp` **不得充当跨轮工作区**（2026-09-18 系统中途清空一次，三棵验证树+装置+夹具全丢，
+   当天重建损失 ≈3 次全量构建；救回全靠"装置原件当轮已提交进 git"）。
+5. T-M2 遗留树 `T-M2-mob-ai` 已于 2026-09-18 按本规则清掉（交接文档里"未授权保留"的旧条目同步更正）。
+
 ## 7. 跨 agent 派发（2026-09-14 起）
 
 开发者不必在同一个 agent 里跑。实测环境事实：agentmemory 后端（`iii` + `/Users/happy/data/iii-config.yaml`）
