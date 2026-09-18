@@ -38,6 +38,7 @@ assets/CREDITS.md
 assets/mobs/hollow_wretch.vox
 assets/mobs/mossback.vox
 assets/palettes/hollow_wretch.png
+assets/palettes/mossback.png
 docs/art/01-style-guide.md
 docs/qa/T-B5-2026-09-18/ctest_summary.txt
 docs/qa/T-B5-2026-09-18/inspect_hollow_wretch_v4.txt
@@ -51,6 +52,8 @@ docs/qa/T-B5-2026-09-18/renders/hollow_wretch-v4_contact_sheet.png
 docs/qa/T-B5-2026-09-18/renders/hollow_wretch-v4_gamecam.png
 docs/qa/T-B5-2026-09-18/renders/hollow_wretch-v4_silhouette.png
 docs/qa/T-B5-2026-09-18/renders/hollow_wretch-v5_contact_sheet.png
+docs/qa/T-B5-2026-09-18/renders/hollow_wretch-v5_face.png
+docs/qa/T-B5-2026-09-18/renders/hollow_wretch-v5_front_big.png
 docs/qa/T-B5-2026-09-18/renders/hollow_wretch-v5_gamecam.png
 docs/qa/T-B5-2026-09-18/renders/hollow_wretch-v5_silhouette.png
 docs/qa/T-B5-2026-09-18/renders/mossback_gamecam_ab.png
@@ -58,13 +61,18 @@ docs/qa/T-B5-2026-09-18/renders/mossback-v4_contact_sheet.png
 docs/qa/T-B5-2026-09-18/renders/mossback-v4_gamecam.png
 docs/qa/T-B5-2026-09-18/renders/mossback-v4_silhouette.png
 docs/qa/T-B5-2026-09-18/renders/mossback-v5_contact_sheet.png
+docs/qa/T-B5-2026-09-18/renders/mossback-v5_face.png
+docs/qa/T-B5-2026-09-18/renders/mossback-v5_front_big.png
 docs/qa/T-B5-2026-09-18/renders/mossback-v5_gamecam.png
 docs/qa/T-B5-2026-09-18/renders/mossback-v5_silhouette.png
+docs/qa/T-B5-2026-09-18/renders/mv_hollow_wretch_v5.png
+docs/qa/T-B5-2026-09-18/renders/mv_mossback_v5.png
 docs/qa/T-B5-2026-09-18/renders/v4/hollow_wretch.vox
 docs/qa/T-B5-2026-09-18/renders/v4/mossback.vox
 docs/qa/T-B5-2026-09-18/run1_startup_with_assets.log
 docs/qa/T-B5-2026-09-18/run2_startup_no_mobs_dir.log
 docs/qa/T-B5-2026-09-18/tools/check_palette_png.py
+docs/qa/T-B5-2026-09-18/tools/face_closeup.py
 docs/qa/T-B5-2026-09-18/tools/hollow_wretch_layers.txt
 docs/qa/T-B5-2026-09-18/tools/hollow_wretch_palette.txt
 docs/qa/T-B5-2026-09-18/tools/mossback_layers.txt
