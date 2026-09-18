@@ -72,7 +72,7 @@ docs/tasks/T-B5.report.md
 全部落在卡面 §3 白名单内：两个 `.vox`、两个调色板 PNG、`assets/CREDITS.md`、
 `docs/art/01-style-guide.md`（只改 §9 与变更记录）、`docs/qa/T-B5-<日期>/`、`docs/tasks/T-B5.report.md`。
 **T-B1/T-B2/T-B2b/T-B3 的目录与文件一字未动**（`git diff main...HEAD -- docs/qa/T-B1-* docs/qa/T-B2* docs/qa/T-B3-*` 输出为空；
-v4 旧件是 `git show HEAD:…` 拷进**本卡证据目录**的只读副本，见 §5.2）。
+v4 旧件是 `git show ba2f920:…`（分支基线）拷进**本卡证据目录**的只读副本，见 §5.2，md5 已核）。
 
 ## 3. 日志判据（验收标准 2）
 
@@ -260,7 +260,7 @@ max saturation over painted cells: 0.471 (cap 0.50)
 ### 5.2 旧版对照读数（证明"独立复查器与产品码同口径"）
 
 `inspect_mossback_v4.txt` / `inspect_hollow_wretch_v4.txt` 是用**同一份工具**跑
-`git show HEAD:assets/mobs/*.vox` 的读数：
+`git show ba2f920:assets/mobs/*.vox`（分支基线；md5 mossback `9215d2be…`、wretch `6b5dc511…`）的读数：
 
 | 模型 | 工具读数 | 产品码日志（T-B2b / T-B3 期） |
 |---|---|---|

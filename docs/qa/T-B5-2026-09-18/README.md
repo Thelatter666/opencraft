@@ -53,7 +53,7 @@ python3 docs/qa/T-B5-2026-09-18/tools/check_palette_png.py "$PWD"
 | `mossback-v5_gamecam.png` / `hollow_wretch-v5_gamecam.png` | 单张游戏机位出图（非正交，见报告 §5 的机器自证） |
 | `*-v5_contact_sheet.png` | 正交五视图：侧视(鼻在右) / 正视 / 俯视 / 等轴 / 等轴-关节分色 |
 | `*-v5_silhouette.png` | 剪影（只留轮廓，用来看"四条腿 + 一个头 + 背上有苔"是否一眼可读） |
-| `v4/*.vox` | 旧版资产的**只读副本**，来源：`git show HEAD:assets/mobs/<name>.vox`（基线 `ba2f920`）。放这里只为让对照图可一键复跑，不是交付物 |
+| `v4/*.vox` | 旧版资产的**只读副本**，来源：`git show ba2f920:assets/mobs/<name>.vox`（分支基线 = 派发时点的 main tip）。md5 已核：mossback `9215d2bef3333821c07c83b20aa1c360`、hollow_wretch `6b5dc511340220c4de29f279389fb16d`，与基线提交逐字节相同。⚠ **取件必须写基线 SHA，不能写 `HEAD`**——本卡提交之后 `HEAD` 指向的是 v5。放这里只为让对照图可一键复跑，不是交付物 |
 
 ## 5. 本轮**没有**做的取证（如实登记）
 
