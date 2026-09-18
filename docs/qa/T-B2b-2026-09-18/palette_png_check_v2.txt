@@ -1,0 +1,32 @@
+Pillow reads : ./assets/palettes/mossback.png
+format=PNG mode=RGBA size=(16, 16)
+alpha set    : [255] (opaque asset -> [255])
+  cell  0 (col  0, row 0) (30, 30, 34)  want (30, 30, 34)  match
+  cell  1 (col  1, row 0) (110, 86, 60)  want (110, 86, 60)  match
+  cell  2 (col  2, row 0) (168, 132, 92)  want (168, 132, 92)  match
+  cell  3 (col  3, row 0) (66, 52, 38)  want (66, 52, 38)  match
+  cell  4 (col  4, row 0) (66, 52, 38)  want (66, 52, 38)  match
+  cell  5 (col  5, row 0) (66, 52, 38)  want (66, 52, 38)  match
+  cell  6 (col  6, row 0) (66, 52, 38)  want (66, 52, 38)  match
+  cell  7 (col  7, row 0) (70, 112, 60)  want (70, 112, 60)  match
+  cell  8 (col  8, row 0) (46, 42, 58)  want (46, 42, 58)  match
+  cell  9 (col  9, row 0) (30, 30, 34)  want (30, 30, 34)  match
+  cell 10 (col 10, row 0) (30, 30, 34)  want (30, 30, 34)  match
+  cell 11 (col 11, row 0) (30, 30, 34)  want (30, 30, 34)  match
+  cell 12 (col 12, row 0) (30, 30, 34)  want (30, 30, 34)  match
+  cell 13 (col 13, row 0) (30, 30, 34)  want (30, 30, 34)  match
+  cell 14 (col 14, row 0) (30, 30, 34)  want (30, 30, 34)  match
+  cell 15 (col 15, row 0) (30, 30, 34)  want (30, 30, 34)  match
+  cell 16 (col  0, row 1) (30, 30, 34)  want (30, 30, 34)  match
+  cell 17 (col  1, row 1) (138, 110, 76)  want (138, 110, 76)  match
+  cell 18 (col  2, row 1) (66, 52, 38)  want (66, 52, 38)  match
+  cell 19 (col  3, row 1) (100, 76, 60)  want (100, 76, 60)  match
+  cell 20 (col  4, row 1) (96, 146, 78)  want (96, 146, 78)  match
+  cell 21 (col  5, row 1) (70, 112, 60)  want (70, 112, 60)  match
+  cell 22 (col  6, row 1) (46, 74, 40)  want (46, 74, 40)  match
+  cell 23 (col  7, row 1) (90, 140, 74)  want (90, 140, 74)  match
+  cell 24 (col  8, row 1) (124, 168, 98)  want (124, 168, 98)  match
+distinct RGB on the image: 12
+max saturation: 0.471 at (90, 140, 74) (cap 0.50)
+colours outside the declared table (unused cells): []
+VERDICT: third-party decoder agrees with the declared palette on every cell

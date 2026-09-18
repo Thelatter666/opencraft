@@ -788,11 +788,80 @@ TEST_CASE("T-B1 mesh: joint labels are the palette's first eight indices") {
     CHECK(mob_joint_of_color(6) == MobJoint::kMobJointLegRight);
     CHECK(mob_joint_of_color(7) == MobJoint::kMobJointTail);
     CHECK(mob_joint_of_color(8) == MobJoint::kMobJointSpare);
-    // Unlabelled colours belong to the body (research/12 §4.3: 9..255 are
-    // colour slots).
+    // Contract v2 (T-B2b): 0 and 17..255 are the unlabelled body group; 9 is
+    // NO LONGER unlabelled - it is the second colour of joint 0 (body), which
+    // happens to return the same value as v1's "9 -> body". The distinct
+    // meaning of 9..16 is pinned by the T-B2b case below (10 -> head,
+    // 16 -> spare).
     CHECK(mob_joint_of_color(0) == MobJoint::kMobJointBody);
     CHECK(mob_joint_of_color(9) == MobJoint::kMobJointBody);
     CHECK(mob_joint_of_color(255) == MobJoint::kMobJointBody);
+}
+
+TEST_CASE("T-B2b contract v2: 1..16 are joint labels, 17..255 the body group") {
+    // Boundary set from the card (§3.1.2). The three-segment structure is
+    // what makes these non-trivially different from the v1 case above:
+    // v1 and v2 AGREE on 0, 9 and 255, so only 10 and 16 (second colours of
+    // labelled joints) and 17 (first index of the body group) can tell the
+    // two contracts apart.
+    CHECK(mob_joint_of_color(8) == MobJoint::kMobJointSpare); // v1 primary, unchanged by v2
+    CHECK(mob_joint_of_color(9) ==
+          MobJoint::kMobJointBody); // v2: body's SECOND colour (joint 0) - not the v1 "unlabelled slot"
+    CHECK(mob_joint_of_color(10) == MobJoint::kMobJointHead);  // v2: head's second colour - v1 said body, v2 must not
+    CHECK(mob_joint_of_color(16) == MobJoint::kMobJointSpare); // v2: spare's second colour - v1 said body
+    CHECK(mob_joint_of_color(17) == MobJoint::kMobJointBody);  // body group starts immediately after the labels
+    CHECK(mob_joint_of_color(255) == MobJoint::kMobJointBody);
+
+    // The whole segments, not just the edges: for every joint, primary (1..8)
+    // and second (9..16) map to the SAME joint, and every 17..255 is body.
+    for (std::uint8_t primary = 1; primary <= 8; ++primary) {
+        const std::uint8_t second = static_cast<std::uint8_t>(primary + 8);
+        CHECK(mob_joint_of_color(primary) == static_cast<std::uint8_t>(primary - 1));
+        CHECK(mob_joint_of_color(second) == static_cast<std::uint8_t>(primary - 1));
+    }
+    for (int idx = 17; idx < 256; ++idx) {
+        CHECK(mob_joint_of_color(static_cast<std::uint8_t>(idx)) == MobJoint::kMobJointBody);
+    }
+}
+
+TEST_CASE("T-B2b mesh: a joint's two colours land in one part range, not two draws") {
+    VoxModel model;
+    model.size_x = 4;
+    model.size_y = 4;
+    model.size_z = 4;
+    model.voxels.push_back(VoxVoxel{1, 1, 0, 2});  // head, primary colour
+    model.voxels.push_back(VoxVoxel{1, 1, 1, 10}); // head, SECOND colour (v2)
+    // Distinct colours per entry so "sampled the wrong cell" cannot pass (the
+    // red byte is the entry number, same trick as the sampling test above).
+    for (std::size_t color = 1; color < kMobPaletteSize; ++color) {
+        model.palette[color] = rgba(static_cast<int>(color), 40, 200);
+    }
+    const MobMesh mesh = build_mob_mesh(model, 2.0f);
+
+    // Exactly one joint range - the second colour must NOT split the head
+    // into a second glDrawArrays (draw-call budget: one per joint).
+    REQUIRE(mesh.parts.size() == 1);
+    CHECK(mesh.parts[0].joint == MobJoint::kMobJointHead);
+    CHECK(mesh.parts[0].first == 0);
+    CHECK(mesh.parts[0].count == static_cast<std::uint32_t>(mesh.vertices.size()));
+    // Two adjacent voxels hide their shared faces: 5 + 5 exposed quads.
+    CHECK(mesh.parts[0].count == 10 * 6);
+
+    // ...and that single range really carries BOTH colours: decode each
+    // vertex's uv back to its palette cell and collect the red bytes.
+    const auto sample_red = [&](float u, float v) {
+        const int col = static_cast<int>(u * 16.0f);
+        const int row = static_cast<int>(v * 16.0f);
+        const std::uint32_t packed = model.palette[static_cast<std::size_t>(row) * 16 + static_cast<std::size_t>(col)];
+        return static_cast<int>(packed & 0xFFU);
+    };
+    bool saw_primary = false, saw_second = false;
+    for (const auto &v : mesh.vertices) {
+        saw_primary = saw_primary || sample_red(v.u, v.v) == 2;
+        saw_second = saw_second || sample_red(v.u, v.v) == 10;
+    }
+    CHECK(saw_primary);
+    CHECK(saw_second);
 }
 
 TEST_CASE("T-B1 mesh: no voxels means no geometry, not a crash") {
@@ -808,7 +877,7 @@ TEST_CASE("T-B1 mesh: every vertex samples the palette cell that holds its colou
     model.size_y = 4;
     model.size_z = 4;
     model.voxels.push_back(VoxVoxel{1, 1, 0, 3}); // joint 2 (arm_l), colour 3
-    model.voxels.push_back(VoxVoxel{1, 1, 1, 9}); // unlabelled -> body, colour 9
+    model.voxels.push_back(VoxVoxel{1, 1, 1, 9}); // v2 second body colour -> body, colour 9
     // Distinct colours per entry: "sampled the wrong cell" must not be able to
     // pass by accident. rgba() puts the entry number in the red byte.
     for (std::size_t color = 1; color < kMobPaletteSize; ++color) {

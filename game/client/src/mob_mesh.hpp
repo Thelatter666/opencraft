@@ -66,8 +66,12 @@ struct MobMesh {
 // `world_height` <= 0 falls back to 1.
 [[nodiscard]] MobMesh build_mob_mesh(const VoxModel &model, float world_height);
 
-// The joint a voxel's colorIndex belongs to: 1..8 are joint labels (research/12
-// §4.3), anything else has no label and is drawn as part of the body.
+// The joint a voxel's colorIndex belongs to, palette contract v2 (T-B2b):
+// 1..8 are a joint's primary label, 9..16 the second colour of joint
+// (idx-1) mod 8 (research/12 §4.3, docs/tasks/T-B2.ruling.md §2); 17..255
+// carry no label and are drawn as part of the body. Two colours on one
+// joint land in the SAME part range, i.e. one glDrawArrays still covers the
+// joint.
 [[nodiscard]] std::uint8_t mob_joint_of_color(std::uint8_t color_index);
 
 } // namespace opencraft::client
