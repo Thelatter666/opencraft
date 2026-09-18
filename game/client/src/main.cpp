@@ -18,6 +18,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#include "asset_atlas.hpp"
 #include "atlas.hpp"
 #include "bitmap_font.hpp"
 #include "block_colors.hpp"
@@ -29,6 +30,10 @@
 #include "fov.hpp"
 #include "hud.hpp"
 #include "interaction.hpp"
+#include "mob_mesh.hpp"
+#include "mob_model.hpp"
+#include "mob_pose.hpp"
+#include "mob_render.hpp"
 #include "opencraft/core/log.hpp"
 #include "opencraft/core/tick_clock.hpp"
 #include "opencraft/core/version.hpp"
@@ -244,6 +249,46 @@ int main() {
     ui_text_shader.use();
     glUniform1i(ui_text_shader.uniform_location("u_font"), 1);
 
+    const render::Shader mob_shader(client::kMobVertexShader, client::kMobFragmentShader);
+
+    // ── mob models (T-B1) ───────────────────────────────────────────────────
+    // assets/mobs/<mob_id>.vox, found through the same asset root the block
+    // tiles use (resolve_assets_root, no second convention). The roster comes
+    // from the registry rather than a list here, so the denominator of the
+    // startup line stays right when a mob is added.
+    //
+    // A fresh checkout has no assets/mobs/ at all: the line reads "mobs: 0/3"
+    // and every mob keeps the two-box stand-in it has had since T-M2
+    // (research/12 §6.5, first row).
+    std::vector<std::string> mob_ids;
+    for (std::uint16_t type = 0; type < authority.entity_types().size(); ++type) {
+        if (authority.mobs().find(type) != nullptr) {
+            mob_ids.push_back(authority.entity_types().string_of(type));
+        }
+    }
+    const std::filesystem::path assets_root = client::resolve_assets_root();
+    const std::vector<client::MobModel> mob_models = client::load_mob_models(assets_root, mob_ids);
+    std::vector<client::MobModelAsset> mob_assets;
+    mob_assets.reserve(mob_models.size());
+    for (const client::MobModel &model : mob_models) {
+        const gam::MobDef *def = authority.mobs().find_by_id(model.id);
+        // The model is sized to the mob's own collision height, so the drawn
+        // mob and the simulated box are the same size by construction and no
+        // scale number has to be repeated in two places.
+        const float height = def != nullptr ? static_cast<float>(def->physics.height) : 1.0f;
+        client::MobModelAsset asset;
+        asset.id = model.id;
+        asset.voxels = model.vox.voxels.size();
+        asset.mesh = client::build_mob_mesh(model.vox, height);
+        asset.palette = model.palette;
+        const std::string palette_note =
+            model.palette_from_png ? ", palette from palettes/" + asset.id + ".png" : std::string();
+        OC_LOG_INFO("mob model {}: {} voxels, {} triangles, {} joints, {} blocks tall{}", asset.id, asset.voxels,
+                    asset.mesh.vertices.size() / 3, asset.mesh.parts.size(), height, palette_note);
+        mob_assets.push_back(std::move(asset));
+    }
+    const client::MobRenderer mob_renderer(mob_assets, mob_shader);
+
     // ── GL state ────────────────────────────────────────────────────────────
     int fb_width = client::kWindowWidth;
     int fb_height = client::kWindowHeight;
@@ -410,6 +455,9 @@ int main() {
     bool cursor_anchored = false;
     float fov = client::kBaseFov;
     int stream_meshed = 0;
+    // T-B1: per-mob walk phase (research/12 §4.4 - a presentation quantity the
+    // simulation does not carry, advanced by the simulated speed).
+    client::MobAnimClock mob_anim;
 
     // T-D13: render-camera vertical spring. The camera's Y follows the eye
     // target through a critically damped filter while X/Z pass through exactly,
@@ -701,7 +749,7 @@ int main() {
             }
         }
 
-        // ── mobs (T-M2) ─────────────────────────────────────────────────────
+        // ── mobs without a model (T-M2) ─────────────────────────────────────
         // Two boxes per mob, through the same crack shader the drops use: a body
         // of the mob's own collision box and a head cube offset along its facing.
         // The head is what makes the AI visible - "the mob turned to look at me"
@@ -709,9 +757,14 @@ int main() {
         // (Entity::ai::yaw), not a render-side animation.
         //
         // ⚠ The look is a STAND-IN: the atlas tiles come from existing blocks
-        // (there is no mob texture set) and the body is a box (there is no model
-        // loader). See client::mob_skin. The numbers that matter - box size,
-        // position, facing - are the simulation's.
+        // (there is no mob texture set) and the body is a box. See
+        // client::mob_skin.
+        //
+        // T-B1 makes this the FALLBACK path rather than the only one: a mob with
+        // a .vox model is skipped here and drawn by the model pass below. The
+        // two loops are mutually exclusive and this one is unchanged, so with no
+        // model files present the frame is byte-for-byte what it was before the
+        // model channel existed (research/12 §6.4, §6.5).
         {
             const srv::EntityStore &mobs_store = authority.entities();
             const gam::EntityTypeRegistry &entity_types = authority.entity_types();
@@ -722,6 +775,9 @@ int main() {
                 const gam::MobDef *def = mob_roster.find(mob.type);
                 if (def == nullptr) {
                     return;
+                }
+                if (mob_renderer.has(entity_types.string_of(mob.type))) {
+                    return; // has a model: the model pass owns it
                 }
                 if (!mob_pass_ready) {
                     crack_shader.use();
@@ -772,6 +828,54 @@ int main() {
             if (mob_pass_ready) {
                 glEnable(GL_CULL_FACE);
             }
+        }
+
+        // ── mob models (T-B1) ───────────────────────────────────────────────
+        // The other half of the routing in research/12 §6.4: exactly the mobs
+        // the loop above skipped. Position and yaw come straight from the
+        // simulation; the pose module only adds shape at that position and
+        // facing (§4.4). The order of the two loops does not matter to the
+        // picture - both draw depth-tested opaque geometry.
+        //
+        // Nothing here runs when no model was loaded, so a checkout with no
+        // assets/mobs/ cannot have changed a pixel.
+        if (mob_renderer.size() > 0) {
+            const srv::EntityStore &mobs_store = authority.entities();
+            const gam::EntityTypeRegistry &entity_types = authority.entity_types();
+            const gam::MobRegistry &mob_roster = authority.mobs();
+            // The walk cycle is the renderer's own clock (§4.4): the simulation
+            // has no stride phase, but the RATE it advances at is the simulated
+            // speed.
+            const float pose_dt = static_cast<float>(std::min(frame_dt, 0.1));
+            mob_renderer.begin_pass();
+            mobs_store.for_each_entity([&](const srv::Entity &mob) {
+                if (mob_roster.find(mob.type) == nullptr) {
+                    return;
+                }
+                const std::string &mob_id = entity_types.string_of(mob.type);
+                if (!mob_renderer.has(mob_id)) {
+                    return;
+                }
+                client::MobPoseInput in;
+                in.yaw = mob.ai.yaw;
+                in.pitch = mob.ai.pitch;
+                in.speed = std::sqrt(mob.velocity.x * mob.velocity.x + mob.velocity.z * mob.velocity.z);
+                in.on_ground = mob.on_ground;
+                in.hurt_cooldown = mob.ai.hurt_cooldown;
+                in.fuse = mob.ai.fuse;
+                in.baby = mob.ai.baby;
+                const float phase = mob_anim.advance(mob.id, in.speed, pose_dt);
+                const client::MobPose pose = client::mob_pose(in, phase);
+                // Feet-centred, like every other entity (Entity::position).
+                // rotate_y(yaw) is the same facing the two-box head used:
+                // view_dir(yaw, 0) == (-sin yaw, 0, -cos yaw), which is where
+                // glm::rotate maps the model's -Z.
+                const glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(mob.position)) *
+                                        glm::rotate(glm::mat4(1.0f), pose.yaw, glm::vec3(0.0f, 1.0f, 0.0f));
+                mob_renderer.draw(mob_id, mvp, model, pose);
+            });
+            mob_renderer.end_pass();
+            mob_anim.end_frame();
         }
 
         // ── break particles (T009): depth-tested points, no depth writes ────

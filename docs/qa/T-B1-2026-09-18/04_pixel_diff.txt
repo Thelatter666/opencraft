@@ -1,0 +1,45 @@
+T-B1 逐像素比对（2026-09-18）
+
+全部图取自最终代码：分支三张用同一个二进制（build/opencraft md5 10499fa55ff030ace648994ee9e45d8a），
+基线 00 用 opencraft-tb1-base 的构建；两棵树打的是同一份取证补丁（见 README §装置）。
+
+[1] 基线树 vs 分支，都无模型文件 —— ★ 成败线，期望 0
+  run/00_base_nomodels.png vs run/01_branch_nomodels.png
+    differing pixels: 0 of 957440
+
+[2] 分支同一次运行隔 3 s —— 装置自证：场景静止，期望 0
+  run/01_branch_nomodels.png vs run/01_branch_nomodels_b.png
+    differing pixels: 0 of 957440
+
+[3] 分支：无模型 vs 有模型 —— 装置必须能分辨两棵树，期望 >> 0
+  run/01_branch_nomodels.png vs run/02_branch_models.png
+    differing pixels: 39176 of 957440
+    bounding box: x 564..715, y 127..390
+    most common colours in b at changed pixels:
+      rgb( 92,157, 74) x15436
+      rgb( 57, 45, 35) x4471
+      rgb(113, 72, 36) x4244
+      rgb(132, 86, 43) x3573
+      rgb(152,169, 48) x3381
+      rgb(127,146,177) x2574
+
+[5] 分支：模型 vs 模型+调色板 PNG —— 期望 >> 0，且新颜色应是调色板 PNG 的色
+  run/02_branch_models.png vs run/03_branch_palette.png
+    differing pixels: 26634 of 957440
+    bounding box: x 571..708, y 127..390
+    most common colours in b at changed pixels:
+      rgb( 92,255,255) x15436
+      rgb(244,  0,255) x3573
+      rgb( 66,107,255) x2122
+      rgb(239,120,  0) x2122
+      rgb(248,255,  0) x1748
+      rgb(123,  0,255) x1633
+
+[4] 有模型，同一次运行隔 3 s —— 站立不动的生物姿态不漂，期望 0
+  run/02_branch_models.png vs run/02_branch_models_b.png
+    differing pixels: 0 of 957440
+
+[6] 调色板，同一次运行隔 3 s，期望 0
+  run/03_branch_palette.png vs run/03_branch_palette_b.png
+    differing pixels: 0 of 957440
+

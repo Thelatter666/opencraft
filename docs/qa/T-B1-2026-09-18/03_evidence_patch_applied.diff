@@ -1,0 +1,33 @@
+already patched
+diff --git a/game/server/sim/src/world_sim.cpp b/game/server/sim/src/world_sim.cpp
+index 645d83f..a899fde 100644
+--- a/game/server/sim/src/world_sim.cpp
++++ b/game/server/sim/src/world_sim.cpp
+@@ -407,6 +407,26 @@ void WorldSim::spawn_pass() {
+     if (candidates.empty()) {
+         return;
+     }
++    // ── T-B1 EVIDENCE ONLY (not part of the deliverable) ───────────
++    {
++        static EntityId evidence_mob = EntityStore::kNoEntity;
++        const glm::dvec3 spot = player + glm::dvec3(0.0, 1.6, -3.5);
++        if (evidence_mob == EntityStore::kNoEntity) {
++            evidence_mob =
++                spawn_mob(entities_, mobs_, mobs_.entity_type_of("mossback"), spot, mob_seed_, mob_rules_);
++        }
++        if (Entity *mob = entities_.find(evidence_mob); mob != nullptr) {
++            mob->position = spot;
++            mob->velocity = glm::dvec3(0.0);
++            mob->on_ground = true;
++            mob->ai.yaw = 3.14159265358979323846; // facing +Z, toward the camera
++            mob->ai.pitch = 0.0;
++            mob->ai.hurt_cooldown = 0;
++            mob->ai.fuse = 0;
++            mob->ai.baby = false;
++        }
++    }
++    return; // natural spawning off: the scene has to be identical twice
+     const std::size_t start = static_cast<std::size_t>(tick_counter_ % candidates.size());
+     for (int attempt = 0; attempt < spawn_rules_.attempts_per_call; ++attempt) {
+         const auto &[cx, cz] = candidates[(start + static_cast<std::size_t>(attempt)) % candidates.size()];
+

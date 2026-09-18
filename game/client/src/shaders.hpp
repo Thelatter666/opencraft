@@ -15,6 +15,9 @@ extern const char kCrackVertexShader[];
 extern const char kCrackFragmentShader[];
 extern const char kParticleVertexShader[];
 extern const char kParticleFragmentShader[];
+// T-B1: appended, so every existing entry keeps its index.
+extern const char kMobVertexShader[];
+extern const char kMobFragmentShader[];
 extern const char kUiFlatVertexShader[];
 extern const char kUiFlatFragmentShader[];
 extern const char kUiTextVertexShader[];

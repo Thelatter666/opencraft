@@ -1,0 +1,77 @@
+T-B1 禁碰项零改动核对（交付树 task/T-B1-mob-voxel，2026-09-18，最终代码）
+
+命令: git diff --stat 13896c8 -- <paths>
+
+--- 逐条 ---
+  engine/render: 0 个文件有改动
+  engine/voxel: 0 个文件有改动
+  engine/core: 0 个文件有改动
+  engine/noise: 0 个文件有改动
+  engine/physics: 0 个文件有改动
+  game/common: 0 个文件有改动
+  game/server: 0 个文件有改动
+  assets: 0 个文件有改动
+  docs/04-legal-compliance.md: 0 个文件有改动
+  docs/05-engineering-standards.md: 0 个文件有改动
+  STATE.md: 0 个文件有改动
+  docs/research: 0 个文件有改动
+
+--- 本分支相对起点的全部已跟踪改动 ---
+ .../T-B1-2026-09-18/03_evidence_patch_applied.diff |   33 +
+ docs/qa/T-B1-2026-09-18/04_pixel_diff.txt          |   45 +
+ docs/qa/T-B1-2026-09-18/05_product_log_check.txt   |   30 +
+ docs/qa/T-B1-2026-09-18/06_forbidden_paths.txt     |   19 +
+ docs/qa/T-B1-2026-09-18/07_build_warnings.txt      |   29 +
+ .../T-B1-2026-09-18/08_facing_and_cull_review.txt  |   80 ++
+ docs/qa/T-B1-2026-09-18/README.md                  |  150 +++
+ docs/qa/T-B1-2026-09-18/run/00_base_nomodels.log   |   61 ++
+ docs/qa/T-B1-2026-09-18/run/00_base_nomodels.png   |  Bin 0 -> 247884 bytes
+ docs/qa/T-B1-2026-09-18/run/00_base_nomodels_b.png |  Bin 0 -> 247884 bytes
+ docs/qa/T-B1-2026-09-18/run/01_branch_nomodels.log |   25 +
+ docs/qa/T-B1-2026-09-18/run/01_branch_nomodels.png |  Bin 0 -> 247884 bytes
+ .../T-B1-2026-09-18/run/01_branch_nomodels_b.png   |  Bin 0 -> 247884 bytes
+ docs/qa/T-B1-2026-09-18/run/02_branch_models.log   |   26 +
+ docs/qa/T-B1-2026-09-18/run/02_branch_models.png   |  Bin 0 -> 251935 bytes
+ docs/qa/T-B1-2026-09-18/run/02_branch_models_b.png |  Bin 0 -> 251935 bytes
+ docs/qa/T-B1-2026-09-18/run/A_fixture_present.log  |   18 +
+ docs/qa/T-B1-2026-09-18/run/B_no_model_file.log    |   17 +
+ docs/qa/T-B1-2026-09-18/run/C_damaged_file.log     |   18 +
+ .../T-B1-2026-09-18/tools/apply_evidence_patch.py  |   95 ++
+ docs/qa/T-B1-2026-09-18/tools/check_product_log.sh |   81 ++
+ .../qa/T-B1-2026-09-18/tools/evidence_mossback.vox |  Bin 0 -> 1800 bytes
+ .../T-B1-2026-09-18/tools/make_evidence_model.py   |   75 ++
+ docs/qa/T-B1-2026-09-18/tools/pixel_diff.py        |   48 +
+ docs/qa/T-B1-2026-09-18/tools/run_evidence.sh      |   95 ++
+ docs/qa/T-B1-2026-09-18/tools/tb1win.m             |   91 ++
+ docs/tasks/T-B1.report.md                          |  359 +++++++
+ game/client/CMakeLists.txt                         |   33 +-
+ game/client/src/main.cpp                           |  112 ++-
+ game/client/src/mob_mesh.cpp                       |  175 ++++
+ game/client/src/mob_mesh.hpp                       |   73 ++
+ game/client/src/mob_model.cpp                      |  284 ++++++
+ game/client/src/mob_model.hpp                      |  129 +++
+ game/client/src/mob_pose.cpp                       |   99 ++
+ game/client/src/mob_pose.hpp                       |  112 +++
+ game/client/src/mob_render.cpp                     |  127 +++
+ game/client/src/mob_render.hpp                     |   88 ++
+ game/client/src/shaders.cpp                        |   38 +
+ game/client/src/shaders.hpp                        |    3 +
+ tests/CMakeLists.txt                               |   10 +-
+ tests/fixtures/mobs/make_fixtures.py               |  133 +++
+ tests/fixtures/mobs/mob_column.vox                 |  Bin 0 -> 1128 bytes
+ tests/fixtures/mobs/mob_column_palette.png         |  Bin 0 -> 97 bytes
+ tests/fixtures/mobs/mob_empty.vox                  |  Bin 0 -> 1096 bytes
+ tests/test_mob_model.cpp                           | 1009 ++++++++++++++++++++
+ 45 files changed, 3811 insertions(+), 9 deletions(-)
+
+--- 未跟踪的新文件 ---
+  ?? docs/qa/T-B1-2026-09-18/09_pm_fixture_crosscheck.txt
+  ?? docs/qa/T-B1-2026-09-18/run/03_branch_palette.log
+  ?? docs/qa/T-B1-2026-09-18/run/03_branch_palette.png
+  ?? docs/qa/T-B1-2026-09-18/run/03_branch_palette_b.png
+  ?? docs/qa/T-B1-2026-09-18/run/A_fixture_present.pid
+  ?? docs/qa/T-B1-2026-09-18/run/B_no_model_file.pid
+  ?? docs/qa/T-B1-2026-09-18/run/C_damaged_file.pid
+
+--- 存量测试文件是否有改动（应当为空） ---
+  (无)

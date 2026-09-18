@@ -1,0 +1,80 @@
+T-B1 代码审查记录：朝向只读模拟值 + CULL_FACE 成对（2026-09-18）
+
+════ 一、朝向（卡 §7 第 6 条 / research §4.4） ════
+
+规则：凡改变"在哪 / 朝哪 / 在做什么"的量必须来自模拟；只有"同一位置与朝向下的姿态形变"许渲染侧推导。
+
+--- 1. 渲染侧三角函数用量（只允许出现在姿态角计算里） ---
+  game/client/src/mob_model.cpp:
+  game/client/src/mob_mesh.cpp:
+  game/client/src/mob_pose.cpp:
+    38:        pose.swing_x[kMobJointLegLeft] = amplitude * std::sin(phase);
+    39:        pose.swing_x[kMobJointLegRight] = amplitude * std::sin(phase + 3.14159265f);
+    41:        pose.swing_x[kMobJointArmLeft] = -amplitude * kMobArmSwingFactor * std::sin(phase);
+    42:        pose.swing_x[kMobJointArmRight] = -amplitude * kMobArmSwingFactor * std::sin(phase + 3.14159265f);
+    43:        // One bob per stride: two footfalls, so cos of the doubled phase.
+    44:        pose.body_offset.y = kMobBodyBobBlocks * 0.5f * (1.0f - std::cos(2.0f * phase)) *
+    54:    pose.swing_y[kMobJointTail] = kMobTailRadians * std::sin(0.5f * phase);
+    65:        const float pulse = 1.0f + 0.12f * burning * std::sin(static_cast<float>(std::max(in.fuse, 0)) * 0.6f);
+  game/client/src/mob_render.cpp:
+
+--- 2. renderer 侧对 yaw/pitch 的全部动作（应当只有赋值/透传） ---
+
+--- 3. main.cpp 模型分支怎么填 MobPoseInput ---
+    860:                in.yaw = mob.ai.yaw;
+    861:                in.pitch = mob.ai.pitch;
+    862:                in.speed = std::sqrt(mob.velocity.x * mob.velocity.x + mob.velocity.z * mob.velocity.z);
+    863:                in.on_ground = mob.on_ground;
+    864:                in.hurt_cooldown = mob.ai.hurt_cooldown;
+    865:                in.fuse = mob.ai.fuse;
+    866:                in.baby = mob.ai.baby;
+    867:                const float phase = mob_anim.advance(mob.id, in.speed, pose_dt);
+
+--- 4. mob_pose.cpp 怎么用它们 ---
+    20:    pose.yaw = static_cast<float>(in.yaw);
+    21:    pose.pitch = static_cast<float>(in.pitch);
+    51:    pose.swing_x[kMobJointHead] = -pose.pitch;
+
+结论：主循环把 Entity::ai::yaw / ai::pitch 原样抄进 MobPoseInput，mob_pose() 原样抄进 MobPose，
+      模型分支只用 pose.yaw 做 rotate_y、pose.pitch 做头部旋转；没有任何一处从位置/目标反算朝向。
+      单测：tests/test_mob_model.cpp 'T-B1 pose: facing is copied from the simulation, never invented'
+      （枚举 speed/hurt/fuse/baby 的变化，断言 yaw/pitch 逐位不变）。
+
+════ 二、GL_CULL_FACE 成对（卡 §4.2） ════
+
+--- 全部 glEnable/glDisable(GL_CULL_FACE) 调用点 ---
+    [299 = GL 初始状态：开]
+    [708/735 = 掉落物 pass 的成对（T-E1，未改动）]
+    [788/829 = 生物回退 pass 的成对（T-M2，本卡只加了一行 has() 早退，两行都在原位）]
+    [929/932/954/968/1023/1040 = 选中框、裂纹、UI 等既有 pass]
+    main.cpp:299:    glEnable(GL_CULL_FACE);
+    main.cpp:708:                    glDisable(GL_CULL_FACE); // overlay winding is mirrored (see the crack pass)
+    main.cpp:735:                glEnable(GL_CULL_FACE);
+    main.cpp:788:                    glDisable(GL_CULL_FACE); // overlay winding is mirrored (see the crack pass)
+    main.cpp:829:                glEnable(GL_CULL_FACE);
+    main.cpp:929:            glDisable(GL_CULL_FACE);
+    main.cpp:932:            glEnable(GL_CULL_FACE);
+    main.cpp:954:                glDisable(GL_CULL_FACE);
+    main.cpp:968:                glEnable(GL_CULL_FACE);
+    main.cpp:1023:            glEnable(GL_CULL_FACE);
+    main.cpp:1040:            glEnable(GL_CULL_FACE);
+
+--- 模型分支: begin_pass/end_pass 成对 ---
+    void MobRenderer::begin_pass() const {
+        // See the header: the two-box fallback leaves this OFF (mirrored winding),
+        // so the model pass cannot assume what it wants is already set - and §4.3
+        // says every pass sets its own state anyway.
+        glEnable(GL_CULL_FACE);
+    }
+    void MobRenderer::end_pass() const {
+        // Back to the state the rest of the frame runs with (main.cpp enables
+        // GL_CULL_FACE once before the loop and every pass restores it).
+        glEnable(GL_CULL_FACE);
+    }
+--- 模型分支的调用点（只在 size() > 0 时进，且成对） ---
+    main.cpp:842:        if (mob_renderer.size() > 0) {
+    main.cpp:850:            mob_renderer.begin_pass();
+    main.cpp:877:            mob_renderer.end_pass();
+
+结论：两条分支各自成对；无模型时整个模型 pass 不执行 ⇒ 既不 enable 也不 disable，
+      GL 状态与改动前逐字节相同（这也由 04 段第 1 条 0 差异像素在实机上确认）。

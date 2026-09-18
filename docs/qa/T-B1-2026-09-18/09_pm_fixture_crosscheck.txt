@@ -1,0 +1,41 @@
+T-B1 交叉核对：用 PM 的独立夹具跑开发者的解析器（2026-09-18）
+
+动机：PM 在 main 上另备了一份【不依赖开发者 B0 夹具】的装置
+      （docs/qa/T-B1-2026-09-18/pm_verify/，提交 e094b65），其 README §5 逐条给出了
+      9 个夹具的期望行为。同一份错误假设会同时出现在解析器和它自己的测试数据里，
+      所以回贴前先拿对方的数据跑一遍。
+
+做法：把客户端自己的静态库链进一个 /tmp 探针（client_mobs + client_assets + core + spdlog），
+      调 parse_vox / build_mob_mesh / load_mob_models 跑 PM 的 9 个夹具 + 调色板 PNG。
+      夹具只读，未复制进本仓。
+
+=== 逐条结果（左 = PM 期望，右 = 本实现实际） ===
+
+pm_good.vox           期望: 加载成功、8 体素        | 实际: OK  SIZE 7x5x3 voxels 8 triangles 68  palette[1]=红 [2]=绿 [3]=蓝
+pm_bad_signature.vox  期望: 回退 + 1 WARN           | 实际: REJECT (missing the VOX signature)
+pm_truncated.vox      期望: 回退 + 1 WARN           | 实际: REJECT (a chunk runs past the end of the file)
+pm_chunk_overrun.vox  期望: 回退 + 1 WARN 不越界读  | 实际: REJECT (a chunk runs past the end of the file)
+pm_count_lies.vox     期望: 回退 + 1 WARN           | 实际: REJECT (XYZI claims more voxels than its content holds)
+pm_out_of_bounds.vox  期望: 回退 + 1 WARN 不钳制    | 实际: REJECT (a voxel coordinate is outside SIZE)
+pm_no_size.vox        期望: 回退 + 1 WARN           | 实际: REJECT (no SIZE or no XYZI chunk)
+pm_huge_size.vox      期望: 回退 + 1 WARN           | 实际: REJECT (SIZE is outside 1..256)
+pm_zero_voxels.vox    期望: 回退 + 1 WARN           | 实际: 解析成功、0 体素 ⇒ 加载器报 'holds 0 voxels' + 1 WARN
+pm_palette_magenta_cyan.png  期望: 1/2 格 => 躯干品红、头青
+                             实际: palette_from_png=1, colorIndex1=ffff00ff(品红) colorIndex2=ffffff00(青), index0=00000000
+
+=== 探针原始输出 ===
+pm_good.vox                 116 B  OK      SIZE 7x5x3  voxels 8  triangles 68  palette[1]=ff0000ff [2]=ff00ff00 [3]=ffff0000
+pm_bad_signature.vox        116 B  REJECT  (missing the VOX signature)
+pm_truncated.vox            104 B  REJECT  (a chunk runs past the end of the file)
+pm_chunk_overrun.vox         72 B  REJECT  (a chunk runs past the end of the file)
+pm_count_lies.vox           116 B  REJECT  (XYZI claims more voxels than its content holds)
+pm_out_of_bounds.vox        120 B  REJECT  (a voxel coordinate is outside SIZE)
+pm_no_size.vox               92 B  REJECT  (no SIZE or no XYZI chunk)
+pm_huge_size.vox            116 B  REJECT  (SIZE is outside 1..256)
+pm_zero_voxels.vox           84 B  OK      SIZE 7x5x3  voxels 0  triangles 0  palette[1]=ff0000ff [2]=ff00ff00 [3]=ffff0000
+
+palette PNG channel (PM's magenta/cyan picture):
+  palette_from_png = 1
+  colorIndex 1 (body label) = ffff00ff   expect ff ff00ff (magenta)
+  colorIndex 2 (head label) = ffffff00   expect ff ffff00 (cyan)
+  colorIndex 0 (never painted) = 00000000
