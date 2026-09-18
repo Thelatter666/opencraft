@@ -52,10 +52,15 @@ glm::vec2 palette_uv(std::uint8_t color) {
 } // namespace
 
 std::uint8_t mob_joint_of_color(std::uint8_t color_index) {
-    if (color_index >= 1 && color_index <= kMobJointCount) {
-        return static_cast<std::uint8_t>(color_index - 1);
+    // Palette contract v2 (T-B2b, docs/tasks/T-B2.ruling.md §2): the first
+    // SIXTEEN indices are joint labels - 1..8 a joint's primary colour,
+    // 9..16 the SECOND colour of joint (idx-1) mod 8 - so one joint can be
+    // painted in two colours (eyes on the head) while staying inside the
+    // 8-joint draw-call budget. 17..255 are plain colour slots: body group.
+    if (color_index >= 1 && color_index <= 2 * kMobJointCount) {
+        return static_cast<std::uint8_t>((color_index - 1) % kMobJointCount);
     }
-    return 0; // unlabelled color slot: part of the body
+    return 0; // no joint label: part of the body
 }
 
 MobMesh build_mob_mesh(const VoxModel &model, float world_height) {

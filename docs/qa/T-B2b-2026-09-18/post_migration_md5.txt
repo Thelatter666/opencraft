@@ -1,0 +1,2 @@
+MD5 (assets/mobs/mossback.vox) = 9215d2bef3333821c07c83b20aa1c360
+MD5 (assets/palettes/mossback.png) = 74dcc2a82723523d9f1d0b40b92ba7db
