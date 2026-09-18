@@ -1,5 +1,5 @@
 T-B1 PM 侧回退表核对（产品码、无补丁、独立夹具，2026-09-18）
-脚本：pm_logcheck2（放夹具→冷启动→抓 mobs: 行与全部 [warning] 行→删夹具）
+脚本：pm_verify/pm_logcheck.sh（原文与逐条输出另存 `raw_logs/`；放夹具→冷启动→抓 mobs: 行与全部 [warning] 行→删夹具）
 
 ── A_absent ──
   mobs: 0/3 mob models loaded from ../assets/mobs

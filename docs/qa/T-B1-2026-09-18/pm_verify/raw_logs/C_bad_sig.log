@@ -1,0 +1,10 @@
+[2026-09-18 12:25:14.774] [info] OpenCraft 0.1.0 starting
+[2026-09-18 12:25:14.897] [info] GL 4.1 Metal - 89.4 / glad loaded
+[2026-09-18 12:25:14.897] [info] save: no level.ocd, new world with seed 0x4f50454e43524146
+[2026-09-18 12:25:15.118] [info] startup gen: 25 chunks, total 221.2 ms, avg 8.85 ms/chunk
+[2026-09-18 12:25:15.118] [info] spawn scan: surface at (0.5, 132.0, 0.5)
+[2026-09-18 12:25:15.118] [info] respawn point: (0.5, 132.0, 0.5)
+[2026-09-18 12:25:15.120] [info] atlas: 60/63 block tiles loaded from ../assets/blocks
+[2026-09-18 12:25:15.120] [info] atlas: 144x144 px, 9 tiles/row, crack tiles at 63
+[2026-09-18 12:25:15.123] [warning] mob model ../assets/mobs/mossback.vox was rejected (missing the VOX signature); drawing mossback as boxes instead
+[2026-09-18 12:25:15.123] [info] mobs: 0/3 mob models loaded from ../assets/mobs

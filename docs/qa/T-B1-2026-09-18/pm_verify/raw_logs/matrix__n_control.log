@@ -1,0 +1,14 @@
+[2026-09-18 12:27:44.965] [info] OpenCraft 0.1.0 starting
+[2026-09-18 12:27:45.099] [info] GL 4.1 Metal - 89.4 / glad loaded
+[2026-09-18 12:27:45.099] [info] save: no level.ocd, new world with seed 0x4f50454e43524146
+[2026-09-18 12:27:45.319] [info] startup gen: 25 chunks, total 220.0 ms, avg 8.80 ms/chunk
+[2026-09-18 12:27:45.319] [info] spawn scan: surface at (0.5, 132.0, 0.5)
+[2026-09-18 12:27:45.319] [info] respawn point: (0.5, 132.0, 0.5)
+[2026-09-18 12:27:45.326] [info] atlas: 60/63 block tiles loaded from ../assets/blocks
+[2026-09-18 12:27:45.326] [info] atlas: 144x144 px, 9 tiles/row, crack tiles at 63
+[2026-09-18 12:27:45.329] [info] mobs: 0/3 mob models loaded from ../assets/mobs
+[2026-09-18 12:27:47.358] [info] fps 42.8 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-18 12:27:49.363] [info] fps 110.4 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-18 12:27:51.363] [info] fps 120.0 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-18 12:27:52.235] [info] EVIDENCE paused=1
+[2026-09-18 12:27:53.363] [info] fps 119.5 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
