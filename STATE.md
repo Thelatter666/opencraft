@@ -207,6 +207,9 @@ M1 判据达成：新档可走/挖/建闭环 + 退出重进不丢档（含 `kill
        改配色不碰模型）；⑤ 实机 A/B 用现成装置（`docs/05 §3.1` 第 14 条两套，勿重发明）；
     ⑥ **每只模型都要自己的实机判据**——"零变化通过"不覆盖"有模型时正确"（T-B1 §8 两个实机缺陷）。
     B2 之后：B3 Wretch → B4 Blastbud。倒地动画仍被 T-D51 挡（先粒子版），`mob_skin()` 留 T-D52。
+    ✅ **T-B2 卡面已落盘并派发（2026-09-18）**：`/Users/happy/Desktop/opencraft/docs/tasks/T-B2.md`；
+    分支 `task/T-B2-mossback-model`，工作根 `/Users/happy/Desktop/opencraft_worktree/opencraft-tb2`
+    （与 T-A3/A4 相同的 worktree 纪律，白名单全部相对工作根）。契约六条现数自 `372b373` 交付代码；两条美术定案写进 §2。
 
 ## 备忘（有效临时项；收口时删除过期条目）
 - ★ **图集瓦片数的口径（T-A2 开发者纠正 PM，2026-09-18）**：瓦片数按
