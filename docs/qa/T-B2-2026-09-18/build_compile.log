@@ -1,0 +1,213 @@
+[  1%] Building CXX object engine/noise/CMakeFiles/opencraft_noise.dir/src/noise_sampler.cpp.o
+[  1%] Building C object _deps/glfw-build/src/CMakeFiles/glfw.dir/context.c.o
+[  2%] Building C object _deps/glfw-build/src/CMakeFiles/glfw.dir/monitor.c.o
+[  3%] Building CXX object _deps/spdlog-build/CMakeFiles/spdlog.dir/src/spdlog.cpp.o
+[  3%] Building CXX object _deps/doctest-build/CMakeFiles/doctest_with_main.dir/doctest/parts/doctest.cpp.o
+[  4%] Building C object _deps/glfw-build/src/CMakeFiles/glfw.dir/init.c.o
+[  5%] Building CXX object _deps/spdlog-build/CMakeFiles/spdlog.dir/src/color_sinks.cpp.o
+[  5%] Building C object _deps/glfw-build/src/CMakeFiles/glfw.dir/egl_context.c.o
+[  5%] Building C object _deps/glfw-build/src/CMakeFiles/glfw.dir/input.c.o
+[  6%] Building CXX object _deps/spdlog-build/CMakeFiles/spdlog.dir/src/file_sinks.cpp.o
+[  7%] Building C object _deps/zstd-build/lib/CMakeFiles/libzstd_static.dir/__/__/__/lib/common/entropy_common.c.o
+[  7%] Building C object _deps/glfw-build/src/CMakeFiles/glfw.dir/null_joystick.c.o
+[  8%] Building C object _deps/glfw-build/src/CMakeFiles/glfw.dir/window.c.o
+[ 10%] Building C object _deps/glfw-build/src/CMakeFiles/glfw.dir/null_window.c.o
+[ 10%] Building C object _deps/glfw-build/src/CMakeFiles/glfw.dir/vulkan.c.o
+[ 10%] Building CXX object _deps/spdlog-build/CMakeFiles/spdlog.dir/src/async.cpp.o
+[ 10%] Building CXX object _deps/glm-build/glm/CMakeFiles/glm.dir/detail/glm.cpp.o
+[ 10%] Building C object _deps/glfw-build/src/CMakeFiles/glfw.dir/null_init.c.o
+[ 10%] Building C object _deps/zstd-build/lib/CMakeFiles/libzstd_static.dir/__/__/__/lib/common/error_private.c.o
+[ 10%] Building C object _deps/glfw-build/src/CMakeFiles/glfw.dir/posix_module.c.o
+[ 10%] Building CXX object _deps/spdlog-build/CMakeFiles/spdlog.dir/src/bundled_fmtlib_format.cpp.o
+[ 12%] Building C object _deps/glfw-build/src/CMakeFiles/glfw.dir/platform.c.o
+[ 12%] Building CXX object _deps/spdlog-build/CMakeFiles/spdlog.dir/src/stdout_sinks.cpp.o
+[ 13%] Building C object _deps/zstd-build/lib/CMakeFiles/libzstd_static.dir/__/__/__/lib/common/zstd_common.c.o
+[ 13%] Building CXX object _deps/spdlog-build/CMakeFiles/spdlog.dir/src/cfg.cpp.o
+[ 14%] Building C object _deps/glfw-build/src/CMakeFiles/glfw.dir/null_monitor.c.o
+[ 15%] Building C object _deps/zstd-build/lib/CMakeFiles/libzstd_static.dir/__/__/__/lib/common/fse_decompress.c.o
+[ 16%] Building C object _deps/glfw-build/src/CMakeFiles/glfw.dir/cocoa_time.c.o
+[ 16%] Building C object _deps/zstd-build/lib/CMakeFiles/libzstd_static.dir/__/__/__/lib/common/pool.c.o
+[ 17%] Building C object _deps/glfw-build/src/CMakeFiles/glfw.dir/posix_thread.c.o
+[ 18%] Building C object _deps/zstd-build/lib/CMakeFiles/libzstd_static.dir/__/__/__/lib/dictBuilder/divsufsort.c.o
+[ 20%] Building C object _deps/zstd-build/lib/CMakeFiles/libzstd_static.dir/__/__/__/lib/compress/zstd_opt.c.o
+[ 20%] Building C object _deps/zstd-build/lib/CMakeFiles/libzstd_static.dir/__/__/__/lib/common/debug.c.o
+[ 21%] Building C object _deps/zstd-build/lib/CMakeFiles/libzstd_static.dir/__/__/__/lib/compress/fse_compress.c.o
+[ 22%] Building C object _deps/zstd-build/lib/CMakeFiles/libzstd_static.dir/__/__/__/lib/dictBuilder/cover.c.o
+[ 22%] Building C object _deps/glfw-build/src/CMakeFiles/glfw.dir/cocoa_joystick.m.o
+[ 23%] Building C object _deps/zstd-build/lib/CMakeFiles/libzstd_static.dir/__/__/__/lib/compress/zstd_lazy.c.o
+[ 24%] Building C object _deps/glfw-build/src/CMakeFiles/glfw.dir/nsgl_context.m.o
+[ 25%] Building C object _deps/zstd-build/lib/CMakeFiles/libzstd_static.dir/__/__/__/lib/compress/zstd_double_fast.c.o
+[ 25%] Building C object _deps/zstd-build/lib/CMakeFiles/libzstd_static.dir/__/__/__/lib/compress/zstd_compress_sequences.c.o
+[ 26%] Building C object _deps/glfw-build/src/CMakeFiles/glfw.dir/cocoa_monitor.m.o
+[ 27%] Building C object _deps/zstd-build/lib/CMakeFiles/libzstd_static.dir/__/__/__/lib/decompress/zstd_ddict.c.o
+[ 27%] Building C object _deps/zstd-build/lib/CMakeFiles/libzstd_static.dir/__/__/__/lib/decompress/huf_decompress.c.o
+[ 28%] Building C object _deps/zstd-build/lib/CMakeFiles/libzstd_static.dir/__/__/__/lib/common/threading.c.o
+[ 29%] Building C object _deps/zstd-build/lib/CMakeFiles/libzstd_static.dir/__/__/__/lib/compress/zstd_compress_superblock.c.o
+[ 29%] Building C object _deps/zstd-build/lib/CMakeFiles/libzstd_static.dir/__/__/__/lib/decompress/zstd_decompress.c.o
+[ 30%] Building C object _deps/zstd-build/lib/CMakeFiles/libzstd_static.dir/__/__/__/lib/decompress/zstd_decompress_block.c.o
+[ 31%] Building C object _deps/zstd-build/lib/CMakeFiles/libzstd_static.dir/__/__/__/lib/legacy/zstd_v03.c.o
+[ 32%] Building C object _deps/zstd-build/lib/CMakeFiles/libzstd_static.dir/__/__/__/lib/compress/zstd_ldm.c.o
+[ 32%] Building C object _deps/zstd-build/lib/CMakeFiles/libzstd_static.dir/__/__/__/lib/dictBuilder/fastcover.c.o
+[ 32%] Building C object _deps/zstd-build/lib/CMakeFiles/libzstd_static.dir/__/__/__/lib/legacy/zstd_v07.c.o
+[ 32%] Building C object _deps/zstd-build/lib/CMakeFiles/libzstd_static.dir/__/__/__/lib/dictBuilder/zdict.c.o
+[ 33%] Building C object _deps/zstd-build/lib/CMakeFiles/libzstd_static.dir/__/__/__/lib/legacy/zstd_v01.c.o
+[ 33%] Building C object _deps/zstd-build/lib/CMakeFiles/libzstd_static.dir/__/__/__/lib/compress/hist.c.o
+[ 34%] Building C object _deps/glfw-build/src/CMakeFiles/glfw.dir/osmesa_context.c.o
+[ 35%] Building C object _deps/zstd-build/lib/CMakeFiles/libzstd_static.dir/__/__/__/lib/compress/zstdmt_compress.c.o
+[ 36%] Building C object _deps/zstd-build/lib/CMakeFiles/libzstd_static.dir/__/__/__/lib/compress/zstd_compress_literals.c.o
+[ 36%] Building C object _deps/zstd-build/lib/CMakeFiles/libzstd_static.dir/__/__/__/lib/compress/zstd_fast.c.o
+[ 37%] Building C object _deps/zstd-build/lib/CMakeFiles/libzstd_static.dir/__/__/__/lib/legacy/zstd_v06.c.o
+[ 37%] Building C object _deps/glfw-build/src/CMakeFiles/glfw.dir/cocoa_window.m.o
+[ 37%] Building C object _deps/zstd-build/lib/CMakeFiles/libzstd_static.dir/__/__/__/lib/common/xxhash.c.o
+[ 37%] Building C object _deps/zstd-build/lib/CMakeFiles/libzstd_static.dir/__/__/__/lib/legacy/zstd_v02.c.o
+[ 38%] Building C object _deps/zstd-build/lib/CMakeFiles/libzstd_static.dir/__/__/__/lib/legacy/zstd_v05.c.o
+[ 38%] Building C object _deps/zstd-build/lib/CMakeFiles/libzstd_static.dir/__/__/__/lib/compress/zstd_compress.c.o
+[ 39%] Building C object _deps/zstd-build/lib/CMakeFiles/libzstd_static.dir/__/__/__/lib/compress/huf_compress.c.o
+[ 39%] Building C object _deps/zstd-build/lib/CMakeFiles/libzstd_static.dir/__/__/__/lib/legacy/zstd_v04.c.o
+[ 39%] Building C object _deps/glfw-build/src/CMakeFiles/glfw.dir/cocoa_init.m.o
+[ 39%] Linking CXX static library libopencraft_noise.a
+[ 39%] Built target opencraft_noise
+[ 39%] Linking C static library libglfw3.a
+[ 39%] Built target glfw
+[ 39%] Linking CXX static library libglm.a
+[ 39%] Built target glm
+[ 40%] Linking CXX static library libdoctest_with_main.a
+[ 40%] Built target doctest_with_main
+[ 41%] Linking C static library libzstd.a
+[ 41%] Built target libzstd_static
+[ 42%] Linking CXX static library libspdlog.a
+[ 42%] Built target spdlog
+[ 42%] Building CXX object engine/core/CMakeFiles/opencraft_core.dir/src/byte_buffer.cpp.o
+[ 44%] Building CXX object engine/core/CMakeFiles/opencraft_core.dir/src/version.cpp.o
+[ 44%] Building CXX object engine/core/CMakeFiles/opencraft_core.dir/src/tick_clock.cpp.o
+[ 45%] Linking CXX static library libopencraft_core.a
+[ 45%] Built target opencraft_core
+[ 47%] Building CXX object engine/voxel/CMakeFiles/opencraft_voxel.dir/src/chunk.cpp.o
+[ 47%] Building CXX object engine/voxel/CMakeFiles/opencraft_voxel.dir/src/light_storage.cpp.o
+[ 47%] Building CXX object engine/voxel/CMakeFiles/opencraft_voxel.dir/src/chunk_manager.cpp.o
+[ 47%] Building CXX object engine/voxel/CMakeFiles/opencraft_voxel.dir/src/block_registry.cpp.o
+[ 47%] Building CXX object engine/voxel/CMakeFiles/opencraft_voxel.dir/src/light_engine.cpp.o
+[ 48%] Building CXX object engine/voxel/CMakeFiles/opencraft_voxel.dir/src/light_world_adapter.cpp.o
+[ 49%] Building CXX object engine/voxel/CMakeFiles/opencraft_voxel.dir/src/fluid_sim.cpp.o
+[ 49%] Linking CXX static library libopencraft_voxel.a
+[ 49%] Built target opencraft_voxel
+[ 49%] Building CXX object engine/render/CMakeFiles/opencraft_render.dir/src/mesher.cpp.o
+[ 50%] Building CXX object game/server/CMakeFiles/opencraft_storage.dir/storage/src/region_file.cpp.o
+[ 50%] Building C object engine/render/CMakeFiles/opencraft_render.dir/third_party/glad/src/gl.c.o
+[ 51%] Building CXX object engine/render/CMakeFiles/opencraft_render.dir/src/rhi.cpp.o
+[ 52%] Building CXX object engine/physics/CMakeFiles/opencraft_physics.dir/src/player_physics.cpp.o
+[ 52%] Building CXX object game/server/CMakeFiles/opencraft_storage.dir/storage/src/level_file.cpp.o
+[ 53%] Building CXX object game/server/CMakeFiles/opencraft_storage.dir/storage/src/world_save.cpp.o
+[ 54%] Building CXX object game/server/CMakeFiles/opencraft_worldgen.dir/worldgen/src/terrain_generator.cpp.o
+[ 54%] Linking CXX static library libopencraft_worldgen.a
+[ 55%] Linking CXX static library libopencraft_render.a
+[ 55%] Built target opencraft_worldgen
+[ 55%] Built target opencraft_render
+[ 56%] Linking CXX static library libopencraft_physics.a
+[ 57%] Building CXX object game/client/CMakeFiles/opencraft_client_assets.dir/src/atlas.cpp.o
+[ 57%] Building CXX object game/client/CMakeFiles/opencraft_client_assets.dir/src/asset_atlas.cpp.o
+[ 57%] Built target opencraft_physics
+[ 57%] Building CXX object game/common/CMakeFiles/opencraft_game.dir/src/placement.cpp.o
+[ 58%] Building CXX object game/common/CMakeFiles/opencraft_game.dir/src/item_registry.cpp.o
+[ 59%] Building CXX object game/common/CMakeFiles/opencraft_game.dir/src/entity_type.cpp.o
+[ 60%] Building CXX object game/common/CMakeFiles/opencraft_game.dir/src/protocol.cpp.o
+[ 60%] Building CXX object game/common/CMakeFiles/opencraft_game.dir/src/raycast.cpp.o
+[ 60%] Building CXX object game/common/CMakeFiles/opencraft_game.dir/src/mob_goal.cpp.o
+[ 60%] Building CXX object game/common/CMakeFiles/opencraft_game.dir/src/inventory.cpp.o
+[ 61%] Building CXX object game/common/CMakeFiles/opencraft_game.dir/src/mining.cpp.o
+[ 62%] Building CXX object game/common/CMakeFiles/opencraft_game.dir/src/mob_type.cpp.o
+[ 62%] Linking CXX static library libopencraft_storage.a
+[ 62%] Built target opencraft_storage
+[ 62%] Linking CXX static library libopencraft_game.a
+[ 62%] Built target opencraft_game
+[ 62%] Building CXX object game/server/CMakeFiles/opencraft_sim.dir/sim/src/world_sim.cpp.o
+[ 63%] Linking CXX static library libopencraft_client_assets.a
+[ 63%] Built target opencraft_client_assets
+[ 63%] Building CXX object game/client/CMakeFiles/opencraft_client_mobs.dir/src/mob_model.cpp.o
+[ 65%] Building CXX object game/client/CMakeFiles/opencraft_client_mobs.dir/src/mob_pose.cpp.o
+[ 65%] Building CXX object game/client/CMakeFiles/opencraft_client_mobs.dir/src/mob_mesh.cpp.o
+[ 65%] Linking CXX static library libopencraft_client_mobs.a
+[ 65%] Built target opencraft_client_mobs
+[ 66%] Linking CXX static library libopencraft_sim.a
+[ 66%] Built target opencraft_sim
+[ 67%] Building CXX object tests/CMakeFiles/opencraft_tests.dir/test_version.cpp.o
+[ 68%] Building CXX object game/client/CMakeFiles/opencraft.dir/src/cube_geometry.cpp.o
+[ 68%] Building CXX object game/client/CMakeFiles/opencraft.dir/src/main.cpp.o
+[ 68%] Building CXX object tests/CMakeFiles/opencraft_tests.dir/test_byte_buffer.cpp.o
+[ 69%] Building CXX object tests/CMakeFiles/opencraft_tests.dir/test_log.cpp.o
+[ 69%] Building CXX object tests/CMakeFiles/opencraft_tests.dir/test_tick_clock.cpp.o
+[ 70%] Building CXX object game/client/CMakeFiles/opencraft.dir/src/world.cpp.o
+[ 71%] Building CXX object tests/CMakeFiles/opencraft_tests.dir/test_task_system.cpp.o
+[ 72%] Building CXX object tests/CMakeFiles/opencraft_tests.dir/test_block_registry.cpp.o
+[ 73%] Building CXX object game/client/CMakeFiles/opencraft.dir/src/particles.cpp.o
+[ 73%] Building CXX object tests/CMakeFiles/opencraft_tests.dir/test_serialization.cpp.o
+[ 74%] Building CXX object tests/CMakeFiles/opencraft_tests.dir/test_math.cpp.o
+[ 74%] Building CXX object game/client/CMakeFiles/opencraft.dir/src/shaders.cpp.o
+[ 74%] Building CXX object game/client/CMakeFiles/opencraft.dir/src/bitmap_font.cpp.o
+[ 75%] Building CXX object game/client/CMakeFiles/opencraft.dir/src/block_colors.cpp.o
+[ 75%] Building CXX object tests/CMakeFiles/opencraft_tests.dir/test_chunk.cpp.o
+[ 76%] Building CXX object game/client/CMakeFiles/opencraft.dir/src/mob_render.cpp.o
+[ 77%] Building CXX object game/client/CMakeFiles/opencraft.dir/src/pause_menu.cpp.o
+[ 77%] Building CXX object game/client/CMakeFiles/opencraft.dir/src/hud.cpp.o
+[ 79%] Building CXX object game/client/CMakeFiles/opencraft.dir/src/tick.cpp.o
+[ 79%] Building CXX object tests/CMakeFiles/opencraft_tests.dir/test_chunk_manager.cpp.o
+[ 79%] Building CXX object game/client/CMakeFiles/opencraft.dir/src/chunk_renderer.cpp.o
+[ 80%] Building CXX object tests/CMakeFiles/opencraft_tests.dir/test_fluid.cpp.o
+[ 80%] Building CXX object tests/CMakeFiles/opencraft_tests.dir/test_light_storage.cpp.o
+[ 80%] Building CXX object tests/CMakeFiles/opencraft_tests.dir/test_noise.cpp.o
+[ 81%] Building CXX object tests/CMakeFiles/opencraft_tests.dir/test_worldgen.cpp.o
+[ 81%] Building CXX object tests/CMakeFiles/opencraft_tests.dir/test_item_registry.cpp.o
+[ 81%] Building CXX object tests/CMakeFiles/opencraft_tests.dir/test_asset_atlas.cpp.o
+[ 82%] Building CXX object tests/CMakeFiles/opencraft_tests.dir/test_entity_store.cpp.o
+[ 82%] Building CXX object tests/CMakeFiles/opencraft_tests.dir/test_mining.cpp.o
+[ 82%] Building CXX object tests/CMakeFiles/opencraft_tests.dir/test_mob_authority.cpp.o
+[ 82%] Building CXX object tests/CMakeFiles/opencraft_tests.dir/test_item_drop.cpp.o
+[ 83%] Building CXX object tests/CMakeFiles/opencraft_tests.dir/test_player_physics.cpp.o
+[ 84%] Building CXX object tests/CMakeFiles/opencraft_tests.dir/test_item_stack.cpp.o
+[ 85%] Building CXX object tests/CMakeFiles/opencraft_tests.dir/test_light_engine.cpp.o
+[ 86%] Building CXX object tests/CMakeFiles/opencraft_tests.dir/test_inventory.cpp.o
+[ 87%] Building CXX object tests/CMakeFiles/opencraft_tests.dir/test_authority.cpp.o
+[ 88%] Building CXX object tests/CMakeFiles/opencraft_tests.dir/test_mob_goal.cpp.o
+[ 89%] Building CXX object tests/CMakeFiles/opencraft_tests.dir/test_mob_spawn.cpp.o
+[ 90%] Building CXX object tests/CMakeFiles/opencraft_tests.dir/test_physics_golden.cpp.o
+[ 89%] Building CXX object tests/CMakeFiles/opencraft_tests.dir/test_mob_ai.cpp.o
+[ 91%] Building CXX object tests/CMakeFiles/opencraft_tests.dir/test_player_death.cpp.o
+[ 92%] Building CXX object tests/CMakeFiles/opencraft_tests.dir/test_raycast.cpp.o
+[ 92%] Building CXX object tests/CMakeFiles/opencraft_tests.dir/test_auto_jump.cpp.o
+[ 93%] Building CXX object tests/CMakeFiles/opencraft_tests.dir/test_mesher.cpp.o
+[ 93%] Building CXX object tests/CMakeFiles/opencraft_tests.dir/test_storage.cpp.o
+[ 93%] Building CXX object tests/CMakeFiles/opencraft_tests.dir/test_sprint_feel.cpp.o
+[ 93%] Building CXX object tests/CMakeFiles/opencraft_tests.dir/test_inventory_wiring.cpp.o
+[ 93%] Building CXX object tests/CMakeFiles/opencraft_tests.dir/test_friction_pipeline.cpp.o
+[ 93%] Building CXX object tests/CMakeFiles/opencraft_tests.dir/test_chunk_streaming.cpp.o
+[ 94%] Building CXX object tests/CMakeFiles/opencraft_tests.dir/test_camera_spring.cpp.o
+[ 95%] Building CXX object tests/CMakeFiles/opencraft_tests.dir/test_drop_authority.cpp.o
+[ 96%] Building CXX object tests/CMakeFiles/opencraft_tests.dir/test_mob_model.cpp.o
+[ 97%] Building CXX object tests/CMakeFiles/opencraft_tests.dir/test_placement.cpp.o
+[ 98%] Building CXX object tests/CMakeFiles/opencraft_tests.dir/test_step_assist.cpp.o
+/Users/happy/Desktop/opencraft_worktree/opencraft-tb2/tests/test_mob_spawn.cpp:144:9: warning: ignoring return value of function declared with 'nodiscard' attribute [-Wunused-result]
+  144 |         full.add_mob("hollow_wretch", {40.5 + static_cast<double>(i), 64.0, 0.5});
+      |         ^~~~~~~~~~~~
+/Users/happy/Desktop/opencraft_worktree/opencraft-tb2/tests/test_mob_authority.cpp:36:5: warning: ignoring return value of function declared with 'nodiscard' attribute [-Wunused-result]
+   36 |     sim.stream(req);
+      |     ^~~~~~~~~~ ~~~
+/Users/happy/Desktop/opencraft_worktree/opencraft-tb2/tests/test_mob_authority.cpp:104:9: warning: ignoring return value of function declared with 'nodiscard' attribute [-Wunused-result]
+  104 |         sim.take_changes();
+      |         ^~~~~~~~~~~~~~~~
+/Users/happy/Desktop/opencraft_worktree/opencraft-tb2/tests/test_mob_authority.cpp:194:9: warning: ignoring return value of function declared with 'nodiscard' attribute [-Wunused-result]
+  194 |         sim.take_changes();
+      |         ^~~~~~~~~~~~~~~~
+/Users/happy/Desktop/opencraft_worktree/opencraft-tb2/tests/test_mob_authority.cpp:199:13: warning: ignoring return value of function declared with 'nodiscard' attribute [-Wunused-result]
+  199 |             sim.take_changes();
+      |             ^~~~~~~~~~~~~~~~
+/Users/happy/Desktop/opencraft_worktree/opencraft-tb2/tests/test_mob_authority.cpp:310:9: warning: ignoring return value of function declared with 'nodiscard' attribute [-Wunused-result]
+  310 |         sim.take_changes();
+      |         ^~~~~~~~~~~~~~~~
+5 warnings generated.
+1 warning generated.
+[100%] Linking CXX executable opencraft_tests
+ld: warning: ignoring duplicate libraries: '../engine/physics/libopencraft_physics.a', '../engine/render/libopencraft_render.a', '../game/common/libopencraft_game.a', '../game/server/libopencraft_storage.a', '../game/server/libopencraft_worldgen.a'
+[100%] Linking CXX executable ../../opencraft
+ld: warning: ignoring duplicate libraries: '../../engine/physics/libopencraft_physics.a', '../../engine/render/libopencraft_render.a', '../common/libopencraft_game.a', '../server/libopencraft_storage.a', '../server/libopencraft_worldgen.a'
+[100%] Built target opencraft
+[100%] Built target opencraft_tests
