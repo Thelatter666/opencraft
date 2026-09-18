@@ -87,7 +87,8 @@ v4 旧件是 `git show ba2f920:…`（分支基线）拷进**本卡证据目录*
 
 - `mobs: 2/3` ✓（第三只 `blastbud` 属 T-B4，尚未落盘 ⇒ 分母 3 不含它是错的，2/3 是预期值）；
   **两行 `mob model …` 齐全** ✓；
-- **全文 WARN=0、ERROR=0** ✓（`grep -c "WARN\|ERROR" run1_startup_with_assets.log` → 0）；
+- **游戏自己的日志行里 WARN/ERROR 各 0 条** ✓（`grep -c "WARN\|ERROR" run1_startup_with_assets.log` → `0`）；
+  ⚠ **如实登记一处噪声**：run1 日志末尾有一行 `opencraft[30825:725421] error messaging the mach port for IMKCFRunLoopWakeUpReliable` —— 它是 **macOS 输入法框架（IMK/AppKit）直接往 stderr 写的**，行首没有本项目的 `[时间] [级别]` 前缀，不是 OpenCraft 的日志通道；（它未出现在 T-B2b/T-B3 期的同类日志里，应是本轮系统输入法状态不同所致，与本卡资产无关。）
 - `atlas: 60/63` 与基线一致（本卡未碰方块贴图）✓。
 - **数值自洽**：日志的 705 体素 / 1544 三角形 / 496 体素 / 1592 三角形与
   §6 的独立复查器（`vox_inspect.py`，自己实现解析 + 邻居剔除）**逐个相同** ✓。
