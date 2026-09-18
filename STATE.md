@@ -225,8 +225,14 @@ M1 判据达成：新档可走/挖/建闭环 + 退出重进不丢档（含 `kill
        B3+ 卡面不得写"用 Goxel 出 .vox"；
     ④ 给后续卡的实机账：画布档位 **1 体素=0.1 格**性价比最好；暂停帧装置对 1.4 格高生物用
        **召唤距离 4.5 格**（菜单/热栏死区几何见 pm_verify README §3）；**暂停态注入鼠标俯仰无效**。
-    ⇒ **当前唯一有效动作：转发 T-B2b 卡**（引擎侧扩约+mossback 迁移，
+  ⇒ **当前唯一有效动作：转发 T-B2b 卡**（引擎侧扩约+mossback 迁移，
     `/Users/happy/Desktop/opencraft/docs/tasks/T-B2b.md`）。B2b 验收后派发 B3（hollow_wretch）。
+    ★ 用户方案 A 已执行：**MagicaVoxel 第三方校验收口**——`open -a <app绝对路径> <.vox绝对路径>`
+    实测可读（其二进制有 `application:openFiles:` 句柄），标题栏/尺寸 9 14 14/形体
+    三证齐，包 sha256 与 T-R3 许可核验记录逐位一致；**B3 卡面把"MV 打开交付件截图"列为可选加分判据**
+    （MV 有 `application:openFiles:` 句柄为实测；Goxel 被类型拒绝的根因是否同为此，未验其二进制，
+    仅记推断），门槛仍为日志判据+PM 暂停帧装置，证据 `docs/qa/T-B2-2026-09-18/mv_thirdparty/`，
+    工具常驻 `/Users/happy/Desktop/opencraft_scratch/mv/`。
     B3 之后：B4 Blastbud。倒地动画仍被 T-D51 挡（先粒子版），`mob_skin()` 留 T-D52。
 
 ## 备忘（有效临时项；收口时删除过期条目）
