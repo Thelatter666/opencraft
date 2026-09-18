@@ -1,0 +1,923 @@
+Test project /Users/happy/Desktop/opencraft_scratch/verify-tb4/build
+        Start   1: atlas tile layout and size formula are untouched by the asset channel
+  1/459 Test   #1: atlas tile layout and size formula are untouched by the asset channel ..........................   Passed    0.01 sec
+        Start   2: asset file names follow the frozen directory layout
+  2/459 Test   #2: asset file names follow the frozen directory layout ............................................   Passed    0.00 sec
+        Start   3: with no asset files every tile is the pre-T-A2 procedural result
+  3/459 Test   #3: with no asset files every tile is the pre-T-A2 procedural result ...............................   Passed    0.01 sec
+        Start   4: an empty assets root is reported but never turns into an error
+  4/459 Test   #4: an empty assets root is reported but never turns into an error .................................   Passed    0.00 sec
+        Start   5: a block PNG replaces exactly its own tile
+  5/459 Test   #5: a block PNG replaces exactly its own tile ......................................................   Passed    0.01 sec
+        Start   6: each slot takes its own file, in the mesher's slot order
+  6/459 Test   #6: each slot takes its own file, in the mesher's slot order .......................................   Passed    0.01 sec
+        Start   7: only the named block's tiles change
+  7/459 Test   #7: only the named block's tiles change ............................................................   Passed    0.01 sec
+        Start   8: alpha survives the round trip
+  8/459 Test   #8: alpha survives the round trip ..................................................................   Passed    0.01 sec
+        Start   9: a 32x32 PNG is rejected with a warning and falls back
+  9/459 Test   #9: a 32x32 PNG is rejected with a warning and falls back ..........................................   Passed    0.00 sec
+        Start  10: a non-PNG file is rejected with a warning and falls back
+ 10/459 Test  #10: a non-PNG file is rejected with a warning and falls back .......................................   Passed    0.01 sec
+        Start  11: an empty file is rejected with a warning and falls back
+ 11/459 Test  #11: an empty file is rejected with a warning and falls back ........................................   Passed    0.01 sec
+        Start  12: a truncated PNG is rejected with a warning and falls back
+ 12/459 Test  #12: a truncated PNG is rejected with a warning and falls back ......................................   Passed    0.01 sec
+        Start  13: a directory named like a tile is rejected, not read
+ 13/459 Test  #13: a directory named like a tile is rejected, not read ............................................   Passed    0.01 sec
+        Start  14: load_tile_png reports absent vs rejected without throwing
+ 14/459 Test  #14: load_tile_png reports absent vs rejected without throwing ......................................   Passed    0.00 sec
+        Start  15: the asset root search takes the first existing candidate
+ 15/459 Test  #15: the asset root search takes the first existing candidate .......................................   Passed    0.01 sec
+        Start  16: the item icon channel loads from assets/items
+ 16/459 Test  #16: the item icon channel loads from assets/items ..................................................   Passed    0.00 sec
+        Start  17: authority: dig breaks the block and pushes exactly the stale chunks back
+ 17/459 Test  #17: authority: dig breaks the block and pushes exactly the stale chunks back .......................   Passed    0.14 sec
+        Start  18: authority: an accepted action leaves the chunk byte-identical to a direct write
+ 18/459 Test  #18: authority: an accepted action leaves the chunk byte-identical to a direct write ................   Passed    0.11 sec
+        Start  19: authority: a refused request does not touch the world
+ 19/459 Test  #19: authority: a refused request does not touch the world ..........................................   Passed    0.09 sec
+        Start  20: authority: dig refuses the targets the mining rules do not allow
+ 20/459 Test  #20: authority: dig refuses the targets the mining rules do not allow ...............................   Passed    0.43 sec
+        Start  21: authority: place and pour refuse the cells they may not write
+ 21/459 Test  #21: authority: place and pour refuse the cells they may not write ..................................   Passed    0.19 sec
+        Start  22: authority: scoop refuses a cell without a water source
+ 22/459 Test  #22: authority: scoop refuses a cell without a water source .........................................   Passed    0.09 sec
+        Start  23: authority: every refusal code carries a reason
+ 23/459 Test  #23: authority: every refusal code carries a reason .................................................   Passed    0.00 sec
+        Start  24: authority: every cell the client's own ray can hit is accepted
+ 24/459 Test  #24: authority: every cell the client's own ray can hit is accepted .................................   Passed    0.10 sec
+        Start  25: authority: pour, fluid tick and scoop work through the channel
+ 25/459 Test  #25: authority: pour, fluid tick and scoop work through the channel .................................   Passed    0.09 sec
+        Start  26: should_auto_jump true at a 1-block wall ahead
+ 26/459 Test  #26: should_auto_jump true at a 1-block wall ahead ..................................................   Passed    0.01 sec
+        Start  27: should_auto_jump false when disabled
+ 27/459 Test  #27: should_auto_jump false when disabled ...........................................................   Passed    0.00 sec
+        Start  28: should_auto_jump false when airborne
+ 28/459 Test  #28: should_auto_jump false when airborne ...........................................................   Passed    0.00 sec
+        Start  29: should_auto_jump false when sneaking
+ 29/459 Test  #29: should_auto_jump false when sneaking ...........................................................   Passed    0.00 sec
+        Start  30: should_auto_jump false when in water
+ 30/459 Test  #30: should_auto_jump false when in water ...........................................................   Passed    0.00 sec
+        Start  31: should_auto_jump false on flat ground (nothing to jump)
+ 31/459 Test  #31: should_auto_jump false on flat ground (nothing to jump) ........................................   Passed    0.00 sec
+        Start  32: should_auto_jump false without forward input
+ 32/459 Test  #32: should_auto_jump false without forward input ...................................................   Passed    0.00 sec
+        Start  33: wall too tall (2 blocks) does not trigger
+ 33/459 Test  #33: wall too tall (2 blocks) does not trigger ......................................................   Passed    0.00 sec
+        Start  34: far obstacle outside the scan range does not trigger
+ 34/459 Test  #34: far obstacle outside the scan range does not trigger ...........................................   Passed    0.00 sec
+        Start  35: obstacle at exactly the jump ceiling (1.25 b) triggers
+ 35/459 Test  #35: obstacle at exactly the jump ceiling (1.25 b) triggers .........................................   Passed    0.00 sec
+        Start  36: sub-step obstacle (0.5 b) does not trigger (step-assist's job)
+ 36/459 Test  #36: sub-step obstacle (0.5 b) does not trigger (step-assist's job) .................................   Passed    0.00 sec
+        Start  37: low ceiling above the obstacle (no headroom) does not trigger
+ 37/459 Test  #37: low ceiling above the obstacle (no headroom) does not trigger ..................................   Passed    0.00 sec
+        Start  38: grazing along a wall does not trigger
+ 38/459 Test  #38: grazing along a wall does not trigger ..........................................................   Passed    0.00 sec
+        Start  39: step-assist height mob does not auto-jump at 1.0
+ 39/459 Test  #39: step-assist height mob does not auto-jump at 1.0 ...............................................   Passed    0.00 sec
+        Start  40: walking into a 1-block ledge with auto-jump wiring lands on top
+ 40/459 Test  #40: walking into a 1-block ledge with auto-jump wiring lands on top ................................   Passed    0.00 sec
+        Start  41: without the wiring the same walk is stopped by the wall
+ 41/459 Test  #41: without the wiring the same walk is stopped by the wall ........................................   Passed    0.00 sec
+        Start  42: jump apex unchanged at 1.2522 blocks
+ 42/459 Test  #42: jump apex unchanged at 1.2522 blocks ...........................................................   Passed    0.00 sec
+        Start  43: step_height frozen: player 0.6, mob 1.0
+ 43/459 Test  #43: step_height frozen: player 0.6, mob 1.0 ........................................................   Passed    0.00 sec
+        Start  44: registry reserves air as id zero
+ 44/459 Test  #44: registry reserves air as id zero ...............................................................   Passed    0.00 sec
+        Start  45: registry assigns dense numeric ids and supports both query directions
+ 45/459 Test  #45: registry assigns dense numeric ids and supports both query directions ..........................   Passed    0.00 sec
+        Start  46: registry default set covers the launch blocks with hardness values
+ 46/459 Test  #46: registry default set covers the launch blocks with hardness values .............................   Passed    0.00 sec
+        Start  47: registry rejects duplicates and empty ids
+ 47/459 Test  #47: registry rejects duplicates and empty ids ......................................................   Passed    0.00 sec
+        Start  48: registry handles unknown ids on both directions
+ 48/459 Test  #48: registry handles unknown ids on both directions ................................................   Passed    0.00 sec
+        Start  49: water is the default liquid and every other block defaults to non-liquid
+ 49/459 Test  #49: water is the default liquid and every other block defaults to non-liquid .......................   Passed    0.00 sec
+        Start  50: write then read round-trips values little-endian
+ 50/459 Test  #50: write then read round-trips values little-endian ...............................................   Passed    0.01 sec
+        Start  51: reading past the end throws
+ 51/459 Test  #51: reading past the end throws ....................................................................   Passed    0.00 sec
+        Start  52: camera spring: the damping ratio is critical by construction
+ 52/459 Test  #52: camera spring: the damping ratio is critical by construction ...................................   Passed    0.00 sec
+        Start  53: camera spring: a step is approached monotonically and never crossed
+ 53/459 Test  #53: camera spring: a step is approached monotonically and never crossed ............................   Passed    0.00 sec
+        Start  54: camera spring: the damping ratio leaves no oscillation about the target
+ 54/459 Test  #54: camera spring: the damping ratio leaves no oscillation about the target ........................   Passed    0.00 sec
+        Start  55: camera spring: the analytic update is exact for any dt
+ 55/459 Test  #55: camera spring: the analytic update is exact for any dt .........................................   Passed    0.00 sec
+        Start  56: camera spring: the closed form rise time sits inside the target transition window
+ 56/459 Test  #56: camera spring: the closed form rise time sits inside the target transition window ..............   Passed    0.00 sec
+        Start  57: camera spring: a 0.6 lift resolves inside the target transition window at 30, 60 and 144 fps
+ 57/459 Test  #57: camera spring: a 0.6 lift resolves inside the target transition window at 30, 60 and 144 fps ...   Passed    0.00 sec
+        Start  58: camera spring: the lift is smeared over many frames, not taken in one
+ 58/459 Test  #58: camera spring: the lift is smeared over many frames, not taken in one ..........................   Passed    0.00 sec
+        Start  59: camera spring: a 0.6 lift is smoothed at least as much as an unfiltered camera
+ 59/459 Test  #59: camera spring: a 0.6 lift is smoothed at least as much as an unfiltered camera .................   Passed    0.00 sec
+        Start  60: camera filter: X and Z are the interpolated physics values exactly
+ 60/459 Test  #60: camera filter: X and Z are the interpolated physics values exactly .............................   Passed    0.00 sec
+        Start  61: camera filter: a horizontal jump reaches the camera on the same frame
+ 61/459 Test  #61: camera filter: a horizontal jump reaches the camera on the same frame ..........................   Passed    0.00 sec
+        Start  62: camera spring: the tracking error never exceeds the configured lag
+ 62/459 Test  #62: camera spring: the tracking error never exceeds the configured lag .............................   Passed    0.00 sec
+        Start  63: camera spring: the lag bound keeps the eye above the surface for every pose
+ 63/459 Test  #63: camera spring: the lag bound keeps the eye above the surface for every pose ....................   Passed    0.00 sec
+        Start  64: camera spring: the lag bound is clear of the step it must not clamp
+ 64/459 Test  #64: camera spring: the lag bound is clear of the step it must not clamp ............................   Passed    0.00 sec
+        Start  65: camera spring: a long fall trails the player but stays inside the bound
+ 65/459 Test  #65: camera spring: a long fall trails the player but stays inside the bound ........................   Passed    0.01 sec
+        Start  66: camera spring: 30, 60 and 144 fps agree at coincident simulated times
+ 66/459 Test  #66: camera spring: 30, 60 and 144 fps agree at coincident simulated times ..........................   Passed    0.01 sec
+        Start  67: camera spring: a stalled clock cannot move the camera
+ 67/459 Test  #67: camera spring: a stalled clock cannot move the camera ..........................................   Passed    0.00 sec
+        Start  68: camera spring: a frame longer than the clamp is truncated, not integrated in full
+ 68/459 Test  #68: camera spring: a frame longer than the clamp is truncated, not integrated in full ..............   Passed    0.00 sec
+        Start  69: camera filter: reset adopts the target with no transient
+ 69/459 Test  #69: camera filter: reset adopts the target with no transient .......................................   Passed    0.00 sec
+        Start  70: camera spring: a teleport snaps instead of gliding
+ 70/459 Test  #70: camera spring: a teleport snaps instead of gliding .............................................   Passed    0.00 sec
+        Start  71: camera spring: ordinary fast motion is never mistaken for a teleport
+ 71/459 Test  #71: camera spring: ordinary fast motion is never mistaken for a teleport ...........................   Passed    0.00 sec
+        Start  72: camera filter: a suspended simulation holds the camera still
+ 72/459 Test  #72: camera filter: a suspended simulation holds the camera still ...................................   Passed    0.00 sec
+        Start  73: camera filter: a pose change is smoothed over several frames
+ 73/459 Test  #73: camera filter: a pose change is smoothed over several frames ...................................   Passed    0.00 sec
+        Start  74: chunk dimension constants match the spec
+ 74/459 Test  #74: chunk dimension constants match the spec .......................................................   Passed    0.00 sec
+        Start  75: chunk_coord floors negative world coordinates
+ 75/459 Test  #75: chunk_coord floors negative world coordinates ..................................................   Passed    0.00 sec
+        Start  76: floor_div handles all sign combinations
+ 76/459 Test  #76: floor_div handles all sign combinations ........................................................   Passed    0.00 sec
+        Start  77: fresh chunk reads as air everywhere and is empty
+ 77/459 Test  #77: fresh chunk reads as air everywhere and is empty ...............................................   Passed    0.00 sec
+        Start  78: set and get round trip across section boundaries
+ 78/459 Test  #78: set and get round trip across section boundaries ...............................................   Passed    0.00 sec
+        Start  79: out of bounds access is rejected
+ 79/459 Test  #79: out of bounds access is rejected ...............................................................   Passed    0.00 sec
+        Start  80: palette grows through 4-bit, 8-bit and 16-bit tiers
+ 80/459 Test  #80: palette grows through 4-bit, 8-bit and 16-bit tiers ............................................   Passed    0.00 sec
+        Start  81: setting back to the initial value keeps palette width and entries
+ 81/459 Test  #81: setting back to the initial value keeps palette width and entries ..............................   Passed    0.00 sec
+        Start  82: serialization skips fully air sections
+ 82/459 Test  #82: serialization skips fully air sections .........................................................   Passed    0.00 sec
+        Start  83: serialization round trips a randomly filled chunk
+ 83/459 Test  #83: serialization round trips a randomly filled chunk ..............................................   Passed    0.01 sec
+        Start  84: serialization rejects malformed payloads
+ 84/459 Test  #84: serialization rejects malformed payloads .......................................................   Passed    0.00 sec
+        Start  85: full chunk sweep set and get performance
+ 85/459 Test  #85: full chunk sweep set and get performance .......................................................   Passed    0.00 sec
+        Start  86: typical terrain chunk serialized size
+ 86/459 Test  #86: typical terrain chunk serialized size ..........................................................   Passed    0.00 sec
+        Start  87: chunk manager creates empty chunks on demand
+ 87/459 Test  #87: chunk manager creates empty chunks on demand ...................................................   Passed    0.00 sec
+        Start  88: chunk manager accepts integer chunk coordinates
+ 88/459 Test  #88: chunk manager accepts integer chunk coordinates ................................................   Passed    0.00 sec
+        Start  89: chunk manager unload drops only the targeted chunk
+ 89/459 Test  #89: chunk manager unload drops only the targeted chunk .............................................   Passed    0.00 sec
+        Start  90: chunk manager integer overloads take chunk coordinates directly
+ 90/459 Test  #90: chunk manager integer overloads take chunk coordinates directly ................................   Passed    0.01 sec
+        Start  91: chunk manager get_or_load_world creates the chunk holding the block
+ 91/459 Test  #91: chunk manager get_or_load_world creates the chunk holding the block ............................   Passed    0.00 sec
+        Start  92: streaming: the window is generated nearest-first, once, inside the budget
+ 92/459 Test  #92: streaming: the window is generated nearest-first, once, inside the budget ......................   Passed    0.12 sec
+        Start  93: streaming: a chunk that leaves the retention window is released
+ 93/459 Test  #93: streaming: a chunk that leaves the retention window is released ................................   Passed    0.23 sec
+        Start  94: streaming: a release drops the chunk's state, and re-entry rebuilds it
+ 94/459 Test  #94: streaming: a release drops the chunk's state, and re-entry rebuilds it .........................   Passed    0.32 sec
+        Start  95: streaming: a released chunk is written to the save first and comes back with the edits
+ 95/459 Test  #95: streaming: a released chunk is written to the save first and comes back with the edits .........   Passed    0.29 sec
+        Start  96: streaming: the hysteresis band absorbs a player pacing over the edge
+ 96/459 Test  #96: streaming: the hysteresis band absorbs a player pacing over the edge ...........................   Passed    0.97 sec
+        Start  97: streaming: the persistence window is part of the request
+ 97/459 Test  #97: streaming: the persistence window is part of the request .......................................   Passed    0.18 sec
+        Start  98: streaming: an untouched chunk released and regenerated is byte-identical
+ 98/459 Test  #98: streaming: an untouched chunk released and regenerated is byte-identical .......................   Passed    0.26 sec
+        Start  99: authority: a successful dig leaves the block's item behind at the broken cell
+ 99/459 Test  #99: authority: a successful dig leaves the block's item behind at the broken cell ..................   Passed    0.09 sec
+        Start 100: authority: the drop settles on the floor and stays there, tick after tick
+100/459 Test #100: authority: the drop settles on the floor and stays there, tick after tick ......................   Passed    0.10 sec
+        Start 101: authority: pickup refuses an unknown id, a wrong item, a live delay and a far actor
+101/459 Test #101: authority: pickup refuses an unknown id, a wrong item, a live delay and a far actor ............   Passed    0.09 sec
+        Start 102: authority: pickup hands the whole stack over and the drop is gone afterwards
+102/459 Test #102: authority: pickup hands the whole stack over and the drop is gone afterwards ...................   Passed    0.09 sec
+        Start 103: authority: the item registry belongs to the world, and every launch block maps 1:1
+103/459 Test #103: authority: the item registry belongs to the world, and every launch block maps 1:1 .............   Passed    0.00 sec
+        Start 104: authority: an unloaded chunk freezes the drop, despawn timer included
+104/459 Test #104: authority: an unloaded chunk freezes the drop, despawn timer included ..........................   Passed    0.17 sec
+        Start 105: entity type registry: the launch set is the dropped item with research/11 §4.1-4.4 numbers
+105/459 Test #105: entity type registry: the launch set is the dropped item with research/11 §4.1-4.4 numbers ....   Passed    0.00 sec
+        Start 106: entity type registry: ids are dense, lookups are total and duplicates throw
+106/459 Test #106: entity type registry: ids are dense, lookups are total and duplicates throw ....................   Passed    0.00 sec
+        Start 107: entity store: iteration is ascending id, and that order survives erasure and reuse
+107/459 Test #107: entity store: iteration is ascending id, and that order survives erasure and reuse .............   Passed    0.00 sec
+        Start 108: entity store: spawn stamps the id it returned, and erase during a visit is safe
+108/459 Test #108: entity store: spawn stamps the id it returned, and erase during a visit is safe ................   Passed    0.00 sec
+        Start 109: fluid: packed cells round trip and reject corrupt payloads
+109/459 Test #109: fluid: packed cells round trip and reject corrupt payloads .....................................   Passed    0.00 sec
+        Start 110: fluid: chunk fluid sections store, clear and report emptiness
+110/459 Test #110: fluid: chunk fluid sections store, clear and report emptiness ..................................   Passed    0.00 sec
+        Start 111: fluid: serialization round trips the fluid layer
+111/459 Test #111: fluid: serialization round trips the fluid layer ...............................................   Passed    0.00 sec
+        Start 112: fluid: a v1 payload still loads, with an empty fluid layer
+112/459 Test #112: fluid: a v1 payload still loads, with an empty fluid layer .....................................   Passed    0.00 sec
+        Start 113: fluid: a flat single source spreads one block per five ticks, at most seven
+113/459 Test #113: fluid: a flat single source spreads one block per five ticks, at most seven ....................   Passed    0.00 sec
+        Start 114: fluid: the level drops by one per flowing block
+114/459 Test #114: fluid: the level drops by one per flowing block ................................................   Passed    0.00 sec
+        Start 115: fluid: an open floor wins over spreading sideways
+115/459 Test #115: fluid: an open floor wins over spreading sideways ..............................................   Passed    0.00 sec
+        Start 116: fluid: water funnels toward a drop-off instead of fanning out
+116/459 Test #116: fluid: water funnels toward a drop-off instead of fanning out ..................................   Passed    0.00 sec
+        Start 117: fluid: with no drop-off in range the spread is symmetric
+117/459 Test #117: fluid: with no drop-off in range the spread is symmetric .......................................   Passed    0.00 sec
+        Start 118: fluid: a drop-off just outside the search radius does not steer the flow
+118/459 Test #118: fluid: a drop-off just outside the search radius does not steer the flow .......................   Passed    0.00 sec
+        Start 119: fluid: the radius boundary itself still steers the flow
+119/459 Test #119: fluid: the radius boundary itself still steers the flow ........................................   Passed    0.00 sec
+        Start 120: fluid: tied drop-off distances all flow
+120/459 Test #120: fluid: tied drop-off distances all flow ........................................................   Passed    0.00 sec
+        Start 121: fluid: the research document's cliff example
+121/459 Test #121: fluid: the research document's cliff example ...................................................   Passed    0.00 sec
+        Start 122: fluid: solids block the search as well as the flow
+122/459 Test #122: fluid: solids block the search as well as the flow .............................................   Passed    0.00 sec
+        Start 123: fluid: a wall keeps the flow out of a pocket it surrounds
+123/459 Test #123: fluid: a wall keeps the flow out of a pocket it surrounds ......................................   Passed    0.00 sec
+        Start 124: fluid: removing the source drains the whole body
+124/459 Test #124: fluid: removing the source drains the whole body ...............................................   Passed    0.00 sec
+        Start 125: fluid: a block placed into water clears the fluid there
+125/459 Test #125: fluid: a block placed into water clears the fluid there ........................................   Passed    0.00 sec
+        Start 126: fluid: mining a hole under a pool lets the water follow
+126/459 Test #126: fluid: mining a hole under a pool lets the water follow ........................................   Passed    0.00 sec
+        Start 127: fluid: the scheduled queue dedups positions and caps with a drop counter
+127/459 Test #127: fluid: the scheduled queue dedups positions and caps with a drop counter .......................   Passed    0.01 sec
+        Start 128: fluid: the level field is deterministic
+128/459 Test #128: fluid: the level field is deterministic ........................................................   Passed    0.00 sec
+        Start 129: mesher: a fluid surface renders at the level height, not at full block
+129/459 Test #129: mesher: a fluid surface renders at the level height, not at full block .........................   Passed    0.00 sec
+        Start 130: mesher: a level step between two water cells becomes a visible wall
+130/459 Test #130: mesher: a level step between two water cells becomes a visible wall ............................   Passed    0.00 sec
+        Start 131: mesher: worldgen water without a fluid surface keeps meshing as a cube
+131/459 Test #131: mesher: worldgen water without a fluid surface keeps meshing as a cube .........................   Passed    0.00 sec
+        Start 132: mesher: level 8 renders a full block and level 1 the thinnest shell
+132/459 Test #132: mesher: level 8 renders a full block and level 1 the thinnest shell ............................   Passed    0.00 sec
+        Start 133: releasing walk input glides only about a quarter of a block
+133/459 Test #133: releasing walk input glides only about a quarter of a block ....................................   Passed    0.00 sec
+        Start 134: walking reaches ninety five percent of cruise within a quarter second
+134/459 Test #134: walking reaches ninety five percent of cruise within a quarter second ..........................   Passed    0.00 sec
+        Start 135: the momentum threshold truncates the glide tail
+135/459 Test #135: the momentum threshold truncates the glide tail ................................................   Passed    0.00 sec
+        Start 136: ground friction is the product of block friction and entity air resistance
+136/459 Test #136: ground friction is the product of block friction and entity air resistance .....................   Passed    0.00 sec
+        Start 137: airborne friction ignores the block below and keeps ninety one percent
+137/459 Test #137: airborne friction ignores the block below and keeps ninety one percent .........................   Passed    0.00 sec
+        Start 138: the migrated pipeline preserves all three spec cruise speeds
+138/459 Test #138: the migrated pipeline preserves all three spec cruise speeds ...................................   Passed    0.00 sec
+        Start 139: diagonal input is faster than single axis by the documented one over 0.98
+139/459 Test #139: diagonal input is faster than single axis by the documented one over 0.98 ......................   Passed    0.00 sec
+        Start 140: jump apex is unchanged at 1.2522 under the new pipeline
+140/459 Test #140: jump apex is unchanged at 1.2522 under the new pipeline ........................................   Passed    0.00 sec
+        Start 141: a five thousandth threshold would break the spec apex so three thousandth is used
+141/459 Test #141: a five thousandth threshold would break the spec apex so three thousandth is used ..............   Passed    0.00 sec
+        Start 142: ice is slower to reach but keeps speed six times longer than stone
+142/459 Test #142: ice is slower to reach but keeps speed six times longer than stone .............................   Passed    0.00 sec
+        Start 143: slime blocks are the slowest of the three friction classes
+143/459 Test #143: slime blocks are the slowest of the three friction classes .....................................   Passed    0.00 sec
+        Start 144: a falling block and a player keep independent gravity configurations
+144/459 Test #144: a falling block and a player keep independent gravity configurations ...........................   Passed    0.00 sec
+        Start 145: a caller-supplied config leaves the default config untouched
+145/459 Test #145: a caller-supplied config leaves the default config untouched ...................................   Passed    0.00 sec
+        Start 146: move result reports wall hits without any signature break
+146/459 Test #146: move result reports wall hits without any signature break ......................................   Passed    0.00 sec
+        Start 147: move result reports a jump landing with its fall distance
+147/459 Test #147: move result reports a jump landing with its fall distance ......................................   Passed    0.00 sec
+        Start 148: move result flags a ceiling bump as a vertical hit without landing
+148/459 Test #148: move result flags a ceiling bump as a vertical hit without landing .............................   Passed    0.00 sec
+        Start 149: the block shape query defaults to solid means full cube
+149/459 Test #149: the block shape query defaults to solid means full cube ........................................   Passed    0.00 sec
+        Start 150: sprint jump chain average is 7.127 m/s with MC raw plus 0.2
+150/459 Test #150: sprint jump chain average is 7.127 m/s with MC raw plus 0.2 ....................................   Passed    0.01 sec
+        Start 151: sprint jump chain clearance follows the affine lock from its average
+151/459 Test #151: sprint jump chain clearance follows the affine lock from its average ...........................   Passed    0.01 sec
+        Start 152: a strafe-launched sprint jump is slower than a straight one
+152/459 Test #152: a strafe-launched sprint jump is slower than a straight one ....................................   Passed    0.00 sec
+        Start 153: the migrated pipeline stays bit-identical across repeated runs
+153/459 Test #153: the migrated pipeline stays bit-identical across repeated runs .................................   Passed    0.00 sec
+        Start 154: inventory layout is the 9/27/4/1 split of the spec
+154/459 Test #154: inventory layout is the 9/27/4/1 split of the spec .............................................   Passed    0.00 sec
+        Start 155: a fresh inventory has 41 empty cells
+155/459 Test #155: a fresh inventory has 41 empty cells ...........................................................   Passed    0.00 sec
+        Start 156: add_item tops up a partial stack before opening a new cell
+156/459 Test #156: add_item tops up a partial stack before opening a new cell .....................................   Passed    0.00 sec
+        Start 157: add_item fills cells in slot order and only opens a new cell when needed
+157/459 Test #157: add_item fills cells in slot order and only opens a new cell when needed .......................   Passed    0.00 sec
+        Start 158: add_item respects each of the three stack limits
+158/459 Test #158: add_item respects each of the three stack limits ...............................................   Passed    0.00 sec
+        Start 159: add_item hands back the whole remainder once the storage section is full
+159/459 Test #159: add_item hands back the whole remainder once the storage section is full .......................   Passed    0.00 sec
+        Start 160: add_item ignores an empty or non-positive request
+160/459 Test #160: add_item ignores an empty or non-positive request ..............................................   Passed    0.00 sec
+        Start 161: add_item into a section never spills into another section
+161/459 Test #161: add_item into a section never spills into another section ......................................   Passed    0.00 sec
+        Start 162: armour cells accept exactly their own armour piece
+162/459 Test #162: armour cells accept exactly their own armour piece .............................................   Passed    0.00 sec
+        Start 163: the offhand is a single cell that takes any item
+163/459 Test #163: the offhand is a single cell that takes any item ...............................................   Passed    0.00 sec
+        Start 164: move_slot moves or merges same items and refuses a mismatched destination
+164/459 Test #164: move_slot moves or merges same items and refuses a mismatched destination ......................   Passed    0.00 sec
+        Start 165: move_slot refuses to put a non-armour item into an armour cell
+165/459 Test #165: move_slot refuses to put a non-armour item into an armour cell .................................   Passed    0.00 sec
+        Start 166: swap_slots exchanges two cells and is all or nothing
+166/459 Test #166: swap_slots exchanges two cells and is all or nothing ...........................................   Passed    0.00 sec
+        Start 167: remove_item drains cells in slot order and reports what it removed
+167/459 Test #167: remove_item drains cells in slot order and reports what it removed .............................   Passed    0.00 sec
+        Start 168: set_slot writes exactly and refuses an over-limit stack
+168/459 Test #168: set_slot writes exactly and refuses an over-limit stack ........................................   Passed    0.00 sec
+        Start 169: inventories compare by their cells
+169/459 Test #169: inventories compare by their cells .............................................................   Passed    0.00 sec
+        Start 170: add_to_slot merges into a single cell and reports the remainder
+170/459 Test #170: add_to_slot merges into a single cell and reports the remainder ................................   Passed    0.00 sec
+        Start 171: wiring placed block comes from the item link and never from the sentinel
+171/459 Test #171: wiring placed block comes from the item link and never from the sentinel .......................   Passed    0.00 sec
+        Start 172: wiring use action depends on the held stack, vessels are not a boolean
+172/459 Test #172: wiring use action depends on the held stack, vessels are not a boolean .........................   Passed    0.00 sec
+        Start 173: wiring selection follows the inventory cell and ignores out-of-range keys
+173/459 Test #173: wiring selection follows the inventory cell and ignores out-of-range keys ......................   Passed    0.00 sec
+        Start 174: wiring placement consumes one unit and empties the cell at zero
+174/459 Test #174: wiring placement consumes one unit and empties the cell at zero ................................   Passed    0.00 sec
+        Start 175: wiring placing the last unit still reports the block it placed
+175/459 Test #175: wiring placing the last unit still reports the block it placed .................................   Passed    0.00 sec
+        Start 176: wiring vessel swap moves exactly one unit between the two states
+176/459 Test #176: wiring vessel swap moves exactly one unit between the two states ...............................   Passed    0.00 sec
+        Start 177: wiring vessel swap is refused when the container would have nowhere to go
+177/459 Test #177: wiring vessel swap is refused when the container would have nowhere to go ......................   Passed    0.00 sec
+        Start 178: wiring stand-in visuals cover block items, both vessels and the fallback
+178/459 Test #178: wiring stand-in visuals cover block items, both vessels and the fallback .......................   Passed    0.00 sec
+        Start 179: wiring item tints stay in range and tell the placeholder families apart
+179/459 Test #179: wiring item tints stay in range and tell the placeholder families apart ........................   Passed    0.00 sec
+        Start 180: wiring launch kit lands in the inventory and samples the three stack tiers
+180/459 Test #180: wiring launch kit lands in the inventory and samples the three stack tiers .....................   Passed    0.00 sec
+        Start 181: item drop: the parameters are the drop's own, not the player's
+181/459 Test #181: item drop: the parameters are the drop's own, not the player's .................................   Passed    0.00 sec
+        Start 182: item drop: acceleration happens BEFORE the move, so the first tick already falls
+182/459 Test #182: item drop: acceleration happens BEFORE the move, so the first tick already falls ...............   Passed    0.00 sec
+        Start 183: item drop: A -> P -> D falls one gravity step per tick further than P -> A -> D
+183/459 Test #183: item drop: A -> P -> D falls one gravity step per tick further than P -> A -> D ................   Passed    0.00 sec
+        Start 184: item drop: the player's numbers would land somewhere else entirely
+184/459 Test #184: item drop: the player's numbers would land somewhere else entirely .............................   Passed    0.00 sec
+        Start 185: item drop: terminal velocity is 1.96 blocks/tick = 39.2 m/s
+185/459 Test #185: item drop: terminal velocity is 1.96 blocks/tick = 39.2 m/s ....................................   Passed    0.00 sec
+        Start 186: item drop: damping is 0.98 vertically and 0.98 horizontally in the air
+186/459 Test #186: item drop: damping is 0.98 vertically and 0.98 horizontally in the air .........................   Passed    0.00 sec
+        Start 187: item drop: ground contact stops it dead (restitution 0, T-D36 项 1)
+187/459 Test #187: item drop: ground contact stops it dead (restitution 0, T-D36 项 1) ...........................   Passed    0.00 sec
+        Start 188: item drop: ground retention is horizontal_drag x slipperiness (T-D36 项 2)
+188/459 Test #188: item drop: ground retention is horizontal_drag x slipperiness (T-D36 项 2) ....................   Passed    0.00 sec
+        Start 189: item drop: a wall stops it and the substeps keep a fast drop from tunnelling
+189/459 Test #189: item drop: a wall stops it and the substeps keep a fast drop from tunnelling ...................   Passed    0.00 sec
+        Start 190: pickup box: horizontal faces are inclusive, vertical faces are exclusive
+190/459 Test #190: pickup box: horizontal faces are inclusive, vertical faces are exclusive .......................   Passed    0.00 sec
+        Start 191: pickup box: the sneaking pose shrinks it, as the source describes
+191/459 Test #191: pickup box: the sneaking pose shrinks it, as the source describes ..............................   Passed    0.00 sec
+        Start 192: entity box: the corners bracket a 0.25 cube above the feet
+192/459 Test #192: entity box: the corners bracket a 0.25 cube above the feet .....................................   Passed    0.00 sec
+        Start 193: item drop merge: the larger stack keeps and absorbs the smaller one
+193/459 Test #193: item drop merge: the larger stack keeps and absorbs the smaller one ............................   Passed    0.00 sec
+        Start 194: item drop merge: the survivor takes the longer remaining timers
+194/459 Test #194: item drop merge: the survivor takes the longer remaining timers ................................   Passed    0.00 sec
+        Start 195: item drop merge: outside the 0.5 x 0.25 x 0.5 box nothing merges
+195/459 Test #195: item drop merge: outside the 0.5 x 0.25 x 0.5 box nothing merges ...............................   Passed    0.00 sec
+        Start 196: item drop merge: different items, unstackable items and an overflowing sum never merge
+196/459 Test #196: item drop merge: different items, unstackable items and an overflowing sum never merge .........   Passed    0.00 sec
+        Start 197: item drop merge: crossing a block boundary re-arms the timer to 2 ticks
+197/459 Test #197: item drop merge: crossing a block boundary re-arms the timer to 2 ticks ........................   Passed    0.00 sec
+        Start 198: item drop: spawn_item_drop puts the drop in the cell, and water leaves nothing
+198/459 Test #198: item drop: spawn_item_drop puts the drop in the cell, and water leaves nothing .................   Passed    0.00 sec
+        Start 199: item drop: despawns at 6000 ticks, and the timer pauses in an unloaded chunk
+199/459 Test #199: item drop: despawns at 6000 ticks, and the timer pauses in an unloaded chunk ...................   Passed    0.00 sec
+        Start 200: item drop: a drop below the void line disappears at once
+200/459 Test #200: item drop: a drop below the void line disappears at once .......................................   Passed    0.00 sec
+        Start 201: item environment: the rule table names fire, lava and cactus and nothing else
+201/459 Test #201: item environment: the rule table names fire, lava and cactus and nothing else ..................   Passed    0.00 sec
+        Start 202: item environment: a drop in fire or lava or against a cactus is destroyed
+202/459 Test #202: item environment: a drop in fire or lava or against a cactus is destroyed ......................   Passed    0.00 sec
+        Start 203: item environment: a damage block that is not on the list leaves the drop alone
+203/459 Test #203: item environment: a damage block that is not on the list leaves the drop alone .................   Passed    0.00 sec
+        Start 204: item environment: an explosion destroys the drops inside its radius only
+204/459 Test #204: item environment: an explosion destroys the drops inside its radius only .......................   Passed    0.00 sec
+        Start 205: item drop: nothing attacks a drop, so a thousand ticks next to it change nothing
+205/459 Test #205: item drop: nothing attacks a drop, so a thousand ticks next to it change nothing ...............   Passed    0.00 sec
+        Start 206: item registry reserves the empty id as a real entry
+206/459 Test #206: item registry reserves the empty id as a real entry ............................................   Passed    0.00 sec
+        Start 207: item registry assigns dense numeric ids and supports both query directions
+207/459 Test #207: item registry assigns dense numeric ids and supports both query directions .....................   Passed    0.00 sec
+        Start 208: item registry rejects empty and duplicate ids
+208/459 Test #208: item registry rejects empty and duplicate ids ..................................................   Passed    0.00 sec
+        Start 209: item registry rejects a non-positive stack limit
+209/459 Test #209: item registry rejects a non-positive stack limit ...............................................   Passed    0.00 sec
+        Start 210: item registry default set covers the block item forms plus samples of each tier
+210/459 Test #210: item registry default set covers the block item forms plus samples of each tier ................   Passed    0.00 sec
+        Start 211: item registry default stack limits stay inside the three documented tiers
+211/459 Test #211: item registry default stack limits stay inside the three documented tiers ......................   Passed    0.00 sec
+        Start 212: item registry block link names a real block or the non-zero sentinel
+212/459 Test #212: item registry block link names a real block or the non-zero sentinel ...........................   Passed    0.00 sec
+        Start 213: item registry looks up a string_view slice without a copy
+213/459 Test #213: item registry looks up a string_view slice without a copy ......................................   Passed    0.01 sec
+        Start 214: an item stack is empty by id or by count
+214/459 Test #214: an item stack is empty by id or by count .......................................................   Passed    0.00 sec
+        Start 215: two stacks merge only when they name the same non-empty item
+215/459 Test #215: two stacks merge only when they name the same non-empty item ...................................   Passed    0.00 sec
+        Start 216: merge_from fills up to the limit and drains the source
+216/459 Test #216: merge_from fills up to the limit and drains the source .........................................   Passed    0.00 sec
+        Start 217: merge_from fills an empty stack by adopting its item
+217/459 Test #217: merge_from fills an empty stack by adopting its item ...........................................   Passed    0.00 sec
+        Start 218: split and shrink remove units and normalise what is left
+218/459 Test #218: split and shrink remove units and normalise what is left .......................................   Passed    0.00 sec
+        Start 219: stack limits come from the registry and the empty id has none
+219/459 Test #219: stack limits come from the registry and the empty id has none ..................................   Passed    0.00 sec
+        Start 220: flat ground has full skylight above and zero inside solids
+220/459 Test #220: flat ground has full skylight above and zero inside solids .....................................   Passed    0.05 sec
+        Start 221: skylight gradient under an overhang
+221/459 Test #221: skylight gradient under an overhang ............................................................   Passed    0.05 sec
+        Start 222: torch light falls off radially in an enclosed cave and is blocked by walls
+222/459 Test #222: torch light falls off radially in an enclosed cave and is blocked by walls .....................   Passed    0.01 sec
+        Start 223: placing a block cuts a tunnel light path and removal re-infills it
+223/459 Test #223: placing a block cuts a tunnel light path and removal re-infills it .............................   Passed    0.05 sec
+        Start 224: floating block casts a skylight shadow and removal restores the sun column
+224/459 Test #224: floating block casts a skylight shadow and removal restores the sun column .....................   Passed    0.06 sec
+        Start 225: cross-chunk torch light converges regardless of init order
+225/459 Test #225: cross-chunk torch light converges regardless of init order .....................................   Passed    0.02 sec
+        Start 226: pressure smoke: many structures and edits converge with an empty deferred queue
+226/459 Test #226: pressure smoke: many structures and edits converge with an empty deferred queue ................   Passed    0.27 sec
+        Start 227: single block update performance sampling
+227/459 Test #227: single block update performance sampling .......................................................   Passed    0.28 sec
+        Start 228: ChunkLightWorld adapter wires ChunkManager and registry
+228/459 Test #228: ChunkLightWorld adapter wires ChunkManager and registry ........................................   Passed    0.01 sec
+        Start 229: forget_chunk unloads light storage and drops deferred offers
+229/459 Test #229: forget_chunk unloads light storage and drops deferred offers ...................................   Passed    0.01 sec
+        Start 230: light storage constants match the chunk layout
+230/459 Test #230: light storage constants match the chunk layout .................................................   Passed    0.00 sec
+        Start 231: fresh light storage reads as zero everywhere
+231/459 Test #231: fresh light storage reads as zero everywhere ...................................................   Passed    0.00 sec
+        Start 232: sky and block channels are independent 4-bit nibbles
+232/459 Test #232: sky and block channels are independent 4-bit nibbles ...........................................   Passed    0.00 sec
+        Start 233: world-coordinate access respects the chunk origin
+233/459 Test #233: world-coordinate access respects the chunk origin ..............................................   Passed    0.00 sec
+        Start 234: out-of-bounds access throws
+234/459 Test #234: out-of-bounds access throws ....................................................................   Passed    0.00 sec
+        Start 235: clear resets every cell
+235/459 Test #235: clear resets every cell ........................................................................   Passed    0.00 sec
+        Start 236: serialize and deserialize round trip preserves both channels
+236/459 Test #236: serialize and deserialize round trip preserves both channels ...................................   Passed    0.00 sec
+        Start 237: deserialize rejects unknown format versions
+237/459 Test #237: deserialize rejects unknown format versions ....................................................   Passed    0.00 sec
+        Start 238: log init is idempotent and the macros link
+238/459 Test #238: log init is idempotent and the macros link .....................................................   Passed    0.00 sec
+        Start 239: AABB overlap detection
+239/459 Test #239: AABB overlap detection .........................................................................   Passed    0.00 sec
+        Start 240: AABB point containment
+240/459 Test #240: AABB point containment .........................................................................   Passed    0.00 sec
+        Start 241: AABB containment of another box
+241/459 Test #241: AABB containment of another box ................................................................   Passed    0.00 sec
+        Start 242: AABB expansion, size and center
+242/459 Test #242: AABB expansion, size and center ................................................................   Passed    0.00 sec
+        Start 243: mesher: all-air chunk produces no geometry
+243/459 Test #243: mesher: all-air chunk produces no geometry .....................................................   Passed    0.00 sec
+        Start 244: mesher: single isolated block emits all six faces
+244/459 Test #244: mesher: single isolated block emits all six faces ..............................................   Passed    0.00 sec
+        Start 245: mesher: fully solid chunk keeps exactly the outer surface
+245/459 Test #245: mesher: fully solid chunk keeps exactly the outer surface ......................................   Passed    0.01 sec
+        Start 246: mesher: solid neighbor chunk culls boundary faces across chunks
+246/459 Test #246: mesher: solid neighbor chunk culls boundary faces across chunks ................................   Passed    0.01 sec
+        Start 247: mesher: same input meshes byte-identical twice
+247/459 Test #247: mesher: same input meshes byte-identical twice .................................................   Passed    0.02 sec
+        Start 248: mesher: water meshes into the translucent bucket without a bottom face
+248/459 Test #248: mesher: water meshes into the translucent bucket without a bottom face .........................   Passed    0.00 sec
+        Start 249: mesher: water-water and stone-water neighbors cull internal faces
+249/459 Test #249: mesher: water-water and stone-water neighbors cull internal faces ..............................   Passed    0.00 sec
+        Start 250: mesher: translucent classification matches the default block registry
+250/459 Test #250: mesher: translucent classification matches the default block registry ..........................   Passed    0.00 sec
+        Start 251: mesher: tile index layout is block-major with top/side/bottom slots
+251/459 Test #251: mesher: tile index layout is block-major with top/side/bottom slots ............................   Passed    0.00 sec
+        Start 252: bare-hand stone mining takes exactly 150 ticks (7.5 s) and is not harvestable
+252/459 Test #252: bare-hand stone mining takes exactly 150 ticks (7.5 s) and is not harvestable ..................   Passed    0.00 sec
+        Start 253: bare-hand dirt mining takes exactly 15 ticks (0.75 s)
+253/459 Test #253: bare-hand dirt mining takes exactly 15 ticks (0.75 s) ..........................................   Passed    0.00 sec
+        Start 254: unbreakable blocks never break and hardness-0 blocks break instantly
+254/459 Test #254: unbreakable blocks never break and hardness-0 blocks break instantly ...........................   Passed    0.00 sec
+        Start 255: continuous mining enforces the 6-tick between-blocks delay
+255/459 Test #255: continuous mining enforces the 6-tick between-blocks delay .....................................   Passed    0.00 sec
+        Start 256: instant blocks skip the between-blocks delay when held
+256/459 Test #256: instant blocks skip the between-blocks delay when held .........................................   Passed    0.00 sec
+        Start 257: switching targets resets accumulated progress
+257/459 Test #257: switching targets resets accumulated progress ..................................................   Passed    0.01 sec
+        Start 258: releasing the button resets progress but the target may resume
+258/459 Test #258: releasing the button resets progress but the target may resume .................................   Passed    0.00 sec
+        Start 259: crack stage follows progress in ten steps
+259/459 Test #259: crack stage follows progress in ten steps ......................................................   Passed    0.00 sec
+        Start 260: unbreakable check and tool requirement table match the launch set
+260/459 Test #260: unbreakable check and tool requirement table match the launch set ..............................   Passed    0.00 sec
+        Start 261: mob motion: the movement-speed attribute IS the walking speed in blocks/tick
+261/459 Test #261: mob motion: the movement-speed attribute IS the walking speed in blocks/tick ...................   Passed    0.00 sec
+        Start 262: mob motion: a mob walks UP a full block instead of being stopped by it
+262/459 Test #262: mob motion: a mob walks UP a full block instead of being stopped by it .........................   Passed    0.00 sec
+        Start 263: mob perception: the sight range is the NOTICE range
+263/459 Test #263: mob perception: the sight range is the NOTICE range ............................................   Passed    0.00 sec
+        Start 264: mob perception: follow_range is the GIVE-UP distance, not the notice range
+264/459 Test #264: mob perception: follow_range is the GIVE-UP distance, not the notice range .....................   Passed    0.00 sec
+        Start 265: mob tempt: the SENSE range, the START range and the STOP range are three gates
+265/459 Test #265: mob tempt: the SENSE range, the START range and the STOP range are three gates .................   Passed    0.00 sec
+        Start 266: mob tempt: the grazing mob senses at 10 but only starts following at 6
+266/459 Test #266: mob tempt: the grazing mob senses at 10 but only starts following at 6 .........................   Passed    0.00 sec
+        Start 267: mob tempt: an empty hand is not a lure
+267/459 Test #267: mob tempt: an empty hand is not a lure .........................................................   Passed    0.00 sec
+        Start 268: mob goals coexist: a hunter chases AND looks, at the same time
+268/459 Test #268: mob goals coexist: a hunter chases AND looks, at the same time .................................   Passed    0.00 sec
+        Start 269: mob goals: an idle mob strolls, and the destination is on the ground
+269/459 Test #269: mob goals: an idle mob strolls, and the destination is on the ground ...........................   Passed    0.00 sec
+        Start 270: mob goals: with no viewer nothing perceives, and the mob still lives
+270/459 Test #270: mob goals: with no viewer nothing perceives, and the mob still lives ...........................   Passed    0.00 sec
+        Start 271: mob chunks: an unloaded chunk freezes the brain exactly like the drops
+271/459 Test #271: mob chunks: an unloaded chunk freezes the brain exactly like the drops .........................   Passed    0.00 sec
+        Start 272: passive mob: feeding two in-love adults produces a baby after the mating timer
+272/459 Test #272: passive mob: feeding two in-love adults produces a baby after the mating timer .................   Passed    0.01 sec
+        Start 273: passive mob: food rules - wrong item, a baby, and the cooldown are all refused
+273/459 Test #273: passive mob: food rules - wrong item, a baby, and the cooldown are all refused .................   Passed    0.01 sec
+        Start 274: passive mob: killing it drops the food and the hide, and the roll is reproducible
+274/459 Test #274: passive mob: killing it drops the food and the hide, and the roll is reproducible ..............   Passed    0.00 sec
+        Start 275: passive mob: hurt it and it runs away for a few seconds
+275/459 Test #275: passive mob: hurt it and it runs away for a few seconds ........................................   Passed    0.00 sec
+        Start 276: hostile melee: it notices, closes, and lands a ⚖ 3-damage hit
+276/459 Test #276: hostile melee: it notices, closes, and lands a ⚖ 3-damage hit ................................   Passed    0.00 sec
+        Start 277: hostile melee: it needs line of sight, not just proximity
+277/459 Test #277: hostile melee: it needs line of sight, not just proximity ......................................   Passed    0.00 sec
+        Start 278: hostile melee: damage forms a grudge that outranks noticing
+278/459 Test #278: hostile melee: damage forms a grudge that outranks noticing ....................................   Passed    0.00 sec
+        Start 279: hostile melee: the invulnerability window is 10 ticks and settles only the excess
+279/459 Test #279: hostile melee: the invulnerability window is 10 ticks and settles only the excess ..............   Passed    0.00 sec
+        Start 280: exploder: 3 blocks and a sight line light a 30-tick fuse, then it detonates
+280/459 Test #280: exploder: 3 blocks and a sight line light a 30-tick fuse, then it detonates ....................   Passed    0.00 sec
+        Start 281: exploder: stepping back to 7 blocks rolls the fuse back, and losing sight cancels it
+281/459 Test #281: exploder: stepping back to 7 blocks rolls the fuse back, and losing sight cancels it ...........   Passed    0.00 sec
+        Start 282: exploder: losing the sight line cancels the fuse outright
+282/459 Test #282: exploder: losing the sight line cancels the fuse outright ......................................   Passed    0.00 sec
+        Start 283: mob motion: a mob is stopped by a wall taller than one block
+283/459 Test #283: mob motion: a mob is stopped by a wall taller than one block ...................................   Passed    0.00 sec
+        Start 284: mob motion: gravity brings an unsupported mob down to the floor
+284/459 Test #284: mob motion: gravity brings an unsupported mob down to the floor ................................   Passed    0.00 sec
+        Start 285: authority mobs: without a viewer pose nothing perceives and nothing spawns
+285/459 Test #285: authority mobs: without a viewer pose nothing perceives and nothing spawns .....................   Passed    0.50 sec
+        Start 286: authority mobs: a lit surface spawns no hostiles, and the spawner does try
+286/459 Test #286: authority mobs: a lit surface spawns no hostiles, and the spawner does try .....................   Passed    0.83 sec
+        Start 287: authority mobs: a summoned hunter lands a hit that arrives as an ActorEvent
+287/459 Test #287: authority mobs: a summoned hunter lands a hit that arrives as an ActorEvent ....................   Passed    0.10 sec
+        Start 288: authority mobs: the Attack verb kills a passive mob and its loot lands in the world
+288/459 Test #288: authority mobs: the Attack verb kills a passive mob and its loot lands in the world ............   Passed    0.09 sec
+        Start 289: authority mobs: Attack validates the class, the existence and the reach
+289/459 Test #289: authority mobs: Attack validates the class, the existence and the reach ........................   Passed    0.09 sec
+        Start 290: authority mobs: a mob cannot be picked up, and a drop still can
+290/459 Test #290: authority mobs: a mob cannot be picked up, and a drop still can ................................   Passed    0.09 sec
+        Start 291: authority mobs: Feed validates the food, the class, the adulthood and the cooldown
+291/459 Test #291: authority mobs: Feed validates the food, the class, the adulthood and the cooldown .............   Passed    0.09 sec
+        Start 292: authority mobs: feeding two of them breeds a baby, and the baby is on the client's view
+292/459 Test #292: authority mobs: feeding two of them breeds a baby, and the baby is on the client's view ........   Passed    0.09 sec
+        Start 293: mob goal stack: a low-priority goal runs ALONGSIDE a high-priority one
+293/459 Test #293: mob goal stack: a low-priority goal runs ALONGSIDE a high-priority one .........................   Passed    0.00 sec
+        Start 294: mob goal stack: every goal that can start does start (not just the first)
+294/459 Test #294: mob goal stack: every goal that can start does start (not just the first) ......................   Passed    0.00 sec
+        Start 295: mob goal stack: the same priority can hold two goals, and both run
+295/459 Test #295: mob goal stack: the same priority can hold two goals, and both run .............................   Passed    0.00 sec
+        Start 296: mob goal stack: a goal stops only on its own continueUse, never because a peer runs
+296/459 Test #296: mob goal stack: a goal stops only on its own continueUse, never because a peer runs ............   Passed    0.01 sec
+        Start 297: mob goal stack: stop then restart inside one scan
+297/459 Test #297: mob goal stack: stop then restart inside one scan ..............................................   Passed    0.00 sec
+        Start 298: mob goal stack: priority orders the scan, and the order is total
+298/459 Test #298: mob goal stack: priority orders the scan, and the order is total ...............................   Passed    0.00 sec
+        Start 299: mob goal stack: a mob's table is content, and an absent goal is absent
+299/459 Test #299: mob goal stack: a mob's table is content, and an absent goal is absent .........................   Passed    0.00 sec
+        Start 300: mob goal stack: the launch roster's tables match research/11 §1.2.2
+300/459 Test #300: mob goal stack: the launch roster's tables match research/11 §1.2.2 ...........................   Passed    0.00 sec
+        Start 301: mob goal stack: the three distances and the classes are separate fields
+301/459 Test #301: mob goal stack: the three distances and the classes are separate fields ........................   Passed    0.00 sec
+        Start 302: T-B1 vox: the committed fixture parses to the documented model
+302/459 Test #302: T-B1 vox: the committed fixture parses to the documented model .................................   Passed    0.00 sec
+        Start 303: T-B1 vox: colorIndex N reads palette entry N-1, pinned to the raw bytes
+303/459 Test #303: T-B1 vox: colorIndex N reads palette entry N-1, pinned to the raw bytes ........................   Passed    0.00 sec
+        Start 304: T-B1 vox: a valid file with zero voxels parses, and is not an error
+304/459 Test #304: T-B1 vox: a valid file with zero voxels parses, and is not an error ............................   Passed    0.00 sec
+        Start 305: T-B1 vox: bad input is a refusal, never a crash
+305/459 Test #305: T-B1 vox: bad input is a refusal, never a crash ................................................   Passed    0.00 sec
+        Start 306: T-B1 vox: chunks we do not draw are stepped over, and PACK keeps the first model
+306/459 Test #306: T-B1 vox: chunks we do not draw are stepped over, and PACK keeps the first model ...............   Passed    0.00 sec
+        Start 307: T-B1 vox: a palette that holds only the entries the model uses is accepted
+307/459 Test #307: T-B1 vox: a palette that holds only the entries the model uses is accepted .....................   Passed    0.00 sec
+        Start 308: T-B1 loader: with no model file the mob keeps its boxes, silently
+308/459 Test #308: T-B1 loader: with no model file the mob keeps its boxes, silently ..............................   Passed    0.00 sec
+        Start 309: T-B1 loader: a present file that cannot be used is exactly one warning
+309/459 Test #309: T-B1 loader: a present file that cannot be used is exactly one warning .........................   Passed    0.01 sec
+        Start 310: T-B1 loader: the palette PNG overrides the built-in palette, or falls back
+310/459 Test #310: T-B1 loader: the palette PNG overrides the built-in palette, or falls back .....................   Passed    0.01 sec
+        Start 311: T-B1 mesh: culling keeps exactly the faces with nothing behind them
+311/459 Test #311: T-B1 mesh: culling keeps exactly the faces with nothing behind them ............................   Passed    0.00 sec
+        Start 312: T-B1 mesh: size comes from the mob's own collision height, anchored at the feet
+312/459 Test #312: T-B1 mesh: size comes from the mob's own collision height, anchored at the feet ................   Passed    0.00 sec
+        Start 313: T-B1 mesh: joint pivots follow the documented rule
+313/459 Test #313: T-B1 mesh: joint pivots follow the documented rule .............................................   Passed    0.00 sec
+        Start 314: T-B1 mesh: joint labels are the palette's first eight indices
+314/459 Test #314: T-B1 mesh: joint labels are the palette's first eight indices ..................................   Passed    0.00 sec
+        Start 315: T-B2b contract v2: 1..16 are joint labels, 17..255 the body group
+315/459 Test #315: T-B2b contract v2: 1..16 are joint labels, 17..255 the body group ..............................   Passed    0.00 sec
+        Start 316: T-B2b mesh: a joint's two colours land in one part range, not two draws
+316/459 Test #316: T-B2b mesh: a joint's two colours land in one part range, not two draws ........................   Passed    0.00 sec
+        Start 317: T-B1 mesh: no voxels means no geometry, not a crash
+317/459 Test #317: T-B1 mesh: no voxels means no geometry, not a crash ............................................   Passed    0.00 sec
+        Start 318: T-B1 mesh: every vertex samples the palette cell that holds its colour
+318/459 Test #318: T-B1 mesh: every vertex samples the palette cell that holds its colour .........................   Passed    0.00 sec
+        Start 319: T-B1 pose: facing is copied from the simulation, never invented
+319/459 Test #319: T-B1 pose: facing is copied from the simulation, never invented ................................   Passed    0.00 sec
+        Start 320: T-B1 pose: the head keeps the simulation's pitch, the limbs stride
+320/459 Test #320: T-B1 pose: the head keeps the simulation's pitch, the limbs stride .............................   Passed    0.00 sec
+        Start 321: T-B1 pose: hurt and fuse change presentation only
+321/459 Test #321: T-B1 pose: hurt and fuse change presentation only ..............................................   Passed    0.00 sec
+        Start 322: T-B1 pose: the walk clock advances with distance, not with time
+322/459 Test #322: T-B1 pose: the walk clock advances with distance, not with time ................................   Passed    0.00 sec
+        Start 323: spawn: 敌对生成光照等级 0 (docs/01 §6), and light 1 is enough to stop it
+323/459 Test #323: spawn: 敌对生成光照等级 0 (docs/01 §6), and light 1 is enough to stop it ..............   Passed    0.00 sec
+        Start 324: spawn: the 24-128 block ring, measured from the player
+324/459 Test #324: spawn: the 24-128 block ring, measured from the player .........................................   Passed    0.00 sec
+        Start 325: spawn: >128 blocks is removed immediately (docs/01 §6)
+325/459 Test #325: spawn: >128 blocks is removed immediately (docs/01 §6) ........................................   Passed    0.00 sec
+        Start 326: spawn: the mob cap is 70 x 可刷区块 / 289, and it is respected
+326/459 Test #326: spawn: the mob cap is 70 x 可刷区块 / 289, and it is respected .............................   Passed    0.00 sec
+        Start 327: spawn: hostiles arrive in packs of at most 4, chosen from the roster
+327/459 Test #327: spawn: hostiles arrive in packs of at most 4, chosen from the roster ...........................   Passed    0.00 sec
+        Start 328: spawn: 被动生物按区块一次性生成 (docs/01 §6)
+328/459 Test #328: spawn: 被动生物按区块一次性生成 (docs/01 §6) ......................................   Passed    0.00 sec
+        Start 329: spawn: a peaceful world has no hostiles at all (docs/01 §7)
+329/459 Test #329: spawn: a peaceful world has no hostiles at all (docs/01 §7) ...................................   Passed    0.00 sec
+        Start 330: spawn: nothing spawns in a chunk that is not in memory
+330/459 Test #330: spawn: nothing spawns in a chunk that is not in memory .........................................   Passed    0.00 sec
+        Start 331: spawn: a position needs a floor, headroom, and no liquid
+331/459 Test #331: spawn: a position needs a floor, headroom, and no liquid .......................................   Passed    0.00 sec
+        Start 332: spawn: the roster is read from the registry, by class
+332/459 Test #332: spawn: the roster is read from the registry, by class ..........................................   Passed    0.00 sec
+        Start 333: noise sampler is deterministic across instances
+333/459 Test #333: noise sampler is deterministic across instances ................................................   Passed    0.00 sec
+        Start 334: noise sampler different seeds diverge
+334/459 Test #334: noise sampler different seeds diverge ..........................................................   Passed    0.00 sec
+        Start 335: noise sampler output stays in range
+335/459 Test #335: noise sampler output stays in range ............................................................   Passed    0.00 sec
+        Start 336: mix64 is stable and input sensitive
+336/459 Test #336: mix64 is stable and input sensitive ............................................................   Passed    0.00 sec
+        Start 337: golden replay: fixed 762-tick input sequence on the fixed world
+337/459 Test #337: golden replay: fixed 762-tick input sequence on the fixed world ................................   Passed    0.00 sec
+        Start 338: placement into air above the ground is accepted
+338/459 Test #338: placement into air above the ground is accepted ................................................   Passed    0.01 sec
+        Start 339: placement into an occupied cell is rejected and into water allowed
+339/459 Test #339: placement into an occupied cell is rejected and into water allowed .............................   Passed    0.01 sec
+        Start 340: placement into the player body is rejected but flush blocks are allowed
+340/459 Test #340: placement into the player body is rejected but flush blocks are allowed ........................   Passed    0.00 sec
+        Start 341: placement neighbor offset uses the entered face, not the hit block
+341/459 Test #341: placement neighbor offset uses the entered face, not the hit block .............................   Passed    0.00 sec
+        Start 342: death: health is clamped to [0, 20] however big the hit is
+342/459 Test #342: death: health is clamped to [0, 20] however big the hit is .....................................   Passed    0.00 sec
+        Start 343: death: the alive -> dead edge fires once, and later hits are discarded
+343/459 Test #343: death: the alive -> dead edge fires once, and later hits are discarded .........................   Passed    0.00 sec
+        Start 344: death: the FALL path enters the death state and drops what was carried
+344/459 Test #344: death: the FALL path enters the death state and drops what was carried .........................   Passed    0.09 sec
+        Start 345: death: the mob-event path enters the death state through the same entry
+345/459 Test #345: death: the mob-event path enters the death state through the same entry ........................   Passed    0.09 sec
+        Start 346: death: a 0-health save re-enters the world alive at the respawn point
+346/459 Test #346: death: a 0-health save re-enters the world alive at the respawn point ..........................   Passed    0.00 sec
+        Start 347: death: 100 more hits while dead leave the drop count unchanged
+347/459 Test #347: death: 100 more hits while dead leave the drop count unchanged .................................   Passed    0.09 sec
+        Start 348: death: N filled slots become N authority drops and an empty inventory
+348/459 Test #348: death: N filled slots become N authority drops and an empty inventory ..........................   Passed    0.09 sec
+        Start 349: death: respawn returns the player to the respawn point, healthy and empty-handed
+349/459 Test #349: death: respawn returns the player to the respawn point, healthy and empty-handed ...............   Passed    0.09 sec
+        Start 350: death: keepInventory keeps the cells a death would have emptied
+350/459 Test #350: death: keepInventory keeps the cells a death would have emptied ................................   Passed    0.09 sec
+        Start 351: death: the respawn point survives two save/load round trips unchanged
+351/459 Test #351: death: the respawn point survives two save/load round trips unchanged ..........................   Passed    0.00 sec
+        Start 352: death: the tick gate is closed for a dead player
+352/459 Test #352: death: the tick gate is closed for a dead player ...............................................   Passed    0.00 sec
+        Start 353: authority: DropItems spawns the stack, and re-checks item, count and chunk
+353/459 Test #353: authority: DropItems spawns the stack, and re-checks item, count and chunk .....................   Passed    0.09 sec
+        Start 354: steady state walk speed hits 4.317 m/s within 0.5 percent
+354/459 Test #354: steady state walk speed hits 4.317 m/s within 0.5 percent ......................................   Passed    0.00 sec
+        Start 355: steady state sprint speed hits 5.612 m/s within 0.5 percent
+355/459 Test #355: steady state sprint speed hits 5.612 m/s within 0.5 percent ....................................   Passed    0.00 sec
+        Start 356: steady state sneak speed hits 1.295 m/s within 0.5 percent
+356/459 Test #356: steady state sneak speed hits 1.295 m/s within 0.5 percent .....................................   Passed    0.00 sec
+        Start 357: sneak overrides sprint as the slowest mode wins
+357/459 Test #357: sneak overrides sprint as the slowest mode wins ................................................   Passed    0.00 sec
+        Start 358: sprint without forward held stays at walk speed
+358/459 Test #358: sprint without forward held stays at walk speed ................................................   Passed    0.00 sec
+        Start 359: a solid-only IBlockSource satisfies the world contract
+359/459 Test #359: a solid-only IBlockSource satisfies the world contract .........................................   Passed    0.00 sec
+        Start 360: jump apex is 1.2522 blocks above the ground within 0.01
+360/459 Test #360: jump apex is 1.2522 blocks above the ground within 0.01 ........................................   Passed    0.00 sec
+        Start 361: jump arc rises for about six ticks and falls back symmetrically
+361/459 Test #361: jump arc rises for about six ticks and falls back symmetrically ................................   Passed    0.00 sec
+        Start 362: gravity and vertical drag act exactly per tick on the arc
+362/459 Test #362: gravity and vertical drag act exactly per tick on the arc ......................................   Passed    0.00 sec
+        Start 363: free fall from rest gains exactly the spec gravity per tick
+363/459 Test #363: free fall from rest gains exactly the spec gravity per tick ....................................   Passed    0.00 sec
+        Start 364: long free fall terminal speed stays within 77 to 78.4 m/s
+364/459 Test #364: long free fall terminal speed stays within 77 to 78.4 m/s ......................................   Passed    0.00 sec
+        Start 365: falling 10 blocks deals exactly 7 damage
+365/459 Test #365: falling 10 blocks deals exactly 7 damage .......................................................   Passed    0.00 sec
+        Start 366: a three block fall deals no damage
+366/459 Test #366: a three block fall deals no damage .............................................................   Passed    0.00 sec
+        Start 367: landing in water resets fall distance and deals no damage
+367/459 Test #367: landing in water resets fall distance and deals no damage ......................................   Passed    0.00 sec
+        Start 368: buoyancy lifts a jump-held player and drag slows swimming
+368/459 Test #368: buoyancy lifts a jump-held player and drag slows swimming ......................................   Passed    0.00 sec
+        Start 369: walking into a wall clamps at the wall face without tunneling
+369/459 Test #369: walking into a wall clamps at the wall face without tunneling ..................................   Passed    0.00 sec
+        Start 370: a one block ledge cannot be walked onto
+370/459 Test #370: a one block ledge cannot be walked onto ........................................................   Passed    0.00 sec
+        Start 371: a two block ledge cannot be jumped onto
+371/459 Test #371: a two block ledge cannot be jumped onto ........................................................   Passed    0.00 sec
+        Start 372: a one block ledge can be jumped onto
+372/459 Test #372: a one block ledge can be jumped onto ...........................................................   Passed    0.00 sec
+        Start 373: ceiling stops upward motion and zeroes vertical velocity
+373/459 Test #373: ceiling stops upward motion and zeroes vertical velocity .......................................   Passed    0.00 sec
+        Start 374: sneaking toward an edge is clamped and never falls off
+374/459 Test #374: sneaking toward an edge is clamped and never falls off .........................................   Passed    0.00 sec
+        Start 375: walking without sneak from the same spot does fall off
+375/459 Test #375: walking without sneak from the same spot does fall off .........................................   Passed    0.00 sec
+        Start 376: sneak pose uses the 1.5 block tall body
+376/459 Test #376: sneak pose uses the 1.5 block tall body ........................................................   Passed    0.00 sec
+        Start 377: identical input sequences simulate bit-identically twice
+377/459 Test #377: identical input sequences simulate bit-identically twice .......................................   Passed    0.00 sec
+        Start 378: input sequence numbers are echoed into the player state
+378/459 Test #378: input sequence numbers are echoed into the player state ........................................   Passed    0.00 sec
+        Start 379: dda raycast hits a block straight ahead through its -Z face
+379/459 Test #379: dda raycast hits a block straight ahead through its -Z face ....................................   Passed    0.00 sec
+        Start 380: dda raycast detects every face normal on axis-aligned approach
+380/459 Test #380: dda raycast detects every face normal on axis-aligned approach .................................   Passed    0.00 sec
+        Start 381: dda raycast crosses cells diagonally and reports the entered face
+381/459 Test #381: dda raycast crosses cells diagonally and reports the entered face ..............................   Passed    0.00 sec
+        Start 382: dda raycast respects the max distance cutoff
+382/459 Test #382: dda raycast respects the max distance cutoff ...................................................   Passed    0.00 sec
+        Start 383: dda raycast starting inside a targetable block hits it immediately
+383/459 Test #383: dda raycast starting inside a targetable block hits it immediately .............................   Passed    0.00 sec
+        Start 384: dda raycast starting exactly on a boundary steps into the next cell
+384/459 Test #384: dda raycast starting exactly on a boundary steps into the next cell ............................   Passed    0.00 sec
+        Start 385: dda raycast filter skips liquid cells
+385/459 Test #385: dda raycast filter skips liquid cells ..........................................................   Passed    0.00 sec
+        Start 386: dda raycast finds nothing in empty space and with zero direction
+386/459 Test #386: dda raycast finds nothing in empty space and with zero direction ...............................   Passed    0.00 sec
+        Start 387: placement cell offsets the hit block along the entry face normal
+387/459 Test #387: placement cell offsets the hit block along the entry face normal ...............................   Passed    0.00 sec
+        Start 388: versioned payload round-trips and rejects wrong versions
+388/459 Test #388: versioned payload round-trips and rejects wrong versions .......................................   Passed    0.00 sec
+        Start 389: versioned payload with string and vector members round-trips
+389/459 Test #389: versioned payload with string and vector members round-trips ...................................   Passed    0.00 sec
+        Start 390: string and container helpers preserve the existing wire semantics
+390/459 Test #390: string and container helpers preserve the existing wire semantics ..............................   Passed    0.00 sec
+        Start 391: existing scalar round-trip still works alongside the new helpers
+391/459 Test #391: existing scalar round-trip still works alongside the new helpers ...............................   Passed    0.00 sec
+        Start 392: double tap forward inside the seven tick window engages sprint
+392/459 Test #392: double tap forward inside the seven tick window engages sprint .................................   Passed    0.00 sec
+        Start 393: double tap forward one tick past the window re-arms instead
+393/459 Test #393: double tap forward one tick past the window re-arms instead ....................................   Passed    0.00 sec
+        Start 394: single forward tap only arms the window without engaging sprint
+394/459 Test #394: single forward tap only arms the window without engaging sprint ................................   Passed    0.00 sec
+        Start 395: releasing forward disengages sprint
+395/459 Test #395: releasing forward disengages sprint ............................................................   Passed    0.00 sec
+        Start 396: sprint key with forward engages sprint without any double tap
+396/459 Test #396: sprint key with forward engages sprint without any double tap ..................................   Passed    0.00 sec
+        Start 397: double tap forward in mid air does not engage sprint
+397/459 Test #397: double tap forward in mid air does not engage sprint ...........................................   Passed    0.00 sec
+        Start 398: sprint key path also engages sprint in mid air
+398/459 Test #398: sprint key path also engages sprint in mid air .................................................   Passed    0.00 sec
+        Start 399: hunger at the gate of six blocks engaging sprint by either path
+399/459 Test #399: hunger at the gate of six blocks engaging sprint by either path ................................   Passed    0.00 sec
+        Start 400: hunger just above the gate still allows sprint
+400/459 Test #400: hunger just above the gate still allows sprint .................................................   Passed    0.00 sec
+        Start 401: hunger dropping to six mid sprint disengages sprint
+401/459 Test #401: hunger dropping to six mid sprint disengages sprint ............................................   Passed    0.00 sec
+        Start 402: backward input disengages sprint
+402/459 Test #402: backward input disengages sprint ...............................................................   Passed    0.00 sec
+        Start 403: colliding with a wall disengages sprint on the next tick
+403/459 Test #403: colliding with a wall disengages sprint on the next tick .......................................   Passed    0.00 sec
+        Start 404: sprint jump arc average speed is 7.127 m/s within one percent
+404/459 Test #404: sprint jump arc average speed is 7.127 m/s within one percent ..................................   Passed    0.01 sec
+        Start 405: sprint jump clears well past a walk jump over the same window
+405/459 Test #405: sprint jump clears well past a walk jump over the same window ..................................   Passed    0.01 sec
+        Start 406: sprint jump keeps airborne speed above walking pace all arc long
+406/459 Test #406: sprint jump keeps airborne speed above walking pace all arc long ...............................   Passed    0.00 sec
+        Start 407: sprint jump vertical arc is unchanged from the spec jump
+407/459 Test #407: sprint jump vertical arc is unchanged from the spec jump .......................................   Passed    0.00 sec
+        Start 408: fov transition to sprint target is monotone bounded and reaches base plus fifteen percent
+408/459 Test #408: fov transition to sprint target is monotone bounded and reaches base plus fifteen percent ......   Passed    0.00 sec
+        Start 409: fov returns to base after leaving sprint
+409/459 Test #409: fov returns to base after leaving sprint .......................................................   Passed    0.00 sec
+        Start 410: step assist: player walks up a 0.5 ledge without losing speed
+410/459 Test #410: step assist: player walks up a 0.5 ledge without losing speed ..................................   Passed    0.00 sec
+        Start 411: step assist: player mounts a 0.5 plateau and stands on it
+411/459 Test #411: step assist: player mounts a 0.5 plateau and stands on it ......................................   Passed    0.00 sec
+        Start 412: step assist: reported through MoveResult and speed is retained
+412/459 Test #412: step assist: reported through MoveResult and speed is retained .................................   Passed    0.00 sec
+        Start 413: step assist: a full block is NOT walkable at step height 0.6
+413/459 Test #413: step assist: a full block is NOT walkable at step height 0.6 ...................................   Passed    0.00 sec
+        Start 414: step assist: a 2-block wall is not climbable even by a mob
+414/459 Test #414: step assist: a 2-block wall is not climbable even by a mob .....................................   Passed    0.00 sec
+        Start 415: step assist: with two live candidates the LOWEST gainful one wins
+415/459 Test #415: step assist: with two live candidates the LOWEST gainful one wins ..............................   Passed    0.00 sec
+        Start 416: step assist: takes the lowest lift that gains ground, not the highest
+416/459 Test #416: step assist: takes the lowest lift that gains ground, not the highest ..........................   Passed    0.00 sec
+        Start 417: step assist: climbs a staircase one lowest-gain step at a time
+417/459 Test #417: step assist: climbs a staircase one lowest-gain step at a time .................................   Passed    0.00 sec
+        Start 418: step assist: the step is the riser height, not a higher face
+418/459 Test #418: step assist: the step is the riser height, not a higher face ...................................   Passed    0.00 sec
+        Start 419: step assist: lands back on the ground instead of hovering
+419/459 Test #419: step assist: lands back on the ground instead of hovering ......................................   Passed    0.00 sec
+        Start 420: step assist: on_ground holds on every tick of the traverse
+420/459 Test #420: step assist: on_ground holds on every tick of the traverse .....................................   Passed    0.00 sec
+        Start 421: step assist: does not fire while airborne
+421/459 Test #421: step assist: does not fire while airborne ......................................................   Passed    0.00 sec
+        Start 422: step assist: a jump onto a ledge is not a step
+422/459 Test #422: step assist: a jump onto a ledge is not a step .................................................   Passed    0.00 sec
+        Start 423: step assist: step height is configured per entity kind
+423/459 Test #423: step assist: step height is configured per entity kind .........................................   Passed    0.00 sec
+        Start 424: step assist: a mob walks up a full block the player cannot
+424/459 Test #424: step assist: a mob walks up a full block the player cannot .....................................   Passed    0.00 sec
+        Start 425: step assist: crossing a riser at a pit lip never hovers
+425/459 Test #425: step assist: crossing a riser at a pit lip never hovers ........................................   Passed    0.00 sec
+        Start 426: step assist: default IBlockSource keeps full-cube semantics
+426/459 Test #426: step assist: default IBlockSource keeps full-cube semantics ....................................   Passed    0.00 sec
+        Start 427: step assist: sub-block ledges do not block movement in general
+427/459 Test #427: step assist: sub-block ledges do not block movement in general .................................   Passed    0.00 sec
+        Start 428: step assist: a 0.75 ledge is above the 0.6 step and is not crossed
+428/459 Test #428: step assist: a 0.75 ledge is above the 0.6 step and is not crossed .............................   Passed    0.00 sec
+        Start 429: region file roundtrip: multiple chunks survive save and reopen
+429/459 Test #429: region file roundtrip: multiple chunks survive save and reopen .................................   Passed    0.01 sec
+        Start 430: region file rewrite of the same chunk replaces the value
+430/459 Test #430: region file rewrite of the same chunk replaces the value .......................................   Passed    0.01 sec
+        Start 431: region file cross-sector growth keeps earlier chunks readable
+431/459 Test #431: region file cross-sector growth keeps earlier chunks readable ..................................   Passed    0.00 sec
+        Start 432: region file corruption is detected and refused
+432/459 Test #432: region file corruption is detected and refused .................................................   Passed    0.01 sec
+        Start 433: level file roundtrip preserves every field
+433/459 Test #433: level file roundtrip preserves every field .....................................................   Passed    0.00 sec
+        Start 434: level file corruption is detected and refused
+434/459 Test #434: level file corruption is detected and refused ..................................................   Passed    0.01 sec
+        Start 435: WorldSave stores and reloads chunk payloads through region files
+435/459 Test #435: WorldSave stores and reloads chunk payloads through region files ...............................   Passed    0.01 sec
+        Start 436: WorldSave async writes complete on flush
+436/459 Test #436: WorldSave async writes complete on flush .......................................................   Passed    0.01 sec
+        Start 437: WorldSave autosave cadence fires once per window
+437/459 Test #437: WorldSave autosave cadence fires once per window ...............................................   Passed    0.00 sec
+        Start 438: WorldSave quarantines a corrupt region file and keeps saving
+438/459 Test #438: WorldSave quarantines a corrupt region file and keeps saving ...................................   Passed    0.01 sec
+        Start 439: zstd compression ratio of a typical generated chunk
+439/459 Test #439: zstd compression ratio of a typical generated chunk ............................................   Passed    0.01 sec
+        Start 440: concurrent submits from multiple threads all complete with correct results
+440/459 Test #440: concurrent submits from multiple threads all complete with correct results .....................   Passed    0.00 sec
+        Start 441: destructor drains every pending task
+441/459 Test #441: destructor drains every pending task ...........................................................   Passed    0.00 sec
+        Start 442: task exceptions propagate through the future
+442/459 Test #442: task exceptions propagate through the future ...................................................   Passed    0.00 sec
+        Start 443: worker count defaults to hardware_concurrency - 1 and is configurable
+443/459 Test #443: worker count defaults to hardware_concurrency - 1 and is configurable ..........................   Passed    0.00 sec
+        Start 444: 50ms advances exactly one tick
+444/459 Test #444: 50ms advances exactly one tick .................................................................   Passed    0.00 sec
+        Start 445: one large dt of 300ms demands 6 ticks: 5 run, 1 dropped
+445/459 Test #445: one large dt of 300ms demands 6 ticks: 5 run, 1 dropped ........................................   Passed    0.00 sec
+        Start 446: continuous small dts lose no ticks
+446/459 Test #446: continuous small dts lose no ticks .............................................................   Passed    0.00 sec
+        Start 447: per-frame cap is enforced and excess is counted
+447/459 Test #447: per-frame cap is enforced and excess is counted ................................................   Passed    0.00 sec
+        Start 448: alpha remains in range and grows without crossing a tick boundary
+448/459 Test #448: alpha remains in range and grows without crossing a tick boundary ..............................   Passed    0.00 sec
+        Start 449: reset returns the clock to its initial state
+449/459 Test #449: reset returns the clock to its initial state ...................................................   Passed    0.00 sec
+        Start 450: non-positive dt is ignored
+450/459 Test #450: non-positive dt is ignored .....................................................................   Passed    0.00 sec
+        Start 451: version constants are consistent with version_string
+451/459 Test #451: version constants are consistent with version_string ...........................................   Passed    0.00 sec
+        Start 452: worldgen golden file matches committed chunk hashes
+452/459 Test #452: worldgen golden file matches committed chunk hashes ............................................   Passed    0.03 sec
+        Start 453: worldgen same seed regenerates byte-identical chunks
+453/459 Test #453: worldgen same seed regenerates byte-identical chunks ...........................................   Passed    0.08 sec
+        Start 454: worldgen different seeds produce different chunks
+454/459 Test #454: worldgen different seeds produce different chunks ..............................................   Passed    0.04 sec
+        Start 455: worldgen spawn chunk has grass under air and a sealed floor
+455/459 Test #455: worldgen spawn chunk has grass under air and a sealed floor ....................................   Passed    0.01 sec
+        Start 456: worldgen water columns never surface as grass
+456/459 Test #456: worldgen water columns never surface as grass ..................................................   Passed    0.01 sec
+        Start 457: worldgen leaves no floating water
+457/459 Test #457: worldgen leaves no floating water ..............................................................   Passed    0.02 sec
+        Start 458: worldgen carves caves into deep terrain
+458/459 Test #458: worldgen carves caves into deep terrain ........................................................   Passed    0.01 sec
+        Start 459: worldgen generator is thread safe
+459/459 Test #459: worldgen generator is thread safe ..............................................................   Passed    0.02 sec
+
+100% tests passed out of 459
+
+Total Test time (real) =   9.40 sec

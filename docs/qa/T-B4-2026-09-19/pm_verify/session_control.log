@@ -1,0 +1,17 @@
+[2026-09-19 01:45:23.499] [info] OpenCraft 0.1.0 starting
+[2026-09-19 01:45:23.649] [info] GL 4.1 Metal - 89.4 / glad loaded
+[2026-09-19 01:45:23.649] [info] save: no level.ocd, new world with seed 0x4f50454e43524146
+[2026-09-19 01:45:23.878] [info] startup gen: 25 chunks, total 228.5 ms, avg 9.14 ms/chunk
+[2026-09-19 01:45:23.878] [info] spawn scan: surface at (0.5, 132.0, 0.5)
+[2026-09-19 01:45:23.878] [info] respawn point: (0.5, 132.0, 0.5)
+[2026-09-19 01:45:23.884] [info] atlas: 60/63 block tiles loaded from ../assets/blocks
+[2026-09-19 01:45:23.884] [info] atlas: 144x144 px, 9 tiles/row, crack tiles at 63
+[2026-09-19 01:45:23.888] [info] mobs: 3/3 mob models loaded from ../assets/mobs
+[2026-09-19 01:45:23.888] [info] mob model mossback: 705 voxels, 1544 triangles, 7 joints, 1.4 blocks tall, palette from palettes/mossback.png
+[2026-09-19 01:45:23.888] [info] mob model hollow_wretch: 496 voxels, 1592 triangles, 6 joints, 1.8 blocks tall, palette from palettes/hollow_wretch.png
+[2026-09-19 01:45:23.888] [info] mob model blastbud: 510 voxels, 1084 triangles, 6 joints, 1.7 blocks tall, palette from palettes/blastbud.png
+[2026-09-19 01:45:25.925] [info] fps 40.7 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-19 01:45:27.939] [info] fps 67.9 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-19 01:45:29.947] [info] fps 72.2 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-19 01:45:30.689] [info] EVIDENCE paused=1
+[2026-09-19 01:45:31.954] [info] fps 70.8 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
