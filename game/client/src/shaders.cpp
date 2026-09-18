@@ -126,6 +126,44 @@ out vec4 frag_color;
 void main() { frag_color = v_color; }
 )";
 
+// Mob voxel models (T-B1): the same "sample a texture, discard transparent
+// texels" fragment work the crack shader does, with two differences that are
+// the whole reason this needs its own program (research/12 §6.2):
+//   * the UV is PER VERTEX (each face can be a different palette cell) instead
+//     of a uniform tile index;
+//   * the transform is PER JOINT, so the vertex shader gets the already
+//     composed joint matrix in u_mvp rather than a whole-model transform.
+// u_tint is the presentation-only multiply: 受击闪红 and the fuse's warning glow.
+const char kMobVertexShader[] = R"(
+#version 410 core
+layout(location=0) in vec3 a_pos;
+layout(location=1) in vec2 a_uv;
+
+uniform mat4 u_mvp;
+
+out vec2 v_uv;
+
+void main() {
+    gl_Position = u_mvp * vec4(a_pos, 1.0);
+    v_uv = a_uv;
+}
+)";
+
+const char kMobFragmentShader[] = R"(
+#version 410 core
+uniform sampler2D u_palette;
+uniform vec4 u_tint;
+
+in vec2 v_uv;
+out vec4 frag_color;
+
+void main() {
+    vec4 texel = texture(u_palette, v_uv);
+    if (texel.a < 0.5) { discard; }
+    frag_color = vec4(texel.rgb * u_tint.rgb, texel.a * u_tint.a);
+}
+)";
+
 // UI: flat quads (backdrop, buttons) and bitmap-font text.
 const char kUiFlatVertexShader[] = R"(
 #version 410 core

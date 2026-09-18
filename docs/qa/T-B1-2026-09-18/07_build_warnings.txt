@@ -1,0 +1,29 @@
+T-B1 构建告警对照（2026-09-18）
+
+方法：两棵树各自从零 configure+build（Release，-j），取出全部 warning:/error: 行，
+去掉仓库前缀后排序比对。
+  基线树 = /Users/happy/Desktop/opencraft_worktree/opencraft-tb1-base @ 13896c8
+  本分支 = /Users/happy/Desktop/opencraft_worktree/opencraft-tb1 @ task/T-B1-mob-voxel
+
+=== diff 结果 ===
+IDENTICAL —— 零新增告警
+
+=== 告警清单（全部为存量） ===
+ld: warning: ignoring duplicate libraries: '../../engine/physics/libopencraft_physics.a', '../../engine/render/libopencraft_render.a', '../common/libopencraft_game.a', '../server/libopencraft_storage.a', '../server/libopencraft_worldgen.a'
+ld: warning: ignoring duplicate libraries: '../engine/physics/libopencraft_physics.a', '../engine/render/libopencraft_render.a', '../game/common/libopencraft_game.a', '../game/server/libopencraft_storage.a', '../game/server/libopencraft_worldgen.a'
+tests/test_mob_authority.cpp:104:9: warning: ignoring return value of function declared with 'nodiscard' attribute [-Wunused-result]
+tests/test_mob_authority.cpp:194:9: warning: ignoring return value of function declared with 'nodiscard' attribute [-Wunused-result]
+tests/test_mob_authority.cpp:199:13: warning: ignoring return value of function declared with 'nodiscard' attribute [-Wunused-result]
+tests/test_mob_authority.cpp:310:9: warning: ignoring return value of function declared with 'nodiscard' attribute [-Wunused-result]
+tests/test_mob_authority.cpp:36:5: warning: ignoring return value of function declared with 'nodiscard' attribute [-Wunused-result]
+tests/test_mob_spawn.cpp:144:9: warning: ignoring return value of function declared with 'nodiscard' attribute [-Wunused-result]
+
+=== 测试 ===
+  基线树（opencraft-tb1-base/build）：ctest 100% tests passed out of 438
+  本分支（/tmp/tb1_clean_build，最终代码从零 configure+build）：ctest 100% tests passed out of 457
+  ⇒ 存量 438 全绿、零改动；新增 18 张（tests/test_mob_model.cpp）
+
+=== 打点残留自检（临时取证补丁是否彻底还原） ===
+git diff game/server --numstat: 0
+build/opencraft 内 'EVIDENCE' 字样计数: 0
+world_sim.cpp 与基线逐字节相同: 是

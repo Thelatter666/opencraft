@@ -1,0 +1,30 @@
+════ A. B0 fixture installed as assets/mobs/mossback.vox ════
+MD5 (/Users/happy/Desktop/opencraft_worktree/opencraft-tb1/assets/mobs/mossback.vox) = c21af626ab28af2f1aab23882ffedf95
+--- A_fixture_present ---
+[2026-09-18 08:57:26.432] [info] mobs: 1/3 mob models loaded from ../assets/mobs
+[2026-09-18 08:57:26.432] [info] mob model mossback: 8 voxels, 68 triangles, 3 joints, 1.4 blocks tall
+warnings in log: 0
+
+════ B. no model file ════
+--- B_no_model_file ---
+[2026-09-18 08:57:31.568] [info] mobs: 0/3 mob models loaded from ../assets/mobs
+warnings in log: 0
+
+════ C. a deliberately damaged model file ════
+wrote a 1028-byte truncation of mob_column.vox
+--- C_damaged_file ---
+[2026-09-18 08:57:36.780] [warning] mob model ../assets/mobs/mossback.vox was rejected (a chunk runs past the end of the file); drawing mossback as boxes instead
+[2026-09-18 08:57:36.780] [info] mobs: 0/3 mob models loaded from ../assets/mobs
+warnings in log: 1
+[2026-09-18 08:57:36.780] [warning] mob model ../assets/mobs/mossback.vox was rejected (a chunk runs past the end of the file); drawing mossback as boxes instead
+
+════ cleanup: assets/mobs removed (this card ships no mob model) ════
+assets/ diff: 0 line(s)
+--- done ---
+
+════ D. ★ PM 独立夹具 pm_good.vox 作为 assets/mobs/mossback.vox（产品码，无补丁） ════
+MD5 (assets/mobs/mossback.vox) = befca41e93c6eea32e9b42584fc35b47
+[2026-09-18 08:57:46.407] [info] mobs: 1/3 mob models loaded from ../assets/mobs
+[2026-09-18 08:57:46.407] [info] mob model mossback: 8 voxels, 68 triangles, 2 joints, 1.4 blocks tall
+warnings: 0
+assets/ diff: 0 line(s)
