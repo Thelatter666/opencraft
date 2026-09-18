@@ -293,5 +293,9 @@ M1 判据达成：新档可走/挖/建闭环 + 退出重进不丢档（含 `kill
 ## agentmemory 备注
 - 工具限制与对账方法（slots 500 / requires 只认 act_ ID / 无 hooks / REST 对账）见 lesson `lsn_43fe338b4dd1b48f`
 - 记忆分工权威协议（P-001）见 lesson `lsn_4c603462963ca635` 与 default 工作区记忆 `zcode-memory-vs-agentmemory.md`
-- 不使用 signals/sentinel/mesh；任务板现有 T001–T009 + T-D1 + 阶段0 共 11 张有效卡（另 3 张 cancelled：T003/T004 重建残留 + T-D1 因 update 不支持改 description/title 而重建）
+- 不使用 signals/sentinel/mesh
+- ⚠ **任务板已严重漂移（2026-09-18 收口对账）**：现有 45 张 action，前沿停在 **T-D19/T-D20** 时代；
+  **T-A1 之后的卡全部没同步**（T-I1/T-I2/T-M1/T-F1/T-E1/T-D40/T-M2/T-D45/T-A2/T-R3/T-A3/T-A4/T-B1
+  均无 action）。**以 `STATE.md` + git 为准**——本文件是唯一状态源，任务板只是加速器。
+  补建卡成本高（title/description 建卡后不可改），故**不追溯补建**；从下一张卡起按需建。
 - **工具限制**：`memory_action_update` 只能改 status/priority，**title/description 建卡后不可改**（返回 success 但字段不变）；`requires` 建卡后不可补。故建卡时须一次写准，description 只放摘要 + 指向 `docs/tasks/T<ID>.md`（卡面正文以仓库为准）。详见 lesson `lsn_5b000c37d47bc784`
