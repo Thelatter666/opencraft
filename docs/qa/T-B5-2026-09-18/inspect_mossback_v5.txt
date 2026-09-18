@@ -1,0 +1,102 @@
+file        : assets/mobs/mossback.vox (3916 bytes)
+version     : 150
+chunks      : MAIN(0B), SIZE(12B), XYZI(2824B), RGBA(1024B)
+SIZE        : 7 x 17 x 14  (max side 17)
+voxels      : 705
+colorIndex 0: 0 voxels  (contract: must be 0)
+bbox        : x 0..6  y 0..16  z 0..13
+span        : x 7  y 17  z 14  (z-span must equal collision height / 0.1)
+per-colorIndex bbox and joint mapping:
+  idx  1   205 voxels  x 0..6  y 1..12  z 8..12  rgb (110, 86, 60)  -> joint 0 body 躯干
+  idx  2    62 voxels  x 1..5  y 13..16  z 9..13  rgb (168, 132, 92)  -> joint 1 head 头
+  idx  3    30 voxels  x 0..1  y 9..11  z 0..6  rgb (66, 52, 38)  -> joint 2 arm_l 左前肢/左臂
+  idx  4    30 voxels  x 5..6  y 9..11  z 0..6  rgb (66, 52, 38)  -> joint 3 arm_r 右前肢/右臂
+  idx  5    30 voxels  x 0..1  y 2..4  z 0..6  rgb (66, 52, 38)  -> joint 4 leg_l 左后肢/左腿
+  idx  6    30 voxels  x 5..6  y 2..4  z 0..6  rgb (66, 52, 38)  -> joint 5 leg_r 右后肢/右腿
+  idx  7     4 voxels  x 2..4  y 0..0  z 11..12  rgb (70, 112, 60)  -> joint 6 tail 尾
+  idx 17   139 voxels  x 0..6  y 1..11  z 10..11  rgb (138, 110, 76)  -> joint 0 body 躯干
+  idx 18    22 voxels  x 0..6  y 1..11  z 8..8  rgb (66, 52, 38)  -> joint 0 body 躯干
+  idx 19    72 voxels  x 0..6  y 2..10  z 7..9  rgb (100, 76, 60)  -> joint 0 body 躯干
+  idx 20    52 voxels  x 0..6  y 1..10  z 11..13  rgb (96, 146, 78)  -> joint 0 body 躯干
+  idx 21    11 voxels  x 0..6  y 3..10  z 9..13  rgb (70, 112, 60)  -> joint 0 body 躯干
+  idx 22     9 voxels  x 0..6  y 1..10  z 10..13  rgb (46, 74, 40)  -> joint 0 body 躯干
+  idx 23     6 voxels  x 2..4  y 2..10  z 13..13  rgb (90, 140, 74)  -> joint 0 body 躯干
+  idx 24     3 voxels  x 2..6  y 5..9  z 13..13  rgb (124, 168, 98)  -> joint 0 body 躯干
+joint groups actually present (body = index 1 plus every 17+ colour):
+  joint 0 body 躯干: 519 voxels
+  joint 1 head 头: 62 voxels
+  joint 2 arm_l 左前肢/左臂: 30 voxels
+  joint 3 arm_r 右前肢/右臂: 30 voxels
+  joint 4 leg_l 左后肢/左腿: 30 voxels
+  joint 5 leg_r 右后肢/右腿: 30 voxels
+  joint 6 tail 尾: 4 voxels
+head max z  : 13
+  head max z 13 vs torso core (idx 1/17/18/19) max z 12  (centroid 11.10 vs 9.55)
+  head max z 13 vs all joint 0 (incl. moss/hump) max z 13  (centroid 11.10 vs 10.01)
+lowest layer z=0 colorIndices [3, 4, 5, 6] -> joints [2, 3, 4, 5] (feet/legs only)
+lowest layer, per-cell (x, y, index):
+  (x=0, y=2, z=0) idx 5
+  (x=0, y=3, z=0) idx 5
+  (x=0, y=4, z=0) idx 5
+  (x=0, y=9, z=0) idx 3
+  (x=0, y=10, z=0) idx 3
+  (x=0, y=11, z=0) idx 3
+  (x=1, y=2, z=0) idx 5
+  (x=1, y=3, z=0) idx 5
+  (x=1, y=4, z=0) idx 5
+  (x=1, y=9, z=0) idx 3
+  (x=1, y=10, z=0) idx 3
+  (x=1, y=11, z=0) idx 3
+  (x=5, y=2, z=0) idx 6
+  (x=5, y=3, z=0) idx 6
+  (x=5, y=4, z=0) idx 6
+  (x=5, y=9, z=0) idx 4
+  (x=5, y=10, z=0) idx 4
+  (x=5, y=11, z=0) idx 4
+  (x=6, y=2, z=0) idx 6
+  (x=6, y=3, z=0) idx 6
+  (x=6, y=4, z=0) idx 6
+  (x=6, y=9, z=0) idx 4
+  (x=6, y=10, z=0) idx 4
+  (x=6, y=11, z=0) idx 4
+  torso x range 0..6; legs x [0, 1, 5, 6]; flush: True
+  idx 3 leg bbox z 0..6 (height 7)
+  idx 4 leg bbox z 0..6 (height 7)
+  idx 5 leg bbox z 0..6 (height 7)
+  idx 6 leg bbox z 0..6 (height 7)
+second-colour indices painted: []
+exposed faces: 772  (budget 2000)
+triangles    : 1544  (what the startup log reports)
+faces per colorIndex: 1:116, 2:108, 3:66, 4:66, 5:66, 6:66, 7:14, 17:56, 18:30, 19:79, 20:68, 21:10, 22:14, 23:8, 24:5
+rendered side-left-nose-right: 390x324
+rendered front-face: 170x324
+rendered top: 170x390
+rendered iso: 358x411
+rendered iso-joints: 358x411
+rendered sil-side: 390x324
+rendered sil-iso: 358x411
+rendered gamecam (perspective): 760x620 @ 16.0 px/voxel
+gamecam camera: eye=(30.13, 42.59, 19.40) target=(3.50, 8.50, 7.00) dist=45.0 voxels (4.5 blocks) az=38.0 el=16.0 focal=720.0px
+perspective self-check: a 1-voxel ground segment projects to 14.63 px at the near end vs 8.38 px at the far end (ratio 1.745; an orthographic camera would give 1.000)
+wrote docs/qa/T-B5-2026-09-18/renders/mossback-v5_contact_sheet.png
+wrote docs/qa/T-B5-2026-09-18/renders/mossback-v5_silhouette.png
+contact sheet tiles: side-left-nose-right | front-face | top | iso | iso-joints
+palette png : assets/palettes/mossback.png 16x16 depth 8 color type 6 (136 bytes)
+palette png : alpha set [255] (opaque asset -> {255})
+  cell  0 (row 0, col  0) png (30, 30, 34)  vox None  sat 0.118  match
+  cell  1 (row 0, col  1) png (110, 86, 60)  vox (110, 86, 60)  sat 0.455  match
+  cell  2 (row 0, col  2) png (168, 132, 92)  vox (168, 132, 92)  sat 0.452  match
+  cell  3 (row 0, col  3) png (66, 52, 38)  vox (66, 52, 38)  sat 0.424  match
+  cell  4 (row 0, col  4) png (66, 52, 38)  vox (66, 52, 38)  sat 0.424  match
+  cell  5 (row 0, col  5) png (66, 52, 38)  vox (66, 52, 38)  sat 0.424  match
+  cell  6 (row 0, col  6) png (66, 52, 38)  vox (66, 52, 38)  sat 0.424  match
+  cell  7 (row 0, col  7) png (70, 112, 60)  vox (70, 112, 60)  sat 0.464  match
+  cell 17 (row 1, col  1) png (138, 110, 76)  vox (138, 110, 76)  sat 0.449  match
+  cell 18 (row 1, col  2) png (66, 52, 38)  vox (66, 52, 38)  sat 0.424  match
+  cell 19 (row 1, col  3) png (100, 76, 60)  vox (100, 76, 60)  sat 0.400  match
+  cell 20 (row 1, col  4) png (96, 146, 78)  vox (96, 146, 78)  sat 0.466  match
+  cell 21 (row 1, col  5) png (70, 112, 60)  vox (70, 112, 60)  sat 0.464  match
+  cell 22 (row 1, col  6) png (46, 74, 40)  vox (46, 74, 40)  sat 0.459  match
+  cell 23 (row 1, col  7) png (90, 140, 74)  vox (90, 140, 74)  sat 0.471  match
+  cell 24 (row 1, col  8) png (124, 168, 98)  vox (124, 168, 98)  sat 0.417  match
+max saturation over painted cells: 0.471 (cap 0.50)
