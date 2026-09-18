@@ -1,0 +1,230 @@
+-- The C compiler identification is AppleClang 17.0.0.17000603
+-- The CXX compiler identification is AppleClang 17.0.0.17000603
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /usr/bin/cc - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Check for working CXX compiler: /usr/bin/c++ - skipped
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- Populating glfw
+-- Configuring done (0.1s)
+-- Generating done (0.0s)
+-- Build files have been written to: /Users/happy/Desktop/opencraft_worktree/opencraft-tb3/build/_deps/glfw-subbuild
+[ 11%] Creating directories for 'glfw-populate'
+[ 22%] Performing download step (git clone) for 'glfw-populate'
+Cloning into 'glfw-src'...
+HEAD is now at 7b6aead9 Documentation updates for 3.4 release
+[ 33%] Performing update step for 'glfw-populate'
+-- Already at requested tag: 3.4
+[ 44%] No patch step for 'glfw-populate'
+[ 55%] No configure step for 'glfw-populate'
+[ 66%] No build step for 'glfw-populate'
+[ 77%] No install step for 'glfw-populate'
+[ 88%] No test step for 'glfw-populate'
+[100%] Completed 'glfw-populate'
+[100%] Built target glfw-populate
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success
+-- Found Threads: TRUE
+-- Including Cocoa support
+-- Populating glm
+-- Configuring done (0.1s)
+-- Generating done (0.0s)
+-- Build files have been written to: /Users/happy/Desktop/opencraft_worktree/opencraft-tb3/build/_deps/glm-subbuild
+[ 11%] Creating directories for 'glm-populate'
+[ 22%] Performing download step (git clone) for 'glm-populate'
+Cloning into 'glm-src'...
+HEAD is now at 0af55cce Trying to fix C.I. timeout...
+[ 33%] Performing update step for 'glm-populate'
+-- Already at requested tag: 1.0.1
+[ 44%] No patch step for 'glm-populate'
+[ 55%] No configure step for 'glm-populate'
+[ 66%] No build step for 'glm-populate'
+[ 77%] No install step for 'glm-populate'
+[ 88%] No test step for 'glm-populate'
+[100%] Completed 'glm-populate'
+[100%] Built target glm-populate
+CMake Warning (deprecated) at build/_deps/glm-src/CMakeLists.txt:1 (cmake_minimum_required):
+  Compatibility with CMake < 3.10 will be removed from a future version of
+  CMake.
+
+  Update the VERSION argument <min> value.  Or, use the <min>...<max> syntax
+  to tell CMake that the project requires at least <min> but has been updated
+  to work with policies introduced by <max> or earlier.
+This warning is for project developers.  Use -Wno-author or -Wno-deprecated
+to suppress it.
+
+CMake Warning (deprecated) at build/_deps/glm-src/CMakeLists.txt:2 (cmake_policy):
+  Compatibility with CMake < 3.10 will be removed from a future version of
+  CMake.
+
+  Update the VERSION argument <min> value.  Or, use the <min>...<max> syntax
+  to tell CMake that the project requires at least <min> but has been updated
+  to work with policies introduced by <max> or earlier.
+This warning is for project developers.  Use -Wno-author or -Wno-deprecated
+to suppress it.
+
+-- GLM: Version 1.0.1
+-- GLM: Disable -Wc++98-compat warnings
+-- GLM: Build with C++ features auto detection
+-- Populating spdlog
+-- Configuring done (0.1s)
+-- Generating done (0.0s)
+-- Build files have been written to: /Users/happy/Desktop/opencraft_worktree/opencraft-tb3/build/_deps/spdlog-subbuild
+[ 11%] Creating directories for 'spdlog-populate'
+[ 22%] Performing download step (git clone) for 'spdlog-populate'
+Cloning into 'spdlog-src'...
+HEAD is now at f355b3d5 Fix test_daily_logger
+[ 33%] Performing update step for 'spdlog-populate'
+-- Fetching latest from the remote origin
+HEAD is now at f355b3d5 Fix test_daily_logger
+[ 44%] No patch step for 'spdlog-populate'
+[ 55%] No configure step for 'spdlog-populate'
+[ 66%] No build step for 'spdlog-populate'
+[ 77%] No install step for 'spdlog-populate'
+[ 88%] No test step for 'spdlog-populate'
+[100%] Completed 'spdlog-populate'
+[100%] Built target spdlog-populate
+-- Build spdlog: 1.15.1
+-- Build type: Release
+-- Looking for fwrite_unlocked
+-- Looking for fwrite_unlocked - not found
+-- Populating doctest
+-- Configuring done (0.1s)
+-- Generating done (0.0s)
+-- Build files have been written to: /Users/happy/Desktop/opencraft_worktree/opencraft-tb3/build/_deps/doctest-subbuild
+[ 11%] Creating directories for 'doctest-populate'
+[ 22%] Performing download step (git clone) for 'doctest-populate'
+Cloning into 'doctest-src'...
+HEAD is now at 1da23a3 version 2.4.12
+[ 33%] Performing update step for 'doctest-populate'
+-- Already at requested tag: v2.4.12
+[ 44%] No patch step for 'doctest-populate'
+[ 55%] No configure step for 'doctest-populate'
+[ 66%] No build step for 'doctest-populate'
+[ 77%] No install step for 'doctest-populate'
+[ 88%] No test step for 'doctest-populate'
+[100%] Completed 'doctest-populate'
+[100%] Built target doctest-populate
+CMake Warning (deprecated) at build/_deps/doctest-src/CMakeLists.txt:1 (cmake_minimum_required):
+  Compatibility with CMake < 3.10 will be removed from a future version of
+  CMake.
+
+  Update the VERSION argument <min> value.  Or, use the <min>...<max> syntax
+  to tell CMake that the project requires at least <min> but has been updated
+  to work with policies introduced by <max> or earlier.
+This warning is for project developers.  Use -Wno-author or -Wno-deprecated
+to suppress it.
+
+-- Populating fastnoise_lite
+-- Configuring done (0.1s)
+-- Generating done (0.0s)
+-- Build files have been written to: /Users/happy/Desktop/opencraft_worktree/opencraft-tb3/build/_deps/fastnoise_lite-subbuild
+[ 11%] Creating directories for 'fastnoise_lite-populate'
+[ 22%] Performing download step (git clone) for 'fastnoise_lite-populate'
+Cloning into 'fastnoise_lite-src'...
+HEAD is now at 7ccfbc1 Bump versions to 1.1.1
+[ 33%] Performing update step for 'fastnoise_lite-populate'
+-- Already at requested tag: v1.1.1
+[ 44%] No patch step for 'fastnoise_lite-populate'
+[ 55%] No configure step for 'fastnoise_lite-populate'
+[ 66%] No build step for 'fastnoise_lite-populate'
+[ 77%] No install step for 'fastnoise_lite-populate'
+[ 88%] No test step for 'fastnoise_lite-populate'
+[100%] Completed 'fastnoise_lite-populate'
+[100%] Built target fastnoise_lite-populate
+-- Populating stb
+-- Configuring done (0.1s)
+-- Generating done (0.0s)
+-- Build files have been written to: /Users/happy/Desktop/opencraft_worktree/opencraft-tb3/build/_deps/stb-subbuild
+[ 11%] Creating directories for 'stb-populate'
+[ 22%] Performing download step (git clone) for 'stb-populate'
+Cloning into 'stb-src'...
+HEAD is now at 2c980bb Merge pull request #1984 from ruby-R53/patch-1
+[ 33%] Performing update step for 'stb-populate'
+-- Already at requested ref: 2c980bb59875b0d32144a71867fbdebb2f77cd20
+[ 44%] No patch step for 'stb-populate'
+[ 55%] No configure step for 'stb-populate'
+[ 66%] No build step for 'stb-populate'
+[ 77%] No install step for 'stb-populate'
+[ 88%] No test step for 'stb-populate'
+[100%] Completed 'stb-populate'
+[100%] Built target stb-populate
+-- Populating zstd
+-- Configuring done (0.1s)
+-- Generating done (0.0s)
+-- Build files have been written to: /Users/happy/Desktop/opencraft_worktree/opencraft-tb3/build/_deps/zstd-subbuild
+[ 11%] Creating directories for 'zstd-populate'
+[ 22%] Performing download step (git clone) for 'zstd-populate'
+Cloning into 'zstd-src'...
+HEAD is now at 794ea1b0 Merge pull request #3984 from facebook/dev
+[ 33%] Performing update step for 'zstd-populate'
+-- Already at requested tag: v1.5.6
+[ 44%] No patch step for 'zstd-populate'
+[ 55%] No configure step for 'zstd-populate'
+[ 66%] No build step for 'zstd-populate'
+[ 77%] No install step for 'zstd-populate'
+[ 88%] No test step for 'zstd-populate'
+[100%] Completed 'zstd-populate'
+[100%] Built target zstd-populate
+CMake Warning (deprecated) at build/_deps/zstd-src/build/cmake/CMakeLists.txt:10 (cmake_minimum_required):
+  Compatibility with CMake < 3.10 will be removed from a future version of
+  CMake.
+
+  Update the VERSION argument <min> value.  Or, use the <min>...<max> syntax
+  to tell CMake that the project requires at least <min> but has been updated
+  to work with policies introduced by <max> or earlier.
+This warning is for project developers.  Use -Wno-author or -Wno-deprecated
+to suppress it.
+
+-- The ASM compiler identification is AppleClang
+-- Found assembler: /usr/bin/cc
+-- ZSTD VERSION: 1.5.6
+-- Performing Test C_FLAG_WALL
+-- Performing Test C_FLAG_WALL - Success
+-- Performing Test CXX_FLAG_WALL
+-- Performing Test CXX_FLAG_WALL - Success
+-- Performing Test C_FLAG_WEXTRA
+-- Performing Test C_FLAG_WEXTRA - Success
+-- Performing Test CXX_FLAG_WEXTRA
+-- Performing Test CXX_FLAG_WEXTRA - Success
+-- Performing Test C_FLAG_WUNDEF
+-- Performing Test C_FLAG_WUNDEF - Success
+-- Performing Test CXX_FLAG_WUNDEF
+-- Performing Test CXX_FLAG_WUNDEF - Success
+-- Performing Test C_FLAG_WSHADOW
+-- Performing Test C_FLAG_WSHADOW - Success
+-- Performing Test CXX_FLAG_WSHADOW
+-- Performing Test CXX_FLAG_WSHADOW - Success
+-- Performing Test C_FLAG_WCAST_ALIGN
+-- Performing Test C_FLAG_WCAST_ALIGN - Success
+-- Performing Test CXX_FLAG_WCAST_ALIGN
+-- Performing Test CXX_FLAG_WCAST_ALIGN - Success
+-- Performing Test C_FLAG_WCAST_QUAL
+-- Performing Test C_FLAG_WCAST_QUAL - Success
+-- Performing Test CXX_FLAG_WCAST_QUAL
+-- Performing Test CXX_FLAG_WCAST_QUAL - Success
+-- Performing Test C_FLAG_WSTRICT_PROTOTYPES
+-- Performing Test C_FLAG_WSTRICT_PROTOTYPES - Success
+-- Performing Test LD_FLAG_Z_NOEXECSTACK
+-- Performing Test LD_FLAG_Z_NOEXECSTACK - Failed
+-- Performing Test C_FLAG_QUNUSED_ARGUMENTS
+-- Performing Test C_FLAG_QUNUSED_ARGUMENTS - Success
+-- Performing Test CXX_FLAG_QUNUSED_ARGUMENTS
+-- Performing Test CXX_FLAG_QUNUSED_ARGUMENTS - Success
+-- Performing Test C_FLAG_WA_NOEXECSTACK
+-- Performing Test C_FLAG_WA_NOEXECSTACK - Success
+-- Performing Test CXX_FLAG_WA_NOEXECSTACK
+-- Performing Test CXX_FLAG_WA_NOEXECSTACK - Success
+-- CMAKE_INSTALL_PREFIX: /usr/local
+-- CMAKE_INSTALL_LIBDIR: lib
+-- ZSTD_LEGACY_SUPPORT defined!
+-- ZSTD_MULTITHREAD_SUPPORT is enabled
+-- Found OpenGL: /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks/OpenGL.framework
+-- Configuring done (76.5s)
+-- Generating done (0.1s)
+-- Build files have been written to: /Users/happy/Desktop/opencraft_worktree/opencraft-tb3/build

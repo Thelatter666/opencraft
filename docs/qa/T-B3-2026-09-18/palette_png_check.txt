@@ -1,0 +1,27 @@
+Pillow reads : ./assets/palettes/hollow_wretch.png
+format=PNG mode=RGBA size=(16, 16)
+alpha set    : [255] (opaque asset -> [255])
+  cell  0 (col  0, row 0) (30, 30, 34)  want (30, 30, 34)  match
+  cell  1 (col  1, row 0) (110, 110, 116)  want (110, 110, 116)  match
+  cell  2 (col  2, row 0) (226, 230, 236)  want (226, 230, 236)  match
+  cell  3 (col  3, row 0) (74, 74, 80)  want (74, 74, 80)  match
+  cell  4 (col  4, row 0) (74, 74, 80)  want (74, 74, 80)  match
+  cell  5 (col  5, row 0) (74, 74, 80)  want (74, 74, 80)  match
+  cell  6 (col  6, row 0) (74, 74, 80)  want (74, 74, 80)  match
+  cell  7 (col  7, row 0) (30, 30, 34)  want (30, 30, 34)  match
+  cell  8 (col  8, row 0) (30, 30, 34)  want (30, 30, 34)  match
+  cell  9 (col  9, row 0) (46, 42, 58)  want (46, 42, 58)  match
+  cell 10 (col 10, row 0) (40, 40, 44)  want (40, 40, 44)  match
+  cell 11 (col 11, row 0) (166, 166, 172)  want (166, 166, 172)  match
+  cell 12 (col 12, row 0) (166, 166, 172)  want (166, 166, 172)  match
+  cell 13 (col 13, row 0) (30, 30, 34)  want (30, 30, 34)  match
+  cell 14 (col 14, row 0) (30, 30, 34)  want (30, 30, 34)  match
+  cell 15 (col 15, row 0) (30, 30, 34)  want (30, 30, 34)  match
+  cell 16 (col  0, row 1) (30, 30, 34)  want (30, 30, 34)  match
+  cell 17 (col  1, row 1) (128, 128, 133)  want (128, 128, 133)  match
+  cell 18 (col  2, row 1) (74, 74, 80)  want (74, 74, 80)  match
+  cell 19 (col  3, row 1) (70, 53, 41)  want (70, 53, 41)  match
+distinct RGB on the image: 9
+max saturation: 0.414 at (70, 53, 41) (cap 0.50)
+colours outside the declared table (unused cells): []
+VERDICT: third-party decoder agrees with the declared palette on every cell

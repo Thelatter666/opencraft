@@ -1,0 +1,10 @@
+# T-B3 · 眼睛（索引 10）是**表面着色**、不是凹一格（卡面 §7.2 的警示项）
+# 机器判据：① 眼格本身在 XYZI 占用表里（不是被挖掉的空位）；
+#           ② 眼格朝正面 +y 的邻居为空 ⇒ 它就在正面表层上。
+
+    eye cell   in occupancy   +y neighbour   occupied?
+  (1, 5, 15)           True     (1, 6, 15)       False
+  (4, 5, 15)           True     (4, 6, 15)       False
+
+head joint voxels = 42  (index 2 = 40, index 10 = 2); both share joint 1 = 头, so the log's joint count is unchanged
+total voxels in XYZI = 169 (the eyes are two of them - nothing was carved out)

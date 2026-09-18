@@ -1,0 +1,70 @@
+file        : ./assets/mobs/hollow_wretch.vox (1772 bytes)
+version     : 150
+chunks      : MAIN(0B), SIZE(12B), XYZI(680B), RGBA(1024B)
+SIZE        : 6 x 6 x 18  (max side 18)
+voxels      : 169
+colorIndex 0: 0 voxels  (contract: must be 0)
+bbox        : x 0..5  y 0..5  z 0..17
+span        : x 6  y 6  z 18  (z-span must be 18)
+per-colorIndex bbox and joint mapping:
+  idx  1     2 voxels  x 2..3  y 2..2  z 10..10  rgb (110, 110, 116)  -> joint 0 body 躯干
+  idx  2    40 voxels  x 1..4  y 2..5  z 13..17  rgb (226, 230, 236)  -> joint 1 head 头
+  idx  3    17 voxels  x 0..0  y 2..5  z 6..13  rgb (74, 74, 80)  -> joint 2 arm_l 左臂
+  idx  4    17 voxels  x 5..5  y 2..5  z 6..13  rgb (74, 74, 80)  -> joint 3 arm_r 右臂
+  idx  5    19 voxels  x 1..1  y 1..3  z 0..8  rgb (74, 74, 80)  -> joint 4 leg_l 左腿
+  idx  6    19 voxels  x 4..4  y 1..3  z 0..8  rgb (74, 74, 80)  -> joint 5 leg_r 右腿
+  idx  9     2 voxels  x 2..3  y 1..1  z 11..11  rgb (46, 42, 58)  -> joint 0 body 躯干
+  idx 10     2 voxels  x 1..4  y 5..5  z 15..15  rgb (40, 40, 44)  -> joint 1 head 头
+  idx 11     2 voxels  x 0..0  y 4..5  z 5..5  rgb (166, 166, 172)  -> joint 2 arm_l 左臂
+  idx 12     2 voxels  x 5..5  y 4..5  z 5..5  rgb (166, 166, 172)  -> joint 3 arm_r 右臂
+  idx 17    28 voxels  x 1..4  y 0..2  z 12..14  rgb (128, 128, 133)  -> joint 0 body 躯干
+  idx 18    17 voxels  x 2..3  y 1..3  z 6..9  rgb (74, 74, 80)  -> joint 0 body 躯干
+  idx 19     2 voxels  x 2..3  y 1..1  z 10..10  rgb (70, 53, 41)  -> joint 0 body 躯干
+contract-v2 evidence: each second colour must sit inside ITS joint's bbox
+  idx  9 (joint 0 body 躯干): bbox x 2..3 y 1..1 z 11..11  inside joint bbox x 1..4 y 0..3 z 6..14  CONTAINED
+  idx 10 (joint 1 head 头): bbox x 1..4 y 5..5 z 15..15  inside joint bbox x 1..4 y 2..5 z 13..17  CONTAINED
+  idx 11 (joint 2 arm_l 左臂): bbox x 0..0 y 4..5 z 5..5  inside joint bbox x 0..0 y 2..5 z 5..13  CONTAINED
+  idx 12 (joint 3 arm_r 右臂): bbox x 5..5 y 4..5 z 5..5  inside joint bbox x 5..5 y 2..5 z 5..13  CONTAINED
+  -> every second colour is inside its joint
+joint groups actually present (body = index 1/9 plus every 17+ colour):
+  joint 0 body 躯干: 51 voxels
+  joint 1 head 头: 42 voxels
+  joint 2 arm_l 左臂: 19 voxels
+  joint 3 arm_r 右臂: 19 voxels
+  joint 4 leg_l 左腿: 19 voxels
+  joint 5 leg_r 右腿: 19 voxels
+  joints (parts) = 6 -> the startup log's 'joints' field
+head vs torso core (idx 1): centroid 15.38 vs 10.00, max z 17 vs 10  [OK]
+head vs all joint 0 (incl. hump/rag): centroid 15.38 vs 10.78, max z 17 vs 14  [OK]
+lowest layer z=0 colorIndices [5, 6] -> joints [4, 5] (legs only - model stands on its legs)
+eye sockets (idx 10) at [(1, 5, 15), (4, 5, 15)]; head joint bbox x 1..4 y 2..5 z 13..17
+exposed faces: 428  (budget 2000)
+triangles    : 856  (what the startup log reports)
+faces per colorIndex: 1:6, 2:78, 3:53, 4:53, 5:57, 6:58, 9:6, 10:6, 11:8, 12:8, 17:52, 18:39, 19:4
+rendered side-left-nose-right: 112x304
+rendered front-face: 112x304
+rendered top: 112x112
+rendered iso: 140x277
+rendered iso-joints: 140x277
+rendered sil-side: 112x304
+rendered sil-front: 112x304
+rendered sil-iso: 140x277
+wrote docs/qa/T-B3-2026-09-18/hollow_wretch_contact_sheet.png
+wrote docs/qa/T-B3-2026-09-18/hollow_wretch_silhouette.png
+contact sheet tiles: side-left-nose-right | front-face | top | iso | iso-joints
+palette png : 16x16 depth 8 color type 6 (130 bytes)
+palette png : alpha set [255] (opaque asset -> {255})
+  cell  0 (row 0, col  0) png (30, 30, 34)  vox None  match
+  cell  1 (row 0, col  1) png (110, 110, 116)  vox (110, 110, 116)  match
+  cell  2 (row 0, col  2) png (226, 230, 236)  vox (226, 230, 236)  match
+  cell  3 (row 0, col  3) png (74, 74, 80)  vox (74, 74, 80)  match
+  cell  4 (row 0, col  4) png (74, 74, 80)  vox (74, 74, 80)  match
+  cell  5 (row 0, col  5) png (74, 74, 80)  vox (74, 74, 80)  match
+  cell  6 (row 0, col  6) png (74, 74, 80)  vox (74, 74, 80)  match
+  cell  9 (row 0, col  9) png (46, 42, 58)  vox (46, 42, 58)  match
+  cell 10 (row 0, col 10) png (40, 40, 44)  vox (40, 40, 44)  match
+  cell 11 (row 0, col 11) png (166, 166, 172)  vox (166, 166, 172)  match
+  cell 12 (row 0, col 12) png (166, 166, 172)  vox (166, 166, 172)  match
+  cell 17 (row 1, col  1) png (128, 128, 133)  vox (128, 128, 133)  match
+  cell 18 (row 1, col  2) png (74, 74, 80)  vox (74, 74, 80)  match
+  cell 19 (row 1, col  3) png (70, 53, 41)  vox (70, 53, 41)  match
