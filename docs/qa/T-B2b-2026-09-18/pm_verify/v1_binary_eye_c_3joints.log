@@ -1,0 +1,27 @@
+[2026-09-18 18:44:44.557] [info] OpenCraft 0.1.0 starting
+[2026-09-18 18:44:44.697] [info] GL 4.1 Metal - 89.4 / glad loaded
+[2026-09-18 18:44:44.698] [info] save: loaded level.ocd (seed=0x4f50454e43524146, ticks=6765, player=(29.60, 145.00, -57.39), hp=13.0)
+[2026-09-18 18:44:44.713] [info] chunk (-1, 0) loaded from disk
+[2026-09-18 18:44:44.718] [info] chunk (0, -1) loaded from disk
+[2026-09-18 18:44:44.741] [info] chunk (-1, -1) loaded from disk
+[2026-09-18 18:44:44.773] [info] chunk (-2, 0) loaded from disk
+[2026-09-18 18:44:44.813] [info] chunk (-2, -1) loaded from disk
+[2026-09-18 18:44:44.904] [info] startup gen: 25 chunks, total 205.6 ms, avg 8.22 ms/chunk
+[2026-09-18 18:44:44.904] [info] respawn point: (0.5, 133.0, -8.5)
+[2026-09-18 18:44:44.905] [info] atlas: 60/63 block tiles loaded from /Users/happy/Desktop/opencraft_scratch/tb2b-eye/assets/blocks
+[2026-09-18 18:44:44.906] [info] atlas: 144x144 px, 9 tiles/row, crack tiles at 63
+[2026-09-18 18:44:44.909] [info] mobs: 1/3 mob models loaded from /Users/happy/Desktop/opencraft_scratch/tb2b-eye/assets/mobs
+[2026-09-18 18:44:44.909] [info] mob model mossback: 6 voxels, 56 triangles, 3 joints, 1.4 blocks tall
+[2026-09-18 18:44:45.658] [info] chunk (-3, -1) loaded from disk
+[2026-09-18 18:44:45.719] [info] mob mossback spawned at (-36.4, 138.0, -62.9) in chunk (-3, -4)
+[2026-09-18 18:44:45.926] [info] chunk (-3, 0) loaded from disk
+[2026-09-18 18:44:46.282] [info] mob mossback spawned at (-66.8, 133.0, -33.1) in chunk (-5, -3)
+[2026-09-18 18:44:46.282] [info] mob mossback spawned at (-79.8, 131.0, -24.3) in chunk (-5, -2)
+[2026-09-18 18:44:46.282] [info] mob mossback spawned at (-79.1, 131.0, -23.7) in chunk (-5, -2)
+[2026-09-18 18:44:46.333] [info] chunk (6, 0) loaded from disk
+[2026-09-18 18:44:46.635] [info] chunk (7, 0) loaded from disk
+[2026-09-18 18:44:46.831] [info] mob mossback spawned at (-84.6, 134.0, -37.6) in chunk (-6, -3)
+[2026-09-18 18:44:46.831] [info] mob mossback spawned at (-80.4, 134.0, -36.9) in chunk (-6, -3)
+[2026-09-18 18:44:46.935] [info] fps 42.4 | pos (29.60, 145.00, -57.39) | chunks 113 | stream-meshed 104
+[2026-09-18 18:44:47.261] [info] mob mossback spawned at (-87.3, 131.0, -85.0) in chunk (-6, -6)
+[2026-09-18 18:44:48.957] [info] fps 68.7 | pos (29.60, 145.00, -57.39) | chunks 113 | stream-meshed 104

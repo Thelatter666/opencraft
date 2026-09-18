@@ -1,0 +1,10 @@
+[PASS] md5 mossback_v1.vox: f8072830088c024aa4ad724465a1b99b
+[PASS] md5 mossback.vox: 9215d2bef3333821c07c83b20aa1c360
+[PASS] md5 mossback.png: 74dcc2a82723523d9f1d0b40b92ba7db
+[PASS] SIZE unchanged: (9, 14, 14) vs (9, 14, 14)
+[PASS] voxel count unchanged: 672 vs 672
+[PASS] coordinate sequence byte-identical
+[PASS] colour rule exactly {9..16 -> +8, else same}: violations=0 []
+[PASS] RGBA migration (9..16=U0, 17..24=old 9..16, else same): bad=0 []
+[PASS] PNG migration (cells 9..16=U0, 17..24=old 9..16, else same): bad=0 []
+RESULT: ALL PASS
