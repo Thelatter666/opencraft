@@ -1,0 +1,76 @@
+file        : /Users/happy/Desktop/opencraft_worktree/opencraft-tb4/assets/mobs/blastbud.vox (3136 bytes)
+version     : 150
+chunks      : MAIN(0B), SIZE(12B), XYZI(2044B), RGBA(1024B)
+SIZE        : 9 x 10 x 17  (max side 17)
+voxels      : 510
+colorIndex 0: 0 voxels  (contract: must be 0)
+bbox        : x 1..7  y 1..8  z 0..16
+span        : x 7  y 8  z 17  (z-span must equal collision height / 0.1)
+per-colorIndex bbox and joint mapping:
+  idx  1   205 voxels  x 1..7  y 2..8  z 5..11  rgb (70, 112, 60)  -> joint 0 body 躯干
+  idx  2    75 voxels  x 2..6  y 3..7  z 13..16  rgb (180, 158, 115)  -> joint 1 head 头
+  idx  3    12 voxels  x 1..2  y 5..6  z 0..2  rgb (66, 52, 38)  -> joint 2 arm_l 左前肢/左臂
+  idx  4    12 voxels  x 6..7  y 5..6  z 0..2  rgb (66, 52, 38)  -> joint 3 arm_r 右前肢/右臂
+  idx  5    12 voxels  x 1..2  y 3..4  z 0..2  rgb (66, 52, 38)  -> joint 4 leg_l 左后肢/左腿
+  idx  6    12 voxels  x 6..7  y 3..4  z 0..2  rgb (66, 52, 38)  -> joint 5 leg_r 右后肢/右腿
+  idx  9    16 voxels  x 3..5  y 6..8  z 3..12  rgb (226, 230, 236)  -> joint 0 body 躯干
+  idx 10    11 voxels  x 2..6  y 6..7  z 13..16  rgb (40, 40, 44)  -> joint 1 head 头
+  idx 17   104 voxels  x 1..7  y 1..7  z 3..12  rgb (46, 74, 40)  -> joint 0 body 躯干
+  idx 18    51 voxels  x 1..7  y 3..7  z 9..11  rgb (90, 140, 74)  -> joint 0 body 躯干
+joint groups actually present (body = index 1 plus every 17+ colour):
+  joint 0 body 躯干: 376 voxels
+  joint 1 head 头: 86 voxels
+  joint 2 arm_l 左前肢/左臂: 12 voxels
+  joint 3 arm_r 右前肢/右臂: 12 voxels
+  joint 4 leg_l 左后肢/左腿: 12 voxels
+  joint 5 leg_r 右后肢/右腿: 12 voxels
+head max z  : 16
+  head max z 16 vs torso core (idx 1/17/18/19) max z 12  (centroid 14.26 vs 6.90)
+  head max z 16 vs all joint 0 (incl. moss/hump) max z 12  (centroid 14.26 vs 6.91)
+lowest layer z=0 colorIndices [3, 4, 5, 6] -> joints [2, 3, 4, 5] (feet/legs only)
+second-colour indices painted: [9, 10]
+  idx  9 -> joint 0 body 躯干: cells x 3..5 y 6..8 z 3..12 within joint bbox x 1..7 y 1..8 z 3..12  [OK]
+  idx 10 -> joint 1 head 头: cells x 2..6 y 6..7 z 13..16 within joint bbox x 2..6 y 3..7 z 13..16  [OK]
+eye voxels (idx 10): 11
+  (2, 7, 13) present in occupancy table; +y neighbour (2, 8, 13) empty: True
+  (2, 7, 15) present in occupancy table; +y neighbour (2, 8, 15) empty: True
+  (3, 7, 13) present in occupancy table; +y neighbour (3, 8, 13) empty: True
+  (3, 7, 15) present in occupancy table; +y neighbour (3, 8, 15) empty: True
+  (4, 6, 16) present in occupancy table; +y neighbour (4, 7, 16) empty: True
+  (4, 7, 13) present in occupancy table; +y neighbour (4, 8, 13) empty: True
+  (4, 7, 14) present in occupancy table; +y neighbour (4, 8, 14) empty: True
+  (5, 7, 13) present in occupancy table; +y neighbour (5, 8, 13) empty: True
+  (5, 7, 15) present in occupancy table; +y neighbour (5, 8, 15) empty: True
+  (6, 7, 13) present in occupancy table; +y neighbour (6, 8, 13) empty: True
+  (6, 7, 15) present in occupancy table; +y neighbour (6, 8, 15) empty: True
+  eye voxels span x [2, 3, 4, 5, 6] z [13, 14, 15, 16]; every eye voxel is a surface colour (not a carved hole): True
+exposed faces: 542  (budget 2000)
+triangles    : 1084  (what the startup log reports)
+faces per colorIndex: 1:141, 2:91, 3:24, 4:24, 5:24, 6:24, 9:22, 10:23, 17:145, 18:24
+rendered side-left-nose-right: 192x390
+rendered front-face: 170x390
+rendered top: 170x192
+rendered iso: 218x393
+rendered iso-joints: 218x393
+rendered sil-side: 192x390
+rendered sil-iso: 218x393
+rendered gamecam (perspective): 760x620 @ 16.0 px/voxel
+gamecam camera: eye=(31.78, 39.92, 16.31) target=(4.50, 5.00, 8.50) dist=45.0 voxels (4.5 blocks) az=38.0 el=10.0 focal=720.0px
+perspective self-check: a 1-voxel ground segment projects to 12.23 px at the near end vs 9.33 px at the far end (ratio 1.310; an orthographic camera would give 1.000)
+wrote /Users/happy/Desktop/opencraft_worktree/opencraft-tb4/docs/qa/T-B4-2026-09-19/renders/blastbud-v2_contact_sheet.png
+wrote /Users/happy/Desktop/opencraft_worktree/opencraft-tb4/docs/qa/T-B4-2026-09-19/renders/blastbud-v2_silhouette.png
+contact sheet tiles: side-left-nose-right | front-face | top | iso | iso-joints
+palette png : /Users/happy/Desktop/opencraft_worktree/opencraft-tb4/assets/palettes/blastbud.png 16x16 depth 8 color type 6 (124 bytes)
+palette png : alpha set [255] (opaque asset -> {255})
+  cell  0 (row 0, col  0) png (30, 30, 34)  vox None  sat 0.118  match
+  cell  1 (row 0, col  1) png (70, 112, 60)  vox (70, 112, 60)  sat 0.464  match
+  cell  2 (row 0, col  2) png (180, 158, 115)  vox (180, 158, 115)  sat 0.361  match
+  cell  3 (row 0, col  3) png (66, 52, 38)  vox (66, 52, 38)  sat 0.424  match
+  cell  4 (row 0, col  4) png (66, 52, 38)  vox (66, 52, 38)  sat 0.424  match
+  cell  5 (row 0, col  5) png (66, 52, 38)  vox (66, 52, 38)  sat 0.424  match
+  cell  6 (row 0, col  6) png (66, 52, 38)  vox (66, 52, 38)  sat 0.424  match
+  cell  9 (row 0, col  9) png (226, 230, 236)  vox (226, 230, 236)  sat 0.042  match
+  cell 10 (row 0, col 10) png (40, 40, 44)  vox (40, 40, 44)  sat 0.091  match
+  cell 17 (row 1, col  1) png (46, 74, 40)  vox (46, 74, 40)  sat 0.459  match
+  cell 18 (row 1, col  2) png (90, 140, 74)  vox (90, 140, 74)  sat 0.471  match
+max saturation over painted cells: 0.471 (cap 0.50)

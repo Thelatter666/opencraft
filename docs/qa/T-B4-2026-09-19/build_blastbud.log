@@ -1,0 +1,8 @@
+=== blastbud ===
+swatches: 8 colours, max saturation 0.471 ('G' (90, 140, 74))
+voxels: 510 (budget 1000)
+grid: 9 x 10 x 17 (max side 17, cap 32)
+colorIndex used: [1, 2, 3, 4, 5, 6, 9, 10, 17, 18]
+joint second colours painted: [9, 10] (declared [9, 10])
+wrote /Users/happy/Desktop/opencraft_worktree/opencraft-tb4/assets/mobs/blastbud.vox (3136 bytes)
+wrote /Users/happy/Desktop/opencraft_worktree/opencraft-tb4/assets/palettes/blastbud.png (124 bytes)

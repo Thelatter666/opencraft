@@ -1,0 +1,27 @@
+front projection of /Users/happy/Desktop/opencraft_worktree/opencraft-tb4/assets/mobs/blastbud.vox
+columns x 1..7 (left -> right), rows z 16..0 (top -> bottom)
+each cell = the colorIndex of the frontmost (max y) voxel in that column
+
+z |1234567
+----------
+16|..2E2..
+15|.EE2EE.
+14|.22E22.
+13|.EEEEE.
+12|..sWs..
+11|.1tWt1.
+10|.1WWt1.
+ 9|1ttWtt1
+ 8|s1WW11s
+ 7|s1WWW1s
+ 6|s11WW1s
+ 5|s11W11s
+ 4|ssWWsss
+ 3|.ssWss.
+ 2|33...44
+ 1|33...44
+ 0|33...44
+
+LEGEND: 1 躯干 F1  2 头 E3  3/4/5/6 四足 W0  W 躯干二色=裂缝里的灼白 S4  E 头二色=五官 O0  s 躯干组 F0  t 躯干组 F2
+wrote /Users/happy/Desktop/opencraft_worktree/opencraft-tb4/docs/qa/T-B4-2026-09-19/renders/blastbud-v2_face.png (720x540) eye=(4.5, 23.0, 14.5) target=(4.5, 7.0, 14.5) px_per_unit=78
+wrote /Users/happy/Desktop/opencraft_worktree/opencraft-tb4/docs/qa/T-B4-2026-09-19/renders/blastbud-v2_front_big.png (316x756) front orthographic @ 44 px/voxel, hard-edged

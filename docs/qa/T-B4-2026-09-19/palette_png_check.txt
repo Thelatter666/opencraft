@@ -1,0 +1,7 @@
+=== blastbud ===
+file        : /Users/happy/Desktop/opencraft_worktree/opencraft-tb4/assets/palettes/blastbud.png
+size        : (16, 16)  mode RGBA  (must be 16x16 RGBA)
+alpha set   : [255] (opaque asset -> {255})
+cells checked: 256; mismatches: 0
+painted-cell colours: 10 distinct indices, max saturation 0.471 (cap 0.50)
+OK - palette reads back cell-for-cell identical (max saturation over all painted cells 0.471 <= 0.50)
