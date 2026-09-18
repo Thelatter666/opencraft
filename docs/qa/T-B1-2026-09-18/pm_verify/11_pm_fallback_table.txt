@@ -1,0 +1,52 @@
+T-B1 PM 侧回退表核对（产品码、无补丁、独立夹具，2026-09-18）
+脚本：pm_logcheck2（放夹具→冷启动→抓 mobs: 行与全部 [warning] 行→删夹具）
+
+── A_absent ──
+  mobs: 0/3 mob models loaded from ../assets/mobs
+  warn_count=0
+── B_good ──
+  mobs: 1/3 mob models loaded from ../assets/mobs
+  mob model mossback: 8 voxels, 68 triangles, 2 joints, 1.4 blocks tall
+  warn_count=0
+── C_bad_sig ──
+  mob model ../assets/mobs/mossback.vox was rejected (missing the VOX signature); drawing mossback as boxes instead
+  mobs: 0/3 mob models loaded from ../assets/mobs
+  warn_count=1
+── D_trunc ──
+  mob model ../assets/mobs/mossback.vox was rejected (a chunk runs past the end of the file); drawing mossback as boxes instead
+  mobs: 0/3 mob models loaded from ../assets/mobs
+  warn_count=1
+── E_overrun ──
+  mob model ../assets/mobs/mossback.vox was rejected (a chunk runs past the end of the file); drawing mossback as boxes instead
+  mobs: 0/3 mob models loaded from ../assets/mobs
+  warn_count=1
+── F_lies ──
+  mob model ../assets/mobs/mossback.vox was rejected (XYZI claims more voxels than its content holds); drawing mossback as boxes instead
+  mobs: 0/3 mob models loaded from ../assets/mobs
+  warn_count=1
+── G_oob ──
+  mob model ../assets/mobs/mossback.vox was rejected (a voxel coordinate is outside SIZE); drawing mossback as boxes instead
+  mobs: 0/3 mob models loaded from ../assets/mobs
+  warn_count=1
+── H_nosize ──
+  mob model ../assets/mobs/mossback.vox was rejected (no SIZE or no XYZI chunk); drawing mossback as boxes instead
+  mobs: 0/3 mob models loaded from ../assets/mobs
+  warn_count=1
+── I_huge ──
+  mob model ../assets/mobs/mossback.vox was rejected (SIZE is outside 1..256); drawing mossback as boxes instead
+  mobs: 0/3 mob models loaded from ../assets/mobs
+  warn_count=1
+── J_zero ──
+  mob model ../assets/mobs/mossback.vox holds 0 voxels; drawing mossback as boxes instead
+  mobs: 0/3 mob models loaded from ../assets/mobs
+  warn_count=1
+── K_good+palette ──
+  mobs: 1/3 mob models loaded from ../assets/mobs
+  mob model mossback: 8 voxels, 68 triangles, 2 joints, 1.4 blocks tall, palette from palettes/mossback.png
+  warn_count=0
+── L_good+broken_palette ──
+  mobs: 1/3 mob models loaded from ../assets/mobs
+  mob model mossback: 8 voxels, 68 triangles, 2 joints, 1.4 blocks tall
+  warn_count=1
+
+结论：12/12 与 research/12 §6.5 及 pm_verify README §5 的期望逐条一致（含精确理由串与 WARN 计数）。

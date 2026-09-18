@@ -1,0 +1,28 @@
+T-B1 PM 侧两树逐像素 A/B（rev2 装置，2026-09-18）
+
+装置：docs/qa/T-B1-2026-09-18/pm_verify/run_scene.sh（rev2：流式平台门 + 暂停确认 + 两连拍 + 夹具补丁 01/02/03）
+基线树 @1fe420e + 三补丁；新树 @372b373 + 三补丁。全部运行 chunks=113 meshed=104（同平台）、stable=1（两连拍 md5 相同）、natural=0。
+
+── rev1 的教训（保留作警示）：缺平台门时 [1] 曾测出 566,858 像素假差异
+   （暂停会冻结流式进度，两次运行停在不同 chunk 数上；注入成功≠世界定型）──
+
+=== [1] 成败线：两树都无模型（期望 0） ===
+  n_control vs b_control
+  differing pixels: 0 of 957440
+=== [2] 两树都画两立方体（期望 0） ===
+  n_standin vs b_standin
+  differing pixels: 0 of 957440
+=== [5] 反向对照：基线+夹具 vs 基线无夹具（期望 0） ===
+  b_model vs b_standin
+  differing pixels: 0 of 957440
+=== [3''] 灵敏度：新树 z-up 夹具 vs 无生物（期望 大） ===
+  n_model3 vs n_control
+  differing pixels: 58016 of 957440
+  bounding box: x 384..756, y 451..747
+=== [4''] 新树 z-up 夹具 vs 两立方体（期望 大） ===
+  n_model3 vs n_standin
+  differing pixels: 117811 of 957440
+  bounding box: x 384..788, y 432..747
+
+附：新树的 y-up 夹具 pm_good.vox 被正确解析（8 体素）但视觉成一趴平板——夹具自身违反 z-up 约定，
+     非产品缺陷；据此重制的 pm_good_zup.vox（SIZE z=4）上屏为红身绿头、位置与原 standin 重合。

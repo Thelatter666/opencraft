@@ -1,0 +1,15 @@
+[2026-09-18 12:28:53.359] [info] OpenCraft 0.1.0 starting
+[2026-09-18 12:28:53.476] [info] GL 4.1 Metal - 89.4 / glad loaded
+[2026-09-18 12:28:53.476] [info] save: no level.ocd, new world with seed 0x4f50454e43524146
+[2026-09-18 12:28:53.695] [info] startup gen: 25 chunks, total 218.8 ms, avg 8.75 ms/chunk
+[2026-09-18 12:28:53.695] [info] spawn scan: surface at (0.5, 132.0, 0.5)
+[2026-09-18 12:28:53.695] [info] respawn point: (0.5, 132.0, 0.5)
+[2026-09-18 12:28:53.696] [info] atlas: 60/63 block tiles loaded from ../assets/blocks
+[2026-09-18 12:28:53.696] [info] atlas: 144x144 px, 9 tiles/row, crack tiles at 63
+[2026-09-18 12:28:55.732] [info] fps 43.4 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-18 12:28:57.730] [info] fps 111.0 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-18 12:28:59.731] [info] fps 120.0 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-18 12:29:00.475] [info] EVIDENCE paused=1
+[2026-09-18 12:29:01.730] [info] fps 119.0 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-18 12:29:02.264] [info] EVIDENCE summon mossback id=1 at (0.5, 132.0, -1.5)
+[2026-09-18 12:29:03.744] [info] fps 119.7 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104

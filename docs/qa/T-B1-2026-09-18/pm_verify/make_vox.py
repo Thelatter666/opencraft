@@ -10,6 +10,15 @@ Format (research/12 §5.2): 'VOX ' + int32 version + MAIN chunk (header, 0 conte
 0 children) + a list of [4-byte id][int32 content size][int32 children size][content].
 Only SIZE / XYZI / RGBA matter.
 
+★ AXIS CONVENTION (learned the hard way, 2026-09-18): .vox is Z-UP (MagicaVoxel
+convention). pm_good.vox below stacks its column along +Y, so it PARSES fine
+(8 voxels inside SIZE) yet renders as a flat plate on the ground - a fixture
+quirk, not a product bug, but under a pin-the-mob screenshot it masqueraded as
+"models at the screen edges". pm_good_zup.vox is the corrected shape (row along
++X at z=0, column along +Z, SIZE z=4): red body, green head, where the stand-in
+boxes used to be. Use the z-up file for any visual check; the y file only for
+parse/geometry assertions.
+
 usage: make_vox.py <outdir>
 """
 import struct
@@ -29,8 +38,16 @@ PALETTE = [
 
 # A 7 x 5 x 3 asymmetric model: a 5-long row along +X at the base and a 3-tall
 # column at its -X end. Asymmetry is the point: it makes an axis mix-up visible.
+# (The column runs along +Y here - see the header about Z-up and pm_good_zup.vox.)
 SIZE = (7, 5, 3)
 VOXELS = [(x, 0, 0, 1) for x in range(5)] + [(0, y, 0, 2) for y in range(1, 4)]
+
+# The same model with the column along +Z (the format's vertical axis): what a
+# visual check must use. z 0..3 needs SIZE z = 4 - an out-of-SIZE z here is also
+# what taught us the coordinate validator works (an earlier draft shipped z=3
+# and was correctly rejected with "a voxel coordinate is outside SIZE").
+SIZE_ZUP = (7, 5, 4)
+VOXELS_ZUP = [(x, 0, 0, 1) for x in range(5)] + [(0, 0, z, 2) for z in range(1, 4)]
 
 
 def chunk(cid: bytes, content: bytes, children: bytes = b"") -> bytes:
@@ -82,6 +99,7 @@ def main(argv) -> int:
 
     good = wrap(size_chunk() + xyzi_chunk(VOXELS) + rgba_chunk())
     (out / "pm_good.vox").write_bytes(good)
+    (out / "pm_good_zup.vox").write_bytes(wrap(size_chunk(SIZE_ZUP) + xyzi_chunk(VOXELS_ZUP) + rgba_chunk()))
 
     # ── damaged variants, one per row of the fallback table (research/12 §6.5) ──
     (out / "pm_bad_signature.vox").write_bytes(b"VOX2" + good[4:])
