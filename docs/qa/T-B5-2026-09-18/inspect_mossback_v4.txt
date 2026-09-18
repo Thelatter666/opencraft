@@ -1,0 +1,53 @@
+file        : docs/qa/T-B5-2026-09-18/renders/v4/mossback.vox (3784 bytes)
+version     : 150
+chunks      : MAIN(0B), SIZE(12B), XYZI(2692B), RGBA(1024B)
+SIZE        : 9 x 14 x 14  (max side 14)
+voxels      : 672
+colorIndex 0: 0 voxels  (contract: must be 0)
+bbox        : x 0..8  y 0..13  z 0..13
+span        : x 9  y 14  z 14  (z-span must equal collision height / 0.1)
+per-colorIndex bbox and joint mapping:
+  idx  1   219 voxels  x 0..8  y 2..9  z 6..9  rgb (110, 86, 60)  -> joint 0 body 躯干
+  idx  2    77 voxels  x 2..6  y 10..13  z 7..11  rgb (168, 132, 92)  -> joint 1 head 头
+  idx  3    30 voxels  x 1..2  y 6..8  z 0..4  rgb (66, 52, 38)  -> joint 2 arm_l 左前肢/左臂
+  idx  4    30 voxels  x 6..7  y 6..8  z 0..4  rgb (66, 52, 38)  -> joint 3 arm_r 右前肢/右臂
+  idx  5    30 voxels  x 1..2  y 2..4  z 0..4  rgb (66, 52, 38)  -> joint 4 leg_l 左后肢/左腿
+  idx  6    30 voxels  x 6..7  y 2..4  z 0..4  rgb (66, 52, 38)  -> joint 5 leg_r 右后肢/右腿
+  idx  7     6 voxels  x 4..4  y 0..1  z 8..11  rgb (70, 112, 60)  -> joint 6 tail 尾
+  idx 17    35 voxels  x 2..6  y 2..8  z 10..10  rgb (138, 110, 76)  -> joint 0 body 躯干
+  idx 18     3 voxels  x 3..5  y 2..7  z 5..5  rgb (66, 52, 38)  -> joint 0 body 躯干
+  idx 19    58 voxels  x 0..8  y 2..8  z 5..8  rgb (100, 76, 60)  -> joint 0 body 躯干
+  idx 20   100 voxels  x 0..8  y 2..8  z 11..13  rgb (96, 146, 78)  -> joint 0 body 躯干
+  idx 21    27 voxels  x 0..8  y 2..8  z 8..11  rgb (70, 112, 60)  -> joint 0 body 躯干
+  idx 22     4 voxels  x 0..8  y 2..8  z 11..11  rgb (46, 74, 40)  -> joint 0 body 躯干
+  idx 23    12 voxels  x 2..6  y 2..8  z 12..13  rgb (90, 140, 74)  -> joint 0 body 躯干
+  idx 24    11 voxels  x 2..6  y 5..7  z 12..13  rgb (124, 168, 98)  -> joint 0 body 躯干
+joint groups actually present (body = index 1 plus every 17+ colour):
+  joint 0 body 躯干: 469 voxels
+  joint 1 head 头: 77 voxels
+  joint 2 arm_l 左前肢/左臂: 30 voxels
+  joint 3 arm_r 右前肢/右臂: 30 voxels
+  joint 4 leg_l 左后肢/左腿: 30 voxels
+  joint 5 leg_r 右后肢/右腿: 30 voxels
+  joint 6 tail 尾: 6 voxels
+head max z  : 11
+  head max z 11 vs torso core (idx 1/17/18/19) max z 10  (centroid 8.70 vs 7.40)
+  head max z 11 vs all joint 0 (incl. moss/hump) max z 13  (centroid 8.70 vs 8.73)
+lowest layer z=0 colorIndices [3, 4, 5, 6] -> joints [2, 3, 4, 5] (feet/legs only)
+second-colour indices painted: []
+exposed faces: 752  (budget 2000)
+triangles    : 1504  (what the startup log reports)
+faces per colorIndex: 1:113, 2:113, 3:57, 4:57, 5:57, 6:57, 7:20, 17:13, 18:4, 19:73, 20:117, 21:35, 22:16, 23:15, 24:5
+rendered side-left-nose-right: 324x324
+rendered front-face: 214x324
+rendered top: 214x324
+rendered iso: 280x375
+rendered iso-joints: 280x375
+rendered sil-side: 324x324
+rendered sil-iso: 280x375
+rendered gamecam (perspective): 760x620 @ 16.0 px/voxel
+gamecam camera: eye=(31.78, 41.92, 14.81) target=(4.50, 7.00, 7.00) dist=45.0 voxels (4.5 blocks) az=38.0 el=10.0 focal=720.0px
+perspective self-check: a 1-voxel ground segment projects to 13.57 px at the near end vs 8.43 px at the far end (ratio 1.610; an orthographic camera would give 1.000)
+wrote docs/qa/T-B5-2026-09-18/renders/mossback-v4_contact_sheet.png
+wrote docs/qa/T-B5-2026-09-18/renders/mossback-v4_silhouette.png
+contact sheet tiles: side-left-nose-right | front-face | top | iso | iso-joints

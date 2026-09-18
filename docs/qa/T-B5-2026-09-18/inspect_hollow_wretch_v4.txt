@@ -1,0 +1,58 @@
+file        : docs/qa/T-B5-2026-09-18/renders/v4/hollow_wretch.vox (1772 bytes)
+version     : 150
+chunks      : MAIN(0B), SIZE(12B), XYZI(680B), RGBA(1024B)
+SIZE        : 6 x 6 x 18  (max side 18)
+voxels      : 169
+colorIndex 0: 0 voxels  (contract: must be 0)
+bbox        : x 0..5  y 0..5  z 0..17
+span        : x 6  y 6  z 18  (z-span must equal collision height / 0.1)
+per-colorIndex bbox and joint mapping:
+  idx  1     2 voxels  x 2..3  y 2..2  z 10..10  rgb (110, 110, 116)  -> joint 0 body 躯干
+  idx  2    40 voxels  x 1..4  y 2..5  z 13..17  rgb (226, 230, 236)  -> joint 1 head 头
+  idx  3    17 voxels  x 0..0  y 2..5  z 6..13  rgb (74, 74, 80)  -> joint 2 arm_l 左前肢/左臂
+  idx  4    17 voxels  x 5..5  y 2..5  z 6..13  rgb (74, 74, 80)  -> joint 3 arm_r 右前肢/右臂
+  idx  5    19 voxels  x 1..1  y 1..3  z 0..8  rgb (74, 74, 80)  -> joint 4 leg_l 左后肢/左腿
+  idx  6    19 voxels  x 4..4  y 1..3  z 0..8  rgb (74, 74, 80)  -> joint 5 leg_r 右后肢/右腿
+  idx  9     2 voxels  x 2..3  y 1..1  z 11..11  rgb (46, 42, 58)  -> joint 0 body 躯干
+  idx 10     2 voxels  x 1..4  y 5..5  z 15..15  rgb (40, 40, 44)  -> joint 1 head 头
+  idx 11     2 voxels  x 0..0  y 4..5  z 5..5  rgb (166, 166, 172)  -> joint 2 arm_l 左前肢/左臂
+  idx 12     2 voxels  x 5..5  y 4..5  z 5..5  rgb (166, 166, 172)  -> joint 3 arm_r 右前肢/右臂
+  idx 17    28 voxels  x 1..4  y 0..2  z 12..14  rgb (128, 128, 133)  -> joint 0 body 躯干
+  idx 18    17 voxels  x 2..3  y 1..3  z 6..9  rgb (74, 74, 80)  -> joint 0 body 躯干
+  idx 19     2 voxels  x 2..3  y 1..1  z 10..10  rgb (70, 53, 41)  -> joint 0 body 躯干
+joint groups actually present (body = index 1 plus every 17+ colour):
+  joint 0 body 躯干: 51 voxels
+  joint 1 head 头: 42 voxels
+  joint 2 arm_l 左前肢/左臂: 19 voxels
+  joint 3 arm_r 右前肢/右臂: 19 voxels
+  joint 4 leg_l 左后肢/左腿: 19 voxels
+  joint 5 leg_r 右后肢/右腿: 19 voxels
+head max z  : 17
+  head max z 17 vs torso core (idx 1/17/18/19) max z 14  (centroid 15.38 vs 10.78)
+  head max z 17 vs all joint 0 (incl. moss/hump) max z 14  (centroid 15.38 vs 10.78)
+lowest layer z=0 colorIndices [5, 6] -> joints [4, 5] (feet/legs only)
+second-colour indices painted: [9, 10, 11, 12]
+  idx  9 -> joint 0 body 躯干: cells x 2..3 y 1..1 z 11..11 within joint bbox x 1..4 y 0..3 z 6..14  [OK]
+  idx 10 -> joint 1 head 头: cells x 1..4 y 5..5 z 15..15 within joint bbox x 1..4 y 2..5 z 13..17  [OK]
+  idx 11 -> joint 2 arm_l 左前肢/左臂: cells x 0..0 y 4..5 z 5..5 within joint bbox x 0..0 y 2..5 z 5..13  [OK]
+  idx 12 -> joint 3 arm_r 右前肢/右臂: cells x 5..5 y 4..5 z 5..5 within joint bbox x 5..5 y 2..5 z 5..13  [OK]
+eye voxels (idx 10): 2
+  (1, 5, 15) present in occupancy table; +y neighbour (1, 6, 15) empty: True
+  (4, 5, 15) present in occupancy table; +y neighbour (4, 6, 15) empty: True
+  eye voxels span x [1, 4] z [15]; every eye voxel is a surface colour (not a carved hole): True
+exposed faces: 428  (budget 2000)
+triangles    : 856  (what the startup log reports)
+faces per colorIndex: 1:6, 2:78, 3:53, 4:53, 5:57, 6:58, 9:6, 10:6, 11:8, 12:8, 17:52, 18:39, 19:4
+rendered side-left-nose-right: 148x412
+rendered front-face: 148x412
+rendered top: 148x148
+rendered iso: 187x375
+rendered iso-joints: 187x375
+rendered sil-side: 148x412
+rendered sil-iso: 187x375
+rendered gamecam (perspective): 760x620 @ 16.0 px/voxel
+gamecam camera: eye=(30.28, 37.92, 16.81) target=(3.00, 3.00, 9.00) dist=45.0 voxels (4.5 blocks) az=38.0 el=10.0 focal=720.0px
+perspective self-check: a 1-voxel ground segment projects to 11.83 px at the near end vs 9.67 px at the far end (ratio 1.224; an orthographic camera would give 1.000)
+wrote docs/qa/T-B5-2026-09-18/renders/hollow_wretch-v4_contact_sheet.png
+wrote docs/qa/T-B5-2026-09-18/renders/hollow_wretch-v4_silhouette.png
+contact sheet tiles: side-left-nose-right | front-face | top | iso | iso-joints

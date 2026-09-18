@@ -1,0 +1,93 @@
+file        : assets/mobs/hollow_wretch.vox (3080 bytes)
+version     : 150
+chunks      : MAIN(0B), SIZE(12B), XYZI(1988B), RGBA(1024B)
+SIZE        : 12 x 9 x 18  (max side 18)
+voxels      : 496
+colorIndex 0: 0 voxels  (contract: must be 0)
+bbox        : x 1..10  y 0..8  z 0..17
+span        : x 10  y 9  z 18  (z-span must equal collision height / 0.1)
+per-colorIndex bbox and joint mapping:
+  idx  1    32 voxels  x 4..7  y 1..4  z 10..13  rgb (110, 110, 116)  -> joint 0 body 躯干
+  idx  2   102 voxels  x 3..8  y 3..8  z 13..17  rgb (226, 230, 236)  -> joint 1 head 头
+  idx  3    16 voxels  x 1..2  y 1..3  z 9..11  rgb (74, 74, 80)  -> joint 2 arm_l 左前肢/左臂
+  idx  4    16 voxels  x 9..10  y 1..3  z 9..11  rgb (74, 74, 80)  -> joint 3 arm_r 右前肢/右臂
+  idx  5    44 voxels  x 4..5  y 1..4  z 1..7  rgb (74, 74, 80)  -> joint 4 leg_l 左后肢/左腿
+  idx  6    44 voxels  x 6..7  y 1..4  z 1..7  rgb (74, 74, 80)  -> joint 5 leg_r 右后肢/右腿
+  idx  9     4 voxels  x 5..6  y 2..2  z 11..12  rgb (46, 42, 58)  -> joint 0 body 躯干
+  idx 10    14 voxels  x 3..8  y 7..8  z 13..16  rgb (40, 40, 44)  -> joint 1 head 头
+  idx 11    46 voxels  x 1..2  y 4..7  z 2..8  rgb (166, 166, 172)  -> joint 2 arm_l 左前肢/左臂
+  idx 12    46 voxels  x 9..10  y 4..7  z 2..8  rgb (166, 166, 172)  -> joint 3 arm_r 右前肢/右臂
+  idx 13     8 voxels  x 4..5  y 1..4  z 0..0  rgb (166, 166, 172)  -> joint 4 leg_l 左后肢/左腿
+  idx 14     8 voxels  x 6..7  y 1..4  z 0..0  rgb (166, 166, 172)  -> joint 5 leg_r 右后肢/右腿
+  idx 17    56 voxels  x 1..10  y 1..3  z 12..13  rgb (128, 128, 133)  -> joint 0 body 躯干
+  idx 18    48 voxels  x 3..8  y 0..5  z 8..9  rgb (74, 74, 80)  -> joint 0 body 躯干
+  idx 19    12 voxels  x 4..7  y 0..0  z 11..13  rgb (70, 53, 41)  -> joint 0 body 躯干
+joint groups actually present (body = index 1 plus every 17+ colour):
+  joint 0 body 躯干: 152 voxels
+  joint 1 head 头: 116 voxels
+  joint 2 arm_l 左前肢/左臂: 62 voxels
+  joint 3 arm_r 右前肢/右臂: 62 voxels
+  joint 4 leg_l 左后肢/左腿: 52 voxels
+  joint 5 leg_r 右后肢/右腿: 52 voxels
+head max z  : 17
+  head max z 17 vs torso core (idx 1/17/18/19) max z 13  (centroid 15.29 vs 10.85)
+  head max z 17 vs all joint 0 (incl. moss/hump) max z 13  (centroid 15.29 vs 10.87)
+lowest layer z=0 colorIndices [13, 14] -> joints [4, 5] (feet/legs only)
+second-colour indices painted: [9, 10, 11, 12, 13, 14]
+  idx  9 -> joint 0 body 躯干: cells x 5..6 y 2..2 z 11..12 within joint bbox x 1..10 y 0..5 z 8..13  [OK]
+  idx 10 -> joint 1 head 头: cells x 3..8 y 7..8 z 13..16 within joint bbox x 3..8 y 3..8 z 13..17  [OK]
+  idx 11 -> joint 2 arm_l 左前肢/左臂: cells x 1..2 y 4..7 z 2..8 within joint bbox x 1..2 y 1..7 z 2..11  [OK]
+  idx 12 -> joint 3 arm_r 右前肢/右臂: cells x 9..10 y 4..7 z 2..8 within joint bbox x 9..10 y 1..7 z 2..11  [OK]
+  idx 13 -> joint 4 leg_l 左后肢/左腿: cells x 4..5 y 1..4 z 0..0 within joint bbox x 4..5 y 1..4 z 0..7  [OK]
+  idx 14 -> joint 5 leg_r 右后肢/右腿: cells x 6..7 y 1..4 z 0..0 within joint bbox x 6..7 y 1..4 z 0..7  [OK]
+eye voxels (idx 10): 14
+  (3, 7, 15) present in occupancy table; +y neighbour (3, 8, 15) empty: True
+  (3, 7, 16) present in occupancy table; +y neighbour (3, 8, 16) empty: True
+  (4, 7, 15) present in occupancy table; +y neighbour (4, 8, 15) empty: True
+  (4, 7, 16) present in occupancy table; +y neighbour (4, 8, 16) empty: True
+  (4, 8, 13) present in occupancy table; +y neighbour (4, 9, 13) empty: True
+  (5, 7, 14) present in occupancy table; +y neighbour (5, 8, 14) empty: True
+  (5, 8, 13) present in occupancy table; +y neighbour (5, 9, 13) empty: True
+  (6, 7, 14) present in occupancy table; +y neighbour (6, 8, 14) empty: True
+  (6, 8, 13) present in occupancy table; +y neighbour (6, 9, 13) empty: True
+  (7, 7, 15) present in occupancy table; +y neighbour (7, 8, 15) empty: True
+  (7, 7, 16) present in occupancy table; +y neighbour (7, 8, 16) empty: True
+  (7, 8, 13) present in occupancy table; +y neighbour (7, 9, 13) empty: True
+  (8, 7, 15) present in occupancy table; +y neighbour (8, 8, 15) empty: True
+  (8, 7, 16) present in occupancy table; +y neighbour (8, 8, 16) empty: True
+  eye voxels span x [3, 4, 5, 6, 7, 8] z [13, 14, 15, 16]; every eye voxel is a surface colour (not a carved hole): True
+exposed faces: 796  (budget 2000)
+triangles    : 1592  (what the startup log reports)
+faces per colorIndex: 1:48, 2:142, 3:32, 4:32, 5:54, 6:54, 9:4, 10:34, 11:94, 12:94, 13:18, 14:18, 17:74, 18:72, 19:26
+rendered side-left-nose-right: 214x412
+rendered front-face: 236x412
+rendered top: 236x214
+rendered iso: 280x411
+rendered iso-joints: 280x411
+rendered sil-side: 214x412
+rendered sil-iso: 280x411
+rendered gamecam (perspective): 760x620 @ 16.0 px/voxel
+gamecam camera: eye=(33.28, 39.42, 16.81) target=(6.00, 4.50, 9.00) dist=45.0 voxels (4.5 blocks) az=38.0 el=10.0 focal=720.0px
+perspective self-check: a 1-voxel ground segment projects to 12.48 px at the near end vs 9.22 px at the far end (ratio 1.354; an orthographic camera would give 1.000)
+wrote docs/qa/T-B5-2026-09-18/renders/hollow_wretch-v5_contact_sheet.png
+wrote docs/qa/T-B5-2026-09-18/renders/hollow_wretch-v5_silhouette.png
+contact sheet tiles: side-left-nose-right | front-face | top | iso | iso-joints
+palette png : assets/palettes/hollow_wretch.png 16x16 depth 8 color type 6 (129 bytes)
+palette png : alpha set [255] (opaque asset -> {255})
+  cell  0 (row 0, col  0) png (30, 30, 34)  vox None  sat 0.118  match
+  cell  1 (row 0, col  1) png (110, 110, 116)  vox (110, 110, 116)  sat 0.052  match
+  cell  2 (row 0, col  2) png (226, 230, 236)  vox (226, 230, 236)  sat 0.042  match
+  cell  3 (row 0, col  3) png (74, 74, 80)  vox (74, 74, 80)  sat 0.075  match
+  cell  4 (row 0, col  4) png (74, 74, 80)  vox (74, 74, 80)  sat 0.075  match
+  cell  5 (row 0, col  5) png (74, 74, 80)  vox (74, 74, 80)  sat 0.075  match
+  cell  6 (row 0, col  6) png (74, 74, 80)  vox (74, 74, 80)  sat 0.075  match
+  cell  9 (row 0, col  9) png (46, 42, 58)  vox (46, 42, 58)  sat 0.276  match
+  cell 10 (row 0, col 10) png (40, 40, 44)  vox (40, 40, 44)  sat 0.091  match
+  cell 11 (row 0, col 11) png (166, 166, 172)  vox (166, 166, 172)  sat 0.035  match
+  cell 12 (row 0, col 12) png (166, 166, 172)  vox (166, 166, 172)  sat 0.035  match
+  cell 13 (row 0, col 13) png (166, 166, 172)  vox (166, 166, 172)  sat 0.035  match
+  cell 14 (row 0, col 14) png (166, 166, 172)  vox (166, 166, 172)  sat 0.035  match
+  cell 17 (row 1, col  1) png (128, 128, 133)  vox (128, 128, 133)  sat 0.038  match
+  cell 18 (row 1, col  2) png (74, 74, 80)  vox (74, 74, 80)  sat 0.075  match
+  cell 19 (row 1, col  3) png (70, 53, 41)  vox (70, 53, 41)  sat 0.414  match
+max saturation over painted cells: 0.414 (cap 0.50)

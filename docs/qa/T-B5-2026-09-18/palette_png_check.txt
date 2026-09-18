@@ -1,0 +1,13 @@
+=== mossback ===
+file        : /Users/happy/Desktop/opencraft_worktree/opencraft-tb5/assets/palettes/mossback.png
+size        : (16, 16)  mode RGBA  (must be 16x16 RGBA)
+alpha set   : [255] (opaque asset -> {255})
+cells checked: 256; mismatches: 0
+painted-cell colours: 16 distinct indices, max saturation 0.471 (cap 0.50)
+=== hollow_wretch ===
+file        : /Users/happy/Desktop/opencraft_worktree/opencraft-tb5/assets/palettes/hollow_wretch.png
+size        : (16, 16)  mode RGBA  (must be 16x16 RGBA)
+alpha set   : [255] (opaque asset -> {255})
+cells checked: 256; mismatches: 0
+painted-cell colours: 15 distinct indices, max saturation 0.414 (cap 0.50)
+OK - both palettes read back cell-for-cell identical (max saturation over all painted cells 0.471 <= 0.50)
