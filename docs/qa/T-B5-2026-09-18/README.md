@@ -9,8 +9,8 @@
 |---|---|
 | `assets/mobs/mossback.vox` | Mossback v5：7×17×14 画布 / **705 体素** / 1544 三角形 / 7 关节 |
 | `assets/mobs/hollow_wretch.vox` | Hollow Wretch v5：12×9×18 画布 / **496 体素** / 1592 三角形 / 6 关节 |
-| `assets/palettes/mossback.png` | **一字未动**（md5 `74dcc2a82723523d9f1d0b40b92ba7db` = 仓库原值） |
-| `assets/palettes/hollow_wretch.png` | 只有 13/14 两格由 U0 改成 S3（左右脚骨色） |
+| `assets/palettes/mossback.png` | **只改第 10 格**：U0 → O0（眼窝/鼻点的颜色），md5 `2be25d95e04ce3dba7d65449ccf46ea7` |
+| `assets/palettes/hollow_wretch.png` | 只有 13/14 两格由 U0 改成 S3（左右脚骨色）；第 10 格本来就是 O0（眼窝），本轮补的鼻窝/口复用它 |
 
 ## 2. 工具（`tools/`，★ 与 T-B2b/T-B3 的四件套同构）
 
@@ -19,6 +19,7 @@
 | `vox_build.py` | **机械翻译器**：读手写字符稿 → 写 `.vox` + 调色板 PNG。无几何/无对称展开/无填充/无随机数。`python3 vox_build.py <root> all` |
 | `vox_inspect.py` | **独立解析器 + 出图**（不读字符稿，只读落盘 `.vox`）。`model <vox> <out_dir> <tag>` / `compare <out.png> <a> <b>`。★ 含本卡新增的 `render_perspective`（非正交游戏机位） |
 | `check_palette_png.py` | 用**第三方**解码器（Pillow）逐格复核两张调色板 PNG |
+| `face_closeup.py` | ★ 追加需求「明显的面部特征」的出图工具：相机贴在脸前 1.6 格、与脸同高，头占满画面 |
 | `mossback_layers.txt` / `hollow_wretch_layers.txt` | ★ **创作本体**：逐层手写字符稿（mossback 14 层×17 行×7 格；wretch 18 层×9 行×12 格） |
 | `mossback_palette.txt` / `hollow_wretch_palette.txt` | 16×16 调色板字符稿 |
 
@@ -53,6 +54,9 @@ python3 docs/qa/T-B5-2026-09-18/tools/check_palette_png.py "$PWD"
 | `mossback-v5_gamecam.png` / `hollow_wretch-v5_gamecam.png` | 单张游戏机位出图（非正交，见报告 §5 的机器自证） |
 | `*-v5_contact_sheet.png` | 正交五视图：侧视(鼻在右) / 正视 / 俯视 / 等轴 / 等轴-关节分色 |
 | `*-v5_silhouette.png` | 剪影（只留轮廓，用来看"四条腿 + 一个头 + 背上有苔"是否一眼可读） |
+| `*-v5_front_big.png` | 正视大图（46 px/体素）——读五官用 |
+| `*-v5_face.png` | ★ **面部特写**（`face_closeup.py`）——追加需求的取证图 |
+| `mv_*_v5.png` | MagicaVoxel 0.99.6.2 打开新件的截图（第三方人眼读者，卡面 §4.6 加分项）：标题 `mossback` / `hollow_wretch`，尺寸读数 `7 17 14` / `12 9 18` |
 | `v4/*.vox` | 旧版资产的**只读副本**，来源：`git show ba2f920:assets/mobs/<name>.vox`（分支基线 = 派发时点的 main tip）。md5 已核：mossback `9215d2bef3333821c07c83b20aa1c360`、hollow_wretch `6b5dc511340220c4de29f279389fb16d`，与基线提交逐字节相同。⚠ **取件必须写基线 SHA，不能写 `HEAD`**——本卡提交之后 `HEAD` 指向的是 v5。放这里只为让对照图可一键复跑，不是交付物 |
 
 ## 5. 只读引用（PM 派发时已入库，本卡**未改**）

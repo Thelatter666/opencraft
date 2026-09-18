@@ -163,7 +163,7 @@ def render_view(size, voxels, palette, color_of, basis, scale, margin):
 
 
 def render_perspective(size, voxels, palette, color_of, eye, target, px_per_unit,
-                       viewport):
+                       viewport, center=None):
     """★ 针孔透视（**非正交**）渲染 —— 卡面 §2.5 的"游戏机位"。
 
     与 render_view 的差别只有一处：屏幕上的一点 = (x_cam / z_cam, y_cam / z_cam)，
@@ -194,8 +194,14 @@ def render_perspective(size, voxels, palette, color_of, eye, target, px_per_unit
             us.append(sum(rel[i] * right[i] for i in range(3)) / zc * f)
             vs.append(sum(rel[i] * up[i] for i in range(3)) / zc * f)
     w, h = viewport
-    ox = (min(us) + max(us)) * 0.5   # 把投影包围盒的中心放到画面中心
-    oy = (min(vs) + max(vs)) * 0.5
+    if center is None:
+        ox = (min(us) + max(us)) * 0.5   # 默认：把**整个模型**投影包围盒的中心放到画面中心
+        oy = (min(vs) + max(vs)) * 0.5
+    else:                                # center=<3 元组>：把**那个点**放到画面中心（面部特写用）
+        rel = sub(center, eye)
+        zc = sum(rel[i] * fwd[i] for i in range(3))
+        ox = sum(rel[i] * right[i] for i in range(3)) / zc * f
+        oy = sum(rel[i] * up[i] for i in range(3)) / zc * f
     buf = [(28, 30, 36)] * (w * h)
     zbuf = [1e18] * (w * h)
 
@@ -207,11 +213,15 @@ def render_perspective(size, voxels, palette, color_of, eye, target, px_per_unit
         return (u - ox + w * 0.5, h * 0.5 - (v - oy), zc)
 
     occupied = {(v[0], v[1], v[2]) for v in voxels}
+    toward = tuple(-c for c in fwd)   # ★ 朝相机方向 = -fwd（== render_view 里的 toward 语义）
     for x, y, z, c in voxels:
         color = color_of(x, y, z, c, palette)
         for name, (n, fcorners) in FACES.items():
-            if sum(n[i] * fwd[i] for i in range(3)) <= 0:
-                continue  # 背面（相机朝向 fwd ⇒ 法线背对者不可见）
+            if sum(n[i] * toward[i] for i in range(3)) <= 0:
+                continue  # 背面：法线背对相机 ⇒ 剔除
+            # ⚠ 本行原写成 `sum(n[i] * fwd[i])`：fwd 是"相机看向场景"的方向，
+            #   于是把**正面剔掉、反面留下**，整张图渲染的是模型的**内表面**
+            #   （症状：五官全不见、颜色偏暗、面明暗对不上；2026-09-18 由面部特写抓出）。
             if (x + n[0], y + n[1], z + n[2]) in occupied:
                 continue
             quad = [project((x + cc[0], y + cc[1], z + cc[2])) for cc in fcorners]
@@ -252,7 +262,8 @@ def cross(a, b):
 
 # ★ 游戏机位参数（两只模型、v4/v5 都共用同一组 ⇒ 对照图是同角度、同世界尺度的）
 GAMECAM_AZIMUTH_DEG = 38.0     # 从正前方（+y）往右偏 38°
-GAMECAM_ELEV_DEG = 16.0        # 略俯视（4.5 格外一只 1.4~1.8 格高的生物就是这个俯角感）
+GAMECAM_ELEV_DEG = 10.0        # 略俯视：玩家眼高 1.62 格、生物 4.5 格外 ⇒ 真实俯角 ~9–12°
+                              # （16° 会让脸在画面上压扁成一条，看不到五官——本卡按玩家视角取值）
 GAMECAM_DISTANCE_BLOCKS = 4.5  # 卡面 §2.5：近 4–5 格距离感 ⇒ 45 体素
 GAMECAM_PX_PER_UNIT = 16.0     # 1 体素在 target 距离上占 16 px（两版共用 ⇒ 可直接比大小）
 GAMECAM_VIEWPORT = (760, 620)  # 固定画布（不按模型自适应）

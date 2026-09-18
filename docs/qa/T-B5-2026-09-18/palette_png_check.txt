@@ -3,7 +3,7 @@ file        : /Users/happy/Desktop/opencraft_worktree/opencraft-tb5/assets/palet
 size        : (16, 16)  mode RGBA  (must be 16x16 RGBA)
 alpha set   : [255] (opaque asset -> {255})
 cells checked: 256; mismatches: 0
-painted-cell colours: 14 distinct indices, max saturation 0.471 (cap 0.50)
+painted-cell colours: 16 distinct indices, max saturation 0.471 (cap 0.50)
 === hollow_wretch ===
 file        : /Users/happy/Desktop/opencraft_worktree/opencraft-tb5/assets/palettes/hollow_wretch.png
 size        : (16, 16)  mode RGBA  (must be 16x16 RGBA)

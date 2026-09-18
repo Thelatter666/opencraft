@@ -34,6 +34,7 @@ head max z  : 11
   head max z 11 vs torso core (idx 1/17/18/19) max z 10  (centroid 8.70 vs 7.40)
   head max z 11 vs all joint 0 (incl. moss/hump) max z 13  (centroid 8.70 vs 8.73)
 lowest layer z=0 colorIndices [3, 4, 5, 6] -> joints [2, 3, 4, 5] (feet/legs only)
+second-colour indices painted: []
 exposed faces: 752  (budget 2000)
 triangles    : 1504  (what the startup log reports)
 faces per colorIndex: 1:113, 2:113, 3:57, 4:57, 5:57, 6:57, 7:20, 17:13, 18:4, 19:73, 20:117, 21:35, 22:16, 23:15, 24:5
@@ -45,8 +46,8 @@ rendered iso-joints: 280x375
 rendered sil-side: 324x324
 rendered sil-iso: 280x375
 rendered gamecam (perspective): 760x620 @ 16.0 px/voxel
-gamecam camera: eye=(31.13, 41.09, 19.40) target=(4.50, 7.00, 7.00) dist=45.0 voxels (4.5 blocks) az=38.0 el=16.0 focal=720.0px
-perspective self-check: a 1-voxel ground segment projects to 13.83 px at the near end vs 8.75 px at the far end (ratio 1.580; an orthographic camera would give 1.000)
+gamecam camera: eye=(31.78, 41.92, 14.81) target=(4.50, 7.00, 7.00) dist=45.0 voxels (4.5 blocks) az=38.0 el=10.0 focal=720.0px
+perspective self-check: a 1-voxel ground segment projects to 13.57 px at the near end vs 8.43 px at the far end (ratio 1.610; an orthographic camera would give 1.000)
 wrote docs/qa/T-B5-2026-09-18/renders/mossback-v4_contact_sheet.png
 wrote docs/qa/T-B5-2026-09-18/renders/mossback-v4_silhouette.png
 contact sheet tiles: side-left-nose-right | front-face | top | iso | iso-joints
