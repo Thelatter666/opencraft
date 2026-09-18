@@ -1,0 +1,23 @@
+swatches: 9 colours, max saturation 0.414 ('M' (70, 53, 41))
+voxels: 169 (budget 1000)
+grid: 6 x 6 x 18 (max side 18, cap 32)
+colorIndex used: [1, 2, 3, 4, 5, 6, 9, 10, 11, 12, 17, 18, 19]
+explicitly absent: 0 (colorIndex 0 is never painted)
+joint primary labels used: [1, 2, 3, 4, 5, 6] (body 躯干; head 头; arm_l 左臂; arm_r 右臂; leg_l 左腿; leg_r 右腿)
+joint SECOND colour used: idx 9 -> joint 0 body 躯干  (body 躯干二色 = 胸前空洞)
+joint SECOND colour used: idx 10 -> joint 1 head 头  (head 头二色 = 眼窝)
+joint SECOND colour used: idx 11 -> joint 2 arm_l 左臂  (arm_l 左臂二色 = 左手)
+joint SECOND colour used: idx 12 -> joint 3 arm_r 右臂  (arm_r 右臂二色 = 右手)
+body-group colours (v2: 17+): [17, 18, 19]
+span: x 6  y 6  z 18
+joints present: 6 (6 parts -> the startup log's 'joints' field)
+  joint 0 body 躯干: 51 voxels, colorIndex [1, 9, 17, 18, 19]
+  joint 1 head 头: 42 voxels, colorIndex [2, 10]
+  joint 2 arm_l 左臂: 19 voxels, colorIndex [3, 11]
+  joint 3 arm_r 右臂: 19 voxels, colorIndex [4, 12]
+  joint 4 leg_l 左腿: 19 voxels, colorIndex [5]
+  joint 5 leg_r 右腿: 19 voxels, colorIndex [6]
+head z centroid 15.38 (max 17) vs torso 10.78 (max 14)
+lowest layer z=0 joints [4, 5] (legs only)
+wrote ./assets/mobs/hollow_wretch.vox (1772 bytes)
+wrote ./assets/palettes/hollow_wretch.png (130 bytes)

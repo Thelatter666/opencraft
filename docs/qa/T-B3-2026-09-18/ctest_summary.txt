@@ -1,0 +1,90 @@
+# T-B3 · 全量测试摘要（纯资产卡，零代码改动；完整输出 = ctest --test-dir build）
+
+        Start  39: step-assist height mob does not auto-jump at 1.0
+ 39/459 Test  #39: step-assist height mob does not auto-jump at 1.0 ...............................................   Passed    0.00 sec
+        Start  43: step_height frozen: player 0.6, mob 1.0
+ 43/459 Test  #43: step_height frozen: player 0.6, mob 1.0 ........................................................   Passed    0.00 sec
+        Start 261: mob motion: the movement-speed attribute IS the walking speed in blocks/tick
+261/459 Test #261: mob motion: the movement-speed attribute IS the walking speed in blocks/tick ...................   Passed    0.00 sec
+        Start 262: mob motion: a mob walks UP a full block instead of being stopped by it
+262/459 Test #262: mob motion: a mob walks UP a full block instead of being stopped by it .........................   Passed    0.00 sec
+        Start 263: mob perception: the sight range is the NOTICE range
+263/459 Test #263: mob perception: the sight range is the NOTICE range ............................................   Passed    0.00 sec
+        Start 264: mob perception: follow_range is the GIVE-UP distance, not the notice range
+264/459 Test #264: mob perception: follow_range is the GIVE-UP distance, not the notice range .....................   Passed    0.00 sec
+        Start 265: mob tempt: the SENSE range, the START range and the STOP range are three gates
+265/459 Test #265: mob tempt: the SENSE range, the START range and the STOP range are three gates .................   Passed    0.00 sec
+        Start 266: mob tempt: the grazing mob senses at 10 but only starts following at 6
+266/459 Test #266: mob tempt: the grazing mob senses at 10 but only starts following at 6 .........................   Passed    0.00 sec
+        Start 267: mob tempt: an empty hand is not a lure
+267/459 Test #267: mob tempt: an empty hand is not a lure .........................................................   Passed    0.00 sec
+        Start 268: mob goals coexist: a hunter chases AND looks, at the same time
+268/459 Test #268: mob goals coexist: a hunter chases AND looks, at the same time .................................   Passed    0.00 sec
+        Start 269: mob goals: an idle mob strolls, and the destination is on the ground
+269/459 Test #269: mob goals: an idle mob strolls, and the destination is on the ground ...........................   Passed    0.00 sec
+        Start 270: mob goals: with no viewer nothing perceives, and the mob still lives
+270/459 Test #270: mob goals: with no viewer nothing perceives, and the mob still lives ...........................   Passed    0.00 sec
+        Start 271: mob chunks: an unloaded chunk freezes the brain exactly like the drops
+271/459 Test #271: mob chunks: an unloaded chunk freezes the brain exactly like the drops .........................   Passed    0.00 sec
+        Start 272: passive mob: feeding two in-love adults produces a baby after the mating timer
+272/459 Test #272: passive mob: feeding two in-love adults produces a baby after the mating timer .................   Passed    0.00 sec
+        Start 273: passive mob: food rules - wrong item, a baby, and the cooldown are all refused
+273/459 Test #273: passive mob: food rules - wrong item, a baby, and the cooldown are all refused .................   Passed    0.00 sec
+        Start 274: passive mob: killing it drops the food and the hide, and the roll is reproducible
+274/459 Test #274: passive mob: killing it drops the food and the hide, and the roll is reproducible ..............   Passed    0.00 sec
+        Start 275: passive mob: hurt it and it runs away for a few seconds
+275/459 Test #275: passive mob: hurt it and it runs away for a few seconds ........................................   Passed    0.00 sec
+        Start 283: mob motion: a mob is stopped by a wall taller than one block
+283/459 Test #283: mob motion: a mob is stopped by a wall taller than one block ...................................   Passed    0.00 sec
+        Start 284: mob motion: gravity brings an unsupported mob down to the floor
+284/459 Test #284: mob motion: gravity brings an unsupported mob down to the floor ................................   Passed    0.00 sec
+        Start 285: authority mobs: without a viewer pose nothing perceives and nothing spawns
+285/459 Test #285: authority mobs: without a viewer pose nothing perceives and nothing spawns .....................   Passed    0.48 sec
+        Start 286: authority mobs: a lit surface spawns no hostiles, and the spawner does try
+286/459 Test #286: authority mobs: a lit surface spawns no hostiles, and the spawner does try .....................   Passed    0.77 sec
+        Start 287: authority mobs: a summoned hunter lands a hit that arrives as an ActorEvent
+287/459 Test #287: authority mobs: a summoned hunter lands a hit that arrives as an ActorEvent ....................   Passed    0.09 sec
+        Start 288: authority mobs: the Attack verb kills a passive mob and its loot lands in the world
+288/459 Test #288: authority mobs: the Attack verb kills a passive mob and its loot lands in the world ............   Passed    0.09 sec
+        Start 289: authority mobs: Attack validates the class, the existence and the reach
+289/459 Test #289: authority mobs: Attack validates the class, the existence and the reach ........................   Passed    0.09 sec
+        Start 290: authority mobs: a mob cannot be picked up, and a drop still can
+290/459 Test #290: authority mobs: a mob cannot be picked up, and a drop still can ................................   Passed    0.09 sec
+        Start 291: authority mobs: Feed validates the food, the class, the adulthood and the cooldown
+291/459 Test #291: authority mobs: Feed validates the food, the class, the adulthood and the cooldown .............   Passed    0.09 sec
+        Start 292: authority mobs: feeding two of them breeds a baby, and the baby is on the client's view
+292/459 Test #292: authority mobs: feeding two of them breeds a baby, and the baby is on the client's view ........   Passed    0.09 sec
+        Start 293: mob goal stack: a low-priority goal runs ALONGSIDE a high-priority one
+293/459 Test #293: mob goal stack: a low-priority goal runs ALONGSIDE a high-priority one .........................   Passed    0.00 sec
+        Start 294: mob goal stack: every goal that can start does start (not just the first)
+294/459 Test #294: mob goal stack: every goal that can start does start (not just the first) ......................   Passed    0.00 sec
+        Start 295: mob goal stack: the same priority can hold two goals, and both run
+295/459 Test #295: mob goal stack: the same priority can hold two goals, and both run .............................   Passed    0.00 sec
+        Start 296: mob goal stack: a goal stops only on its own continueUse, never because a peer runs
+296/459 Test #296: mob goal stack: a goal stops only on its own continueUse, never because a peer runs ............   Passed    0.00 sec
+        Start 297: mob goal stack: stop then restart inside one scan
+297/459 Test #297: mob goal stack: stop then restart inside one scan ..............................................   Passed    0.00 sec
+        Start 298: mob goal stack: priority orders the scan, and the order is total
+298/459 Test #298: mob goal stack: priority orders the scan, and the order is total ...............................   Passed    0.00 sec
+        Start 299: mob goal stack: a mob's table is content, and an absent goal is absent
+299/459 Test #299: mob goal stack: a mob's table is content, and an absent goal is absent .........................   Passed    0.00 sec
+        Start 300: mob goal stack: the launch roster's tables match research/11 §1.2.2
+300/459 Test #300: mob goal stack: the launch roster's tables match research/11 §1.2.2 ...........................   Passed    0.00 sec
+        Start 301: mob goal stack: the three distances and the classes are separate fields
+301/459 Test #301: mob goal stack: the three distances and the classes are separate fields ........................   Passed    0.00 sec
+        Start 308: T-B1 loader: with no model file the mob keeps its boxes, silently
+308/459 Test #308: T-B1 loader: with no model file the mob keeps its boxes, silently ..............................   Passed    0.00 sec
+        Start 312: T-B1 mesh: size comes from the mob's own collision height, anchored at the feet
+312/459 Test #312: T-B1 mesh: size comes from the mob's own collision height, anchored at the feet ................   Passed    0.00 sec
+        Start 326: spawn: the mob cap is 70 x 可刷区块 / 289, and it is respected
+326/459 Test #326: spawn: the mob cap is 70 x 可刷区块 / 289, and it is respected .............................   Passed    0.00 sec
+        Start 345: death: the mob-event path enters the death state through the same entry
+345/459 Test #345: death: the mob-event path enters the death state through the same entry ........................   Passed    0.09 sec
+        Start 414: step assist: a 2-block wall is not climbable even by a mob
+414/459 Test #414: step assist: a 2-block wall is not climbable even by a mob .....................................   Passed    0.00 sec
+        Start 424: step assist: a mob walks up a full block the player cannot
+424/459 Test #424: step assist: a mob walks up a full block the player cannot .....................................   Passed    0.00 sec
+
+100% tests passed out of 459
+
+Total Test time (real) =   8.79 sec
