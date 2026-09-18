@@ -1,0 +1,16 @@
+--- a/game/server/sim/include/opencraft/sim/mob_sim.hpp
++++ b/game/server/sim/include/opencraft/sim/mob_sim.hpp
+@@ -598,7 +598,12 @@
+     // in [0, scanRate) so a spawned group does not all ray on the same tick.
+     const int period = rules.perception_period > 0 ? rules.perception_period : 1;
+     e->ai.perception_timer = static_cast<int>(mob_detail::next_random(e->ai.rng) % static_cast<std::uint64_t>(period));
+-    e->ai.yaw = mob_detail::random_range(e->ai.rng, 0.0, mob_detail::kTwoPi);
++    // T-B1 PM verification harness: fixed yaw. NOT FOR COMMIT.
++    // The spawn yaw is random per entity, which makes the stand-in head cube
++    // (the only yaw-dependent part) land differently on every run; a pixel A/B
++    // across two binaries needs a frame that is reproducible run to run.
++    e->ai.yaw = 0.7;
++    (void)mob_detail::random_range;
+     e->ai.nav_last_position = e->position;
+     return id;
+ }

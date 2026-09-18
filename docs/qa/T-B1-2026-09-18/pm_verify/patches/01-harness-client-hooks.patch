@@ -1,0 +1,63 @@
+--- a/game/client/src/main.cpp
++++ b/game/client/src/main.cpp
+@@ -466,6 +466,60 @@
+             }
+         }
+         prev_esc = esc_down;
++
++        // ── TEMPORARY EVIDENCE HOOK (T-B1 PM verification), part 1/2 ────────
++        // Says out loud when the pause toggles. HID injection is flaky on this
++        // machine (T-D21): a "paused" capture that silently was not paused looks
++        // exactly like a render difference, so the harness waits for this line.
++        // NOT FOR COMMIT.
++        {
++            static bool harness_prev_paused = false;
++            if (paused != harness_prev_paused) {
++                harness_prev_paused = paused;
++                OC_LOG_INFO("EVIDENCE paused={}", paused ? 1 : 0);
++            }
++        }
++
++        // ══════════ TEMPORARY EVIDENCE HOOK (T-B1 PM verification) ══════════
++        // Adapted from docs/qa/T-M2-2026-09-18/tools/tm2_evidence_hook.patch.
++        // F6/F7/F8 put one mob of each launch type two blocks in front of the
++        // player. Deliberately placed OUTSIDE the `!paused` guard: a paused frame
++        // runs no ticks, so a mob summoned while paused stands still and the
++        // screen becomes deterministic - that is what the pixel-identity A/B of
++        // T-B1 needs (a walking mob would make two runs differ by tick timing).
++        //
++        // NOT FOR COMMIT. This block lives only in the throwaway verification
++        // checkout; the shipped client has no such key.
++        {
++            static bool f6_prev = false;
++            static bool f7_prev = false;
++            static bool f8_prev = false;
++            const auto edge = [](GLFWwindow *win, const int key, bool &prev) {
++                const bool down = glfwGetKey(win, key) == GLFW_PRESS;
++                const bool rising = down && !prev;
++                prev = down;
++                return rising;
++            };
++            const auto summon = [&](const char *mob_id) {
++                const glm::dvec3 facing = client::view_dir(view_yaw, 0.0);
++                const glm::dvec3 spot = curr_state.position + facing * 2.0;
++                const auto type = authority.entity_types().find_id(mob_id);
++                if (type.has_value()) {
++                    const srv::EntityId id = authority.summon_mob(*type, spot);
++                    OC_LOG_INFO("EVIDENCE summon {} id={} at ({:.1f}, {:.1f}, {:.1f})", mob_id, id, spot.x,
++                                spot.y, spot.z);
++                }
++            };
++            if (edge(window, GLFW_KEY_F6, f6_prev)) {
++                summon("mossback");
++            }
++            if (edge(window, GLFW_KEY_F7, f7_prev)) {
++                summon("hollow_wretch");
++            }
++            if (edge(window, GLFW_KEY_F8, f8_prev)) {
++                summon("blastbud");
++            }
++        }
+ 
+         // ── mouse look ──────────────────────────────────────────────────────
+         // T-D45: not while dead - the cursor is loose so the RESPAWN button can

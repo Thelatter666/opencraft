@@ -14,7 +14,9 @@
 
 临时钩子与探针在取证后**已全部还原**（判据：`strings build/opencraft | grep -c EVIDENCE` = **0**，
 且源码里 `grep -c "TEMPORARY EVIDENCE"` = 0）。钩子原文存档在
-`tools/evidence_hook.patch`（临时钩子）与 `tools/feed_probe.patch`（瞄准探针），供 PM 复现。
+`tools/tm2_evidence_hook.patch`（临时钩子）与 `tools/tm2_feed_probe.patch`（瞄准探针），供 PM 复现。
+> 2026-09-18 PM 更正：本节原先写作 `evidence_hook.patch` / `feed_probe.patch`，与实际文件名不符
+> （会把复现者引到一个不存在的路径）。**按实际文件名更正，内容与其他章节未动。**
 
 ## 1. ★ 观测装置（必须先读，决定这些证据能证明什么）
 

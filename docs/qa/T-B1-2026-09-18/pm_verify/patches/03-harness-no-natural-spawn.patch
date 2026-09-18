@@ -1,0 +1,19 @@
+--- a/game/server/sim/include/opencraft/sim/mob_spawn.hpp
++++ b/game/server/sim/include/opencraft/sim/mob_spawn.hpp
+@@ -55,9 +55,14 @@
+     double despawn_range = 128.0;
+ 
+     // ⚖ docs/01 §6: 敌对 mob cap = 70 × 可刷区块 / 289.
+-    double hostile_cap_per_window = 70.0;
++    // T-B1 PM verification harness: natural spawning off. NOT FOR COMMIT.
++    // The spawner is tick- and RNG-driven, so two runs of the SAME binary can
++    // differ by a distant naturally-spawned mob (observed: 452 px). Turning the
++    // caps to 0 leaves the summoned mob as the only entity, which makes the
++    // paused frame reproducible run to run.
++    double hostile_cap_per_window = 0.0;
+     // ⚖ research/01 §10.3: 生物（creature）cap 10 (same denominator).
+-    double passive_cap_per_window = 10.0;
++    double passive_cap_per_window = 0.0;
+     int cap_window_chunks = 289; // 17 x 17
+ 
+     // ⚖ research/01 §10.3: 敌对每 tick 尝试. The passive side has no cadence here
