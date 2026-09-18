@@ -1,0 +1,76 @@
+
+===== MOSS =====
+[PASS] MOSS SIZE: (7, 17, 14)
+[PASS] MOSS voxel count: 705
+[PASS] MOSS colorIndex 0 unused
+[PASS] MOSS z-span exactly 14: (0, 13)
+[PASS] MOSS z=0 layer is legs/feet joints only: [2, 3, 4, 5]
+[PASS] MOSS idx 10 inside joint 1 bbox: (1, 5, 16, 16, 10, 11) ⊆ (1, 5, 13, 16, 9, 13)
+[PASS] MOSS face cells all painted on surfaces (+y empty): 5 cells [(1, 16, 11), (2, 16, 11), (3, 16, 10), (4, 16, 11), (5, 16, 11)]
+[PASS] MOSS face cells inside head joint bbox: head bbox (1, 5, 13, 16, 9, 13)
+[PASS] MOSS PNG cell k == RGBA entry k: bad=[]
+[PASS] MOSS used colours in §2.1: 11 distinct
+[PASS] MOSS max saturation <= 0.50: 0.471
+  md5 MOSS vox: fda9ee82116c6a937b163517a38b0149
+  md5 MOSS png: 2be25d95e04ce3dba7d65449ccf46ea7
+    idx   1 n= 205 x 0..6 y 1..12 z 8..12 -> joint 0
+    idx   2 n=  57 x 1..5 y 13..16 z 9..13 -> joint 1
+    idx   3 n=  30 x 0..1 y 9..11 z 0..6 -> joint 2
+    idx   4 n=  30 x 5..6 y 9..11 z 0..6 -> joint 3
+    idx   5 n=  30 x 0..1 y 2..4 z 0..6 -> joint 4
+    idx   6 n=  30 x 5..6 y 2..4 z 0..6 -> joint 5
+    idx   7 n=   4 x 2..4 y 0..0 z 11..12 -> joint 6
+    idx  10 n=   5 x 1..5 y 16..16 z 10..11 -> joint 1
+    idx  17 n= 139 x 0..6 y 1..11 z 10..11 -> joint 0
+    idx  18 n=  22 x 0..6 y 1..11 z 8..8 -> joint 0
+    idx  19 n=  72 x 0..6 y 2..10 z 7..9 -> joint 0
+    idx  20 n=  52 x 0..6 y 1..10 z 11..13 -> joint 0
+    idx  21 n=  11 x 0..6 y 3..10 z 9..13 -> joint 0
+    idx  22 n=   9 x 0..6 y 1..10 z 10..13 -> joint 0
+    idx  23 n=   6 x 2..4 y 2..10 z 13..13 -> joint 0
+    idx  24 n=   3 x 2..6 y 5..9 z 13..13 -> joint 0
+[PASS] MOSS leg z height == 7 (0..6): z 0..6
+[PASS] MOSS legs flush with torso x range: legs x [0, 1, 5, 6] torso x 0..6
+[PASS] MOSS head max z >= body/moss max z (no moss above head): head 13 vs joint0 13
+
+===== WRETCH =====
+[PASS] WRETCH SIZE: (12, 9, 18)
+[PASS] WRETCH voxel count: 496
+[PASS] WRETCH colorIndex 0 unused
+[PASS] WRETCH z-span exactly 18: (0, 17)
+[PASS] WRETCH z=0 layer is legs/feet joints only: [4, 5]
+[PASS] WRETCH idx 9 inside joint 0 bbox: (5, 6, 2, 2, 11, 12) ⊆ (1, 10, 0, 5, 8, 13)
+[PASS] WRETCH idx 10 inside joint 1 bbox: (3, 8, 7, 8, 13, 16) ⊆ (3, 8, 3, 8, 13, 17)
+[PASS] WRETCH idx 11 inside joint 2 bbox: (1, 2, 4, 7, 2, 8) ⊆ (1, 2, 1, 7, 2, 11)
+[PASS] WRETCH idx 12 inside joint 3 bbox: (9, 10, 4, 7, 2, 8) ⊆ (9, 10, 1, 7, 2, 11)
+[PASS] WRETCH idx 13 inside joint 4 bbox: (4, 5, 1, 4, 0, 0) ⊆ (4, 5, 1, 4, 0, 7)
+[PASS] WRETCH idx 14 inside joint 5 bbox: (6, 7, 1, 4, 0, 0) ⊆ (6, 7, 1, 4, 0, 7)
+[PASS] WRETCH face cells all painted on surfaces (+y empty): 14 cells [(3, 7, 15), (3, 7, 16), (4, 7, 15), (4, 7, 16), (4, 8, 13), (5, 7, 14), (5, 8, 13), (6, 7, 14), (6, 8, 13), (7, 7, 15), (7, 7, 16), (7, 8, 13), (8, 7, 15), (8, 7, 16)]
+[PASS] WRETCH face cells inside head joint bbox: head bbox (3, 8, 3, 8, 13, 17)
+[PASS] WRETCH PNG cell k == RGBA entry k: bad=[]
+[PASS] WRETCH used colours in §2.1: 8 distinct
+[PASS] WRETCH max saturation <= 0.50: 0.414
+  md5 WRETCH vox: 2af82806857fa3381e3d6d08d9fb3f27
+  md5 WRETCH png: 264c75d7ee0750f47d9653340ad116b7
+    idx   1 n=  32 x 4..7 y 1..4 z 10..13 -> joint 0
+    idx   2 n= 102 x 3..8 y 3..8 z 13..17 -> joint 1
+    idx   3 n=  16 x 1..2 y 1..3 z 9..11 -> joint 2
+    idx   4 n=  16 x 9..10 y 1..3 z 9..11 -> joint 3
+    idx   5 n=  44 x 4..5 y 1..4 z 1..7 -> joint 4
+    idx   6 n=  44 x 6..7 y 1..4 z 1..7 -> joint 5
+    idx   9 n=   4 x 5..6 y 2..2 z 11..12 -> joint 0
+    idx  10 n=  14 x 3..8 y 7..8 z 13..16 -> joint 1
+    idx  11 n=  46 x 1..2 y 4..7 z 2..8 -> joint 2
+    idx  12 n=  46 x 9..10 y 4..7 z 2..8 -> joint 3
+    idx  13 n=   8 x 4..5 y 1..4 z 0..0 -> joint 4
+    idx  14 n=   8 x 6..7 y 1..4 z 0..0 -> joint 5
+    idx  17 n=  56 x 1..10 y 1..3 z 12..13 -> joint 0
+    idx  18 n=  48 x 3..8 y 0..5 z 8..9 -> joint 0
+    idx  19 n=  12 x 4..7 y 0..0 z 11..13 -> joint 0
+[PASS] WRETCH face cells >= 14 (2x2 eyes + nose + mouth): 14
+[PASS] WRETCH joint 2 arm_l limb width == 2: x 1..2
+[PASS] WRETCH joint 3 arm_r limb width == 2: x 9..10
+[PASS] WRETCH joint 4 leg_l limb width == 2: x 4..5
+[PASS] WRETCH joint 5 leg_r limb width == 2: x 6..7
+
+RESULT: ALL PASS

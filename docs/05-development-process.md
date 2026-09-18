@@ -407,10 +407,13 @@ git worktree add /Users/happy/Desktop/opencraft_worktree/opencraft-<task> task/T
    （`git status --porcelain` 空）、**证据已入仓**（报告与 `docs/qa/` 随分支合入，无 `/tmp` 孤儿件）。
    scratch 里的验证树直接 `rm -rf`（其重建法写在对应 qa README）。
 2. **收口轮盘点**：`git worktree list` + `du -sh` 两目录，凡不属于**在途卡**的一律按三判据清掉。
-   长驻白名单只有三样：主仓 `build/`（真人验收入口，不可删）、小体量可复用二进制
+   长驻白名单只有四样：主仓 `build/`（真人验收入口，不可删）、小体量可复用二进制
    （如注入工具 `ti2input`，~50 KB，源码在 `docs/qa/T-D40-*/tools/` 可重建）、
    第三方校验工具 `opencraft_scratch/mv/`（MagicaVoxel 0.99.6.2，~15 MB，B3/B4 可选加分判据的
-   人眼读者，包 sha256 已核、重装法写在 `docs/qa/T-B2-2026-09-18/mv_thirdparty/README.md`）。
+   人眼读者，包 sha256 已核、重装法写在 `docs/qa/T-B2-2026-09-18/mv_thirdparty/README.md`）、
+   **离线依赖缓存 `opencraft_scratch/deps/`**（~52 MB，= 主仓 `build/_deps/*-src` 去 `.git` 的拷贝；
+   外网断时干净检出构建用 `-DFETCHCONTENT_SOURCE_DIR_GLFW=…/glfw-src` 等七个变量指过来完成
+   ——2026-09-18 实测，见 `docs/qa/T-B5-2026-09-18/pm_verify/README.md` §1）。
 3. **分支拼写异常不构成保留理由**（如历史遗留 `taskT-M2`）——去留只认三判据。
 4. `/tmp` **不得充当跨轮工作区**（2026-09-18 系统中途清空一次，三棵验证树+装置+夹具全丢，
    当天重建损失 ≈3 次全量构建；救回全靠"装置原件当轮已提交进 git"）。

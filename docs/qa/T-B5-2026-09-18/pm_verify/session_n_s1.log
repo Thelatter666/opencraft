@@ -1,0 +1,17 @@
+[2026-09-18 21:23:18.816] [info] OpenCraft 0.1.0 starting
+[2026-09-18 21:23:18.940] [info] GL 4.1 Metal - 89.4 / glad loaded
+[2026-09-18 21:23:18.940] [info] save: no level.ocd, new world with seed 0x4f50454e43524146
+[2026-09-18 21:23:19.157] [info] startup gen: 25 chunks, total 217.4 ms, avg 8.70 ms/chunk
+[2026-09-18 21:23:19.157] [info] spawn scan: surface at (0.5, 132.0, 0.5)
+[2026-09-18 21:23:19.157] [info] respawn point: (0.5, 132.0, 0.5)
+[2026-09-18 21:23:19.163] [info] atlas: 60/63 block tiles loaded from ../assets/blocks
+[2026-09-18 21:23:19.163] [info] atlas: 144x144 px, 9 tiles/row, crack tiles at 63
+[2026-09-18 21:23:19.166] [info] mobs: 1/3 mob models loaded from ../assets/mobs
+[2026-09-18 21:23:19.166] [info] mob model hollow_wretch: 496 voxels, 1592 triangles, 6 joints, 1.8 blocks tall, palette from palettes/hollow_wretch.png
+[2026-09-18 21:23:21.201] [info] fps 44.2 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-18 21:23:23.215] [info] fps 91.1 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-18 21:23:25.229] [info] fps 96.2 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-18 21:23:25.973] [info] EVIDENCE paused=1
+[2026-09-18 21:23:27.236] [info] fps 88.9 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-18 21:23:27.871] [info] EVIDENCE summon mossback id=1 at (0.5, 132.0, -4.0)
+[2026-09-18 21:23:29.249] [info] fps 92.9 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
