@@ -1,0 +1,13 @@
+[2026-09-18 13:38:23.434] [info] OpenCraft 0.1.0 starting
+[2026-09-18 13:38:23.550] [info] GL 4.1 Metal - 89.4 / glad loaded
+[2026-09-18 13:38:23.550] [info] save: no level.ocd, new world with seed 0x4f50454e43524146
+[2026-09-18 13:38:23.768] [info] startup gen: 25 chunks, total 218.8 ms, avg 8.75 ms/chunk
+[2026-09-18 13:38:23.768] [info] spawn scan: surface at (0.5, 132.0, 0.5)
+[2026-09-18 13:38:23.769] [info] respawn point: (0.5, 132.0, 0.5)
+[2026-09-18 13:38:23.770] [info] atlas: 60/63 block tiles loaded from ../assets/blocks
+[2026-09-18 13:38:23.770] [info] atlas: 144x144 px, 9 tiles/row, crack tiles at 63
+[2026-09-18 13:38:23.773] [info] mobs: 0/3 mob models loaded from ../assets/mobs
+[2026-09-18 13:38:24.980] [info] mob mossback spawned at (-66.8, 133.0, -33.1) in chunk (-5, -3)
+[2026-09-18 13:38:24.980] [info] mob mossback spawned at (-79.8, 131.0, -24.3) in chunk (-5, -2)
+[2026-09-18 13:38:24.980] [info] mob mossback spawned at (-79.1, 131.0, -23.7) in chunk (-5, -2)
+[2026-09-18 13:38:24.980] [info] mob mossback spawned at (-79.7, 131.0, -23.9) in chunk (-5, -2)
