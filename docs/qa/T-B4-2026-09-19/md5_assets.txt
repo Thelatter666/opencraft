@@ -1,0 +1,6 @@
+4ebea03c4373ae04ab35daf3a68ab9be assets/mobs/blastbud.vox
+3f3cdbb3e9db1e592d32193b66af85b0 assets/palettes/blastbud.png
+fda9ee82116c6a937b163517a38b0149 assets/mobs/mossback.vox
+2af82806857fa3381e3d6d08d9fb3f27 assets/mobs/hollow_wretch.vox
+2be25d95e04ce3dba7d65449ccf46ea7 assets/palettes/mossback.png
+264c75d7ee0750f47d9653340ad116b7 assets/palettes/hollow_wretch.png
