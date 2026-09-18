@@ -1,0 +1,30 @@
+[PASS] md5 hollow_wretch.vox: 6b5dc511340220c4de29f279389fb16d
+[PASS] md5 hollow_wretch.png: 0d0db42dc0b4e6b7b1602ea7c5788bac
+[PASS] SIZE: (6, 6, 18)
+[PASS] voxel count: 169
+[PASS] colorIndex 0 unused
+[PASS] per-index counts match report table: got={1: 2, 2: 40, 3: 17, 4: 17, 5: 19, 6: 19, 9: 2, 10: 2, 11: 2, 12: 2, 17: 28, 18: 17, 19: 2}
+    joint 0 body: (1, 4, 0, 3, 6, 14) n=51
+    joint 1 head: (1, 4, 2, 5, 13, 17) n=42
+    joint 2 arm_l: (0, 0, 2, 5, 5, 13) n=19
+    joint 3 arm_r: (5, 5, 2, 5, 5, 13) n=19
+    joint 4 leg_l: (1, 1, 1, 3, 0, 8) n=19
+    joint 5 leg_r: (4, 4, 1, 3, 0, 8) n=19
+[PASS] idx 9 (joint 0 second colour) inside its joint bbox: (2, 3, 1, 1, 11, 11) ⊆ (1, 4, 0, 3, 6, 14)
+[PASS] idx 10 (joint 1 second colour) inside its joint bbox: (1, 4, 5, 5, 15, 15) ⊆ (1, 4, 2, 5, 13, 17)
+[PASS] idx 11 (joint 2 second colour) inside its joint bbox: (0, 0, 4, 5, 5, 5) ⊆ (0, 0, 2, 5, 5, 13)
+[PASS] idx 12 (joint 3 second colour) inside its joint bbox: (5, 5, 4, 5, 5, 5) ⊆ (5, 5, 2, 5, 5, 13)
+[PASS] eyes are exactly (1,5,15)+(4,5,15): [(1, 5, 15), (4, 5, 15)]
+[PASS] eye cells are occupied voxels (not carved)
+[PASS] eye +y neighbours are empty (surface paint)
+[PASS] z=0 layer is legs only (indices 5/6): [5, 6]
+[PASS] head max z above body max z (anti y-up): 17 vs 14
+[PASS] z span exactly 18
+[PASS] RGBA present: 256
+[PASS] PNG 16x16 RGBA
+[PASS] PNG cell k == RGBA entry k (engine runtime consistency): bad=[]
+[PASS] PNG cell 0 is the never-used slot (U0 #1E1E22): (30, 30, 34, 255)
+[PASS] alpha all 255: {255}
+[PASS] all used colours in style-guide 2.1: 8 distinct, off-table=[]
+[PASS] max saturation <= 0.50: 0.414
+RESULT: ALL PASS
