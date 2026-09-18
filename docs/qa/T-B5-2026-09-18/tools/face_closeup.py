@@ -12,6 +12,8 @@ import math
 import os
 import sys
 
+sys.dont_write_bytecode = True   # 证据目录不得落 __pycache__（docs/05 §2 过程垃圾不入仓）
+
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import vox_inspect as vi  # noqa: E402
 
