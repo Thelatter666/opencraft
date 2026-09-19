@@ -1,0 +1,205 @@
+diff --git a/game/client/src/main.cpp b/game/client/src/main.cpp
+index 5359c75..6b97d53 100644
+--- a/game/client/src/main.cpp
++++ b/game/client/src/main.cpp
+@@ -37,6 +37,7 @@
+ #include "opencraft/core/log.hpp"
+ #include "opencraft/core/tick_clock.hpp"
+ #include "opencraft/core/version.hpp"
++#include "opencraft/game/entity_pick.hpp"
+ #include "opencraft/game/mining.hpp"
+ #include "opencraft/game/placement.hpp"
+ #include "opencraft/game/raycast.hpp"
+@@ -560,6 +561,164 @@ int main() {
+                 ++game_ticks;
+             }
+ 
++            // ══════════ TEMPORARY EVIDENCE HOOK (T-D59) ══════════════════════
++            // Scene set-up the shipped client has no way to do, plus one injection
++            // probe. Nothing under test is touched: the numbers below are READ off
++            // the shipped state, never decided here. Reverted before the commit -
++            // see docs/qa/T-D59-2026-09-19/tools/td59_evidence_hook.patch.
++            //
++            //   start-up  a timber_edge in hotbar cell 8, selected
++            //   F7 / F8   summon a Hollow Wretch ahead (F8 also one block right)
++            //   F9        select the pick in hotbar cell 7 (its T is 16.666…)
++            //   F10       restore the player's hit points - the wretch lands ⚖ 3.0
++            //             every second and this scene needs ~40 s of film time
++            //   always    log the victim's hit points and position per frame, and
++            //             log every left-button edge so an injection failure can
++            //             never be mistaken for a missing feature
++            {
++                static bool f7_prev = false;
++                static bool f8_prev = false;
++                static bool f9_prev = false;
++                static bool f10_prev = false;
++                static bool lmb_prev = false;
++                static bool armed = false;
++                static srv::EntityId watched = srv::EntityStore::kNoEntity;
++                const auto edge = [](GLFWwindow *win, const int key, bool &prev) {
++                    const bool down = glfwGetKey(win, key) == GLFW_PRESS;
++                    const bool rising = down && !prev;
++                    prev = down;
++                    return rising;
++                };
++                if (!armed) {
++                    armed = true;
++                    const auto sword = item_registry.find_id("timber_edge");
++                    if (sword.has_value()) {
++                        (void) interact.inventory.set_slot(8, gam::ItemStack::of(*sword, 1));
++                        interact.select_slot(8);
++                        OC_LOG_INFO("EVIDENCE timber_edge in hotbar cell 8, selected");
++                    }
++                }
++                // Aim probe: recompute the nearest mob the view ray enters,
++                // exactly as the tick's own pick does. It answers "was there
++                // anything to hit" independently of the attack path, which is
++                // what separates an injection failure from a scene failure.
++                static int probe_countdown = 0;
++                if (--probe_countdown <= 0) {
++                    probe_countdown = 30;
++                    const double eye_h =
++                        curr_state.pose == phy::Pose::Sneaking ? client::kEyeSneaking : client::kEyeStanding;
++                    const glm::dvec3 eye = curr_state.position + glm::dvec3(0.0, eye_h, 0.0);
++                    const glm::dvec3 look = client::view_dir(view_yaw, view_pitch);
++                    double best = 1e9;
++                    int best_id = 0;
++                    for (const srv::EntityId id : authority.entities().live_ids()) {
++                        const srv::Entity *e = authority.entities().find(id);
++                        if (e == nullptr) {
++                            continue;
++                        }
++                        const gam::EntityDef &d = authority.entity_types().def_of(e->type);
++                        const auto [bmin, bmax] = srv::entity_box_corners(*e, d);
++                        const auto dist = gam::ray_box_entry(eye, look, bmin, bmax);
++                        if (dist.has_value() && *dist < best) {
++                            best = *dist;
++                            best_id = static_cast<int>(id);
++                        }
++                    }
++                    OC_LOG_INFO("EVIDENCE probe yaw {:.4f} pitch {:.4f} eye ({:.3f}, {:.3f}, {:.3f}) nearest_mob {} "
++                                "dist {:.3f}",
++                                view_yaw, view_pitch, eye.x, eye.y, eye.z, best_id, best);
++                }
++                // What the client actually sees of the injected keyboard, per
++                // change. Held modifiers are the fragile half of this harness
++                // (docs/05 §3.1 rule 2: GLFW clears key state when the window
++                // loses key focus), so "sprint never engaged" has to be
++                // answerable from the log rather than guessed at.
++                static int kb_prev = -1;
++                {
++                    const int kb = (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS ? 1 : 0) |
++                                   (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS ? 2 : 0) |
++                                   (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS ? 4 : 0);
++                    if (kb != kb_prev) {
++                        kb_prev = kb;
++                        OC_LOG_INFO("EVIDENCE keys w={} ctrl={} space={}", kb & 1, (kb >> 1) & 1, (kb >> 2) & 1);
++                    }
++                }
++                const bool lmb = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS;
++                if (lmb != lmb_prev) {
++                    lmb_prev = lmb;
++                    if (lmb) {
++                        OC_LOG_INFO("EVIDENCE lmb down | yaw {:.4f} picked {} dist {:.3f} swinging {} age {} "
++                                    "charge {:.3f} sprint {} fall {} onground {} vy {:.4f}",
++                                    view_yaw, interact.picked_mob, interact.picked_mob_distance, interact.swinging,
++                                    interact.attack_age, interact.attack_charge(), curr_state.sprinting,
++                                    !curr_state.on_ground && curr_state.velocity.y < 0.0, curr_state.on_ground,
++                                    curr_state.velocity.y);
++                    } else {
++                        OC_LOG_INFO("EVIDENCE lmb up");
++                    }
++                }
++                static double last_yaw = 1e9;
++                if (std::abs(view_yaw - last_yaw) > 0.02) {
++                    last_yaw = view_yaw;
++                    OC_LOG_INFO("EVIDENCE view yaw {:.4f} pitch {:.4f}", view_yaw, view_pitch);
++                }
++                const auto summon = [&](const double side) {
++                    const glm::dvec3 facing = client::view_dir(view_yaw, 0.0);
++                    const glm::dvec3 right{-facing.z, 0.0, facing.x};
++                    const glm::dvec3 spot = curr_state.position + facing * 2.0 + right * side;
++                    const auto type = authority.entity_types().find_id("hollow_wretch");
++                    if (type.has_value()) {
++                        watched = authority.summon_mob(*type, spot);
++                        OC_LOG_INFO("EVIDENCE summon hollow_wretch id={} at ({:.1f}, {:.1f}, {:.1f})", watched,
++                                    spot.x, spot.y, spot.z);
++                    }
++                };
++                if (edge(window, GLFW_KEY_F7, f7_prev)) {
++                    summon(0.0);
++                }
++                if (edge(window, GLFW_KEY_F8, f8_prev)) {
++                    summon(1.0);
++                }
++                if (edge(window, GLFW_KEY_F9, f9_prev)) {
++                    interact.select_slot(7);
++                    OC_LOG_INFO("EVIDENCE hotbar cell 7 (timber_chisel) selected, T = 16.666...");
++                }
++                // Scene stabilisation, NOT a game rule: the wretch lands ⚖ 3.0 a
++                // second and these four phases need ~90 s of film time, so a
++                // player left alone dies around phase B and the death screen is
++                // modal (it swallows every later click - which is exactly how the
++                // first run of this scene produced no crit and no sprint: the
++                // clicks were being eaten by "you died", not by the attack path).
++                // The heal is logged, so the log says when it happened.
++                static bool f6_prev = false;
++                if (edge(window, GLFW_KEY_F6, f6_prev)) {
++                    client::respawn_player(curr_state, life);
++                    OC_LOG_INFO("EVIDENCE scene reset: back to the respawn point ({:.1f}, {:.1f}, {:.1f})",
++                                curr_state.position.x, curr_state.position.y, curr_state.position.z);
++                }
++                if (life.dead) {
++                    client::respawn_player(curr_state, life);
++                    OC_LOG_INFO("EVIDENCE respawned through the death screen's own path");
++                }
++                if (curr_state.health < 6.0) {
++                    OC_LOG_INFO("EVIDENCE player healed from {:.1f} to 20.0 (scene stabilisation)", curr_state.health);
++                    curr_state.health = 20.0;
++                }
++                if (watched != srv::EntityStore::kNoEntity) {
++                    const srv::Entity *mob = authority.entities().find(watched);
++                    if (mob == nullptr) {
++                        OC_LOG_INFO("EVIDENCE mob {} gone", watched);
++                        watched = srv::EntityStore::kNoEntity;
++                    }
++                    if (mob != nullptr) {
++                        OC_LOG_INFO("EVIDENCE mob {} health {:.4f} pos ({:.4f}, {:.4f}, {:.4f}) vel ({:.4f}, "
++                                    "{:.4f}, {:.4f})",
++                                    watched, mob->health, mob->position.x, mob->position.y, mob->position.z,
++                                    mob->velocity.x, mob->velocity.y, mob->velocity.z);
++                    }
++                }
++            }
++
+             // ── streaming ───────────────────────────────────────────────────────
+             // The authority owns the streaming decision (T-D4): the client says
+             // where the viewer is and what the frame may spend, and gets back
+diff --git a/game/server/sim/src/world_sim.cpp b/game/server/sim/src/world_sim.cpp
+index 3319638..001d062 100644
+--- a/game/server/sim/src/world_sim.cpp
++++ b/game/server/sim/src/world_sim.cpp
+@@ -505,6 +505,14 @@ game::ActionResult WorldSim::apply_attack(const game::ActionRequest &req) {
+     const bool crit = req.actor.falling && charged;
+     const double damage = game::attack_damage_of(weapon) * multiplier * (crit ? game::kCritDamageMultiplier : 1.0);
+ 
++    // ══════════ TEMPORARY EVIDENCE HOOK (T-D59) ══════════════════════════════
++    // The settled swing, as the authority computed it. Reverted before the
++    // commit - see docs/qa/T-D59-2026-09-19/tools/td59_evidence_hook.patch.
++    // It reports; it does not decide: `multiplier`, `crit` and the knockback
++    // below are the delivered expressions, read here.
++    OC_LOG_INFO("EVIDENCE swing weapon {} charge {:.6f} charged {} crit {} falling {} sprinting {} damage {:.6f}",
++                req.actor.held_item, multiplier, charged, crit, req.actor.falling, req.actor.sprinting, damage);
++    // ═════════════════════════════════════════════════════════════════════════
+     const double health_before = mob->health;
+     const bool died = damage_mob(entities_, mobs_, mob->id, damage, kActorId, mob_rules_);
+     // ── T-D46 ⑥: the hit shoves the mob away from the actor ──────────────────
+@@ -520,6 +528,8 @@ game::ActionResult WorldSim::apply_attack(const game::ActionRequest &req) {
+     // mob that died from the hit is erased below and needs no impulse.
+     if (mob->health < health_before && !died) {
+         const bool sprinting = req.actor.sprinting && charged;
++        OC_LOG_INFO("EVIDENCE knockback {} (sprint gate {})", sprinting ? kSprintKnockback : kAttackKnockback,
++                    sprinting);
+         knock_back(*mob, req.actor.feet, sprinting ? kSprintKnockback : kAttackKnockback);
+     }
+     if (died) {
