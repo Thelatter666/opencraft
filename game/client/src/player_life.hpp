@@ -51,9 +51,12 @@ inline constexpr double kMaxHealth = 20.0;
 inline constexpr int kHurtInvulnerabilityTicks = 10;
 
 // ⚖ research/01 §6.4: 基础攻击击退 - the horizontal INITIAL speed, blocks/tick.
-// C-4 keeps this card to the base value: the sprint bonus (+0.5, which sits
-// behind the 84.8% attack charge) and the Knockback enchantment are the attack
-// charge card's work.
+// This is the PLAYER'S half: the shove a mob's landed hit gives the player, used
+// by the ActorEvent branch in tick.cpp. It is the base value and nothing else -
+// the sprint bonus is the PLAYER's own attack landing on a MOB, so it lives on
+// the authority's side of the split (world_sim.cpp's kSprintKnockback: 0.4 + 0.5
+// = 0.9, at the 84.8% charge), and a mob does not sprint. T-D59 wired that bonus
+// up; it did not move this number, and this number must not grow to match it.
 inline constexpr double kKnockbackSpeed = 0.4;
 
 // What kind of damage is being applied. The distinction exists for exactly one

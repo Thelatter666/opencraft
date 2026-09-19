@@ -29,6 +29,11 @@ struct LaunchItem {
     // means; only the four `timber_*` pieces below pass them.
     double armor_points = 0.0;
     double armor_toughness = 0.0;
+    // T-D59 attack. Both default to 0 as well - the "not a weapon" sentinel
+    // (ItemDef's own comment; the fallback is the bare hand). Only the four
+    // `timber_*` tools below pass them.
+    double attack_damage = 0.0;
+    double attack_speed = 0.0;
 };
 
 // ⚖ T-D46 ruling C-3: the `timber_*` pieces are the LEATHER tier's equivalent -
@@ -45,6 +50,34 @@ constexpr double kLeatherTierChest = 2.0;
 constexpr double kLeatherTierLegs = 3.0;
 constexpr double kLeatherTierFeet = 1.0;
 constexpr double kLeatherTierToughness = 0.0;
+
+// ⚖ T-D59 ruling C-4: the four timber tools' attack numbers, which is the item
+// set's first tier of weaponry. Source: docs/research/01 §6.1 - its attack-speed
+// table AND its 基础伤害 line, the game's own per-KIND values for the first
+// tier (剑 4 / 斧 7 / 镐 2 / 锹 2.5 at 1.6 / 0.8 / 1.2 / 1.0).
+//
+// ⚠ Quoted, NOT composed. §9's Tiers sheet also carries a 伤害加成 column
+// (木 0, 石 +1, 铁 +2, 钻 +3 …), but that is a MINING-tier attribute, and the
+// two sheets do not add up to each other (the axe's 7 is not "base + 0" under
+// any base that also yields the hoe's 1). C-4 says the same thing: use the
+// finished values, never the tier column. The tier's remaining columns
+// (durability 59, mining speed 2, harvest level 0) still have no home and wait
+// for the mining card.
+//
+// T is derived, never stored: it is 20/attack_speed, so the pick's 16.666…
+// stays a double all the way through (protocol.hpp's attack_charge_multiplier).
+constexpr double kTimberSwordDamage = 4.0; // §6.1: 剑 木 4   ⇒ T = 12.5
+constexpr double kTimberSwordSpeed = 1.6;  // §6.1: 剑 1.6
+constexpr double kTimberAxeDamage = 7.0;   // §6.1: 斧 7      ⇒ T = 25
+constexpr double kTimberAxeSpeed = 0.8;    // §6.1: 斧 0.8
+constexpr double kTimberPickDamage = 2.0;  // §6.1: 镐 2      ⇒ T = 16.666…
+constexpr double kTimberPickSpeed = 1.2;   // §6.1: 镐 1.2
+constexpr double kTimberSpadeDamage = 2.5; // §6.1: 锹 2.5    ⇒ T = 20
+constexpr double kTimberSpadeSpeed = 1.0;  // §6.1: 锹 1.0
+
+// The two armour columns of an entry that passes no armour, spelled out so the
+// tool rows below read as "0.0 armour, then the weapon numbers".
+constexpr double kNoArmor = 0.0;
 
 constexpr LaunchItem kLaunchItems[] = {
     // Item forms of the launch blocks -- all stack to 64. Water has no entry
@@ -94,13 +127,19 @@ constexpr LaunchItem kLaunchItems[] = {
     {"sturdy_hide", "Sturdy Hide", kStackLimitLarge, EquipSlot::None, nullptr},
 
     // Tools of the first tier (docs/01 §5 names the tiers 木质/岩质/精铁/秘银/
-    // 星钻; "timber" is that system's first tier). Durability/damage/harvest
-    // level are not modelled yet -- these entries exist so the single-item
-    // stack tier has real samples.
-    {"timber_chisel", "Timber Chisel Pick", kStackLimitSingle, EquipSlot::None, nullptr},
-    {"timber_hewer", "Timber Hewing Axe", kStackLimitSingle, EquipSlot::None, nullptr},
-    {"timber_spade", "Timber Digging Spade", kStackLimitSingle, EquipSlot::None, nullptr},
-    {"timber_edge", "Timber Edge Blade", kStackLimitSingle, EquipSlot::None, nullptr},
+    // 星钻; "timber" is that system's first tier). T-D59 gave them their ⚖
+    // attack numbers (C-4, the constants above) - a timber blade is a real
+    // weapon now, and T-D46's "徒手杀一只 20 血生物要 12 秒" is the measurement
+    // it is meant to move. Durability and harvest level are still unmodelled:
+    // they are the mining card's, not this one's.
+    {"timber_chisel", "Timber Chisel Pick", kStackLimitSingle, EquipSlot::None, nullptr, kNoArmor, kNoArmor,
+     kTimberPickDamage, kTimberPickSpeed},
+    {"timber_hewer", "Timber Hewing Axe", kStackLimitSingle, EquipSlot::None, nullptr, kNoArmor, kNoArmor,
+     kTimberAxeDamage, kTimberAxeSpeed},
+    {"timber_spade", "Timber Digging Spade", kStackLimitSingle, EquipSlot::None, nullptr, kNoArmor, kNoArmor,
+     kTimberSpadeDamage, kTimberSpadeSpeed},
+    {"timber_edge", "Timber Edge Blade", kStackLimitSingle, EquipSlot::None, nullptr, kNoArmor, kNoArmor,
+     kTimberSwordDamage, kTimberSwordSpeed},
 
     // Armour, first tier. Present because the inventory's four armour slots
     // need something that is allowed to occupy them, and because one piece
@@ -137,7 +176,7 @@ ItemRegistry ItemRegistry::create_default() {
     for (const auto &entry : kLaunchItems) {
         const std::uint16_t block = entry.block == nullptr ? kNoBlock : blocks.id_of(entry.block);
         registry.register_item(entry.id, {entry.display_name, entry.max_stack, entry.equip, block, entry.armor_points,
-                                          entry.armor_toughness});
+                                          entry.armor_toughness, entry.attack_damage, entry.attack_speed});
     }
     return registry;
 }

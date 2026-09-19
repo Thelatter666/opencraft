@@ -7,6 +7,7 @@
 // mutable state - so the in-process channel this card builds can be replaced by
 // a serializing network channel in M3 without touching the call sites.
 
+#include <algorithm>
 #include <cstddef>
 #include <cstdint>
 #include <utility>
@@ -25,14 +26,69 @@ inline constexpr double kReachDistance = 4.5;
 // target with it and the authority re-checks it against its own entity boxes.
 inline constexpr double kAttackReach = 3.0;
 
-// ⚖ A bare-handed hit does 1 damage. It is deliberately not on the item: ItemDef
-// has no attack field yet, and tool damage (docs/01 §5's 剑伤 4→8) is a
-// later card's work. What this enables is the passive roster's drops -
-// without a damage channel of some kind, "掉落食物" would be unreachable.
-// T-D46 added what surrounds this number: the hurt window, armour and the
-// base knockback (sprint bonus + enchantment still sit behind the 84.8%
-// attack charge, which remains future work).
+// ⚖ A bare-handed hit does 1 damage. This is what an item with no weapon
+// numbers uses: ItemDef::attack_damage is 0.0 for everything that is not a
+// tool, and that 0.0 means "use this" (item_registry.hpp's attack_damage_of).
+// T-D46 added what surrounds this number (the hurt window, armour and the base
+// knockback); T-D59 added the swing model below - the charge ramp, the crit and
+// the sprint bonus - so the bare hand now scales with the same ramp as a sword,
+// it just has no reach past this floor when it swings cold.
 inline constexpr double kPunchDamage = 1.0;
+
+// ⚖ research/01 §6.1: 徒手/其他 攻速 4.0 ⇒ T = 5 ticks. The partner of
+// kPunchDamage above and used the same way (ItemDef::attack_speed 0.0 ⇒ this).
+inline constexpr double kPunchAttackSpeed = 4.0;
+
+// ── T-D59: the swing model (research/01 §6.1/§6.2/§6.4) ─────────────────────
+// These live here rather than in either end's own headers because both ends
+// need the SAME numbers: the client draws the charge bar from them, the
+// authority settles the damage from them, and M3 puts both on the wire. They
+// sit next to the reach and the punch damage for the same reason those do -
+// one copy, so the two ends cannot disagree about a game rule.
+
+// One ⚖ second of charge, in ticks.
+inline constexpr double kTicksPerSecond = 20.0;
+
+// ⚖ research/01 §6.1: multiplier = clamp(0.2 + ((t+0.5)/T)² × 0.8, 0.2, 1), with
+// T = 20/attack_speed and t the ticks since the last swing. The squared ratio is
+// INSIDE the ×0.8 (§6.1's own line; the "(t+0.5)/T²" spelling further down that
+// document is shorthand for the same thing - T-D59's card calls it out).
+//
+// The floor is what makes a fast click rhythm a choice rather than a free win:
+// a swing with no charge at all still does 20%.
+inline constexpr double kAttackChargeFloor = 0.2;
+// ... and the ramp supplies the remaining 0.8, reaching all of it only at t = T.
+inline constexpr double kAttackChargeSwing = 0.8;
+
+// ⚖ research/01 §6.1/§6.2/§6.4: the 84.8% charge that unlocks the crit and the
+// sprint knockback. It is a THRESHOLD, not the point where the damage reaches
+// full - that is t = T (docs/01 §4's "84.8% 冷却达到全额伤害" wording, which
+// T-D59 corrects). A fist (T = 5) reaches exactly this at t = 4, which is why
+// the boundary is asserted on both sides.
+inline constexpr double kAttackChargeThreshold = 0.848;
+
+// ⚖ research/01 §6.2: 下落中攻击 + 冷却 ≥84.8% ⇒ 伤害 ×1.5. The conditions the
+// base game also excludes (in water, climbing, slow falling, riding, flying)
+// have no systems behind them in OpenCraft yet, so they cannot be honoured -
+// see the ruling's boundary note rather than inventing a test for them.
+inline constexpr double kCritDamageMultiplier = 1.5;
+
+// ⚖ research/01 §6.4: 疾跑命中额外 +0.5 水平, gated on the same 84.8%. The base
+// 0.4 the sum is built on is world_sim.cpp's kAttackKnockback (the mobs' half)
+// and player_life.hpp's kKnockbackSpeed (the player's half).
+inline constexpr double kSprintKnockbackBonus = 0.5;
+
+// What a swing is worth after `ticks_since_last` ticks, for a weapon whose
+// attack speed is `attack_speed` (always the EFFECTIVE one - ItemDef's 0.0 has
+// already been resolved to kPunchAttackSpeed by item_registry's accessor).
+//
+// t is an INTEGER tick count and T is a double: a pick's T is 16.666…, and
+// rounding it to 16 or 17 would move every point of its ramp.
+[[nodiscard]] inline double attack_charge_multiplier(const double ticks_since_last, const double attack_speed) {
+    const double period = kTicksPerSecond / attack_speed;
+    const double progress = (ticks_since_last + 0.5) / period;
+    return std::clamp(kAttackChargeFloor + progress * progress * kAttackChargeSwing, kAttackChargeFloor, 1.0);
+}
 
 // What the client asks the authoritative side to do - one entry per
 // world-changing player action in T-A1's scope.
@@ -68,11 +124,17 @@ enum class ActionKind : std::uint8_t {
     // This is the minimum damage channel that makes the passive roster's drops
     // REACHABLE: the card asks for a passive mob that 掉落食物, and a loot table
     // nothing can trigger would be the "implemented but unreachable" pattern
-    // this project keeps paying for. The REST of the attack system (swing
-    // speed, the 84.8% damage ramp, crits, tool damage) is still later work -
+    // this project keeps paying for. One request is ONE swing: the client sends
+    // it on the rising edge of the left button, so its rate is the player's, not
+    // the tick loop's.
+    //
     // T-D46 added the base knockback and the victim-side window/armour (the
     // victim's armour lives on the client, where the player's hit points are).
-    // This verb is bare-handed damage plus that knockback, nothing more.
+    // T-D59 completed the swing: the damage is now the held item's, scaled by
+    // the charge ramp, with the crit and the sprint bonus at the 84.8%
+    // threshold. The authority keeps the charge clock itself (last_attack_tick_)
+    // and resolves the weapon from `actor.held_item`, so the client sends no
+    // amount and no timing - the numbers above are rules, not payload.
     Attack,
     // Hand one unit of the held food to the mob whose entity id is in
     // `target.x`; `item_or_block` carries the item id the client believes it is
@@ -112,7 +174,27 @@ struct ActorPose {
     // and is NOT clicking anything. The inventory itself is still the client's
     // (T-A1); this is the one item id the authority is told about, and it is
     // re-checked wherever it leads to a world change (the Feed verb).
+    //
+    // T-D59 gave the two attack rules that read it their fields: the swing's
+    // reach AND its damage and speed come from this item.
     std::uint16_t held_item = 0;
+
+    // ── T-D59 attack qualifiers (the two fields above keep their meaning) ────
+    // Both are DECLARED BY THE CLIENT and used by the authority exactly where
+    // held_item is: at the point they change the world, and nowhere else. The
+    // authority never trusts them as a description of itself - it trusts them
+    // the way it trusts `feet`, i.e. as the claim the client makes about its own
+    // body, which M3 validates against the server's copy instead of believing.
+    // Until then the split is the same one PlayerState has always had (T-A1
+    // ruling C-1: the player is the client's until M3).
+    //
+    // ⚖ research/01 §6.2: the crit needs "下落中" and §6.4's sprint bonus needs
+    // "疾跑中".
+    bool sprinting = false;
+    // FALLING is defined, not inferred twice: `!on_ground && velocity.y < 0.0`.
+    // The sign matters - a player rising through a jump is not falling, so a
+    // hit on the way up is not a crit (the base game's own "falling > 0").
+    bool falling = false;
 };
 
 struct ActionRequest {
