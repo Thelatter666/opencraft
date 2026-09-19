@@ -981,8 +981,9 @@ int main() {
         glDrawArrays(GL_LINES, 0, 4);
         glEnable(GL_DEPTH_TEST);
 
-        // ── HUD: hotbar (the inventory's 9 cells + item name + counts) and
-        //    health hearts (T009); hidden while dead (T-D45) ────────────────
+        // ── HUD: hotbar (the inventory's 9 cells + item name + counts), the
+        //    attack charge bar (T-D59) and health hearts (T009); hidden while
+        //    dead (T-D45) ─────────────────────────────────────────────────────
         const client::HudState hud_state{
             .fb_width = fb_width,
             .fb_height = fb_height,
@@ -992,6 +993,7 @@ int main() {
             .vessels = interact.vessels,
             .selected_slot = interact.selected_slot,
             .health = curr_state.health,
+            .attack_charge = interact.attack_charge(),
             .dead = life.dead,
         };
         client::draw_hud(hud_res, hud_state);

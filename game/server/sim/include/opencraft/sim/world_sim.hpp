@@ -18,6 +18,7 @@
 
 #include <algorithm>
 #include <cstdint>
+#include <limits>
 #include <optional>
 #include <set>
 #include <utility>
@@ -40,6 +41,12 @@
 #include "opencraft/worldgen/terrain_generator.hpp"
 
 namespace opencraft::server {
+
+// T-D59: the "no swing has ever been accepted" stamp. Not 0 - tick 0 is a real
+// tick the authority can be asked about, so 0 would make "swung at tick 0" and
+// "never swung" indistinguishable, and the first case is exactly what a test
+// with a cold clock produces.
+inline constexpr std::uint64_t kNoAttackTick = std::numeric_limits<std::uint64_t>::max();
 
 // The world simulation: ChunkManager + TerrainGenerator (T004) + LightEngine
 // (T006) + FluidSim (T-F1) wired together, plus the action rules that gate
@@ -479,6 +486,17 @@ private:
     // client's game_ticks is NOT reused: the authority must be able to run its own
     // clock (M3's standalone server).
     std::uint64_t tick_counter_ = 0;
+    // T-D59: when the last swing was accepted, on that same clock, so the charge
+    // ramp's `t` is a difference of two ticks of ONE clock - no wall time and no
+    // client input (the client's own count only drives the bar).
+    //
+    // kNoAttackTick means nothing has swung yet, and that reads as a FULL charge
+    // rather than a cold one. Two reasons, and the second is load-bearing: a
+    // session's first hit should not be penalised for a fight that has not
+    // happened, and every test written before T-D59 submits a single Attack
+    // request with no swing history - read as t = 0 they would all start landing
+    // 20.8% hits instead of 1.0 (ruling C-2).
+    std::uint64_t last_attack_tick_ = kNoAttackTick;
     // The world seed the mobile population is derived from.
     std::uint64_t mob_seed_ = 0;
 };

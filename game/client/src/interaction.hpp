@@ -22,6 +22,11 @@
 
 namespace opencraft::client {
 
+// T-D59: "no swing yet" in the client's mirror of the charge clock. Any age at
+// or past T reads as a full charge anyway (the ramp clamps), so the sentinel
+// only has to be a value no real age can take - and negative is that.
+inline constexpr int kNeverAttacked = -1;
+
 struct InteractionState {
     // ── inventory (T-I2) ────────────────────────────────────────────────────
     // The player's 41 cells. The hotbar the player sees is cells 0..8 of it,
@@ -46,14 +51,22 @@ struct InteractionState {
     // ── input edges / retry cooldown ────────────────────────────────────────
     bool prev_w = false;
     bool prev_right = false;
+    // T-D59: the left button's edge. An attack is a CLICK, not a hold (ruling
+    // C-1) - see attack_age below for why the hold had to go.
+    bool prev_left = false;
     int place_cooldown = 0;
-    // Attack cadence (T-M2). The base game spaces melee swings by the tool's
-    // attack speed (docs/01 §4: a sword's is 1.6/s = 12.5 ticks) and scales the
-    // damage by how far through the cooldown the swing is. This card only needs
-    // the SPACING: the damage ramp belongs to the player-combat card, so a swing
-    // here is always full damage (game::kPunchDamage) and the timer exists so a
-    // held button does not become a machine gun.
-    int attack_cooldown = 0;
+    // Attack charge (T-D59, ruling C-2). This replaces T-M2's 12-tick
+    // attack_cooldown countdown, whose only job was to stop a held button from
+    // becoming a machine gun: the swing is edge-triggered now, so the spacing is
+    // the player's own, and what is left to track is how long the weapon has
+    // been charging.
+    //
+    // Ticks since the last swing the authority ACCEPTED, or kNeverAttacked. It
+    // feeds the charge bar and nothing else - the damage is settled on the
+    // authority's own copy of this number (WorldSim::last_attack_tick_), and
+    // this one is only the mirror M3 will reconcile. If the two ever disagree,
+    // the authority is right.
+    int attack_age = kNeverAttacked;
 
     // ── targeting + mining overlay ──────────────────────────────────────────
     glm::ivec3 target_pos{0, 0, 0};
@@ -96,6 +109,10 @@ struct InteractionState {
     // its wireframe around a block hundreds of blocks away. The mining tracker is
     // not in here (it is a separate object in the tick's context); its callers
     // reset it alongside.
+    //
+    // T-D59 put attack_age in the same group for the same reason: a respawned
+    // player has not swung, and charging their first swing from the corpse's
+    // clock would hand them a 20.8% hit they never earned.
     void clear_live_state() {
         crack_stage = -1;
         has_target = false;
@@ -103,7 +120,20 @@ struct InteractionState {
         picked_mob_distance = 0.0;
         swinging = false;
         place_cooldown = 0;
-        attack_cooldown = 0;
+        attack_age = kNeverAttacked;
+        prev_left = false;
+    }
+
+    // How charged the held weapon is, 0.2 … 1.0 - what the HUD bar draws. The
+    // weapon's speed is read fresh from the selected cell every call, so the bar
+    // follows a hotbar switch on the same frame (the authority does the same per
+    // swing; neither caches).
+    [[nodiscard]] double attack_charge() const {
+        if (attack_age == kNeverAttacked) {
+            return 1.0; // the first swing of a session is always full (C-2)
+        }
+        const game::ItemDef &held = inventory.registry().def_of(selected_stack.item);
+        return game::attack_charge_multiplier(static_cast<double>(attack_age), game::attack_speed_of(held));
     }
 
     // Re-reads the cache from the inventory. Call after anything that can

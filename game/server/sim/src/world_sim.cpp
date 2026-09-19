@@ -49,11 +49,18 @@ constexpr double kReachEpsilon = 1e-6;
 }
 
 // ⚖ T-D46 ⑥ / research/01 §6.4: the horizontal initial speed a landed melee hit
-// gives its victim, blocks/tick. Ruling C-4 keeps this card to the base value -
-// the sprint bonus (+0.5, behind the 84.8% attack charge) and the Knockback
-// enchantment are the attack-charge card's work. The player's half of the same
-// number is client/src/player_life.hpp's kKnockbackSpeed.
+// gives its victim, blocks/tick. This is the BASE value and it is what every
+// non-sprint hit still passes, byte for byte what T-D46 shipped. The player's
+// half of the same number is client/src/player_life.hpp's kKnockbackSpeed.
 constexpr double kAttackKnockback = 0.4;
+
+// ⚖ T-D59 C-5 / research/01 §6.4: 疾跑命中额外 +0.5 水平, and only at the 84.8%
+// charge. The sum is written as a sum rather than as a 0.9 literal: the two
+// numbers come from two different clauses of the source, and the enchantment
+// that would make it three (+1 per level) is not modelled.
+constexpr double kSprintKnockback = kAttackKnockback + game::kSprintKnockbackBonus;
+
+static_assert(kSprintKnockback == 0.9, "C-5: the sprint hit's knockback is the base 0.4 plus the ⚖ 0.5 bonus");
 
 } // namespace
 
@@ -468,25 +475,52 @@ game::ActionResult WorldSim::apply_attack(const game::ActionRequest &req) {
     if (!in_attack_reach(req, *mob)) {
         return {false, game::ActionReject::OutOfAttackRange};
     }
-    // Bare-handed damage. The REST of the attack model (swing speed, the 84.8%
-    // damage ramp, crits, tool damage) is still a later card's work - T-D46 added
-    // the ⚖ base knockback below, and the victim's armour lives on the client,
-    // where the player's hit points are.
-    const double damage = game::kPunchDamage;
+
+    // ── T-D59: what this swing is worth ─────────────────────────────────────
+    // Everything below is derived from the actor's own claim (the item it says
+    // it holds, whether it is sprinting, whether it is falling) plus the
+    // authority's own clock. The client sends no amount and no timing.
+    //
+    // The weapon is looked up EVERY swing rather than cached: switching to the
+    // axe must change T on the very next hit, and a cached speed would keep
+    // charging at the sword's rate until something remembered to invalidate it
+    // (docs/01 §4 has the ring of the same rule: 冷却按当前手持物品).
+    const game::ItemDef &weapon = items_.def_of(req.actor.held_item);
+    const double attack_speed = game::attack_speed_of(weapon);
+    // t = ticks since the last ACCEPTED swing, on the authority's clock. The
+    // sentinel is a full charge, not a cold one - see last_attack_tick_.
+    const bool never_swung = last_attack_tick_ == kNoAttackTick;
+    const double multiplier =
+        never_swung
+            ? 1.0
+            : game::attack_charge_multiplier(static_cast<double>(tick_counter_ - last_attack_tick_), attack_speed);
+    // ⚖ research/01 §6.1/§6.2: 84.8% is a GATE, not the full-damage point - the
+    // ramp only reaches 1.0 at t = T (the pick's 16.666… never rounds). Below
+    // it the swing is simply weaker; at it the crit and the sprint shove unlock.
+    const bool charged = multiplier >= game::kAttackChargeThreshold;
+    // ⚖ research/01 §6.2: a falling hit at that charge does ×1.5. 下落中 is the
+    // pose's own `falling` (velocity.y < 0), so a hit on the way UP a jump is
+    // not a crit. The base game's other conditions (in water, riding, flying)
+    // have no systems here to test against.
+    const bool crit = req.actor.falling && charged;
+    const double damage = game::attack_damage_of(weapon) * multiplier * (crit ? game::kCritDamageMultiplier : 1.0);
+
     const double health_before = mob->health;
     const bool died = damage_mob(entities_, mobs_, mob->id, damage, kActorId, mob_rules_);
     // ── T-D46 ⑥: the hit shoves the mob away from the actor ──────────────────
-    // ⚖ 0.4 blocks/tick of horizontal speed (see kAttackKnockback above); the
-    // impulse goes into the entity's velocity here, at the verb, and NOT inside
-    // damage_mob - that is the shared entry the mob-vs-mob path also uses, and
-    // contract ⑦ freezes its judgement block.
+    // ⚖ 0.4 blocks/tick of horizontal speed (see kAttackKnockback above), or 0.9
+    // for a sprinting hit at the charge (C-5). The impulse goes into the entity's
+    // velocity here, at the verb, and NOT inside damage_mob - that is the shared
+    // entry the mob-vs-mob path also uses, and contract ⑦ freezes its judgement
+    // block.
     //
     // "Did the hit land" is read off the hit points damage_mob itself moved, so
     // its window's verdict is not re-derived here: a hit the window absorbed
     // moves nothing, and the client's own knockback is gated the same way. A
     // mob that died from the hit is erased below and needs no impulse.
     if (mob->health < health_before && !died) {
-        knock_back(*mob, req.actor.feet, kAttackKnockback);
+        const bool sprinting = req.actor.sprinting && charged;
+        knock_back(*mob, req.actor.feet, sprinting ? kSprintKnockback : kAttackKnockback);
     }
     if (died) {
         // The drop count is not interesting here; the tick's own death pass is what
@@ -494,6 +528,11 @@ game::ActionResult WorldSim::apply_attack(const game::ActionRequest &req) {
         // rather than waiting for the next step_mobs.
         (void) kill_mob(entities_, entity_types_, item_rules_, mobs_, mob->id);
     }
+    // The swing is spent LAST: every refusal above returns before this line, so a
+    // request that never reached a mob costs no charge. Recorded even when the
+    // victim's window absorbed the damage - the swing HAPPENED, and the base game
+    // spends the cooldown on a swing that lands on an immune target too.
+    last_attack_tick_ = tick_counter_;
     return {true, game::ActionReject::None};
 }
 

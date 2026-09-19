@@ -8,6 +8,8 @@
 #include <unordered_map>
 #include <vector>
 
+#include "opencraft/game/protocol.hpp"
+
 namespace opencraft::game {
 
 // Identical in shape to voxel::StringHash: a transparent hash so find_id()
@@ -25,9 +27,9 @@ struct StringHash {
 // sections (hotbar/main) or the offhand.
 //
 // Why this exists in T-I1: the inventory must reject a non-armour item in an
-// armour slot, which is not decidable from a max stack size. Durability /
-// damage / harvest tier of docs/01 §5 are deliberately NOT modelled -- a
-// later card adds them.
+// armour slot, which is not decidable from a max stack size. Harvest tier and
+// durability of docs/01 §5 are still not modelled -- the mining card adds those;
+// T-D59 added the two ATTACK numbers below.
 enum class EquipSlot : std::uint8_t {
     None = 0,
     Head,
@@ -87,7 +89,39 @@ struct ItemDef {
     // formula has the term and a later set will use it, not because anything
     // shipping reads a non-zero value.
     double armor_toughness = 0.0;
+
+    // ── T-D59 attack (the four fields above are unchanged) ──────────────────
+    // 0.0 is the "not a weapon" sentinel and it is not a neutral value: it means
+    // "fall back to the bare hand", which is kPunchDamage 1.0 and
+    // kPunchAttackSpeed 4.0. Read them through attack_damage_of/attack_speed_of
+    // below rather than testing the sentinel at the call site - the fallback is
+    // one rule and belongs in one place.
+    //
+    // Both are doubles like armor_points, for the same reason: attack_speed is
+    // divided into a tick period (a pick's T is 16.666…, which an int would
+    // round) and attack_damage is multiplied by a fractional charge.
+    //
+    // ⚖ research/01 §6.1's own damage/speed tables, NOT the §9 Tiers sheet: a
+    // tier's 伤害加成 is a mining-tier attribute, and the base game's per-weapon
+    // damage is not that column plus a base. The four timber tools carry the
+    // base game's numbers for their kinds (item_registry.cpp).
+    double attack_damage = 0.0;
+    double attack_speed = 0.0;
 };
+
+// ── the "not a weapon" fallback, resolved in one place ─────────────────────
+// Everything that is not a tool - food, blocks, a vessel, armour, the empty
+// hand itself - swings and hits exactly as a bare hand does. The numbers are
+// protocol.hpp's, so the item layer and the authority cannot drift apart about
+// what a fist is worth.
+
+[[nodiscard]] constexpr double attack_damage_of(const ItemDef &def) {
+    return def.attack_damage > 0.0 ? def.attack_damage : kPunchDamage;
+}
+
+[[nodiscard]] constexpr double attack_speed_of(const ItemDef &def) {
+    return def.attack_speed > 0.0 ? def.attack_speed : kPunchAttackSpeed;
+}
 
 // String-id to runtime numeric-id mapping (docs/03 §7), mirroring the
 // BlockRegistry conventions: dense u16 ids, id 0 reserved, duplicate/empty

@@ -40,9 +40,15 @@ struct HudState {
     VesselIds vessels;
     int selected_slot = 0;
     double health = 0.0;
-    // T-D45 (appended; the fields above keep their order): the player is dead,
-    // so the HUD is not drawn at all. The death screen is the whole UI in that
-    // state, and a hotbar under a "you died" panel reads as a bug.
+    // T-D59 (appended; the fields above keep their order): how charged the held
+    // weapon is, 0.2 … 1.0 - interaction.hpp's attack_charge(). Drawn as the
+    // attack bar just above the hotbar, with the ⚖ 84.8% gate marked on it. It
+    // is 1.0 before the first swing, which is what the authority charges for that
+    // swing too (ruling C-2).
+    double attack_charge = 1.0;
+    // T-D45: the player is dead, so the HUD is not drawn at all. The death screen
+    // is the whole UI in that state, and a hotbar under a "you died" panel reads
+    // as a bug.
     bool dead = false;
 };
 

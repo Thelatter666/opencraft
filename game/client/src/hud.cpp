@@ -238,6 +238,71 @@ void draw_hud(const HudResources &res, const HudState &state) {
             glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(tverts.size()));
         }
     }
+    // ── attack charge (T-D59) ────────────────────────────────────────────
+    // One flat bar, drawn through the same draw_rect path the backdrops and the
+    // selection frame use. Layout, and the reason for it:
+    //
+    //   name row      y = bar_y0 - 46, 16 px tall
+    //   hearts row    y = bar_y0 - 22, 14 px tall  → ends at bar_y0 - 8
+    //   ATTACK BAR    y = bar_y0 -  6 … bar_y0 - 2 (4 px, 2 px clear above)
+    //   hotbar        y = bar_y0 … bar_y0 + 24
+    //
+    // The stack above the hotbar is full - T009's comment two screens up records
+    // the name/hearts collision that came of doubling up a row - so this bar gets
+    // its own line, in the only band left. It is full hotbar width and starts at
+    // bar_x0, so it reads as part of the hotbar rather than as a stray widget.
+    //
+    // The 84.8% gate is marked twice, deliberately: a dark tick that is always
+    // visible (drawn last, so neither the track nor the fill can hide it) and the
+    // fill's own colour change. One of them is a landmark you can find without
+    // knowing the colour, the other is what you actually notice while fighting.
+    {
+        auto fill_rects = [&](const std::vector<glm::vec2> &verts, const float r, const float g, const float b,
+                              const float a) {
+            if (verts.empty()) {
+                return;
+            }
+            res.flat_shader.use();
+            render::VertexArray vao;
+            vao.bind();
+            render::Buffer vbo(render::Buffer::Target::Vertex, verts.data(), verts.size() * sizeof(glm::vec2),
+                               render::Buffer::Usage::Static);
+            vbo.bind();
+            vao.set_attribute(0, 2, GL_FLOAT, sizeof(glm::vec2), 0);
+            glUniform4f(res.flat_shader.uniform_location("u_color"), r, g, b, a);
+            glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(verts.size()));
+        };
+
+        constexpr float kChargeBarPx = 4.0f;
+        constexpr float kGateTickHalfPx = 1.0f;
+        const float charge = static_cast<float>(std::clamp(state.attack_charge, 0.0, 1.0));
+        const float cy0 = bar_y0 - 6.0f;
+        const float cy1 = cy0 + kChargeBarPx;
+        const float gate_x = bar_x0 + bar_w * static_cast<float>(game::kAttackChargeThreshold);
+
+        std::vector<glm::vec2> track;
+        draw_rect(bar_x0, cy0, bar_x0 + bar_w, cy1, state.fb_width, state.fb_height, track);
+        fill_rects(track, 0.22f, 0.22f, 0.25f, 0.85f);
+
+        // The filled part. `>=` and not `>`: the gate is inclusive, and the two
+        // sides of it are exactly the case the authority's own `charged` flag
+        // splits on, so the bar turns at the same instant the crit unlocks.
+        std::vector<glm::vec2> filled;
+        draw_rect(bar_x0, cy0, bar_x0 + bar_w * charge, cy1, state.fb_width, state.fb_height, filled);
+        if (charge >= static_cast<float>(game::kAttackChargeThreshold)) {
+            fill_rects(filled, 0.98f, 0.92f, 0.32f, 1.0f); // charged: crit and sprint shove are live
+        } else {
+            fill_rects(filled, 0.90f, 0.54f, 0.12f, 1.0f); // charging: a hit, but not a full one
+        }
+
+        // The gate landmark. One pixel proud of the bar on each side so it is
+        // still findable when the fill has swallowed it.
+        std::vector<glm::vec2> gate;
+        draw_rect(gate_x - kGateTickHalfPx, cy0 - 1.0f, gate_x + kGateTickHalfPx, cy1 + 1.0f, state.fb_width,
+                  state.fb_height, gate);
+        fill_rects(gate, 0.05f, 0.05f, 0.06f, 0.95f);
+    }
+
     // Health: 10 hearts driven by PlayerState::health (T007), 2 hp per
     // heart. Red pass (full + half), then a dim pass for empty ones.
     {

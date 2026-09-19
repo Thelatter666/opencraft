@@ -81,6 +81,15 @@ namespace {
     // T-M2: the mobs need to know what the player is holding, because the tempt
     // goal exists exactly while the breeding food is held and nothing is clicked.
     pose.held_item = ctx.state.selected_stack.item;
+    // T-D59: the two qualifiers the attack rules read (protocol.hpp's ActorPose).
+    // Both are the client's own claim about itself, sent the same way `held_item`
+    // is and trusted the same way - the authority uses them where they change the
+    // world, and M3 re-checks them instead of believing them.
+    pose.sprinting = ctx.curr_state.sprinting;
+    // FALLING is spelled out here, once: `!on_ground && velocity.y < 0.0`. The
+    // sign carries the rule - a player on the way UP a jump is airborne but not
+    // falling, and the crit asks for a descent (research/01 §6.2).
+    pose.falling = !ctx.curr_state.on_ground && ctx.curr_state.velocity.y < 0.0;
     return pose;
 }
 
@@ -368,9 +377,17 @@ void run_tick(const TickContext &ctx) {
 
     // ── mining ───────────────────────────────────────────────────────────
     const bool left_held = glfwGetMouseButton(ctx.window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS;
+    // T-D59: the click's rising edge, the same shape the water-vessel branch
+    // below uses for its pour/scoop. Mining keeps reading left_held: digging is a
+    // HOLD and it is unchanged, while a swing is a CLICK (ruling C-1).
+    const bool left_clicked = left_held && !ctx.state.prev_left;
+    ctx.state.prev_left = left_held;
     const std::uint16_t target_id = hit.hit ? ctx.world.block_at(hit.block_pos.x, hit.block_pos.y, hit.block_pos.z) : 0;
-    if (ctx.state.attack_cooldown > 0) {
-        --ctx.state.attack_cooldown;
+    // The charge clock advances with the world, not with wall time, so a paused
+    // frame (which runs no ticks at all, main.cpp) leaves both ends' clocks
+    // stopped together. The authority's copy is the one that settles damage.
+    if (ctx.state.attack_age != kNeverAttacked) {
+        ++ctx.state.attack_age;
     }
     // ── T-M2: a mob in front of the block turns a left click into an ATTACK ──
     // The same "nearest hit wins" rule the base game applies to a click, and the
@@ -381,18 +398,29 @@ void run_tick(const TickContext &ctx) {
     if (mob_in_front) {
         ctx.mining.reset();
         ctx.state.crack_stage = -1;
-        if (left_held && ctx.state.attack_cooldown == 0) {
+        // Any click swings, however cold the weapon is: the damage ramp, not a
+        // gate, is what makes a fast click rhythm cost something (C-1). The
+        // decision NOT to also require a full charge is the whole point of the
+        // card - a `charge >= 1` gate here would make the ramp dead code.
+        if (left_clicked) {
             gam::ActionRequest attack;
             attack.kind = gam::ActionKind::Attack;
             attack.target = {static_cast<int>(ctx.state.picked_mob), 0, 0};
             attack.actor = actor_pose(ctx);
+            // Read BEFORE the clock restarts below, so the log says what this
+            // swing carried. The authority computes the same number from its own
+            // clock; this is the client's mirror of it (C-2).
+            const double charge = ctx.state.attack_charge();
             const gam::ActionResult attack_result = ctx.authority.submit(attack);
             if (attack_result.accepted) {
-                ctx.state.attack_cooldown = 12; // ⚖ docs/01 §4: ~1.6 swings/s
+                ctx.state.attack_age = 0; // the charge clock restarts; the NEXT swing reads the ramp
                 ctx.state.swinging = true;
                 ctx.state.swing_start = glfwGetTime();
-                OC_LOG_INFO("attacked mob {} at ({:.2f}, {:.2f}, {:.2f})", ctx.state.picked_mob,
-                            ctx.curr_state.position.x, ctx.curr_state.position.y, ctx.curr_state.position.z);
+                // The charge this swing carried. Logged so "fast clicks hit
+                // softer" is a machine number rather than a read of the health
+                // bar - §5.2's damage-difference evidence.
+                OC_LOG_INFO("attacked mob {} at ({:.2f}, {:.2f}, {:.2f}) charge {:.3f}", ctx.state.picked_mob,
+                            ctx.curr_state.position.x, ctx.curr_state.position.y, ctx.curr_state.position.z, charge);
             } else {
                 OC_LOG_WARN("attack refused on mob {}: {}", ctx.state.picked_mob, attack_result.reason());
             }
