@@ -517,6 +517,39 @@ TEST_CASE("item drop merge: crossing a block boundary re-arms the timer to 2 tic
     CHECK(fixture.store.alive_count() == 1);
 }
 
+// ── T-D60: the stone exception ─────────────────────────────────────────────
+//
+// The card's contract ⑥: digging stone leaves cobblestone behind. It is the one
+// block whose broken form is not the item that places it, and the hinge of the
+// whole progression chain (the only way to a rock pick is to dig stone, and a
+// wooden pick is the only thing that can dig it).
+TEST_CASE("item drop: stone leaves cobblestone, and a block that places itself still leaves itself") {
+    DropFixture fixture;
+    const std::uint16_t stone = fixture.blocks.id_of("stone");
+    const std::uint16_t cobblestone = fixture.blocks.id_of("cobblestone");
+
+    const srv::EntityId id =
+        srv::spawn_item_drop(fixture.store, fixture.types, fixture.items, fixture.rules, glm::ivec3{4, 30, 6}, stone);
+    REQUIRE(id != srv::EntityStore::kNoEntity);
+    const srv::Entity &drop = fixture.get(id);
+    CHECK(drop.stack.item == fixture.items.id_of("rubble_rock"));
+    CHECK(drop.stack.count == 1);
+    // Both halves of the rule, spelled out: stone's drop IS what cobblestone
+    // leaves behind, and it is NOT the item that places stone. The two questions
+    // - "what places this block" and "what does it leave behind" - are the same
+    // question for every other block, and this is the one where they differ.
+    CHECK(drop.stack.item == fixture.items.item_for_block(cobblestone).value());
+    const std::uint16_t places_stone = fixture.items.id_of("greyrock");
+    REQUIRE(fixture.items.def_of(places_stone).block == stone);
+    CHECK(drop.stack.item != places_stone);
+
+    // A block that does place itself is untouched by the exception.
+    const srv::EntityId log = srv::spawn_item_drop(fixture.store, fixture.types, fixture.items, fixture.rules,
+                                                   glm::ivec3{5, 30, 6}, fixture.blocks.id_of("log"));
+    REQUIRE(log != srv::EntityStore::kNoEntity);
+    CHECK(fixture.get(log).stack.item == fixture.items.id_of("timber_log"));
+}
+
 TEST_CASE("item drop: spawn_item_drop puts the drop in the cell, and water leaves nothing") {
     DropFixture fixture;
     const std::uint16_t stone = fixture.blocks.id_of("stone");

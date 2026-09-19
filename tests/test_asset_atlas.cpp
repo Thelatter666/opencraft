@@ -75,11 +75,23 @@ std::uint64_t fnv_whole(const AtlasImage &atlas) {
 // Per-tile digests of the pre-T-A2 atlas, produced by compiling atlas.cpp from
 // commit bc20aab (the parent of this task's work) into a standalone dumper and
 // printing the same FNV-1a 64 over each 16x16 tile, in tile-index order, for
-// BlockRegistry::create_default() (21 entries: air + 20 content blocks; 81
-// tiles of a 9x9 grid, of which 73 are painted and 8 stay background).
+// BlockRegistry::create_default() (22 entries: air + 21 content blocks; 81
+// tiles of a 9x9 grid, of which 76 are painted and 5 stay background).
 // The atlas layout is frozen by docs/tasks/T-A2.md §3.2, so a mismatch here is
 // a regression in the procedural textures, not a deliberate change.
-constexpr std::uint64_t kGoldenWhole = 0x334e2cce2595568dULL;
+//
+// ★ T-D60 moved exactly fifteen entries, and the move is DERIVED rather than
+// re-recorded (the shape of it is visible in this array's own diff):
+//   * 63..65 are the three tiles of the new `assembly_bench` block - genuinely
+//     new pixels, and the only pixels this card adds to the atlas;
+//   * 66..75 are the ten crack stages, holding the SAME digests 63..72 used to
+//     hold, shifted by three: crack_tile_base moved with the registry size
+//     (63 -> 66) and the painter behind it did not change;
+//   * 76..80 are the five remaining background slots (was eight - the grid is
+//     still 9x9, because ceil(sqrt(76)) is 9 exactly as ceil(sqrt(73)) was).
+// Every other entry is byte-identical to the pre-T-D60 table, and THAT is the
+// assertion that the procedural textures themselves did not move.
+constexpr std::uint64_t kGoldenWhole = 0x1a246a280e16b2eeULL;
 constexpr std::array<std::uint64_t, 81> kGoldenTiles{
     0x33c8e3e71aff253eULL, 0x4968261bf8b3105cULL, 0x6c62b73fb2ab6a15ULL, 0x1f794b846c229467ULL, 0x3ce595bb0df962a4ULL,
     0x60d9f08ed9286e0cULL, 0x8d88e99e11199af9ULL, 0x49ec20df3e96789fULL, 0xc302d33ea10920c6ULL, 0xe60bef540b6330cdULL,
@@ -93,10 +105,10 @@ constexpr std::array<std::uint64_t, 81> kGoldenTiles{
     0x9d259ae6d68384f8ULL, 0x815c11b21c1f93d2ULL, 0xef4319245cef118fULL, 0xb65af30a938f1fb6ULL, 0x99ca1100c8f01812ULL,
     0x029f43723f7c9205ULL, 0xf55aa90d3a2c3c9bULL, 0x60f10190272085b0ULL, 0xf1455205c53450e8ULL, 0x943b701abd2cbddbULL,
     0xfbe1f0ecc99649f2ULL, 0xd7343709342d3ce9ULL, 0x7d421a40ea80cb85ULL, 0x18632c1b1c87b353ULL, 0x67044b5fa1ca251dULL,
-    0xee329061aa2569aaULL, 0x10981c7eb52e4825ULL, 0xf52566fcecee5d12ULL, 0x0c18fd965a482353ULL, 0xbbf067ae7480c553ULL,
-    0x5897c692b25ac783ULL, 0x195392461912e863ULL, 0xc873ce99e5b73893ULL, 0x062f43a19b0022b3ULL, 0xb65b9e9cd2309b33ULL,
-    0xad3b110c8b1c606fULL, 0xbd6c9735cd5a8ca3ULL, 0xb05478f09e6c79d3ULL, 0x47b92fe7712ea383ULL, 0x47b92fe7712ea383ULL,
-    0x47b92fe7712ea383ULL, 0x47b92fe7712ea383ULL, 0x47b92fe7712ea383ULL, 0x47b92fe7712ea383ULL, 0x47b92fe7712ea383ULL,
+    0xee329061aa2569aaULL, 0x10981c7eb52e4825ULL, 0xf52566fcecee5d12ULL, 0x08a922260d741aa8ULL, 0x8ef7c57572464cbeULL,
+    0xb4fcab99f6212a56ULL, 0x0c18fd965a482353ULL, 0xbbf067ae7480c553ULL, 0x5897c692b25ac783ULL, 0x195392461912e863ULL,
+    0xc873ce99e5b73893ULL, 0x062f43a19b0022b3ULL, 0xb65b9e9cd2309b33ULL, 0xad3b110c8b1c606fULL, 0xbd6c9735cd5a8ca3ULL,
+    0xb05478f09e6c79d3ULL, 0x47b92fe7712ea383ULL, 0x47b92fe7712ea383ULL, 0x47b92fe7712ea383ULL, 0x47b92fe7712ea383ULL,
     0x47b92fe7712ea383ULL,
 };
 
@@ -362,10 +374,12 @@ TEST_CASE("atlas tile layout and size formula are untouched by the asset channel
 
     const AtlasImage atlas = opencraft::client::generate_atlas(registry, absent);
 
-    // tile_count = size * 3 + 10 -> 73 -> ceil(sqrt(73)) = 9 tiles per row.
-    // The default registry holds 21 entries - air plus 20 content blocks - so
-    // there are 63 block tiles followed by the 10 crack stages.
-    CHECK(registry.size() == std::size_t{21});
+    // tile_count = size * 3 + 10 -> 76 -> ceil(sqrt(76)) = 9 tiles per row.
+    // ★ T-D60: the default registry holds 22 entries - air plus 21 content
+    // blocks - so there are 66 block tiles followed by the 10 crack stages. The
+    // grid is still 9x9 (ceil(sqrt(73)) was 9 as well), so the atlas is the same
+    // 144x144 image it was; only the crack stages' index moved.
+    CHECK(registry.size() == std::size_t{22});
     CHECK(atlas.tiles_per_row == 9);
     CHECK(atlas.width == 144);
     CHECK(atlas.height == 144);
@@ -377,7 +391,7 @@ TEST_CASE("atlas tile layout and size formula are untouched by the asset channel
             CHECK(opencraft::render::tile_index(id, slot) == id * 3 + slot);
         }
     }
-    CHECK(opencraft::client::crack_tile_base(registry.size()) == 63);
+    CHECK(opencraft::client::crack_tile_base(registry.size()) == 66);
     CHECK(static_cast<std::size_t>(opencraft::client::crack_tile_base(registry.size())) + 10 <= 81);
 }
 

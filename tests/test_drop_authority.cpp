@@ -224,6 +224,14 @@ TEST_CASE("authority: the item registry belongs to the world, and every launch b
             CHECK((id == "water" || id == "air"));
             continue;
         }
+        // ★ T-D60's ONE exception to 1:1: breaking stone yields cobblestone, so
+        // this block's drop is deliberately NOT the item that places it (⚖ the
+        // base game's own rule, and the hinge of the 木镐 → 圆石 → 石镐 chain).
+        // Everything else still has to be its own item form, in both directions.
+        if (sim.registry().string_of(block) == "stone") {
+            CHECK(*item == sim.items().id_of("rubble_rock"));
+            continue;
+        }
         // Exactly the item whose block form it is, and the mapping is 1:1.
         CHECK(sim.items().def_of(*item).block == block);
         CHECK(sim.items().item_for_block(sim.items().def_of(*item).block) == item);

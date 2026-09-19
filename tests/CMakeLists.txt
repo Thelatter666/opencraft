@@ -43,6 +43,9 @@ add_executable(opencraft_tests
     test_mob_authority.cpp
     test_player_death.cpp
     test_attack_charge.cpp
+    test_recipe_registry.cpp
+    test_crafting_ui.cpp
+    test_mining_tiers.cpp
     test_asset_atlas.cpp
     test_mob_model.cpp
 )

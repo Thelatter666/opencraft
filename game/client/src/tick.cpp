@@ -126,6 +126,17 @@ void clear_live_state(const TickContext &ctx) {
     ctx.state.clear_live_state();
 }
 
+// T-D60: the same clearing, minus the attack-charge clock. Opening a screen must
+// not restart the charge: the authority keeps its own copy of that clock
+// (WorldSim::last_attack_tick_) and a bar that jumped back to full would promise
+// a hit the authority then settles as a cold swing - the mirror T-D59 warns
+// about. Everything a verb draws or targets does go: no crack overlay behind the
+// panel, no wireframe around a block the player can no longer aim at.
+void clear_screen_targets(const TickContext &ctx) {
+    ctx.mining.reset();
+    ctx.state.clear_world_targets();
+}
+
 // The part of a logic tick that runs whether or not the player is alive: the
 // authority's own step, the push-back drain and the autosave cadence. Factored
 // out by T-D45 so the dead tick cannot drift from the live one - a caller that
@@ -221,42 +232,58 @@ void run_tick(const TickContext &ctx) {
         world_tail(ctx);
         return;
     }
+    // ── T-D60 C-3: a screen owns the pointer ─────────────────────────────────
+    // `ui_open` is read ONCE here and governs the whole tick. It is not a pause:
+    // the physics step below still runs (a player who opens the bag in mid-air
+    // keeps falling) and world_tail at the bottom still runs (the mobs keep
+    // living, the fluid keeps flowing, the autosave keeps its cadence) - what the
+    // screen takes away is the INPUT and the VERBS.
+    const bool screen_open = ui_open(ctx);
     // ── input mapping (WASD + space + shift + ctrl) ──────────────────────
     // T-D1: S maps to the explicit InputState::backward field (T007 had
     // no backward flag and simulated it as a 180° yaw flip; the physics
     // input direction now handles backward directly, and sprint requires
     // forward + not-backward per MC). forward_press is the one-tick W
     // keydown edge that drives the physics double-tap sprint window.
-    const bool w = key_pressed(ctx.window, GLFW_KEY_W);
-    const bool s = key_pressed(ctx.window, GLFW_KEY_S);
-    const bool a = key_pressed(ctx.window, GLFW_KEY_A);
-    const bool d = key_pressed(ctx.window, GLFW_KEY_D);
     phy::InputState in;
-    in.yaw = ctx.view_yaw;
-    in.pitch = ctx.view_pitch;
-    in.forward = w && !s;
-    in.backward = s && !w;
-    in.left = a;
-    in.right = d;
-    in.forward_press = w && !ctx.state.prev_w;
-    ctx.state.prev_w = w;
-    in.jump = key_pressed(ctx.window, GLFW_KEY_SPACE) != 0;
-    in.sneak = key_pressed(ctx.window, GLFW_KEY_LEFT_SHIFT) != 0;
-    in.sprint = key_pressed(ctx.window, GLFW_KEY_LEFT_CONTROL) != 0;
+    if (!screen_open) {
+        const bool w = key_pressed(ctx.window, GLFW_KEY_W);
+        const bool s = key_pressed(ctx.window, GLFW_KEY_S);
+        const bool a = key_pressed(ctx.window, GLFW_KEY_A);
+        const bool d = key_pressed(ctx.window, GLFW_KEY_D);
+        in.yaw = ctx.view_yaw;
+        in.pitch = ctx.view_pitch;
+        in.forward = w && !s;
+        in.backward = s && !w;
+        in.left = a;
+        in.right = d;
+        in.forward_press = w && !ctx.state.prev_w;
+        ctx.state.prev_w = w;
+        in.jump = key_pressed(ctx.window, GLFW_KEY_SPACE) != 0;
+        in.sneak = key_pressed(ctx.window, GLFW_KEY_LEFT_SHIFT) != 0;
+        in.sprint = key_pressed(ctx.window, GLFW_KEY_LEFT_CONTROL) != 0;
 
-    // ── T-D14 Auto-Jump (card §4): input-stage injection ────────────────
-    // Decide BEFORE the physics step (docs/research/08 §2: the mechanism
-    // lives in the input stage of the tick). When the pure predicate says
-    // the forward move ends against a 0.6–1.25-block obstacle with
-    // headroom, set in.jump so the EXISTING jump branch in step_player
-    // runs — manual-jump semantics (incl. the sprint +0.2 boost) come
-    // free, and the golden numbers stay shared. The player's own jump
-    // input short-circuits the call (nothing to inject).
-    if (!in.jump && ctx.auto_jump_enabled) {
-        phy::AutoJumpConfig aj_cfg; // defaults = card §1: ON, 1.0 scan, 1.8 clearance
-        if (phy::should_auto_jump(ctx.curr_state, in, ctx.world, phy::PhysicsConfig{}, aj_cfg)) {
-            in.jump = true;
+        // ── T-D14 Auto-Jump (card §4): input-stage injection ────────────────
+        // Decide BEFORE the physics step (docs/research/08 §2: the mechanism
+        // lives in the input stage of the tick). When the pure predicate says
+        // the forward move ends against a 0.6–1.25-block obstacle with
+        // headroom, set in.jump so the EXISTING jump branch in step_player
+        // runs — manual-jump semantics (incl. the sprint +0.2 boost) come
+        // free, and the golden numbers stay shared. The player's own jump
+        // input short-circuits the call (nothing to inject).
+        if (!in.jump && ctx.auto_jump_enabled) {
+            phy::AutoJumpConfig aj_cfg; // defaults = card §1: ON, 1.0 scan, 1.8 clearance
+            if (phy::should_auto_jump(ctx.curr_state, in, ctx.world, phy::PhysicsConfig{}, aj_cfg)) {
+                in.jump = true;
+            }
         }
+    } else {
+        // The screen stops the keys without stopping the body: `in` stays the
+        // default InputState, so the player decelerates exactly as they would
+        // after letting go of everything (MC does the same - the GUI has the
+        // keyboard, the world does not have the player's attention).
+        in.yaw = ctx.view_yaw;
+        in.pitch = ctx.view_pitch;
     }
 
     ctx.prev_state = ctx.curr_state;
@@ -321,6 +348,28 @@ void run_tick(const TickContext &ctx) {
         } else if (ctx.state.jump_arc_ticks > 60) {
             ctx.state.jump_arc_open = false; // safety: never let a stuck arc log forever
         }
+    }
+
+    // ── T-D60 C-3: the screen's single early return ─────────────────────────
+    // Everything from here down is a VERB: targeting (which draws the wireframe
+    // and the crack overlay), the entity pick, mining, placement, the vessel
+    // pair, feeding, the pickup sweep and the hotbar keys. One return, at the end
+    // of the shared preamble (input + physics + the sprint QA counters), is what
+    // makes "open the bag and click at the world" powerless - the same shape the
+    // dead player's gate above uses, and for the same reason: a step that never
+    // runs cannot be forgotten by a later card that adds a seventh verb.
+    //
+    // Before returning, the button edges are absorbed: the screen clicks with the
+    // very same mouse buttons, so a state carried over from before it opened
+    // would read as a fresh click (an unintended swing, or a block placed at
+    // wherever the player was aiming) on the first tick after it closes.
+    if (screen_open) {
+        ctx.state.prev_left = glfwGetMouseButton(ctx.window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS;
+        ctx.state.prev_right = glfwGetMouseButton(ctx.window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS;
+        ctx.state.prev_w = key_pressed(ctx.window, GLFW_KEY_W) != 0;
+        clear_screen_targets(ctx);
+        world_tail(ctx);
+        return;
     }
 
     // ── targeting ────────────────────────────────────────────────────────
@@ -411,7 +460,7 @@ void run_tick(const TickContext &ctx) {
             // swing carried. The authority computes the same number from its own
             // clock; this is the client's mirror of it (C-2).
             const double charge = ctx.state.attack_charge();
-            const gam::ActionResult attack_result = ctx.authority.submit(attack);
+            const gam::ActionResult attack_result = submit_world_verb(ctx.authority, screen_open, attack);
             if (attack_result.accepted) {
                 ctx.state.attack_age = 0; // the charge clock restarts; the NEXT swing reads the ramp
                 ctx.state.swinging = true;
@@ -426,7 +475,14 @@ void run_tick(const TickContext &ctx) {
             }
         }
     } else {
-        mining_tick = ctx.mining.tick(hit.block_pos, target_id, hit.hit, left_held);
+        // T-D60: the swing carries the HELD item's tier and multiplier
+        // (ItemDef::mining_tier / mining_speed). Resolved here, per tick, from the
+        // same selected-stack cache the renderer and the HUD read - so switching
+        // tools mid-block speeds the rest of it up on the very next tick, and an
+        // empty hand resolves to kNoTool / 1.0, which is the T008 machine exactly.
+        mining_tick =
+            ctx.mining.tick(hit.block_pos, target_id, hit.hit, left_held,
+                            gam::mining_tool_of(ctx.state.inventory.registry().def_of(ctx.state.selected_stack.item)));
     }
     if (!mob_in_front && left_held && hit.hit && !ctx.state.swinging) {
         ctx.state.swinging = true;
@@ -441,7 +497,7 @@ void run_tick(const TickContext &ctx) {
         dig.kind = gam::ActionKind::Dig;
         dig.target = hit.block_pos;
         dig.actor = actor_pose(ctx);
-        const gam::ActionResult dig_result = ctx.authority.submit(dig);
+        const gam::ActionResult dig_result = submit_world_verb(ctx.authority, screen_open, dig);
         if (!dig_result.accepted) {
             OC_LOG_WARN("dig refused at ({}, {}, {}): {}", hit.block_pos.x, hit.block_pos.y, hit.block_pos.z,
                         dig_result.reason());
@@ -508,7 +564,7 @@ void run_tick(const TickContext &ctx) {
             feed.target = {static_cast<int>(ctx.state.picked_mob), 0, 0};
             feed.item_or_block = held;
             feed.actor = actor_pose(ctx);
-            const gam::ActionResult feed_result = ctx.authority.submit(feed);
+            const gam::ActionResult feed_result = submit_world_verb(ctx.authority, screen_open, feed);
             if (feed_result.accepted) {
                 // The stack is spent only after the verdict (the T-A1 ordering):
                 // a refused feed must not eat the item.
@@ -529,7 +585,19 @@ void run_tick(const TickContext &ctx) {
     }
     if (!feeding && right_held && (ctx.state.place_cooldown == 0 || !ctx.state.prev_right)) {
         if (hit.hit && (!item_use || use_edge)) {
-            if (ctx.state.selected_use == ItemUse::PourVessel) {
+            // ── T-D60: the interactive block T008 left a hook for ────────────
+            // "interactive blocks would take priority here - none exist in this
+            // milestone" (the placement branch's own comment since T008). One
+            // exists now: a right CLICK on an assembly bench opens its 3x3
+            // surface INSTEAD of placing whatever is in hand, which is the base
+            // game's own precedence. Edge-triggered, so holding the button does
+            // not reopen it every 4 ticks.
+            const CraftingMode station = station_screen_for(ctx.world.registry(), target_id);
+            if (station != CraftingMode::None && use_edge) {
+                ctx.crafting.open_mode(station);
+                OC_LOG_INFO("assembly bench: opened a {}x{} surface at ({}, {}, {})", craft_grid_width(station),
+                            craft_grid_width(station), hit.block_pos.x, hit.block_pos.y, hit.block_pos.z);
+            } else if (ctx.state.selected_use == ItemUse::PourVessel) {
                 // ── pour (T-F1) ──────────────────────────────────────────
                 // A held water vessel pours a source into the cell the hit
                 // face opens onto. The authority owns the rule the client used
@@ -542,7 +610,7 @@ void run_tick(const TickContext &ctx) {
                 pour.kind = gam::ActionKind::PourWater;
                 pour.target = cell;
                 pour.actor = actor_pose(ctx);
-                const gam::ActionResult pour_result = ctx.authority.submit(pour);
+                const gam::ActionResult pour_result = submit_world_verb(ctx.authority, screen_open, pour);
                 if (pour_result.accepted) {
                     // A water vessel is always a 1-stack (max_stack 1), so the
                     // pour swaps it in place and the player is still holding a
@@ -571,7 +639,7 @@ void run_tick(const TickContext &ctx) {
                 scoop.actor = actor_pose(ctx);
                 if (can_transform_vessel(ctx.state.inventory, ctx.state.selected_slot, ctx.state.vessels.empty,
                                          ctx.state.vessels.full)) {
-                    const gam::ActionResult scoop_result = ctx.authority.submit(scoop);
+                    const gam::ActionResult scoop_result = submit_world_verb(ctx.authority, screen_open, scoop);
                     if (scoop_result.accepted) {
                         transform_vessel(ctx.state.inventory, ctx.state.selected_slot, ctx.state.vessels.empty,
                                          ctx.state.vessels.full);
@@ -597,7 +665,7 @@ void run_tick(const TickContext &ctx) {
                 place.target = cell;
                 place.item_or_block = ctx.state.selected_block;
                 place.actor = actor_pose(ctx);
-                const gam::ActionResult place_result = ctx.authority.submit(place);
+                const gam::ActionResult place_result = submit_world_verb(ctx.authority, screen_open, place);
                 if (place_result.accepted) {
                     // place_one_block() reads the block while the cell still
                     // holds it and hands back the block plus the counts, so the
@@ -667,7 +735,7 @@ void run_tick(const TickContext &ctx) {
             pick.target = {static_cast<int>(id), 0, 0};
             pick.item_or_block = stack.item;
             pick.actor = pose;
-            if (!ctx.authority.submit(pick).accepted) {
+            if (!submit_world_verb(ctx.authority, screen_open, pick).accepted) {
                 continue; // refused: the drop stays where it is, nothing changed
             }
             ctx.state.inventory = std::move(next_inventory);

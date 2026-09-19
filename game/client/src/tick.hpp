@@ -13,6 +13,7 @@
 
 #include <glm/glm.hpp>
 
+#include "crafting_ui.hpp"
 #include "interaction.hpp"
 #include "opencraft/game/mining.hpp"
 #include "opencraft/game/protocol.hpp"
@@ -55,7 +56,46 @@ struct TickContext {
     // respawn point - plus the one gamerule the death path reads.
     PlayerLife &life;
     const GameRules &rules;
+    // ── T-D60: the crafting screen (C-3's UI-open flag) ─────────────────────
+    // The tick needs the screen for exactly two things: to open the bench's 3x3
+    // surface when one is right-clicked, and to know whether a surface is up at
+    // all - which is what `ui_open(ctx)` below answers. Keeping the screen here
+    // rather than a separate bool means the flag is DERIVED, so the tick and the
+    // UI cannot disagree about whether the player is looking at a screen.
+    CraftingState &crafting;
 };
+
+// T-D60 C-3: is a client UI owning the pointer this tick? Nothing in the world
+// may be touched while this is true - see submit_world_verb below for the funnel
+// that enforces it, and run_tick's own early return for the rest.
+[[nodiscard]] inline bool ui_open(const TickContext &ctx) {
+    return ctx.crafting.open();
+}
+
+// T-D60 C-3: the single funnel every world verb of a logic tick goes through.
+//
+// While a UI owns the pointer the request is NOT built into a submission and not
+// "sent and refused": it is dropped here, so no code path downstream can change
+// its mind. The returned ActionResult is a plain refusal with no reason, which is
+// what the callers already render for "the action did not happen".
+//
+// It is a free function (and not a member of the context) so a test can drive it
+// against a counting stub authority and assert that nothing was submitted - the
+// card's "界面打开时 Dig/PlaceBlock/Attack 全拒" as a unit test rather than as a
+// reading of run_tick.
+//
+// Inline (and not a run_tick-local) so the tests can drive it against a counting
+// stub authority: the card asks for a unit test that PROVES nothing is
+// submitted, and a promise about a function a test cannot call is not that.
+[[nodiscard]] inline game::ActionResult submit_world_verb(game::IAuthority &authority, const bool ui_open_flag,
+                                                          const game::ActionRequest &request) {
+    if (ui_open_flag) {
+        // Nothing was asked, so there is no reason to report one: the callers
+        // read `accepted` and only log a reason on the paths that get that far.
+        return {};
+    }
+    return authority.submit(request);
+}
 
 // GLFW_KEY_* poll; main.cpp drives the menu keys through this too.
 [[nodiscard]] bool key_pressed(GLFWwindow *window, int key);

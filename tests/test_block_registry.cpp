@@ -53,7 +53,8 @@ TEST_CASE("registry rejects duplicates and empty ids") {
     auto registry = opencraft::voxel::BlockRegistry::create_default();
     CHECK_THROWS_AS(registry.register_block("stone", {"Dup", true, false, 1.0F}), std::invalid_argument);
     CHECK_THROWS_AS(registry.register_block("", {"Empty", true, false, 1.0F}), std::invalid_argument);
-    CHECK(registry.size() == 21); // unchanged by failed registrations
+    // ★ T-D60: 22 - air plus the twenty launch blocks plus `assembly_bench`.
+    CHECK(registry.size() == 22); // unchanged by the failed registrations above
 }
 
 TEST_CASE("registry handles unknown ids on both directions") {
