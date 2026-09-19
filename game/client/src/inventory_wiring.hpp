@@ -288,6 +288,12 @@ inline constexpr StartingStack kStartingMain[] = {
     {9, "char_ore", 12},       {10, "ferrous_ore", 6},    {11, "lucent_ore", 2},
     {12, "sunroot", 9},        {13, "timber_hewer", 1},   {14, "timber_headguard", 1},
     {15, "timber_cuirass", 1}, {16, "timber_greaves", 1}, {17, "timber_treads", 1},
+    // T-D59 裁决 S-4: the sword and the shovel join the kit so the charge ramp,
+    // the crit and the sprint knockback are reachable in the shipped client (the
+    // pick and the axe alone cover damage but leave the gate's flagship weapon
+    // unwieldable). TEMPORARY by design: once the crafting card lands, its
+    // ruling decides whether these two leave the kit.
+    {18, "timber_edge", 1},    {19, "timber_spade", 1},
 };
 
 // Fills the launch kit into a fresh inventory. Slots are written exactly, so a
