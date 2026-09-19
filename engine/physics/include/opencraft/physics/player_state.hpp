@@ -41,9 +41,24 @@ struct PlayerState {
     // Health (20 HP = 10 hearts, docs/01 §3). Only fall damage writes it in
     // this task; armor/regen belong to later systems.
     double health = 20.0;
-    // ⚖ hurt invulnerability window 0.5 s = 10 ticks. Field reserved only —
-    // no combat system exists yet, nothing decrements it (T007 card).
-    double invulnerability_ticks = 0.0;
+    // ⚖ hurt invulnerability window 0.5 s = 10 ticks (research/11 §1.5.1): for
+    // 10 ticks after a hit, damage no larger than that hit is ignored and a
+    // larger one settles only the difference. T-D46 wired it up (it was a
+    // reserved field) and made it an INTEGER tick count - it used to be a
+    // `double` of ticks, i.e. the same quantity expressed in a unit the 20 TPS
+    // fixed step would drift against.
+    //
+    // ★ This is damage_mob's rule, copied rather than shared - see
+    // game/server/sim/mob_sim.hpp (damage_mob, and MobAi::hurt_cooldown /
+    // last_hurt_amount for the mobs' copy of this state). The two exist
+    // separately because the mobs are the authority's and the player is the
+    // client's (T-A1; T-D46 ruling C-1 keeps it that way until M3), NOT because
+    // they may drift: a change to one belongs in the other.
+    int invulnerability_ticks = 0;
+    // The hit that opened the window above. The pair is what makes "a larger hit
+    // settles only the difference" decidable; it is the mobs' last_hurt_amount
+    // by another name.
+    double last_hurt_amount = 0.0;
 
     // ── T-D1: explicit sprint state (interface contract: sprint must be
     // assertable in headless replay tests, not buried in the client input

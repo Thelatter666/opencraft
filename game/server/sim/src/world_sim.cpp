@@ -48,6 +48,13 @@ constexpr double kReachEpsilon = 1e-6;
     return dx > dz ? dx : dz;
 }
 
+// ⚖ T-D46 ⑥ / research/01 §6.4: the horizontal initial speed a landed melee hit
+// gives its victim, blocks/tick. Ruling C-4 keeps this card to the base value -
+// the sprint bonus (+0.5, behind the 84.8% attack charge) and the Knockback
+// enchantment are the attack-charge card's work. The player's half of the same
+// number is client/src/player_life.hpp's kKnockbackSpeed.
+constexpr double kAttackKnockback = 0.4;
+
 } // namespace
 
 WorldSim::WorldSim(const std::uint64_t seed)
@@ -451,7 +458,7 @@ game::ActionResult WorldSim::apply_attack(const game::ActionRequest &req) {
     if (req.target.x <= 0) {
         return {false, game::ActionReject::UnknownEntity};
     }
-    const Entity *mob = entities_.find(static_cast<EntityId>(req.target.x));
+    Entity *mob = entities_.find(static_cast<EntityId>(req.target.x));
     if (mob == nullptr) {
         return {false, game::ActionReject::UnknownEntity};
     }
@@ -461,11 +468,27 @@ game::ActionResult WorldSim::apply_attack(const game::ActionRequest &req) {
     if (!in_attack_reach(req, *mob)) {
         return {false, game::ActionReject::OutOfAttackRange};
     }
-    // Bare-handed damage. The full attack model (swing speed, the 84.8% damage
-    // ramp, crits, knockback, tool damage) is a player-combat card's work - this is
-    // the minimum that makes the passive roster's drops reachable.
+    // Bare-handed damage. The REST of the attack model (swing speed, the 84.8%
+    // damage ramp, crits, tool damage) is still a later card's work - T-D46 added
+    // the ⚖ base knockback below, and the victim's armour lives on the client,
+    // where the player's hit points are.
     const double damage = game::kPunchDamage;
-    if (damage_mob(entities_, mobs_, mob->id, damage, kActorId, mob_rules_)) {
+    const double health_before = mob->health;
+    const bool died = damage_mob(entities_, mobs_, mob->id, damage, kActorId, mob_rules_);
+    // ── T-D46 ⑥: the hit shoves the mob away from the actor ──────────────────
+    // ⚖ 0.4 blocks/tick of horizontal speed (see kAttackKnockback above); the
+    // impulse goes into the entity's velocity here, at the verb, and NOT inside
+    // damage_mob - that is the shared entry the mob-vs-mob path also uses, and
+    // contract ⑦ freezes its judgement block.
+    //
+    // "Did the hit land" is read off the hit points damage_mob itself moved, so
+    // its window's verdict is not re-derived here: a hit the window absorbed
+    // moves nothing, and the client's own knockback is gated the same way. A
+    // mob that died from the hit is erased below and needs no impulse.
+    if (mob->health < health_before && !died) {
+        knock_back(*mob, req.actor.feet, kAttackKnockback);
+    }
+    if (died) {
         // The drop count is not interesting here; the tick's own death pass is what
         // reports it. An attack that kills therefore erases and loots immediately
         // rather than waiting for the next step_mobs.

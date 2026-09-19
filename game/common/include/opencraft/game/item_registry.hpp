@@ -69,6 +69,24 @@ struct ItemDef {
     // they are only meaningful against the block registry the item set was
     // built for -- see ItemRegistry::create_default().
     std::uint16_t block = kNoBlock;
+
+    // ── T-D46 armour (the four fields above are unchanged) ───────────────────
+    // ⚖ docs/research/01 §2: the armour POINTS a worn piece contributes. The
+    // leather set is 7 over its four pieces (1/2/3/1), iron 15 (2/5/6/2); the
+    // launch set's `timber_*` pieces carry the leather numbers (T-D46 ruling
+    // C-3). 0.0 for everything that is not a piece of armour, which is every
+    // other item in the registry.
+    //
+    // double, not int: the reduction formula divides, and the player's own hit
+    // points are a double for the same reason (physics/player_state.hpp) - one
+    // type for the quantity avoids a cast at every use.
+    double armor_points = 0.0;
+    // ⚖ The `min(toughness, 20)` term of the same formula. Leather AND iron are
+    // both 0 in the base game (toughness arrives with the diamond-tier sets), so
+    // this is 0.0 for every registered item -- the field exists because the
+    // formula has the term and a later set will use it, not because anything
+    // shipping reads a non-zero value.
+    double armor_toughness = 0.0;
 };
 
 // String-id to runtime numeric-id mapping (docs/03 §7), mirroring the

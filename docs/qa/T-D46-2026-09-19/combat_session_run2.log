@@ -1,0 +1,60 @@
+[2026-09-19 12:43:56.670] [info] OpenCraft 0.1.0 starting
+[2026-09-19 12:43:56.855] [info] GL 4.1 Metal - 89.4 / glad loaded
+[2026-09-19 12:43:56.856] [info] save: no level.ocd, new world with seed 0x4f50454e43524146
+[2026-09-19 12:43:57.090] [info] startup gen: 25 chunks, total 233.1 ms, avg 9.32 ms/chunk
+[2026-09-19 12:43:57.090] [info] spawn scan: surface at (0.5, 132.0, 0.5)
+[2026-09-19 12:43:57.090] [info] respawn point: (0.5, 132.0, 0.5)
+[2026-09-19 12:43:57.096] [info] atlas: 60/63 block tiles loaded from ../assets/blocks
+[2026-09-19 12:43:57.096] [info] atlas: 144x144 px, 9 tiles/row, crack tiles at 63
+[2026-09-19 12:43:57.100] [info] mobs: 3/3 mob models loaded from ../assets/mobs
+[2026-09-19 12:43:57.100] [info] mob model mossback: 705 voxels, 1544 triangles, 7 joints, 1.4 blocks tall, palette from palettes/mossback.png
+[2026-09-19 12:43:57.100] [info] mob model hollow_wretch: 496 voxels, 1592 triangles, 6 joints, 1.8 blocks tall, palette from palettes/hollow_wretch.png
+[2026-09-19 12:43:57.100] [info] mob model blastbud: 510 voxels, 1084 triangles, 6 joints, 1.7 blocks tall, palette from palettes/blastbud.png
+[2026-09-19 12:43:59.123] [info] fps 41.5 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-19 12:43:59.506] [info] mob mossback spawned at (-99.7, 133.0, -24.6) in chunk (-7, -2)
+[2026-09-19 12:43:59.506] [info] mob mossback spawned at (-98.3, 133.0, -29.8) in chunk (-7, -2)
+[2026-09-19 12:43:59.506] [info] mob mossback spawned at (-98.9, 133.0, -29.2) in chunk (-7, -2)
+[2026-09-19 12:43:59.506] [info] mob mossback spawned at (-105.2, 129.0, -10.5) in chunk (-7, -1)
+[2026-09-19 12:43:59.506] [info] mob mossback spawned at (-106.3, 129.0, -9.9) in chunk (-7, -1)
+[2026-09-19 12:43:59.901] [info] mob mossback spawned at (-81.6, 134.0, -87.9) in chunk (-6, -6)
+[2026-09-19 12:43:59.901] [info] mob mossback spawned at (-81.1, 134.0, -92.2) in chunk (-6, -6)
+[2026-09-19 12:44:01.137] [info] fps 67.9 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-19 12:44:01.909] [info] mob blastbud spawned at (-57.8, 42.0, 68.3) in chunk (-4, 4)
+[2026-09-19 12:44:03.145] [info] fps 72.8 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-19 12:44:04.415] [info] EVIDENCE summon hollow_wretch id=9 at (0.5, 132.0, -1.5)
+[2026-09-19 12:44:05.068] [info] mob event: melee 3.0 damage at (0.7, 132.0, 1.0)
+[2026-09-19 12:44:05.068] [info] mob melee for 3.0 at (0.68, 132.00, 0.97); health now 17.0
+[2026-09-19 12:44:05.151] [info] fps 71.8 | pos (0.36, 132.00, 0.13) | chunks 113 | stream-meshed 104
+[2026-09-19 12:44:05.395] [info] mob mossback spawned at (17.9, 148.0, -119.8) in chunk (1, -8)
+[2026-09-19 12:44:05.700] [info] mob hollow_wretch spawned at (17.2, 116.0, -68.0) in chunk (1, -5)
+[2026-09-19 12:44:05.797] [info] mob hollow_wretch spawned at (21.0, 55.0, 31.0) in chunk (1, 1)
+[2026-09-19 12:44:06.249] [info] mob event: melee 3.0 damage at (0.4, 132.0, 0.4)
+[2026-09-19 12:44:06.249] [info] mob melee for 3.0 at (0.42, 132.00, 0.38); health now 14.0
+[2026-09-19 12:44:07.151] [info] fps 68.0 | pos (-0.09, 132.00, -1.14) | chunks 135 | stream-meshed 126
+[2026-09-19 12:44:07.264] [info] EVIDENCE armour ON: 4 cell(s), 7 point(s), toughness 0
+[2026-09-19 12:44:07.417] [info] mob event: melee 3.0 damage at (0.1, 132.0, -0.5)
+[2026-09-19 12:44:07.417] [info] mob melee for 2.3 at (0.13, 132.00, -0.48); health now 11.7
+[2026-09-19 12:44:08.429] [info] mob event: melee 3.0 damage at (-0.1, 132.0, -1.3)
+[2026-09-19 12:44:08.429] [info] mob melee for 2.3 at (-0.15, 132.00, -1.34); health now 9.3
+[2026-09-19 12:44:09.166] [info] fps 71.9 | pos (-0.72, 131.00, -3.04) | chunks 135 | stream-meshed 126
+[2026-09-19 12:44:09.429] [info] mob event: melee 3.0 damage at (-0.7, 131.0, -3.0)
+[2026-09-19 12:44:09.429] [info] mob melee for 2.3 at (-0.71, 131.00, -3.01); health now 7.0
+[2026-09-19 12:44:09.631] [info] autosave: 0 chunk(s) queued for async write, level written (ticks=199)
+[2026-09-19 12:44:10.430] [info] mob event: melee 3.0 damage at (-0.7, 131.0, -3.0)
+[2026-09-19 12:44:10.430] [info] mob melee for 2.3 at (-0.71, 131.00, -3.01); health now 4.6
+[2026-09-19 12:44:11.172] [info] fps 73.4 | pos (-1.41, 131.00, -3.70) | chunks 135 | stream-meshed 126
+[2026-09-19 12:44:11.189] [info] EVIDENCE summon hollow_wretch id=13 at (-0.5, 131.0, -5.7)
+[2026-09-19 12:44:11.443] [info] mob event: melee 3.0 damage at (-0.7, 131.0, -3.0)
+[2026-09-19 12:44:11.443] [info] mob melee for 2.3 at (-0.71, 131.00, -3.01); health now 2.3
+[2026-09-19 12:44:11.549] [info] EVIDENCE summon hollow_wretch id=14 at (-1.9, 131.0, -6.1)
+[2026-09-19 12:44:11.784] [info] mob event: melee 3.0 damage at (-1.7, 131.0, -5.5)
+[2026-09-19 12:44:11.784] [info] mob melee for 3.0 absorbed by the hurt window (3 tick(s) left, last 3.0)
+[2026-09-19 12:44:12.249] [info] mob event: melee 3.0 damage at (-1.0, 132.8, -5.0)
+[2026-09-19 12:44:12.249] [info] mob melee for 2.3 at (-0.98, 132.83, -4.96); health now 0.0
+[2026-09-19 12:44:12.249] [info] player died at (-2.03, 131.00, -4.31); 22 stack(s) dropped, 0 refused (slots left: 0)
+[2026-09-19 12:44:12.444] [info] mob event: melee 3.0 damage at (-1.2, 131.0, -3.5)
+[2026-09-19 12:44:12.799] [info] mob event: melee 3.0 damage at (-1.8, 131.0, -4.9)
+[2026-09-19 12:44:13.172] [info] fps 73.0 | pos (-2.03, 131.00, -4.31) | chunks 135 | stream-meshed 126
+[2026-09-19 12:44:13.242] [info] mob event: melee 3.0 damage at (-2.8, 130.0, -3.8)
+[2026-09-19 12:44:13.443] [info] mob event: melee 3.0 damage at (-1.2, 131.0, -3.5)
+[2026-09-19 12:44:13.791] [info] mob event: melee 3.0 damage at (-1.8, 131.0, -4.9)

@@ -1,0 +1,182 @@
+[2026-09-19 12:42:03.865] [info] OpenCraft 0.1.0 starting
+[2026-09-19 12:42:04.435] [info] GL 4.1 Metal - 89.4 / glad loaded
+[2026-09-19 12:42:04.435] [info] save: no level.ocd, new world with seed 0x4f50454e43524146
+[2026-09-19 12:42:04.671] [info] startup gen: 25 chunks, total 235.4 ms, avg 9.41 ms/chunk
+[2026-09-19 12:42:04.671] [info] spawn scan: surface at (0.5, 132.0, 0.5)
+[2026-09-19 12:42:04.671] [info] respawn point: (0.5, 132.0, 0.5)
+[2026-09-19 12:42:04.679] [info] atlas: 60/63 block tiles loaded from ../assets/blocks
+[2026-09-19 12:42:04.679] [info] atlas: 144x144 px, 9 tiles/row, crack tiles at 63
+[2026-09-19 12:42:04.691] [info] mobs: 3/3 mob models loaded from ../assets/mobs
+[2026-09-19 12:42:04.691] [info] mob model mossback: 705 voxels, 1544 triangles, 7 joints, 1.4 blocks tall, palette from palettes/mossback.png
+[2026-09-19 12:42:04.691] [info] mob model hollow_wretch: 496 voxels, 1592 triangles, 6 joints, 1.8 blocks tall, palette from palettes/hollow_wretch.png
+[2026-09-19 12:42:04.691] [info] mob model blastbud: 510 voxels, 1084 triangles, 6 joints, 1.7 blocks tall, palette from palettes/blastbud.png
+[2026-09-19 12:42:05.800] [info] mob mossback spawned at (-53.4, 138.0, -59.5) in chunk (-4, -4)
+[2026-09-19 12:42:05.800] [info] mob mossback spawned at (-49.7, 137.0, -38.1) in chunk (-4, -3)
+[2026-09-19 12:42:06.716] [info] fps 38.5 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-19 12:42:07.502] [info] mob mossback spawned at (-81.6, 134.0, -87.9) in chunk (-6, -6)
+[2026-09-19 12:42:07.502] [info] mob mossback spawned at (-81.1, 134.0, -92.2) in chunk (-6, -6)
+[2026-09-19 12:42:07.600] [info] mob mossback spawned at (-92.1, 135.0, -62.2) in chunk (-6, -4)
+[2026-09-19 12:42:07.600] [info] mob mossback spawned at (-86.2, 135.0, -61.8) in chunk (-6, -4)
+[2026-09-19 12:42:07.600] [info] mob mossback spawned at (-89.1, 135.0, -63.6) in chunk (-6, -4)
+[2026-09-19 12:42:08.738] [info] fps 66.7 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-19 12:42:09.510] [info] mob blastbud spawned at (-57.8, 42.0, 68.3) in chunk (-4, 4)
+[2026-09-19 12:42:10.745] [info] fps 72.3 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-19 12:42:12.758] [info] fps 69.0 | pos (0.50, 132.00, 0.50) | chunks 113 | stream-meshed 104
+[2026-09-19 12:42:12.925] [info] EVIDENCE summon hollow_wretch id=9 at (0.5, 132.0, -1.5)
+[2026-09-19 12:42:13.578] [info] mob event: melee 3.0 damage at (0.7, 132.0, 1.0)
+[2026-09-19 12:42:13.578] [info] mob melee for 3.0 at (0.73, 132.00, 0.97); health now 17.0
+[2026-09-19 12:42:14.516] [info] mob mossback spawned at (63.6, 133.0, -109.7) in chunk (3, -7)
+[2026-09-19 12:42:14.766] [info] fps 69.2 | pos (0.12, 132.00, -0.29) | chunks 126 | stream-meshed 117
+[2026-09-19 12:42:14.766] [info] mob event: melee 3.0 damage at (0.4, 132.0, 0.4)
+[2026-09-19 12:42:14.766] [info] mob melee for 3.0 at (0.40, 132.00, 0.41); health now 14.0
+[2026-09-19 12:42:15.939] [info] mob event: melee 3.0 damage at (0.1, 132.0, -0.2)
+[2026-09-19 12:42:15.939] [info] mob melee for 3.0 at (0.15, 132.00, -0.23); health now 11.0
+[2026-09-19 12:42:16.621] [info] EVIDENCE armour ON: 4 cell(s), 7 point(s), toughness 0
+[2026-09-19 12:42:16.779] [info] fps 70.1 | pos (-0.85, 131.00, -2.69) | chunks 135 | stream-meshed 126
+[2026-09-19 12:42:16.947] [info] mob event: melee 3.0 damage at (-0.8, 131.0, -2.5)
+[2026-09-19 12:42:16.947] [info] mob melee for 2.3 at (-0.78, 131.00, -2.52); health now 8.7
+[2026-09-19 12:42:17.253] [info] autosave: 0 chunk(s) queued for async write, level written (ticks=199)
+[2026-09-19 12:42:17.960] [info] mob event: melee 3.0 damage at (-0.8, 131.0, -2.5)
+[2026-09-19 12:42:17.960] [info] mob melee for 2.3 at (-0.78, 131.00, -2.52); health now 6.3
+[2026-09-19 12:42:18.780] [info] fps 72.0 | pos (-1.52, 131.00, -4.30) | chunks 135 | stream-meshed 126
+[2026-09-19 12:42:18.960] [info] mob event: melee 3.0 damage at (-1.2, 131.0, -3.6)
+[2026-09-19 12:42:18.960] [info] mob melee for 2.3 at (-1.22, 131.00, -3.57); health now 4.0
+[2026-09-19 12:42:19.002] [info] 1 mob(s) removed beyond 128 blocks
+[2026-09-19 12:42:19.967] [info] mob event: melee 3.0 damage at (-1.6, 131.0, -4.4)
+[2026-09-19 12:42:19.967] [info] mob melee for 2.3 at (-1.56, 131.00, -4.42); health now 1.6
+[2026-09-19 12:42:20.779] [info] fps 72.4 | pos (-2.18, 131.00, -5.92) | chunks 135 | stream-meshed 126
+[2026-09-19 12:42:20.781] [info] EVIDENCE summon hollow_wretch id=8 at (-1.2, 131.0, -7.9)
+[2026-09-19 12:42:20.959] [info] mob event: melee 3.0 damage at (-1.8, 131.0, -5.1)
+[2026-09-19 12:42:20.960] [info] mob melee for 1.6 at (-1.82, 131.00, -5.05); health now 0.0
+[2026-09-19 12:42:20.960] [info] player died at (-2.18, 131.00, -5.92); 22 stack(s) dropped, 0 refused (slots left: 0)
+[2026-09-19 12:42:21.974] [info] mob event: melee 3.0 damage at (-1.8, 131.0, -5.1)
+[2026-09-19 12:42:22.793] [info] fps 72.1 | pos (-2.18, 131.00, -5.92) | chunks 135 | stream-meshed 126
+[2026-09-19 12:42:22.876] [info] mob event: melee 3.0 damage at (-1.6, 132.2, -7.2)
+[2026-09-19 12:42:22.975] [info] mob event: melee 3.0 damage at (-1.8, 131.0, -5.1)
+[2026-09-19 12:42:23.876] [info] mob event: melee 3.0 damage at (-2.5, 130.0, -5.3)
+[2026-09-19 12:42:23.974] [info] mob event: melee 3.0 damage at (-1.8, 131.0, -5.1)
+[2026-09-19 12:42:24.807] [info] fps 72.0 | pos (-2.18, 131.00, -5.92) | chunks 135 | stream-meshed 126
+[2026-09-19 12:42:24.876] [info] mob event: melee 3.0 damage at (-2.5, 130.0, -5.3)
+[2026-09-19 12:42:24.975] [info] mob event: melee 3.0 damage at (-1.8, 131.0, -5.1)
+[2026-09-19 12:42:25.876] [info] mob event: melee 3.0 damage at (-2.5, 130.0, -5.3)
+[2026-09-19 12:42:25.988] [info] mob event: melee 3.0 damage at (-1.8, 131.0, -5.1)
+[2026-09-19 12:42:26.808] [info] fps 72.0 | pos (-2.18, 131.00, -5.92) | chunks 135 | stream-meshed 126
+[2026-09-19 12:42:26.891] [info] mob event: melee 3.0 damage at (-2.5, 130.0, -5.3)
+[2026-09-19 12:42:26.988] [info] mob event: melee 3.0 damage at (-1.8, 131.0, -5.1)
+[2026-09-19 12:42:27.293] [info] autosave: 0 chunk(s) queued for async write, level written (ticks=399)
+[2026-09-19 12:42:27.891] [info] mob event: melee 3.0 damage at (-2.5, 130.0, -5.3)
+[2026-09-19 12:42:27.987] [info] mob event: melee 3.0 damage at (-1.8, 131.0, -5.1)
+[2026-09-19 12:42:28.820] [info] fps 72.0 | pos (-2.18, 131.00, -5.92) | chunks 135 | stream-meshed 126
+[2026-09-19 12:42:28.891] [info] mob event: melee 3.0 damage at (-2.5, 130.0, -5.3)
+[2026-09-19 12:42:29.002] [info] mob event: melee 3.0 damage at (-1.8, 131.0, -5.1)
+[2026-09-19 12:42:29.904] [info] mob event: melee 3.0 damage at (-2.5, 130.0, -5.3)
+[2026-09-19 12:42:30.001] [info] mob event: melee 3.0 damage at (-1.8, 131.0, -5.1)
+[2026-09-19 12:42:30.501] [info] mob hollow_wretch spawned at (108.7, 102.0, -38.5) in chunk (6, -3)
+[2026-09-19 12:42:30.501] [info] mob hollow_wretch spawned at (110.4, 102.0, -38.9) in chunk (6, -3)
+[2026-09-19 12:42:30.501] [info] mob hollow_wretch spawned at (106.6, 102.0, -41.4) in chunk (6, -3)
+[2026-09-19 12:42:30.821] [info] fps 72.0 | pos (-2.18, 131.00, -5.92) | chunks 135 | stream-meshed 126
+[2026-09-19 12:42:30.904] [info] mob event: melee 3.0 damage at (-2.5, 130.0, -5.3)
+[2026-09-19 12:42:31.001] [info] mob event: melee 3.0 damage at (-1.8, 131.0, -5.1)
+[2026-09-19 12:42:31.904] [info] mob event: melee 3.0 damage at (-2.5, 130.0, -5.3)
+[2026-09-19 12:42:32.001] [info] mob event: melee 3.0 damage at (-1.8, 131.0, -5.1)
+[2026-09-19 12:42:32.834] [info] fps 72.0 | pos (-2.18, 131.00, -5.92) | chunks 135 | stream-meshed 126
+[2026-09-19 12:42:32.911] [info] mob event: melee 3.0 damage at (-2.5, 130.0, -5.3)
+[2026-09-19 12:42:33.009] [info] mob event: melee 3.0 damage at (-1.8, 131.0, -5.1)
+[2026-09-19 12:42:33.912] [info] mob event: melee 3.0 damage at (-2.5, 130.0, -5.3)
+[2026-09-19 12:42:34.008] [info] mob event: melee 3.0 damage at (-1.8, 131.0, -5.1)
+[2026-09-19 12:42:34.841] [info] fps 72.2 | pos (-2.18, 131.00, -5.92) | chunks 135 | stream-meshed 126
+[2026-09-19 12:42:34.912] [info] mob event: melee 3.0 damage at (-2.5, 130.0, -5.3)
+[2026-09-19 12:42:35.022] [info] mob event: melee 3.0 damage at (-1.8, 131.0, -5.1)
+[2026-09-19 12:42:35.924] [info] mob event: melee 3.0 damage at (-2.5, 130.0, -5.3)
+[2026-09-19 12:42:35.966] [info] mob blastbud spawned at (-41.3, 26.0, -59.2) in chunk (-3, -4)
+[2026-09-19 12:42:36.021] [info] mob event: melee 3.0 damage at (-1.8, 131.0, -5.1)
+[2026-09-19 12:42:36.855] [info] fps 72.5 | pos (-2.18, 131.00, -5.92) | chunks 135 | stream-meshed 126
+[2026-09-19 12:42:36.917] [info] mob event: melee 3.0 damage at (-2.5, 130.0, -5.3)
+[2026-09-19 12:42:37.029] [info] mob event: melee 3.0 damage at (-1.8, 131.0, -5.1)
+[2026-09-19 12:42:37.322] [info] autosave: 0 chunk(s) queued for async write, level written (ticks=599)
+[2026-09-19 12:42:37.932] [info] mob event: melee 3.0 damage at (-2.5, 130.0, -5.3)
+[2026-09-19 12:42:38.029] [info] mob event: melee 3.0 damage at (-1.8, 131.0, -5.1)
+[2026-09-19 12:42:38.085] [info] mob hollow_wretch spawned at (13.4, 82.0, -69.5) in chunk (0, -5)
+[2026-09-19 12:42:38.862] [info] fps 72.2 | pos (-2.18, 131.00, -5.92) | chunks 135 | stream-meshed 126
+[2026-09-19 12:42:38.932] [info] mob event: melee 3.0 damage at (-2.5, 130.0, -5.3)
+[2026-09-19 12:42:39.029] [info] mob event: melee 3.0 damage at (-1.8, 131.0, -5.1)
+[2026-09-19 12:42:39.932] [info] mob event: melee 3.0 damage at (-2.5, 130.0, -5.3)
+[2026-09-19 12:42:40.045] [info] mob event: melee 3.0 damage at (-1.8, 131.0, -5.1)
+[2026-09-19 12:42:40.869] [info] fps 72.3 | pos (-2.18, 131.00, -5.92) | chunks 135 | stream-meshed 126
+[2026-09-19 12:42:40.945] [info] mob event: melee 3.0 damage at (-2.5, 130.0, -5.3)
+[2026-09-19 12:42:41.043] [info] mob event: melee 3.0 damage at (-1.8, 131.0, -5.1)
+[2026-09-19 12:42:41.391] [info] mob blastbud spawned at (70.7, 61.0, 27.1) in chunk (4, 1)
+[2026-09-19 12:42:41.946] [info] mob event: melee 3.0 damage at (-2.5, 130.0, -5.3)
+[2026-09-19 12:42:42.042] [info] mob event: melee 3.0 damage at (-1.8, 131.0, -5.1)
+[2026-09-19 12:42:42.876] [info] fps 72.2 | pos (-2.18, 131.00, -5.92) | chunks 135 | stream-meshed 126
+[2026-09-19 12:42:42.946] [info] mob event: melee 3.0 damage at (-2.5, 130.0, -5.3)
+[2026-09-19 12:42:43.043] [info] mob event: melee 3.0 damage at (-1.8, 131.0, -5.1)
+[2026-09-19 12:42:43.946] [info] mob event: melee 3.0 damage at (-2.5, 130.0, -5.3)
+[2026-09-19 12:42:44.058] [info] mob event: melee 3.0 damage at (-1.8, 131.0, -5.1)
+[2026-09-19 12:42:44.890] [info] fps 72.0 | pos (-2.18, 131.00, -5.92) | chunks 135 | stream-meshed 126
+[2026-09-19 12:42:44.959] [info] mob event: melee 3.0 damage at (-2.5, 130.0, -5.3)
+[2026-09-19 12:42:45.057] [info] mob event: melee 3.0 damage at (-1.8, 131.0, -5.1)
+[2026-09-19 12:42:45.959] [info] mob event: melee 3.0 damage at (-2.5, 130.0, -5.3)
+[2026-09-19 12:42:46.057] [info] mob event: melee 3.0 damage at (-1.8, 131.0, -5.1)
+[2026-09-19 12:42:46.904] [info] fps 72.0 | pos (-2.18, 131.00, -5.92) | chunks 135 | stream-meshed 126
+[2026-09-19 12:42:46.959] [info] mob event: melee 3.0 damage at (-2.5, 130.0, -5.3)
+[2026-09-19 12:42:47.057] [info] mob event: melee 3.0 damage at (-1.8, 131.0, -5.1)
+[2026-09-19 12:42:47.362] [info] autosave: 0 chunk(s) queued for async write, level written (ticks=799)
+[2026-09-19 12:42:47.973] [info] mob event: melee 3.0 damage at (-2.5, 130.0, -5.3)
+[2026-09-19 12:42:48.070] [info] mob event: melee 3.0 damage at (-1.8, 131.0, -5.1)
+[2026-09-19 12:42:48.917] [info] fps 72.5 | pos (-2.18, 131.00, -5.92) | chunks 135 | stream-meshed 126
+[2026-09-19 12:42:48.974] [info] mob event: melee 3.0 damage at (-2.5, 130.0, -5.3)
+[2026-09-19 12:42:49.071] [info] mob event: melee 3.0 damage at (-1.8, 131.0, -5.1)
+[2026-09-19 12:42:49.974] [info] mob event: melee 3.0 damage at (-2.5, 130.0, -5.3)
+[2026-09-19 12:42:50.071] [info] mob event: melee 3.0 damage at (-1.8, 131.0, -5.1)
+[2026-09-19 12:42:50.917] [info] fps 72.0 | pos (-2.18, 131.00, -5.92) | chunks 135 | stream-meshed 126
+[2026-09-19 12:42:50.974] [info] mob event: melee 3.0 damage at (-2.5, 130.0, -5.3)
+[2026-09-19 12:42:51.084] [info] mob event: melee 3.0 damage at (-1.8, 131.0, -5.1)
+[2026-09-19 12:42:51.987] [info] mob event: melee 3.0 damage at (-2.5, 130.0, -5.3)
+[2026-09-19 12:42:52.086] [info] mob event: melee 3.0 damage at (-1.8, 131.0, -5.1)
+[2026-09-19 12:42:52.925] [info] fps 71.9 | pos (-2.18, 131.00, -5.92) | chunks 135 | stream-meshed 126
+[2026-09-19 12:42:52.980] [info] mob event: melee 3.0 damage at (-2.5, 130.0, -5.3)
+[2026-09-19 12:42:53.084] [info] mob event: melee 3.0 damage at (-1.8, 131.0, -5.1)
+[2026-09-19 12:42:53.987] [info] mob event: melee 3.0 damage at (-2.5, 130.0, -5.3)
+[2026-09-19 12:42:54.084] [info] mob event: melee 3.0 damage at (-1.8, 131.0, -5.1)
+[2026-09-19 12:42:54.945] [info] fps 72.6 | pos (-2.18, 131.00, -5.92) | chunks 135 | stream-meshed 126
+[2026-09-19 12:42:55.000] [info] mob event: melee 3.0 damage at (-2.5, 130.0, -5.3)
+[2026-09-19 12:42:55.098] [info] mob event: melee 3.0 damage at (-1.8, 131.0, -5.1)
+[2026-09-19 12:42:56.000] [info] mob event: melee 3.0 damage at (-2.5, 130.0, -5.3)
+[2026-09-19 12:42:56.098] [info] mob event: melee 3.0 damage at (-1.8, 131.0, -5.1)
+[2026-09-19 12:42:56.945] [info] fps 72.0 | pos (-2.18, 131.00, -5.92) | chunks 135 | stream-meshed 126
+[2026-09-19 12:42:57.001] [info] mob event: melee 3.0 damage at (-2.5, 130.0, -5.3)
+[2026-09-19 12:42:57.099] [info] mob event: melee 3.0 damage at (-1.8, 131.0, -5.1)
+[2026-09-19 12:42:57.405] [info] autosave: 0 chunk(s) queued for async write, level written (ticks=999)
+[2026-09-19 12:42:58.000] [info] mob event: melee 3.0 damage at (-2.5, 130.0, -5.3)
+[2026-09-19 12:42:58.112] [info] mob event: melee 3.0 damage at (-1.8, 131.0, -5.1)
+[2026-09-19 12:42:58.959] [info] fps 72.0 | pos (-2.18, 131.00, -5.92) | chunks 135 | stream-meshed 126
+[2026-09-19 12:42:59.015] [info] mob event: melee 3.0 damage at (-2.5, 130.0, -5.3)
+[2026-09-19 12:42:59.112] [info] mob event: melee 3.0 damage at (-1.8, 131.0, -5.1)
+[2026-09-19 12:43:00.015] [info] mob event: melee 3.0 damage at (-2.5, 130.0, -5.3)
+[2026-09-19 12:43:00.111] [info] mob event: melee 3.0 damage at (-1.8, 131.0, -5.1)
+[2026-09-19 12:43:00.959] [info] fps 72.0 | pos (-2.18, 131.00, -5.92) | chunks 135 | stream-meshed 126
+[2026-09-19 12:43:01.016] [info] mob event: melee 3.0 damage at (-2.5, 130.0, -5.3)
+[2026-09-19 12:43:01.112] [info] mob event: melee 3.0 damage at (-1.8, 131.0, -5.1)
+[2026-09-19 12:43:02.015] [info] mob event: melee 3.0 damage at (-2.5, 130.0, -5.3)
+[2026-09-19 12:43:02.125] [info] mob event: melee 3.0 damage at (-1.8, 131.0, -5.1)
+[2026-09-19 12:43:02.973] [info] fps 72.0 | pos (-2.18, 131.00, -5.92) | chunks 135 | stream-meshed 126
+[2026-09-19 12:43:03.028] [info] mob event: melee 3.0 damage at (-2.5, 130.0, -5.3)
+[2026-09-19 12:43:03.125] [info] mob event: melee 3.0 damage at (-1.8, 131.0, -5.1)
+[2026-09-19 12:43:03.223] [info] mob blastbud spawned at (19.8, 91.0, -109.9) in chunk (1, -7)
+[2026-09-19 12:43:03.278] [info] mob blastbud spawned at (31.2, 124.0, -82.8) in chunk (1, -6)
+[2026-09-19 12:43:03.278] [info] mob blastbud spawned at (31.6, 124.0, -80.4) in chunk (1, -6)
+[2026-09-19 12:43:03.723] [info] mob hollow_wretch spawned at (25.2, 107.0, 51.4) in chunk (1, 3)
+[2026-09-19 12:43:04.036] [info] mob event: melee 3.0 damage at (-2.5, 130.0, -5.3)
+[2026-09-19 12:43:04.132] [info] mob event: melee 3.0 damage at (-1.8, 131.0, -5.1)
+[2026-09-19 12:43:04.987] [info] fps 72.5 | pos (-2.18, 131.00, -5.92) | chunks 135 | stream-meshed 126
+[2026-09-19 12:43:05.028] [info] mob event: melee 3.0 damage at (-2.5, 130.0, -5.3)
+[2026-09-19 12:43:05.140] [info] mob event: melee 3.0 damage at (-1.8, 131.0, -5.1)
+[2026-09-19 12:43:06.042] [info] mob event: melee 3.0 damage at (-2.5, 130.0, -5.3)
+[2026-09-19 12:43:06.132] [info] mob event: melee 3.0 damage at (-1.8, 131.0, -5.1)
+[2026-09-19 12:43:07.000] [info] fps 72.5 | pos (-2.18, 131.00, -5.92) | chunks 135 | stream-meshed 126
+[2026-09-19 12:43:07.042] [info] mob event: melee 3.0 damage at (-2.5, 130.0, -5.3)
+[2026-09-19 12:43:07.140] [info] mob event: melee 3.0 damage at (-1.8, 131.0, -5.1)
+[2026-09-19 12:43:07.445] [info] autosave: 0 chunk(s) queued for async write, level written (ticks=1199)
+[2026-09-19 12:43:08.042] [info] mob event: melee 3.0 damage at (-2.5, 130.0, -5.3)
+[2026-09-19 12:43:08.140] [info] mob event: melee 3.0 damage at (-1.8, 131.0, -5.1)

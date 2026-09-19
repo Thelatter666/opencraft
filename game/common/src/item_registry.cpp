@@ -25,7 +25,26 @@ struct LaunchItem {
     EquipSlot equip;
     // Block string id this item places, or nullptr when it has no block form.
     const char *block;
+    // T-D46 armour. Both default to 0, which is what every non-armour entry
+    // means; only the four `timber_*` pieces below pass them.
+    double armor_points = 0.0;
+    double armor_toughness = 0.0;
 };
+
+// ⚖ T-D46 ruling C-3: the `timber_*` pieces are the LEATHER tier's equivalent -
+// 7 points over the set, split 1/2/3/1 (head/chest/legs/feet), toughness 0.
+// Source: docs/research/01 §2 (「皮革 7（1/2/3/1）」; the base game gives leather
+// and iron no toughness at all - it arrives with the diamond-tier sets).
+//
+// ⚠ Deliberately NOT registered here: the iron tier (15 = 2/5/6/2). T-R2's R-2
+// ruling is that the launch set carries the leather equivalent and that a later
+// content card adds the iron one, and inventing a wood-tier value in between is
+// exactly what that ruling forbids.
+constexpr double kLeatherTierHead = 1.0;
+constexpr double kLeatherTierChest = 2.0;
+constexpr double kLeatherTierLegs = 3.0;
+constexpr double kLeatherTierFeet = 1.0;
+constexpr double kLeatherTierToughness = 0.0;
 
 constexpr LaunchItem kLaunchItems[] = {
     // Item forms of the launch blocks -- all stack to 64. Water has no entry
@@ -85,11 +104,16 @@ constexpr LaunchItem kLaunchItems[] = {
 
     // Armour, first tier. Present because the inventory's four armour slots
     // need something that is allowed to occupy them, and because one piece
-    // per body part is what makes the slot constraint testable.
-    {"timber_headguard", "Timber Headguard", kStackLimitSingle, EquipSlot::Head, nullptr},
-    {"timber_cuirass", "Timber Cuirass", kStackLimitSingle, EquipSlot::Chest, nullptr},
-    {"timber_greaves", "Timber Greaves", kStackLimitSingle, EquipSlot::Legs, nullptr},
-    {"timber_treads", "Timber Treads", kStackLimitSingle, EquipSlot::Feet, nullptr},
+    // per body part is what makes the slot constraint testable. T-D46 gave
+    // them the ⚖ leather-tier numbers (C-3) - see the constants above.
+    {"timber_headguard", "Timber Headguard", kStackLimitSingle, EquipSlot::Head, nullptr, kLeatherTierHead,
+     kLeatherTierToughness},
+    {"timber_cuirass", "Timber Cuirass", kStackLimitSingle, EquipSlot::Chest, nullptr, kLeatherTierChest,
+     kLeatherTierToughness},
+    {"timber_greaves", "Timber Greaves", kStackLimitSingle, EquipSlot::Legs, nullptr, kLeatherTierLegs,
+     kLeatherTierToughness},
+    {"timber_treads", "Timber Treads", kStackLimitSingle, EquipSlot::Feet, nullptr, kLeatherTierFeet,
+     kLeatherTierToughness},
 };
 
 } // namespace
@@ -112,7 +136,8 @@ ItemRegistry ItemRegistry::create_default() {
     const voxel::BlockRegistry blocks = voxel::BlockRegistry::create_default();
     for (const auto &entry : kLaunchItems) {
         const std::uint16_t block = entry.block == nullptr ? kNoBlock : blocks.id_of(entry.block);
-        registry.register_item(entry.id, {entry.display_name, entry.max_stack, entry.equip, block});
+        registry.register_item(entry.id, {entry.display_name, entry.max_stack, entry.equip, block, entry.armor_points,
+                                          entry.armor_toughness});
     }
     return registry;
 }
