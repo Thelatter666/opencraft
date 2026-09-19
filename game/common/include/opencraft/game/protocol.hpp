@@ -27,8 +27,11 @@ inline constexpr double kAttackReach = 3.0;
 
 // ⚖ A bare-handed hit does 1 damage. It is deliberately not on the item: ItemDef
 // has no attack field yet, and tool damage (docs/01 §5's 剑伤 4→8) is a
-// player-combat card's work. What this enables is the passive roster's drops -
+// later card's work. What this enables is the passive roster's drops -
 // without a damage channel of some kind, "掉落食物" would be unreachable.
+// T-D46 added what surrounds this number: the hurt window, armour and the
+// base knockback (sprint bonus + enchantment still sit behind the 84.8%
+// attack charge, which remains future work).
 inline constexpr double kPunchDamage = 1.0;
 
 // What the client asks the authoritative side to do - one entry per
@@ -65,9 +68,11 @@ enum class ActionKind : std::uint8_t {
     // This is the minimum damage channel that makes the passive roster's drops
     // REACHABLE: the card asks for a passive mob that 掉落食物, and a loot table
     // nothing can trigger would be the "implemented but unreachable" pattern
-    // this project keeps paying for. The full attack system (swing speed, the
-    // 84.8% damage ramp, crits, knockback, armour) is a player-combat card's
-    // work - this verb is bare-handed damage and nothing more.
+    // this project keeps paying for. The REST of the attack system (swing
+    // speed, the 84.8% damage ramp, crits, tool damage) is still later work -
+    // T-D46 added the base knockback and the victim-side window/armour (the
+    // victim's armour lives on the client, where the player's hit points are).
+    // This verb is bare-handed damage plus that knockback, nothing more.
     Attack,
     // Hand one unit of the held food to the mob whose entity id is in
     // `target.x`; `item_or_block` carries the item id the client believes it is
@@ -177,7 +182,9 @@ enum class ActorEventKind : std::uint8_t {
 // way.
 struct ActorEvent {
     ActorEventKind kind = ActorEventKind::MeleeHit;
-    glm::dvec3 position{0.0, 0.0, 0.0}; // where it happened (impact / blast centre)
+    glm::dvec3 position{0.0, 0.0, 0.0}; // where the damage came FROM: the attacker's feet (Melee,
+                                        // T-D46) or the blast centre (Explosion) - the client pushes the
+                                        // victim away from this point
     double amount = 0.0;                // damage to apply, already difficulty-scaled
     std::uint16_t source_type = 0;      // the mob's entity type id (for feedback)
 };

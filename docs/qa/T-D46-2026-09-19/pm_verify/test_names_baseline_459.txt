@@ -1,0 +1,459 @@
+50ms advances exactly one tick
+a 32x32 PNG is rejected with a warning and falls back
+a block PNG replaces exactly its own tile
+a caller-supplied config leaves the default config untouched
+a directory named like a tile is rejected, not read
+a falling block and a player keep independent gravity configurations
+a five thousandth threshold would break the spec apex so three thousandth is used
+a fresh inventory has 41 empty cells
+a non-PNG file is rejected with a warning and falls back
+a one block ledge can be jumped onto
+a one block ledge cannot be walked onto
+a solid-only IBlockSource satisfies the world contract
+a strafe-launched sprint jump is slower than a straight one
+a three block fall deals no damage
+a truncated PNG is rejected with a warning and falls back
+a two block ledge cannot be jumped onto
+AABB containment of another box
+AABB expansion, size and center
+AABB overlap detection
+AABB point containment
+add_item fills cells in slot order and only opens a new cell when needed
+add_item hands back the whole remainder once the storage section is full
+add_item ignores an empty or non-positive request
+add_item into a section never spills into another section
+add_item respects each of the three stack limits
+add_item tops up a partial stack before opening a new cell
+add_to_slot merges into a single cell and reports the remainder
+airborne friction ignores the block below and keeps ninety one percent
+alpha remains in range and grows without crossing a tick boundary
+alpha survives the round trip
+an empty assets root is reported but never turns into an error
+an empty file is rejected with a warning and falls back
+an item stack is empty by id or by count
+armour cells accept exactly their own armour piece
+asset file names follow the frozen directory layout
+atlas tile layout and size formula are untouched by the asset channel
+authority mobs: a lit surface spawns no hostiles, and the spawner does try
+authority mobs: a mob cannot be picked up, and a drop still can
+authority mobs: a summoned hunter lands a hit that arrives as an ActorEvent
+authority mobs: Attack validates the class, the existence and the reach
+authority mobs: Feed validates the food, the class, the adulthood and the cooldown
+authority mobs: feeding two of them breeds a baby, and the baby is on the client's view
+authority mobs: the Attack verb kills a passive mob and its loot lands in the world
+authority mobs: without a viewer pose nothing perceives and nothing spawns
+authority: a refused request does not touch the world
+authority: a successful dig leaves the block's item behind at the broken cell
+authority: an accepted action leaves the chunk byte-identical to a direct write
+authority: an unloaded chunk freezes the drop, despawn timer included
+authority: dig breaks the block and pushes exactly the stale chunks back
+authority: dig refuses the targets the mining rules do not allow
+authority: DropItems spawns the stack, and re-checks item, count and chunk
+authority: every cell the client's own ray can hit is accepted
+authority: every refusal code carries a reason
+authority: pickup hands the whole stack over and the drop is gone afterwards
+authority: pickup refuses an unknown id, a wrong item, a live delay and a far actor
+authority: place and pour refuse the cells they may not write
+authority: pour, fluid tick and scoop work through the channel
+authority: scoop refuses a cell without a water source
+authority: the drop settles on the floor and stays there, tick after tick
+authority: the item registry belongs to the world, and every launch block maps 1:1
+backward input disengages sprint
+bare-hand dirt mining takes exactly 15 ticks (0.75 s)
+bare-hand stone mining takes exactly 150 ticks (7.5 s) and is not harvestable
+buoyancy lifts a jump-held player and drag slows swimming
+camera filter: a horizontal jump reaches the camera on the same frame
+camera filter: a pose change is smoothed over several frames
+camera filter: a suspended simulation holds the camera still
+camera filter: reset adopts the target with no transient
+camera filter: X and Z are the interpolated physics values exactly
+camera spring: 30, 60 and 144 fps agree at coincident simulated times
+camera spring: a 0.6 lift is smoothed at least as much as an unfiltered camera
+camera spring: a 0.6 lift resolves inside the target transition window at 30, 60 and 144 fps
+camera spring: a frame longer than the clamp is truncated, not integrated in full
+camera spring: a long fall trails the player but stays inside the bound
+camera spring: a stalled clock cannot move the camera
+camera spring: a step is approached monotonically and never crossed
+camera spring: a teleport snaps instead of gliding
+camera spring: ordinary fast motion is never mistaken for a teleport
+camera spring: the analytic update is exact for any dt
+camera spring: the closed form rise time sits inside the target transition window
+camera spring: the damping ratio is critical by construction
+camera spring: the damping ratio leaves no oscillation about the target
+camera spring: the lag bound is clear of the step it must not clamp
+camera spring: the lag bound keeps the eye above the surface for every pose
+camera spring: the lift is smeared over many frames, not taken in one
+camera spring: the tracking error never exceeds the configured lag
+ceiling stops upward motion and zeroes vertical velocity
+chunk dimension constants match the spec
+chunk manager accepts integer chunk coordinates
+chunk manager creates empty chunks on demand
+chunk manager get_or_load_world creates the chunk holding the block
+chunk manager integer overloads take chunk coordinates directly
+chunk manager unload drops only the targeted chunk
+chunk_coord floors negative world coordinates
+ChunkLightWorld adapter wires ChunkManager and registry
+clear resets every cell
+colliding with a wall disengages sprint on the next tick
+concurrent submits from multiple threads all complete with correct results
+continuous mining enforces the 6-tick between-blocks delay
+continuous small dts lose no ticks
+crack stage follows progress in ten steps
+cross-chunk torch light converges regardless of init order
+dda raycast crosses cells diagonally and reports the entered face
+dda raycast detects every face normal on axis-aligned approach
+dda raycast filter skips liquid cells
+dda raycast finds nothing in empty space and with zero direction
+dda raycast hits a block straight ahead through its -Z face
+dda raycast respects the max distance cutoff
+dda raycast starting exactly on a boundary steps into the next cell
+dda raycast starting inside a targetable block hits it immediately
+death: 100 more hits while dead leave the drop count unchanged
+death: a 0-health save re-enters the world alive at the respawn point
+death: health is clamped to [0, 20] however big the hit is
+death: keepInventory keeps the cells a death would have emptied
+death: N filled slots become N authority drops and an empty inventory
+death: respawn returns the player to the respawn point, healthy and empty-handed
+death: the alive -> dead edge fires once, and later hits are discarded
+death: the FALL path enters the death state and drops what was carried
+death: the mob-event path enters the death state through the same entry
+death: the respawn point survives two save/load round trips unchanged
+death: the tick gate is closed for a dead player
+deserialize rejects unknown format versions
+destructor drains every pending task
+diagonal input is faster than single axis by the documented one over 0.98
+double tap forward in mid air does not engage sprint
+double tap forward inside the seven tick window engages sprint
+double tap forward one tick past the window re-arms instead
+each slot takes its own file, in the mesher's slot order
+entity box: the corners bracket a 0.25 cube above the feet
+entity store: iteration is ascending id, and that order survives erasure and reuse
+entity store: spawn stamps the id it returned, and erase during a visit is safe
+entity type registry: ids are dense, lookups are total and duplicates throw
+entity type registry: the launch set is the dropped item with research/11 §4.1-4.4 numbers
+existing scalar round-trip still works alongside the new helpers
+exploder: 3 blocks and a sight line light a 30-tick fuse, then it detonates
+exploder: losing the sight line cancels the fuse outright
+exploder: stepping back to 7 blocks rolls the fuse back, and losing sight cancels it
+falling 10 blocks deals exactly 7 damage
+far obstacle outside the scan range does not trigger
+flat ground has full skylight above and zero inside solids
+floating block casts a skylight shadow and removal restores the sun column
+floor_div handles all sign combinations
+fluid: a block placed into water clears the fluid there
+fluid: a drop-off just outside the search radius does not steer the flow
+fluid: a flat single source spreads one block per five ticks, at most seven
+fluid: a v1 payload still loads, with an empty fluid layer
+fluid: a wall keeps the flow out of a pocket it surrounds
+fluid: an open floor wins over spreading sideways
+fluid: chunk fluid sections store, clear and report emptiness
+fluid: mining a hole under a pool lets the water follow
+fluid: packed cells round trip and reject corrupt payloads
+fluid: removing the source drains the whole body
+fluid: serialization round trips the fluid layer
+fluid: solids block the search as well as the flow
+fluid: the level drops by one per flowing block
+fluid: the level field is deterministic
+fluid: the radius boundary itself still steers the flow
+fluid: the research document's cliff example
+fluid: the scheduled queue dedups positions and caps with a drop counter
+fluid: tied drop-off distances all flow
+fluid: water funnels toward a drop-off instead of fanning out
+fluid: with no drop-off in range the spread is symmetric
+forget_chunk unloads light storage and drops deferred offers
+fov returns to base after leaving sprint
+fov transition to sprint target is monotone bounded and reaches base plus fifteen percent
+free fall from rest gains exactly the spec gravity per tick
+fresh chunk reads as air everywhere and is empty
+fresh light storage reads as zero everywhere
+full chunk sweep set and get performance
+golden replay: fixed 762-tick input sequence on the fixed world
+gravity and vertical drag act exactly per tick on the arc
+grazing along a wall does not trigger
+ground friction is the product of block friction and entity air resistance
+hostile melee: damage forms a grudge that outranks noticing
+hostile melee: it needs line of sight, not just proximity
+hostile melee: it notices, closes, and lands a ⚖ 3-damage hit
+hostile melee: the invulnerability window is 10 ticks and settles only the excess
+hunger at the gate of six blocks engaging sprint by either path
+hunger dropping to six mid sprint disengages sprint
+hunger just above the gate still allows sprint
+ice is slower to reach but keeps speed six times longer than stone
+identical input sequences simulate bit-identically twice
+input sequence numbers are echoed into the player state
+instant blocks skip the between-blocks delay when held
+inventories compare by their cells
+inventory layout is the 9/27/4/1 split of the spec
+item drop merge: crossing a block boundary re-arms the timer to 2 ticks
+item drop merge: different items, unstackable items and an overflowing sum never merge
+item drop merge: outside the 0.5 x 0.25 x 0.5 box nothing merges
+item drop merge: the larger stack keeps and absorbs the smaller one
+item drop merge: the survivor takes the longer remaining timers
+item drop: A -> P -> D falls one gravity step per tick further than P -> A -> D
+item drop: a drop below the void line disappears at once
+item drop: a wall stops it and the substeps keep a fast drop from tunnelling
+item drop: acceleration happens BEFORE the move, so the first tick already falls
+item drop: damping is 0.98 vertically and 0.98 horizontally in the air
+item drop: despawns at 6000 ticks, and the timer pauses in an unloaded chunk
+item drop: ground contact stops it dead (restitution 0, T-D36 项 1)
+item drop: ground retention is horizontal_drag x slipperiness (T-D36 项 2)
+item drop: nothing attacks a drop, so a thousand ticks next to it change nothing
+item drop: spawn_item_drop puts the drop in the cell, and water leaves nothing
+item drop: terminal velocity is 1.96 blocks/tick = 39.2 m/s
+item drop: the parameters are the drop's own, not the player's
+item drop: the player's numbers would land somewhere else entirely
+item environment: a damage block that is not on the list leaves the drop alone
+item environment: a drop in fire or lava or against a cactus is destroyed
+item environment: an explosion destroys the drops inside its radius only
+item environment: the rule table names fire, lava and cactus and nothing else
+item registry assigns dense numeric ids and supports both query directions
+item registry block link names a real block or the non-zero sentinel
+item registry default set covers the block item forms plus samples of each tier
+item registry default stack limits stay inside the three documented tiers
+item registry looks up a string_view slice without a copy
+item registry rejects a non-positive stack limit
+item registry rejects empty and duplicate ids
+item registry reserves the empty id as a real entry
+jump apex is 1.2522 blocks above the ground within 0.01
+jump apex is unchanged at 1.2522 under the new pipeline
+jump apex unchanged at 1.2522 blocks
+jump arc rises for about six ticks and falls back symmetrically
+landing in water resets fall distance and deals no damage
+level file corruption is detected and refused
+level file roundtrip preserves every field
+light storage constants match the chunk layout
+load_tile_png reports absent vs rejected without throwing
+log init is idempotent and the macros link
+long free fall terminal speed stays within 77 to 78.4 m/s
+low ceiling above the obstacle (no headroom) does not trigger
+merge_from fills an empty stack by adopting its item
+merge_from fills up to the limit and drains the source
+mesher: a fluid surface renders at the level height, not at full block
+mesher: a level step between two water cells becomes a visible wall
+mesher: all-air chunk produces no geometry
+mesher: fully solid chunk keeps exactly the outer surface
+mesher: level 8 renders a full block and level 1 the thinnest shell
+mesher: same input meshes byte-identical twice
+mesher: single isolated block emits all six faces
+mesher: solid neighbor chunk culls boundary faces across chunks
+mesher: tile index layout is block-major with top/side/bottom slots
+mesher: translucent classification matches the default block registry
+mesher: water meshes into the translucent bucket without a bottom face
+mesher: water-water and stone-water neighbors cull internal faces
+mesher: worldgen water without a fluid surface keeps meshing as a cube
+mix64 is stable and input sensitive
+mob chunks: an unloaded chunk freezes the brain exactly like the drops
+mob goal stack: a goal stops only on its own continueUse, never because a peer runs
+mob goal stack: a low-priority goal runs ALONGSIDE a high-priority one
+mob goal stack: a mob's table is content, and an absent goal is absent
+mob goal stack: every goal that can start does start (not just the first)
+mob goal stack: priority orders the scan, and the order is total
+mob goal stack: stop then restart inside one scan
+mob goal stack: the launch roster's tables match research/11 §1.2.2
+mob goal stack: the same priority can hold two goals, and both run
+mob goal stack: the three distances and the classes are separate fields
+mob goals coexist: a hunter chases AND looks, at the same time
+mob goals: an idle mob strolls, and the destination is on the ground
+mob goals: with no viewer nothing perceives, and the mob still lives
+mob motion: a mob is stopped by a wall taller than one block
+mob motion: a mob walks UP a full block instead of being stopped by it
+mob motion: gravity brings an unsupported mob down to the floor
+mob motion: the movement-speed attribute IS the walking speed in blocks/tick
+mob perception: follow_range is the GIVE-UP distance, not the notice range
+mob perception: the sight range is the NOTICE range
+mob tempt: an empty hand is not a lure
+mob tempt: the grazing mob senses at 10 but only starts following at 6
+mob tempt: the SENSE range, the START range and the STOP range are three gates
+move result flags a ceiling bump as a vertical hit without landing
+move result reports a jump landing with its fall distance
+move result reports wall hits without any signature break
+move_slot moves or merges same items and refuses a mismatched destination
+move_slot refuses to put a non-armour item into an armour cell
+noise sampler different seeds diverge
+noise sampler is deterministic across instances
+noise sampler output stays in range
+non-positive dt is ignored
+obstacle at exactly the jump ceiling (1.25 b) triggers
+one large dt of 300ms demands 6 ticks: 5 run, 1 dropped
+only the named block's tiles change
+out of bounds access is rejected
+out-of-bounds access throws
+palette grows through 4-bit, 8-bit and 16-bit tiers
+passive mob: feeding two in-love adults produces a baby after the mating timer
+passive mob: food rules - wrong item, a baby, and the cooldown are all refused
+passive mob: hurt it and it runs away for a few seconds
+passive mob: killing it drops the food and the hide, and the roll is reproducible
+per-frame cap is enforced and excess is counted
+pickup box: horizontal faces are inclusive, vertical faces are exclusive
+pickup box: the sneaking pose shrinks it, as the source describes
+placement cell offsets the hit block along the entry face normal
+placement into air above the ground is accepted
+placement into an occupied cell is rejected and into water allowed
+placement into the player body is rejected but flush blocks are allowed
+placement neighbor offset uses the entered face, not the hit block
+placing a block cuts a tunnel light path and removal re-infills it
+pressure smoke: many structures and edits converge with an empty deferred queue
+reading past the end throws
+region file corruption is detected and refused
+region file cross-sector growth keeps earlier chunks readable
+region file rewrite of the same chunk replaces the value
+region file roundtrip: multiple chunks survive save and reopen
+registry assigns dense numeric ids and supports both query directions
+registry default set covers the launch blocks with hardness values
+registry handles unknown ids on both directions
+registry rejects duplicates and empty ids
+registry reserves air as id zero
+releasing forward disengages sprint
+releasing the button resets progress but the target may resume
+releasing walk input glides only about a quarter of a block
+remove_item drains cells in slot order and reports what it removed
+reset returns the clock to its initial state
+serialization rejects malformed payloads
+serialization round trips a randomly filled chunk
+serialization skips fully air sections
+serialize and deserialize round trip preserves both channels
+set and get round trip across section boundaries
+set_slot writes exactly and refuses an over-limit stack
+setting back to the initial value keeps palette width and entries
+should_auto_jump false on flat ground (nothing to jump)
+should_auto_jump false when airborne
+should_auto_jump false when disabled
+should_auto_jump false when in water
+should_auto_jump false when sneaking
+should_auto_jump false without forward input
+should_auto_jump true at a 1-block wall ahead
+single block update performance sampling
+single forward tap only arms the window without engaging sprint
+sky and block channels are independent 4-bit nibbles
+skylight gradient under an overhang
+slime blocks are the slowest of the three friction classes
+sneak overrides sprint as the slowest mode wins
+sneak pose uses the 1.5 block tall body
+sneaking toward an edge is clamped and never falls off
+spawn: 被动生物按区块一次性生成 (docs/01 §6)
+spawn: 敌对生成光照等级 0 (docs/01 §6), and light 1 is enough to stop it
+spawn: >128 blocks is removed immediately (docs/01 §6)
+spawn: a peaceful world has no hostiles at all (docs/01 §7)
+spawn: a position needs a floor, headroom, and no liquid
+spawn: hostiles arrive in packs of at most 4, chosen from the roster
+spawn: nothing spawns in a chunk that is not in memory
+spawn: the 24-128 block ring, measured from the player
+spawn: the mob cap is 70 x 可刷区块 / 289, and it is respected
+spawn: the roster is read from the registry, by class
+split and shrink remove units and normalise what is left
+sprint jump arc average speed is 7.127 m/s within one percent
+sprint jump chain average is 7.127 m/s with MC raw plus 0.2
+sprint jump chain clearance follows the affine lock from its average
+sprint jump clears well past a walk jump over the same window
+sprint jump keeps airborne speed above walking pace all arc long
+sprint jump vertical arc is unchanged from the spec jump
+sprint key path also engages sprint in mid air
+sprint key with forward engages sprint without any double tap
+sprint without forward held stays at walk speed
+stack limits come from the registry and the empty id has none
+steady state sneak speed hits 1.295 m/s within 0.5 percent
+steady state sprint speed hits 5.612 m/s within 0.5 percent
+steady state walk speed hits 4.317 m/s within 0.5 percent
+step assist: a 0.75 ledge is above the 0.6 step and is not crossed
+step assist: a 2-block wall is not climbable even by a mob
+step assist: a full block is NOT walkable at step height 0.6
+step assist: a jump onto a ledge is not a step
+step assist: a mob walks up a full block the player cannot
+step assist: climbs a staircase one lowest-gain step at a time
+step assist: crossing a riser at a pit lip never hovers
+step assist: default IBlockSource keeps full-cube semantics
+step assist: does not fire while airborne
+step assist: lands back on the ground instead of hovering
+step assist: on_ground holds on every tick of the traverse
+step assist: player mounts a 0.5 plateau and stands on it
+step assist: player walks up a 0.5 ledge without losing speed
+step assist: reported through MoveResult and speed is retained
+step assist: step height is configured per entity kind
+step assist: sub-block ledges do not block movement in general
+step assist: takes the lowest lift that gains ground, not the highest
+step assist: the step is the riser height, not a higher face
+step assist: with two live candidates the LOWEST gainful one wins
+step_height frozen: player 0.6, mob 1.0
+step-assist height mob does not auto-jump at 1.0
+streaming: a chunk that leaves the retention window is released
+streaming: a release drops the chunk's state, and re-entry rebuilds it
+streaming: a released chunk is written to the save first and comes back with the edits
+streaming: an untouched chunk released and regenerated is byte-identical
+streaming: the hysteresis band absorbs a player pacing over the edge
+streaming: the persistence window is part of the request
+streaming: the window is generated nearest-first, once, inside the budget
+string and container helpers preserve the existing wire semantics
+sub-step obstacle (0.5 b) does not trigger (step-assist's job)
+swap_slots exchanges two cells and is all or nothing
+switching targets resets accumulated progress
+T-B1 loader: a present file that cannot be used is exactly one warning
+T-B1 loader: the palette PNG overrides the built-in palette, or falls back
+T-B1 loader: with no model file the mob keeps its boxes, silently
+T-B1 mesh: culling keeps exactly the faces with nothing behind them
+T-B1 mesh: every vertex samples the palette cell that holds its colour
+T-B1 mesh: joint labels are the palette's first eight indices
+T-B1 mesh: joint pivots follow the documented rule
+T-B1 mesh: no voxels means no geometry, not a crash
+T-B1 mesh: size comes from the mob's own collision height, anchored at the feet
+T-B1 pose: facing is copied from the simulation, never invented
+T-B1 pose: hurt and fuse change presentation only
+T-B1 pose: the head keeps the simulation's pitch, the limbs stride
+T-B1 pose: the walk clock advances with distance, not with time
+T-B1 vox: a palette that holds only the entries the model uses is accepted
+T-B1 vox: a valid file with zero voxels parses, and is not an error
+T-B1 vox: bad input is a refusal, never a crash
+T-B1 vox: chunks we do not draw are stepped over, and PACK keeps the first model
+T-B1 vox: colorIndex N reads palette entry N-1, pinned to the raw bytes
+T-B1 vox: the committed fixture parses to the documented model
+T-B2b contract v2: 1..16 are joint labels, 17..255 the body group
+T-B2b mesh: a joint's two colours land in one part range, not two draws
+task exceptions propagate through the future
+the asset root search takes the first existing candidate
+the block shape query defaults to solid means full cube
+the item icon channel loads from assets/items
+the migrated pipeline preserves all three spec cruise speeds
+the migrated pipeline stays bit-identical across repeated runs
+the momentum threshold truncates the glide tail
+the offhand is a single cell that takes any item
+torch light falls off radially in an enclosed cave and is blocked by walls
+two stacks merge only when they name the same non-empty item
+typical terrain chunk serialized size
+unbreakable blocks never break and hardness-0 blocks break instantly
+unbreakable check and tool requirement table match the launch set
+version constants are consistent with version_string
+versioned payload round-trips and rejects wrong versions
+versioned payload with string and vector members round-trips
+walking into a 1-block ledge with auto-jump wiring lands on top
+walking into a wall clamps at the wall face without tunneling
+walking reaches ninety five percent of cruise within a quarter second
+walking without sneak from the same spot does fall off
+wall too tall (2 blocks) does not trigger
+water is the default liquid and every other block defaults to non-liquid
+wiring item tints stay in range and tell the placeholder families apart
+wiring launch kit lands in the inventory and samples the three stack tiers
+wiring placed block comes from the item link and never from the sentinel
+wiring placement consumes one unit and empties the cell at zero
+wiring placing the last unit still reports the block it placed
+wiring selection follows the inventory cell and ignores out-of-range keys
+wiring stand-in visuals cover block items, both vessels and the fallback
+wiring use action depends on the held stack, vessels are not a boolean
+wiring vessel swap is refused when the container would have nowhere to go
+wiring vessel swap moves exactly one unit between the two states
+with no asset files every tile is the pre-T-A2 procedural result
+without the wiring the same walk is stopped by the wall
+worker count defaults to hardware_concurrency - 1 and is configurable
+world-coordinate access respects the chunk origin
+worldgen carves caves into deep terrain
+worldgen different seeds produce different chunks
+worldgen generator is thread safe
+worldgen golden file matches committed chunk hashes
+worldgen leaves no floating water
+worldgen same seed regenerates byte-identical chunks
+worldgen spawn chunk has grass under air and a sealed floor
+worldgen water columns never surface as grass
+WorldSave async writes complete on flush
+WorldSave autosave cadence fires once per window
+WorldSave quarantines a corrupt region file and keeps saving
+WorldSave stores and reloads chunk payloads through region files
+write then read round-trips values little-endian
+zstd compression ratio of a typical generated chunk
