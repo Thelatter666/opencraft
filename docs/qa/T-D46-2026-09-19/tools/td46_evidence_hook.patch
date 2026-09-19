@@ -1,0 +1,107 @@
+T-D46 evidence hook -- the TEMPORARY patch that makes the on-machine scene possible.
+===============================================================================
+
+WHY IT EXISTS
+-------------
+Two things the shipped client cannot do, both of them scene set-up rather than
+logic under test:
+
+  * F7/F8 summon a Hollow Wretch 2 blocks in front of the player (F7 straight
+    ahead, F8 ahead and one block to the right). Hostile mobs only spawn where
+    the effective light is 0 (docs/01 §6) and this world has no day/night cycle,
+    so the lit surface can never produce one. This is the SAME hook T-M2 used for
+    its own on-machine evidence (docs/qa/T-M2-2026-09-18/tools/tm2_evidence_hook.patch);
+  * F9/F10 wear / take off the four timber_* armour pieces. T-D46 gave those four
+    items the leather-tier numbers, but the shipped client has NO WAY to put an
+    item into an armour cell: the four cells (36..39) are only ever written by
+    Inventory::set_slot, and the client never calls it for them (no equip key, no
+    inventory screen - the E-screen is a later card). Reported in
+    docs/tasks/T-D46.report.md §"需 PM 裁决项".
+
+F9/F10 write the armour cells DIRECTLY through the inventory the tick already
+reads, so the damage reduction measured on-machine is the shipped
+player_life.hpp code path; nothing in tick.cpp / player_life.hpp /
+world_sim.cpp / mob_sim.hpp is touched by this patch.
+
+WHAT IT DOES NOT DO
+-------------------
+It does not touch the combat rules, the damage entry, the armour formula, the
+hurt window or the knockback. Every number in the captured log is produced by the
+delivered sources.
+
+REMOVAL (checked before the commit, this project's 打点->还原 rule)
+-----------------------------------------------------------------
+  grep -c "TEMPORARY EVIDENCE HOOK" game/client/src/main.cpp   -> must be 0
+  strings build/opencraft | grep -c EVIDENCE                   -> must be 0
+  and the delivered build/opencraft md5 must equal the one recorded in the
+  report (§0 of the evidence README).
+
+INSERTION POINT
+---------------
+game/client/src/main.cpp, inside the frame loop's `if (!paused)` block, directly
+after the fixed-step loop:
+
+            for (int i = 0; i < ticks; ++i) {
+                client::run_tick(tick_ctx);
+                ++game_ticks;
+            }
++           <<< the block below goes here >>>
+
+The block (verbatim; `gam`, `srv`, `client` and `glm` are already aliased in
+main.cpp, and item_registry / inventory are already in scope):
+
+            // ══════════ TEMPORARY EVIDENCE HOOK (T-D46) ══════════════════════
+            // F7/F8 summon a Hollow Wretch (T-M2's hook, same shape); F9/F10 put
+            // the four timber_* pieces on and take them off. REMOVED BEFORE THE
+            // COMMIT - see tools/td46_evidence_hook.patch for why.
+            {
+                static bool f7_prev = false;
+                static bool f8_prev = false;
+                static bool f9_prev = false;
+                static bool f10_prev = false;
+                const auto edge = [](GLFWwindow *win, const int key, bool &prev) {
+                    const bool down = glfwGetKey(win, key) == GLFW_PRESS;
+                    const bool rising = down && !prev;
+                    prev = down;
+                    return rising;
+                };
+                const auto summon = [&](const char *mob_id, const glm::dvec3 &offset) {
+                    const glm::dvec3 facing = client::view_dir(view_yaw, 0.0);
+                    const glm::dvec3 side{-facing.z, 0.0, facing.x};
+                    const glm::dvec3 spot = curr_state.position + facing * 2.0 + side * offset.z;
+                    const auto type = authority.entity_types().find_id(mob_id);
+                    if (type.has_value()) {
+                        const srv::EntityId id = authority.summon_mob(*type, spot);
+                        OC_LOG_INFO("EVIDENCE summon {} id={} at ({:.1f}, {:.1f}, {:.1f})", mob_id, id, spot.x,
+                                    spot.y, spot.z);
+                    }
+                };
+                const auto wear = [&](const bool on) {
+                    const char *pieces[] = {"timber_headguard", "timber_cuirass", "timber_greaves", "timber_treads"};
+                    for (int piece = 0; piece < gam::kArmorSlots; ++piece) {
+                        const std::uint16_t item = item_registry.id_of(pieces[piece]);
+                        interact.inventory.set_slot(gam::armor_slot_index(static_cast<gam::ArmorSlot>(piece)),
+                                                    on ? gam::ItemStack::of(item, 1) : gam::ItemStack{});
+                    }
+                    const gam::ArmorTotals worn = client::equipped_armor(interact.inventory);
+                    OC_LOG_INFO("EVIDENCE armour {}: {} cell(s), {} point(s), toughness {}",
+                                on ? "ON" : "OFF",
+                                on ? gam::kArmorSlots : 0, worn.points, worn.toughness);
+                };
+                if (edge(window, GLFW_KEY_F7, f7_prev)) {
+                    summon("hollow_wretch", {0.0, 0.0, 0.0});
+                }
+                if (edge(window, GLFW_KEY_F8, f8_prev)) {
+                    summon("hollow_wretch", {0.0, 0.0, 1.0});
+                }
+                if (edge(window, GLFW_KEY_F9, f9_prev)) {
+                    wear(true);
+                }
+                if (edge(window, GLFW_KEY_F10, f10_prev)) {
+                    wear(false);
+                }
+            }
+
+`client::ArmorTotals` / `client::equipped_armor` are the delivered player_life.hpp
+functions, so the "armour ON" log line is a read of the same totals the damage
+path uses - it is a probe OF the product, printed, not a replacement for it.

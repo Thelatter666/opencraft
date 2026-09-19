@@ -21,6 +21,7 @@
 //     to wherever they last quit.
 
 #include <algorithm>
+#include <cmath>
 #include <cstdint>
 
 #include <glm/glm.hpp>
@@ -37,6 +38,163 @@ namespace opencraft::client {
 // ⚖ docs/01 §3: 生命 20 HP = 10 hearts. The upper bound of every write below,
 // including a respawn's heal.
 inline constexpr double kMaxHealth = 20.0;
+
+// ── T-D46: the combat rules (the player's side of them) ─────────────────────
+// Three of them, all in this one place because they all decide the same thing:
+// how much of an incoming hit reaches the hit points. What they do NOT do is
+// touch the world - the armour is read from the inventory, the knockback is
+// written into the physics state, and the authority is never asked (ruling C-1:
+// the player stays the client's until M3).
+
+// ⚖ research/11 §1.5.1: 受击后的无敌帧 10 tick - the same number the mobs use
+// (MobRules::hurt_invulnerability, game/server/sim/mob_sim.hpp).
+inline constexpr int kHurtInvulnerabilityTicks = 10;
+
+// ⚖ research/01 §6.4: 基础攻击击退 - the horizontal INITIAL speed, blocks/tick.
+// C-4 keeps this card to the base value: the sprint bonus (+0.5, which sits
+// behind the 84.8% attack charge) and the Knockback enchantment are the attack
+// charge card's work.
+inline constexpr double kKnockbackSpeed = 0.4;
+
+// What kind of damage is being applied. The distinction exists for exactly one
+// rule - ⑤ / research/01 §2.3: fall, suffocation, void and starvation damage
+// 绕过护甲 (armour does not reduce them).
+//
+// ⚠ Today only Melee, Explosion and Fall have producers (a mob's swings and
+// blast, and the physics step's fall); the other three are named because
+// contract ⑤ lists them, so this enum is the contract rather than a description
+// of the current callers.
+enum class DamageType : std::uint8_t {
+    Melee = 0,
+    Explosion,
+    Fall,
+    Suffocation,
+    Void,
+    Starvation,
+};
+
+// ⚖ research/01 §2.3: true when the armour formula does not apply at all.
+[[nodiscard]] constexpr bool bypasses_armor(const DamageType type) {
+    switch (type) {
+    case DamageType::Fall:
+    case DamageType::Suffocation:
+    case DamageType::Void:
+    case DamageType::Starvation:
+        return true;
+    case DamageType::Melee:
+    case DamageType::Explosion:
+        break;
+    }
+    return false;
+}
+
+// What the player is currently wearing, summed over the four armour cells.
+struct ArmorTotals {
+    double points = 0.0;
+    double toughness = 0.0;
+};
+
+// Reads the four cells LIVE rather than caching a loadout total (card §7.5).
+// The sum is four array reads and four registry lookups on a path that runs at
+// most once per incoming hit - a mob's melee cooldown is 20 ticks - while a
+// cache would have to be invalidated by every write to the inventory (the death
+// drop, the respawn, the table at load, a future equip screen) and a stale one
+// is a silent damage bug.
+[[nodiscard]] inline ArmorTotals equipped_armor(const game::Inventory &inventory) {
+    ArmorTotals totals;
+    for (int piece = 0; piece < game::kArmorSlots; ++piece) {
+        const game::ItemStack &stack = inventory.slot(game::armor_slot_index(static_cast<game::ArmorSlot>(piece)));
+        if (stack.empty()) {
+            continue;
+        }
+        const game::ItemDef &def = inventory.registry().def_of(stack.item);
+        totals.points += def.armor_points;
+        totals.toughness += def.armor_toughness;
+    }
+    return totals;
+}
+
+// ⚖ research/01 §2.1 (JE), transcribed exactly:
+//
+//     reduction = min(20, max(armor/5, armor - 4*damage/(min(toughness,20)+8))) / 25
+//
+// The outer 20 is the ⚖ 80% ceiling; the `armor/5` floor is where a huge hit
+// lands, which is why the reduction FALLS as the damage grows (research/01
+// §2.1's BreakingPoint: past `armor × (toughness + 8) / 5` the toughness term
+// stops mattering).
+[[nodiscard]] inline double armor_reduction(const double armor, const double toughness, const double damage) {
+    const double points =
+        std::min(20.0, std::max(armor / 5.0, armor - 4.0 * damage / (std::min(toughness, 20.0) + 8.0)));
+    return points / 25.0;
+}
+
+// The damage that actually lands: ③'s formula, skipped entirely by ⑤'s exempt
+// types. A non-positive amount comes back untouched - nothing heals through
+// this path today, and scaling a heal by a damage formula would be nonsense.
+[[nodiscard]] inline double damage_after_armor(const double damage, const DamageType type, const ArmorTotals &armor) {
+    if (damage <= 0.0 || bypasses_armor(type)) {
+        return damage;
+    }
+    return damage * (1.0 - armor_reduction(armor.points, armor.toughness, damage));
+}
+
+// ① The hurt window. ★ THIS IS damage_mob'S RULE, COPIED - see
+// game/server/sim/mob_sim.hpp (`damage_mob`, plus MobAi::hurt_cooldown and
+// last_hurt_amount for the mobs' copy of the state). The two live apart because
+// the mobs are the authority's and the player is the client's (T-A1; ruling C-1
+// keeps it that way until M3), NOT because they may drift: a change to one
+// belongs in the other. Both callers also advance the counter once per tick in
+// the same relative order (before the hits of that tick are settled).
+//
+// Returns what is left of `amount` after the window: 0 when the hit is immune,
+// `amount - last_hurt_amount` when a bigger hit arrives inside the window, and
+// `amount` itself when the window has closed.
+[[nodiscard]] inline double settle_hurt(physics::PlayerState &state, const double amount) {
+    if (state.invulnerability_ticks > 0 && amount <= state.last_hurt_amount) {
+        return 0.0; // ⚖ 期间伤害 ≤ 原伤害则免疫
+    }
+    const double settled = state.invulnerability_ticks > 0 ? amount - state.last_hurt_amount : amount;
+    state.last_hurt_amount = amount;
+    state.invulnerability_ticks = kHurtInvulnerabilityTicks;
+    return settled;
+}
+
+// One tick of the window, called once per logic tick by the live tick BEFORE
+// that tick's hits are settled - the relative order step_mobs uses for the mobs
+// (advance_timers runs before the goals). A hit on tick N therefore leaves the
+// window open on the nine ticks after it and lets tick N+10 settle in full; the
+// window is 10 ticks counting the tick the hit landed on, which is what the
+// mobs' existing test measures too (it steps 11 ticks to be clear of it).
+inline void tick_hurt_window(physics::PlayerState &state) {
+    if (state.invulnerability_ticks > 0) {
+        --state.invulnerability_ticks;
+    }
+}
+
+// ⑥ The melee knockback, the player's half: ⚖ 0.4 blocks/tick of horizontal
+// initial speed written into the victim's own velocity. The mobs' half is
+// knock_back() in game/server/sim/mob_sim.hpp, called by server
+// WorldSim::apply_attack - a second copy for the same reason the window above
+// is one (the player is not an entity in the authority's store, ruling C-1).
+// Keep the two in sync.
+//
+// `from` is where the hit came from (the attacker's feet / the blast centre).
+// The impulse is ADDED to the velocity the player already carries and then
+// decays through the physics step's own friction, so the number is a speed and
+// not a distance (C-4 asks for the convention to be written down): the velocity
+// is set HERE, at the end of the tick that received the hit, and the
+// displacement happens on the NEXT tick's step_player, which reads the stored
+// velocity as its starting point.
+inline void push_away(physics::PlayerState &state, const glm::dvec3 &from, const double speed) {
+    const double dx = state.position.x - from.x;
+    const double dz = state.position.z - from.z;
+    const double horizontal = std::sqrt(dx * dx + dz * dz);
+    if (horizontal <= 1e-9 || speed <= 0.0) {
+        return; // standing exactly on the attacker: there is no "away"
+    }
+    state.velocity.x += dx / horizontal * speed;
+    state.velocity.z += dz / horizontal * speed;
+}
 
 // Where the player is in the death cycle, plus the place a respawn returns
 // them to. Value data, no pointers: M3 ships the same fields to a server.
@@ -177,7 +335,17 @@ struct DamageResolution {
     if (fall_damage <= 0.0) {
         return {DamageResult{health, 0.0, false, false}, DropResult{}};
     }
-    return take_damage(inventory, authority, rules, health, life, fall_damage, pose.feet, pose);
+    // T-D46 ⑤: the fall goes through the same reduction call as everything else,
+    // with the type that BYPASSES armour (research/01 §2.3) - so "a fall is not
+    // reduced by what you are wearing" is a table entry instead of an absent
+    // call, and a test can tell the two apart. The amount is otherwise unchanged:
+    // the ⚖ floor(d − 3) arithmetic and this path belong to T-D45.
+    //
+    // ⚠ The hurt window (①) is deliberately NOT applied here. It is the combat
+    // channel's rule (contract ① is written against the mob-event path), and
+    // adding it to the fall path would change the fall numbers T-D45 froze.
+    const double landed = damage_after_armor(fall_damage, DamageType::Fall, equipped_armor(inventory));
+    return take_damage(inventory, authority, rules, health, life, landed, pose.feet, pose);
 }
 
 // The respawn action (card §5.6): back at the respawn point, at full health,

@@ -693,3 +693,113 @@ TEST_CASE("mob motion: gravity brings an unsupported mob down to the floor") {
     CHECK(fixture.get(mossback).position.y == doctest::Approx(64.0)); // the floor's top face
     CHECK(fixture.get(mossback).on_ground);
 }
+
+// ── T-D46: the knockback, the mob's half ────────────────────────────────────
+
+// A pose 95 blocks away from the fixture's floor at the origin. A mob with NO
+// actor known strolls on purpose - RandomStroll's verdict reads "nobody has told
+// me where the player is" as near enough (research/11 §1.5.1 only gates the
+// wander on a player WITHIN 32 blocks) - so a case that wants to measure motion
+// it caused itself hands the fixture this pose instead: out of the 32-block
+// stroll trigger, out of the 35-block sight range, and still a known player.
+[[nodiscard]] gam::ActorPose away_actor() {
+    return MobFixture::actor_at(0.5, 100.5);
+}
+
+TEST_CASE("hostile melee: the melee event names the ATTACKER, not where the hit landed") {
+    // Contract ⑥ needs a direction: the client pushes the player away from
+    // whoever hit them, and this event is the only channel it has (the player is
+    // not an entity the authority can be asked about). The event therefore
+    // carries the attacker's own feet - the same thing the Explosion event has
+    // always carried (its blast centre) - and the client keeps the death drop
+    // under the player by recording the corpse at its own position.
+    MobFixture fixture;
+    const srv::EntityId wretch = fixture.add_mob("hollow_wretch", {0.5, 64.0, 0.5});
+    const gam::ActorPose actor = MobFixture::actor_at(0.5, 2.0);
+
+    srv::MobStepResult result;
+    glm::dvec3 at_step_start{0.0, 0.0, 0.0};
+    for (int i = 0; i < 60 && result.events.empty(); ++i) {
+        at_step_start = fixture.get(wretch).position;
+        result = fixture.step(actor, gam::Difficulty::Normal, 1);
+    }
+    REQUIRE_FALSE(result.events.empty());
+    CHECK(result.events[0].kind == gam::ActorEventKind::MeleeHit);
+    // Exactly the attacker's position at the moment of the swing (the goals run
+    // before the motion, so the step may have moved it since - that is why the
+    // position is sampled before the step).
+    CHECK(result.events[0].position == at_step_start);
+    // …and emphatically NOT the victim's, which is what it used to be.
+    CHECK(result.events[0].position != actor.feet);
+    CHECK(glm::length(result.events[0].position - actor.feet) > 0.5);
+}
+
+TEST_CASE("mob knockback: a mob shoved into a wall neither passes through nor keeps the speed") {
+    // §5.2 8 (contract ⑥ / C-4). The impulse obeys the motion contract that is
+    // already there: the sweep clamps the box to the wall's face and the
+    // component it just lost is zeroed (mob_sim.hpp's step_mob_motion).
+    MobFixture fixture;
+    // A three-block wall at x = 10 (its east face is the plane x = 11), plus the
+    // fixture's own floor with the feet at y = 64.
+    fixture.fill(10, 10, 64, 66, 0, 20, 1);
+    const srv::EntityId wretch = fixture.add_mob("hollow_wretch", {11.5, 64.0, 5.5});
+    const gam::EntityDef &def = fixture.types.def_of(fixture.type_of("hollow_wretch"));
+    REQUIRE(def.half_width > 0.0);
+    REQUIRE(11.5 - def.half_width > 11.0); // the mob starts clear of the wall
+
+    // Shoved west, into the wall, by an attacker further east.
+    srv::knock_back(fixture.get(wretch), {13.5, 64.0, 5.5}, 0.4);
+    CHECK(fixture.get(wretch).velocity.x == doctest::Approx(-0.4));
+
+    (void) fixture.step(away_actor(), gam::Difficulty::Normal, 1);
+    // The sweep stopped the box flush against the face (x = 11) instead of
+    // letting it through, and the component it lost is zeroed rather than kept.
+    CHECK(fixture.get(wretch).position.x - def.half_width == doctest::Approx(11.0));
+    CHECK(fixture.get(wretch).velocity.x == doctest::Approx(0.0));
+
+    // And it stays there: nothing accumulates behind the wall.
+    (void) fixture.step(away_actor(), gam::Difficulty::Normal, 20);
+    const srv::Entity &mob = fixture.get(wretch);
+    CHECK(mob.position.x - def.half_width >= 11.0 - 1e-9);
+    CHECK(mob.position.x == doctest::Approx(11.0 + def.half_width));
+    CHECK(mob.position.z == doctest::Approx(5.5)); // no sideways slip from the clamp
+}
+
+TEST_CASE("mob knockback: the ⚖ 0.4 impulse carries a standing mob about 0.88 blocks") {
+    // The number §7.4 asks the report to give: the impulse is a SPEED, and what it
+    // is worth in DISTANCE comes out of the motion contract that is already there
+    // (damping 0.91 x 0.6 on ordinary ground, applied after each move). Nothing is
+    // damaged here, so there is no grudge and no chase: the only forces are the
+    // impulse and gravity.
+    MobFixture fixture;
+    const srv::EntityId wretch = fixture.add_mob("hollow_wretch", {0.5, 64.0, 0.5});
+    srv::knock_back(fixture.get(wretch), {0.5, 64.0, -1.5}, 0.4); // attacked from -Z, pushed +Z
+    const glm::dvec3 start = fixture.get(wretch).position;
+
+    (void) fixture.step(away_actor(), gam::Difficulty::Normal, 1);
+    CHECK(fixture.get(wretch).position.z - start.z == doctest::Approx(0.4)); // the whole speed, first tick
+
+    (void) fixture.step(away_actor(), gam::Difficulty::Normal, 60);
+    const double pushed = fixture.get(wretch).position.z - start.z;
+    INFO("pushed " << pushed << " blocks");
+    // 0.4 / (1 - 0.546) = 0.881; the momentum threshold cuts the geometric tail,
+    // which is the deficit at the low end of the window.
+    CHECK(pushed > 0.85);
+    CHECK(pushed < 0.89);
+    CHECK(fixture.get(wretch).position.x == doctest::Approx(start.x)); // straight along the axis it was hit on
+    CHECK(fixture.get(wretch).position.y == doctest::Approx(64.0));    // and it never left the floor
+}
+
+TEST_CASE("mob knockback: an unsupported shove is horizontal only and lands on the floor") {
+    // C-4: no vertical component - a mob pushed off a ledge falls because of
+    // gravity, not because the hit launched it.
+    MobFixture fixture;
+    const srv::EntityId mossback = fixture.add_mob("mossback", {0.5, 64.0, 0.5});
+    srv::knock_back(fixture.get(mossback), {0.5, 64.0, -1.5}, 0.4); // attacked from -Z
+    CHECK(fixture.get(mossback).velocity == glm::dvec3(0.0, 0.0, 0.4));
+    (void) fixture.step(away_actor(), gam::Difficulty::Normal, 20);
+    const srv::Entity &mob = fixture.get(mossback);
+    CHECK(mob.position.y == doctest::Approx(64.0)); // never left the floor
+    CHECK(mob.position.z > 0.5);                    // pushed the way it was hit
+    CHECK(mob.position.x == doctest::Approx(0.5));
+}

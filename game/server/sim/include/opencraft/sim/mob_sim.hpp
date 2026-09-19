@@ -546,6 +546,35 @@ inline void set_move_target(Entity &e, const glm::dvec3 &destination) {
     return mob->health <= 0.0;
 }
 
+// T-D46 ⑥: the melee knockback impulse, the mobs' half of it.
+//
+// The player's half is push_away() in game/client/src/player_life.hpp - a second
+// copy because the player is not an entity in this store (T-A1, ruling C-1).
+// Keep the two in sync.
+//
+// The caller (the authority's WorldSim::apply_attack) passes ⚖ research/01
+// §6.4's 0.4 blocks/tick of horizontal INITIAL speed. The impulse is ADDED to
+// whatever velocity the entity already had and then decays through
+// step_mob_motion's own damping - it is a SPEED, not a distance: the first tick
+// of motion moves the full 0.4 (the damping is applied after the displacement)
+// and the total travel is that times the geometric series of the friction
+// factor. `from` is where the hit came from (the attacker's feet); a victim
+// standing exactly on the attacker has no "away" and gets nothing.
+//
+// Deliberately NOT inside damage_mob: that is the shared entry the mob-vs-mob
+// path also uses, and contract ⑦ freezes its judgement block. The authority
+// calls this only for a hit that LANDED.
+inline void knock_back(Entity &entity, const glm::dvec3 &from, const double speed) {
+    const double dx = entity.position.x - from.x;
+    const double dz = entity.position.z - from.z;
+    const double horizontal = std::sqrt(dx * dx + dz * dz);
+    if (horizontal <= 1e-9 || speed <= 0.0) {
+        return;
+    }
+    entity.velocity.x += dx / horizontal * speed;
+    entity.velocity.z += dz / horizontal * speed;
+}
+
 // Feeds one unit of `item` to a mob. The authority has already checked the reach;
 // this decides whether the mob accepts it and starts the ⚖ love timer.
 [[nodiscard]] inline game::ActionReject feed_mob(EntityStore &store, const game::MobRegistry &mobs, const EntityId id,
@@ -1002,7 +1031,15 @@ inline void apply_goal(MobContext &ctx, const game::GoalKind kind, Steering &ste
             // game::ActorEvent.
             game::ActorEvent event;
             event.kind = game::ActorEventKind::MeleeHit;
-            event.position = ctx.actor != nullptr ? ctx.actor->feet : self.position;
+            // ⚖ T-D46: WHERE THE DAMAGE CAME FROM, not where it landed - the
+            // attacker's own feet. The client needs the direction to knock the
+            // player away from whoever hit them (contract ⑥), and this event is
+            // the only channel it has: the player is not an entity here, so there
+            // is nothing to look up. It is the same meaning the Explosion event
+            // below already carries (the blast centre), and the client keeps the
+            // death drop under the player by recording the corpse at its OWN
+            // position rather than at this one.
+            event.position = self.position;
             event.amount = damage;
             event.source_type = self.type;
             ctx.out.events.push_back(event);

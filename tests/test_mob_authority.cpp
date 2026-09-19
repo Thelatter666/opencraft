@@ -319,3 +319,106 @@ TEST_CASE("authority mobs: feeding two of them breeds a baby, and the baby is on
     }
     CHECK(babies == 1);
 }
+
+// ── T-D46: the melee knockback, through the verb the client sends ───────────
+
+TEST_CASE("authority combat: the Attack verb knocks the mob away from the actor at ⚖ 0.4") {
+    // §5.2 7 / contract ⑥. The injection point is apply_attack, so the assertion
+    // is about the velocity the verb leaves behind - BEFORE any tick, which is
+    // exactly C-4's "the initial speed at the moment it is injected" reading of
+    // the 0.4 (the displacement it produces is the next case's subject).
+    srv::WorldSim sim;
+    load_chunks(sim, 1);
+    const glm::dvec3 spawn = sim.find_spawn();
+    const srv::EntityId grazer = sim.summon_mob(sim.entity_types().id_of("mossback"), spawn);
+    REQUIRE(grazer != srv::EntityStore::kNoEntity);
+    const srv::Entity *before = sim.entities().find(grazer);
+    REQUIRE(before != nullptr);
+    CHECK(before->velocity == glm::dvec3(0.0, 0.0, 0.0)); // nothing has stepped it yet
+
+    // The actor stands one block along +X of the mob, so "away from the actor"
+    // is -X and nothing else.
+    const gam::ActorPose actor = viewer_at(spawn + glm::dvec3(1.0, 0.0, 0.0));
+    const gam::ActionResult result = sim.submit(mob_request(gam::ActionKind::Attack, grazer, actor));
+    REQUIRE(result.accepted);
+
+    const srv::Entity *after = sim.entities().find(grazer);
+    REQUIRE(after != nullptr);
+    CHECK(after->velocity.x == doctest::Approx(-0.4)); // ⚖ research/01 §6.4
+    CHECK(after->velocity.z == doctest::Approx(0.0));
+    CHECK(after->velocity.y == doctest::Approx(0.0)); // C-4: horizontal only, no launch
+    CHECK(after->health == doctest::Approx(9.0));     // and the hit still landed (10 HP − kPunchDamage)
+}
+
+TEST_CASE("authority combat: the hit moves the mob ⚖ 0.4 on the very next tick") {
+    // §5.2 7's other half: the impulse the verb injected is really motion. The
+    // FIRST tick moves the whole 0.4, because step_mob_motion applies its damping
+    // AFTER the displacement - so "0.4 blocks/tick" is a speed the very next tick
+    // honours, not a number that only exists in the velocity field (C-4 asks for
+    // exactly this to be written down). What it is worth in TOTAL distance is
+    // measured in test_mob_ai.cpp, on the fixture's flat floor, where the mob can
+    // be held still; here the world is the generated one.
+    //
+    // The player is observed 100 blocks along +Z, i.e. perpendicular to the push:
+    // that turns the random stroll off (research/11 §1.5.1 gates it on a player
+    // within 32 blocks, and a mob nobody has told about a player wanders), while
+    // the grudge the hit creates can only drag the mob along Z - never along the
+    // axis being measured.
+    srv::WorldSim sim;
+    load_chunks(sim, 1);
+    const glm::dvec3 spawn = sim.find_spawn();
+    const srv::EntityId hunter = sim.summon_mob(sim.entity_types().id_of("hollow_wretch"), spawn);
+    REQUIRE(hunter != srv::EntityStore::kNoEntity);
+    sim.observe_actor(viewer_at(spawn + glm::dvec3(0.0, 0.0, 100.0)));
+
+    const gam::ActorPose actor = viewer_at(spawn + glm::dvec3(1.0, 0.0, 0.0));
+    REQUIRE(sim.submit(mob_request(gam::ActionKind::Attack, hunter, actor)).accepted);
+    const double start_x = sim.entities().find(hunter)->position.x;
+
+    sim.tick(); // one authoritative step: the displacement happens before the damping
+    const double after_one = sim.entities().find(hunter)->position.x;
+    CHECK(start_x - after_one == doctest::Approx(0.4)); // ⚖ the whole initial speed, first tick
+    // It keeps coasting after that - the velocity is still there, just damped.
+    CHECK(sim.entities().find(hunter)->velocity.x == doctest::Approx(-0.4 * 0.91 * 0.6));
+}
+
+TEST_CASE("authority combat: a hit the mob's window absorbs does not shove it") {
+    // The knockback is gated on the hit having LANDED - read off the hit points
+    // damage_mob itself moved, so its rule is not re-derived here. A second
+    // attack inside the ⚖ 10-tick window moves nothing, exactly like the client's
+    // half of the rule (the base game returns before its knockback on an immune hit).
+    srv::WorldSim sim;
+    load_chunks(sim, 1);
+    const glm::dvec3 spawn = sim.find_spawn();
+    const srv::EntityId hunter = sim.summon_mob(sim.entity_types().id_of("hollow_wretch"), spawn);
+    REQUIRE(hunter != srv::EntityStore::kNoEntity);
+    const gam::ActorPose actor = viewer_at(spawn + glm::dvec3(1.0, 0.0, 0.0));
+
+    sim.observe_actor(viewer_at(spawn + glm::dvec3(0.0, 0.0, 100.0))); // no stroll, see the case above
+    REQUIRE(sim.submit(mob_request(gam::ActionKind::Attack, hunter, actor)).accepted);
+    REQUIRE(sim.entities().find(hunter)->velocity.x == doctest::Approx(-0.4));
+    // Let the shove be spent and the ⚖ 10-tick window run out (30 ticks).
+    for (int i = 0; i < 30; ++i) {
+        sim.tick();
+    }
+    const glm::dvec3 resting = sim.entities().find(hunter)->position;
+    CHECK(sim.entities().find(hunter)->velocity.x == doctest::Approx(0.0));
+
+    const gam::ActorPose close = viewer_at(resting + glm::dvec3(1.0, 0.0, 0.0));
+    REQUIRE(sim.submit(mob_request(gam::ActionKind::Attack, hunter, close)).accepted);
+    // Those 30 ticks leave the window closed, so THIS hit lands and DOES shove -
+    // the interesting case is the one straight after it.
+    const double landed_x = sim.entities().find(hunter)->velocity.x;
+    CHECK(landed_x == doctest::Approx(-0.4));
+    CHECK(sim.entities().find(hunter)->health == doctest::Approx(18.0));
+    sim.tick(); // the shove is spent; the window has 9 ticks left after this one
+
+    const glm::dvec3 placed = sim.entities().find(hunter)->position;
+    const double coasting = sim.entities().find(hunter)->velocity.x; // the decaying residual
+    const gam::ActorPose again = viewer_at(placed + glm::dvec3(1.0, 0.0, 0.0));
+    REQUIRE(sim.submit(mob_request(gam::ActionKind::Attack, hunter, again)).accepted);
+    // The window absorbed the swing: not a single hit point moved, and not a
+    // single point of velocity was added - the mob is coasting on what it had.
+    CHECK(sim.entities().find(hunter)->health == doctest::Approx(18.0));
+    CHECK(sim.entities().find(hunter)->velocity.x == doctest::Approx(coasting));
+}

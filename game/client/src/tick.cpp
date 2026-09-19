@@ -131,20 +131,54 @@ void world_tail(const TickContext &ctx) {
     const gam::WorldChanges changes = ctx.authority.take_changes();
     ctx.dirty_chunks.insert(ctx.dirty_chunks.end(), changes.dirty_chunks.begin(), changes.dirty_chunks.end());
 
-    // ── what the mobs did to the player (T-M2, T-D45) ────────────────────────
+    // ── what the mobs did to the player (T-M2, T-D45, T-D46) ─────────────────
     // The authority simulates the mobs but does not own the player's hit points
     // (T-A1 kept the player out of its vocabulary), so the damage arrives as an
     // event and is applied here, where the health that the HUD renders lives.
-    // ⚠ Still deliberately NOT modelled: hurt invulnerability, armour, knockback
-    // - the player-combat card's work. What T-D45 added is the consequence: the
-    // health is clamped at both ends and reaching 0 is a death (once).
+    // T-D45 added the consequence: the health is clamped at both ends and
+    // reaching 0 is a death (once). T-D46 adds the three combat rules - the hurt
+    // window, the armour reduction and the knockback - all of them ordered the
+    // way the base game orders them: the window compares the RAW amounts first,
+    // then the armour formula reduces the part that got through.
+    //
+    // §7.7: a corpse neither advances the window nor settles a hit, so both are
+    // behind the same may_act gate the rest of the dead tick uses - and a corpse
+    // is not shoved around either. The events are still drained for the log.
+    const bool live = may_act(ctx.life);
+    if (live) {
+        tick_hurt_window(ctx.curr_state);
+    }
     for (const gam::ActorEvent &event : changes.actor_events) {
         if (event.amount <= 0.0) {
             continue;
         }
+        const DamageType type =
+            event.kind == gam::ActorEventKind::Explosion ? DamageType::Explosion : DamageType::Melee;
+        const double settled = live ? settle_hurt(ctx.curr_state, event.amount) : event.amount;
+        if (live && settled <= 0.0) {
+            // At INFO on purpose: this is the window doing its job, and it is
+            // what the card's on-machine evidence reads (a hit arrives, the bar
+            // does not move). It cannot spam - the window only absorbs a hit
+            // that lands within 10 ticks of the previous one, and every attacker
+            // has its own cooldown.
+            OC_LOG_INFO("{} for {:.1f} absorbed by the hurt window ({} tick(s) left, last {:.1f})",
+                        event.kind == gam::ActorEventKind::Explosion ? "explosion" : "mob melee", event.amount,
+                        ctx.curr_state.invulnerability_ticks, ctx.curr_state.last_hurt_amount);
+            continue;
+        }
+        const double landed = live ? damage_after_armor(settled, type, equipped_armor(ctx.state.inventory)) : settled;
+        // `event.position` is where the damage came FROM (the attacker's feet /
+        // the blast centre, see mob_sim.hpp); the corpse is recorded at the
+        // player's own feet, which is also what the death drop lands on.
         const DamageResolution hit = take_damage(ctx.state.inventory, ctx.authority, ctx.rules, ctx.curr_state.health,
-                                                 ctx.life, event.amount, event.position, actor_pose(ctx));
+                                                 ctx.life, landed, ctx.curr_state.position, actor_pose(ctx));
         log_damage(ctx, hit, event.kind == gam::ActorEventKind::Explosion ? "explosion" : "mob melee", event.position);
+        // ⑥ The knockback: whoever lands a hit pushes the player AWAY from
+        // themselves. Only a hit the window let through pushes (the base game
+        // returns before its knockback on an immune hit), and only a live player.
+        if (live && settled > 0.0) {
+            push_away(ctx.curr_state, event.position, kKnockbackSpeed);
+        }
     }
 
     // ── autosave cadence: 200 ticks = ~10 s of game time (T009) ──────────

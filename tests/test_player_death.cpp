@@ -24,6 +24,7 @@
 
 #include <glm/glm.hpp>
 
+#include "mob_test_world.hpp"
 #include "opencraft/core/byte_buffer.hpp"
 #include "opencraft/game/inventory.hpp"
 #include "opencraft/game/item_registry.hpp"
@@ -489,4 +490,275 @@ TEST_CASE("authority: DropItems spawns the stack, and re-checks item, count and 
 
     // Nothing above generated a drop it should not have.
     CHECK(live_drops(sim) == 2);
+}
+
+// ── T-D46: combat, the player's side ────────────────────────────────────────
+//
+// These live in this file because player_life.hpp is the file they drive: it
+// owns the ONE damage entry (T-D45) and now owns the three combat rules too -
+// the hurt window, the armour reduction and the knockback. What a test CANNOT
+// see is the tick's wiring (it polls a real window); that part is covered
+// on-machine in docs/qa/T-D46-2026-09-19/.
+
+// The four armour cells, filled from the launch kit's pieces.
+void wear_timber_set(gam::Inventory &inventory, const gam::ItemRegistry &items) {
+    REQUIRE(inventory.set_slot(gam::armor_slot_index(gam::ArmorSlot::Head),
+                               gam::ItemStack::of(items.id_of("timber_headguard"), 1)));
+    REQUIRE(inventory.set_slot(gam::armor_slot_index(gam::ArmorSlot::Chest),
+                               gam::ItemStack::of(items.id_of("timber_cuirass"), 1)));
+    REQUIRE(inventory.set_slot(gam::armor_slot_index(gam::ArmorSlot::Legs),
+                               gam::ItemStack::of(items.id_of("timber_greaves"), 1)));
+    REQUIRE(inventory.set_slot(gam::armor_slot_index(gam::ArmorSlot::Feet),
+                               gam::ItemStack::of(items.id_of("timber_treads"), 1)));
+}
+
+TEST_CASE("combat: a second hit inside the window is immune, a bigger one settles the excess") {
+    // ⚖ research/11 §1.5.1 through the player's window (contract ① / §5.2 1-2).
+    phy::PlayerState state;
+    CHECK(state.invulnerability_ticks == 0);
+    CHECK(cli::settle_hurt(state, 3.0) == doctest::Approx(3.0)); // the window was closed
+    CHECK(state.invulnerability_ticks == cli::kHurtInvulnerabilityTicks);
+    CHECK(state.last_hurt_amount == doctest::Approx(3.0));
+
+    // Same amount, smaller amount: nothing at all.
+    CHECK(cli::settle_hurt(state, 3.0) == doctest::Approx(0.0));
+    CHECK(cli::settle_hurt(state, 1.0) == doctest::Approx(0.0));
+    CHECK(state.last_hurt_amount == doctest::Approx(3.0)); // an absorbed hit does not move the bar
+
+    // Bigger: only the difference lands, and the bar moves to the new amount.
+    CHECK(cli::settle_hurt(state, 5.0) == doctest::Approx(2.0));
+    CHECK(state.last_hurt_amount == doctest::Approx(5.0));
+    CHECK(state.invulnerability_ticks == cli::kHurtInvulnerabilityTicks); // re-armed
+}
+
+TEST_CASE("combat: the hurt window is 10 ticks of integer counting") {
+    // §5.2 3: the boundary, counted in TICKS - which is also what shows the
+    // counter is an integer tick count and not a seconds-valued double
+    // (contract ②).
+    phy::PlayerState state;
+    CHECK(cli::settle_hurt(state, 3.0) == doctest::Approx(3.0)); // hit on tick 0
+
+    // Ticks 1..9: each one advances the window and then settles a hit, which is
+    // the order the live tick uses (world_tail) and the mobs use (advance_timers
+    // before the goals).
+    for (int tick = 1; tick <= 9; ++tick) {
+        cli::tick_hurt_window(state);
+        INFO("tick " << tick);
+        CHECK(cli::settle_hurt(state, 3.0) == doctest::Approx(0.0));
+    }
+    // Tick 10 counts the window down to zero, so the same hit settles in full
+    // again: the window spans 10 ticks INCLUDING the tick the hit landed on.
+    cli::tick_hurt_window(state);
+    CHECK(state.invulnerability_ticks == 0);
+    CHECK(cli::settle_hurt(state, 3.0) == doctest::Approx(3.0));
+}
+
+TEST_CASE("combat: the player's window IS damage_mob's rule, tick for tick") {
+    // ★ The C-1 cost, pinned. The player's window (client) and the mobs' window
+    // (the authority) are two implementations of one rule, and this test drives
+    // both through the SAME schedule of hits one tick at a time and requires the
+    // damage that lands to agree at every step. It is what "must stay in sync"
+    // means operationally: if either side's ordering or comparison changes, this
+    // fails even though each side's own test still passes.
+    mobtest::MobFixture fixture;
+    const srv::EntityId target = fixture.add_mob("hollow_wretch", {0.5, 64.0, 0.5});
+    phy::PlayerState state;
+
+    // Amounts chosen to exercise all three branches repeatedly: immune (≤ last),
+    // excess (> last, inside the window) and a full settle (window closed).
+    constexpr double kAmounts[] = {5.0, 3.0, 8.0, 8.0, 1.0,  12.0, 4.0, 2.0, 5.0,
+                                   3.0, 8.0, 8.0, 1.0, 12.0, 4.0,  2.0, 5.0};
+    double player_health = cli::kMaxHealth;
+    for (std::size_t tick = 0; tick < sizeof(kAmounts) / sizeof(kAmounts[0]); ++tick) {
+        if (tick > 0) {
+            // One tick of the world for each side, in each side's own order.
+            (void) fixture.step(std::nullopt, gam::Difficulty::Normal, 1);
+            cli::tick_hurt_window(state);
+        }
+        const double amount = kAmounts[tick];
+        const double before = fixture.get(target).health;
+        (void) srv::damage_mob(fixture.store, fixture.mobs, target, amount, srv::kActorId, fixture.rules);
+        const double mob_lost = before - fixture.get(target).health;
+        const double player_lost = cli::settle_hurt(state, amount);
+        INFO("tick " << tick << " amount " << amount);
+        CHECK(player_lost == doctest::Approx(mob_lost));
+        player_health -= player_lost;
+    }
+    // The schedule settles 5 (t0) + 3 (t2, the excess over 5) + 4 (t5, over 8) +
+    // 2 (t15, the window having closed) + 3 (t16, over 2) = 17 over seventeen
+    // ticks; both sides must have lost exactly that.
+    CHECK(fixture.get(target).health == doctest::Approx(3.0)); // 20 - 17
+    CHECK(player_health == doctest::Approx(cli::kMaxHealth - 17.0));
+}
+
+TEST_CASE("combat: armour reduces a hit by research/01 §2.1's formula") {
+    // §5.2 4: bare vs one piece vs the full set, against the arithmetic the card
+    // worked out (§4.1) rather than against a re-run of the same expression.
+    const gam::ItemRegistry items = gam::ItemRegistry::create_default();
+    gam::Inventory bare(items);
+    gam::Inventory head_only(items);
+    gam::Inventory full(items);
+    REQUIRE(head_only.set_slot(gam::armor_slot_index(gam::ArmorSlot::Head),
+                               gam::ItemStack::of(items.id_of("timber_headguard"), 1)));
+    wear_timber_set(full, items);
+
+    CHECK(cli::equipped_armor(bare).points == doctest::Approx(0.0));
+    CHECK(cli::equipped_armor(head_only).points == doctest::Approx(1.0));
+    CHECK(cli::equipped_armor(full).points == doctest::Approx(7.0));
+    CHECK(cli::equipped_armor(full).toughness == doctest::Approx(0.0));
+
+    // No armour: the hit passes through untouched.
+    CHECK(cli::damage_after_armor(3.0, cli::DamageType::Melee, cli::equipped_armor(bare)) == doctest::Approx(3.0));
+    // One point: max(1/5, 1 − 4×3/8) = 0.2 ⇒ 0.8% ⇒ 2.976.
+    CHECK(cli::damage_after_armor(3.0, cli::DamageType::Melee, cli::equipped_armor(head_only)) ==
+          doctest::Approx(2.976));
+    // ⚖ The card's own table (§4.1), leather 7 / toughness 0, damage ⇒ what lands:
+    CHECK(cli::damage_after_armor(1.0, cli::DamageType::Melee, cli::equipped_armor(full)) == doctest::Approx(0.74));
+    CHECK(cli::damage_after_armor(2.5, cli::DamageType::Melee, cli::equipped_armor(full)) == doctest::Approx(1.925));
+    CHECK(cli::damage_after_armor(3.0, cli::DamageType::Melee, cli::equipped_armor(full)) == doctest::Approx(2.34));
+    CHECK(cli::damage_after_armor(4.5, cli::DamageType::Melee, cli::equipped_armor(full)) == doctest::Approx(3.645));
+    CHECK(cli::damage_after_armor(20.0, cli::DamageType::Melee, cli::equipped_armor(full)) == doctest::Approx(18.88));
+    // The reductions themselves, so a reader sees the 26/23/22/19% ladder.
+    CHECK(cli::armor_reduction(7.0, 0.0, 1.0) == doctest::Approx(0.26));
+    CHECK(cli::armor_reduction(7.0, 0.0, 3.0) == doctest::Approx(0.22));
+    CHECK(cli::armor_reduction(7.0, 0.0, 4.5) == doctest::Approx(0.19));
+    // The tier distinction §4.1 asks for: the same 3.0 against the IRON set is
+    // 54%, so the two tiers cannot be confused - computed from the numbers, not
+    // from a registered iron piece (this card registers none, C-3).
+    CHECK(cli::armor_reduction(15.0, 0.0, 3.0) == doctest::Approx(0.54));
+}
+
+TEST_CASE("combat: a huge hit falls back to the armour/5 floor, not the 80% ceiling") {
+    // §5.2 5 / research/01 §2.1's BreakingPoint: max(7/5, 7 − 4×1000/8) = 1.4,
+    // so a 1000-damage hit is reduced by 5.6% - NOT by the 80% the ceiling would
+    // give. This is the assertion that pins the lower branch of the formula.
+    const gam::ItemRegistry items = gam::ItemRegistry::create_default();
+    gam::Inventory full(items);
+    wear_timber_set(full, items);
+    const cli::ArmorTotals armor = cli::equipped_armor(full);
+
+    CHECK(cli::armor_reduction(armor.points, armor.toughness, 1000.0) == doctest::Approx(0.056));
+    CHECK(cli::damage_after_armor(1000.0, cli::DamageType::Melee, armor) == doctest::Approx(944.0));
+    // …and explicitly not the ceiling: 20/25 = 0.8 would have left 200.
+    CHECK(cli::damage_after_armor(1000.0, cli::DamageType::Melee, armor) > 200.0);
+    // The ceiling itself is still reachable - with enough armour the outer min()
+    // is what binds (20 points is the ⚖ cap of the armour scale).
+    CHECK(cli::armor_reduction(30.0, 0.0, 1.0) == doctest::Approx(0.8));
+}
+
+TEST_CASE("combat: exempt damage bypasses armour, so a fall costs the same in full timber_*") {
+    // §5.2 6 / ⑤ (research/01 §2.3): 摔落绕过护甲. Driven through the real fall
+    // entry, so this fails if the exemption is ever removed - the fall path runs
+    // the same reduction call with an exempt type rather than skipping it.
+    const gam::ItemRegistry items = gam::ItemRegistry::create_default();
+    gam::Inventory bare(items);
+    gam::Inventory full(items);
+    wear_timber_set(full, items);
+
+    srv::WorldSim sim;
+    cli::GameRules rules;
+
+    // What the physics step left behind: 10 points of fall damage, reconciled
+    // through take_fall_damage the way the tick does it.
+    cli::PlayerLife bare_life;
+    double bare_health = 20.0 - 10.0;
+    const cli::DamageResolution bare_fall =
+        cli::take_fall_damage(bare, sim, rules, bare_health, bare_life, 20.0, pose_at({0.5, 64.0, 0.5}));
+    REQUIRE(bare_fall.damage.applied);
+    CHECK(bare_fall.damage.amount == doctest::Approx(10.0));
+
+    cli::PlayerLife armored_life;
+    double armored_health = 20.0 - 10.0;
+    const cli::DamageResolution armored_fall =
+        cli::take_fall_damage(full, sim, rules, armored_health, armored_life, 20.0, pose_at({0.5, 64.0, 0.5}));
+    REQUIRE(armored_fall.damage.applied);
+    CHECK(armored_fall.damage.amount == doctest::Approx(bare_fall.damage.amount)); // 同额
+    CHECK(armored_health == doctest::Approx(bare_health));
+
+    // The exemption is a property of the TYPE, and the other three listed by ⑤
+    // behave the same way; a melee hit through the same call is reduced.
+    CHECK(cli::bypasses_armor(cli::DamageType::Fall));
+    CHECK(cli::bypasses_armor(cli::DamageType::Suffocation));
+    CHECK(cli::bypasses_armor(cli::DamageType::Void));
+    CHECK(cli::bypasses_armor(cli::DamageType::Starvation));
+    CHECK_FALSE(cli::bypasses_armor(cli::DamageType::Melee));
+    CHECK_FALSE(cli::bypasses_armor(cli::DamageType::Explosion));
+    CHECK(cli::damage_after_armor(10.0, cli::DamageType::Melee, cli::equipped_armor(full)) < 10.0);
+}
+
+TEST_CASE("combat: a hit pushes the player ⚖ 0.4 away from the attacker, then friction eats it") {
+    // §5.2 7's player half (⑥ / C-4's convention, written down): the impulse is
+    // an INITIAL SPEED of 0.4 blocks/tick written into the stored velocity at the
+    // end of the tick that took the hit, so the NEXT step_player displaces the
+    // full 0.4 before the damping runs - and then decays.
+    physics_test::BoxWorld world = flat_world();
+    phy::PlayerState state = standing_at(0.5, 64.0, 0.5);
+    const glm::dvec3 attacker{0.5, 64.0, 1.5}; // straight +Z of the player
+    cli::push_away(state, attacker, cli::kKnockbackSpeed);
+    CHECK(state.velocity.x == doctest::Approx(0.0));
+    CHECK(state.velocity.z == doctest::Approx(-0.4));
+    CHECK(state.velocity.y == doctest::Approx(0.0)); // C-4: horizontal only
+
+    const glm::dvec3 before = state.position;
+    phy::InputState idle;
+    phy::step_player(state, idle, world);
+    // The whole initial speed, on the first tick - this is the convention the
+    // card asks to be pinned (§7.4): the "0.4" IS a speed and the first tick
+    // really moves that far.
+    CHECK(state.position.z - before.z == doctest::Approx(-0.4));
+
+    // Damping is applied after the move (0.91 x 0.6 on ordinary ground), so the
+    // total travel is 0.4 / (1 - 0.546); the geometric tail is cut by the
+    // momentum threshold, which is where the small deficit comes from.
+    for (int i = 0; i < 40; ++i) {
+        phy::step_player(state, idle, world);
+    }
+    const double pushed = before.z - state.position.z;
+    INFO("pushed " << pushed << " blocks");
+    CHECK(pushed > 0.85);
+    CHECK(pushed < 0.89);
+    CHECK(state.position.x == doctest::Approx(before.x)); // no sideways drift
+}
+
+TEST_CASE("combat: an attacker on top of the player pushes nothing (no direction to push)") {
+    physics_test::BoxWorld world = flat_world();
+    phy::PlayerState state = standing_at(0.5, 64.0, 0.5);
+    cli::push_away(state, state.position, cli::kKnockbackSpeed);
+    CHECK(state.velocity == glm::dvec3(0.0, 0.0, 0.0));
+}
+
+TEST_CASE("combat: the chain end to end - Blastbud's 4.5 needs 5 bare hits and 6 in timber_*") {
+    // §4.1's 手感口径, asserted through the three real calls in the order the
+    // tick makes them (window, armour, the one damage entry) rather than through
+    // the formula alone. It is also the answer to §7.6's question about the
+    // bare-handed feel.
+    const gam::ItemRegistry items = gam::ItemRegistry::create_default();
+    const auto hits_to_kill = [&](gam::Inventory &inventory) {
+        phy::PlayerState state;
+        cli::PlayerLife life;
+        int hits = 0;
+        // 20 ticks apart: a Blastbud's own melee cadence, and well clear of the
+        // 10-tick window - so every hit is a full one and the count is about the
+        // armour alone.
+        while (!life.dead && hits < 40) {
+            if (hits > 0) {
+                for (int tick = 0; tick < 20; ++tick) {
+                    cli::tick_hurt_window(state);
+                }
+            }
+            const double settled = cli::settle_hurt(state, 4.5);
+            REQUIRE(settled == doctest::Approx(4.5));
+            const double landed =
+                cli::damage_after_armor(settled, cli::DamageType::Melee, cli::equipped_armor(inventory));
+            (void) cli::apply_damage(state.health, life, landed, {0.5, 64.0, 0.5});
+            ++hits;
+        }
+        return hits;
+    };
+
+    gam::Inventory bare(items);
+    gam::Inventory full(items);
+    wear_timber_set(full, items);
+    CHECK(hits_to_kill(bare) == 5); // 20 / 4.5   = 4.44
+    CHECK(hits_to_kill(full) == 6); // 20 / 3.645 = 5.49 - one more hit per kill
 }

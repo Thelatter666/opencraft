@@ -223,3 +223,52 @@ TEST_CASE("item registry looks up a string_view slice without a copy") {
     CHECK(*found == registry.id_of("loam_clod"));
     CHECK(registry.id_of(slice) == found);
 }
+
+// ── T-D46: the armour numbers ───────────────────────────────────────────────
+
+TEST_CASE("item registry: the four timber_* pieces carry the leather tier's armour") {
+    // ⚖ T-D46 ruling C-3 (research/01 §2): the leather set is 7 points over the
+    // four pieces, split 1/2/3/1 (head/chest/legs/feet), with toughness 0 - and
+    // the base game gives leather and iron no toughness at all, so the 0 is the
+    // sourced value rather than a placeholder.
+    const auto registry = ItemRegistry::create_default();
+    const auto points = [&](const char *id) { return registry.def_of(registry.id_of(id)).armor_points; };
+    const auto toughness = [&](const char *id) { return registry.def_of(registry.id_of(id)).armor_toughness; };
+
+    CHECK(points("timber_headguard") == doctest::Approx(1.0));
+    CHECK(points("timber_cuirass") == doctest::Approx(2.0));
+    CHECK(points("timber_greaves") == doctest::Approx(3.0));
+    CHECK(points("timber_treads") == doctest::Approx(1.0));
+    CHECK(points("timber_headguard") + points("timber_cuirass") + points("timber_greaves") + points("timber_treads") ==
+          doctest::Approx(7.0)); // ⚖ 皮革 7 全套
+
+    for (const char *id : {"timber_headguard", "timber_cuirass", "timber_greaves", "timber_treads"}) {
+        INFO("piece " << id);
+        CHECK(toughness(id) == doctest::Approx(0.0));
+    }
+}
+
+TEST_CASE("item registry: nothing outside the four armour pieces contributes armour") {
+    // C-3 in one assertion: this card gives the EXISTING four pieces the leather
+    // numbers and adds no armour item. The iron tier (15 = 2/5/6/2) is a later
+    // content card's four entries, and a wood-tier value in between is what
+    // T-R2's R-2 ruling forbids.
+    const auto registry = ItemRegistry::create_default();
+    std::vector<std::string> armoured;
+    for (std::uint16_t id = 1; id < registry.size(); ++id) {
+        const ItemDef &def = registry.def_of(id);
+        if (def.armor_points > 0.0) {
+            armoured.push_back(registry.string_of(id));
+            // Armour only ever sits in an armour cell, and each piece names its
+            // own body part (the inventory enforces the pairing).
+            CHECK(def.equip != EquipSlot::None);
+            CHECK(def.max_stack == kStackLimitSingle);
+        }
+        // The toughness term is 0 for the whole launch set (leather AND iron are
+        // 0 in the base game), so nothing may register a non-zero one.
+        CHECK(def.armor_toughness == doctest::Approx(0.0));
+    }
+    CHECK(armoured.size() == 4);
+    CHECK(armoured ==
+          std::vector<std::string>{"timber_headguard", "timber_cuirass", "timber_greaves", "timber_treads"});
+}
