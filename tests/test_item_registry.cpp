@@ -26,10 +26,15 @@ using opencraft::game::kStackLimitSingle;
 //
 // Nineteen, not twenty: T-I1 ruling S-3 removed `still_water`, because water
 // is not an item in this game (it is carried in a vessel).
+//
+// ★ T-D60 appended `assembly_bench`: its block is the card's one new block, and
+// a block with no item form is placeable but unobtainable. The list grew; the
+// rule it feeds - "exactly these items carry a block id, and every other block
+// is covered by one of them" - did not change.
 constexpr const char *kBlockFormIds[] = {
-    "loam_clod",   "sod_loam",    "greyrock",    "rubble_rock", "fine_grit", "pebble_grit", "grit_slab",
-    "timber_log",  "leaf_canopy", "sawn_planks", "clear_pane",  "underrock", "char_ore",    "verdigris_ore",
-    "ferrous_ore", "auric_ore",   "lucent_ore",  "rime_block",  "duskglass",
+    "loam_clod",   "sod_loam",    "greyrock",    "rubble_rock", "fine_grit", "pebble_grit",    "grit_slab",
+    "timber_log",  "leaf_canopy", "sawn_planks", "clear_pane",  "underrock", "char_ore",       "verdigris_ore",
+    "ferrous_ore", "auric_ore",   "lucent_ore",  "rime_block",  "duskglass", "assembly_bench",
 };
 
 } // namespace

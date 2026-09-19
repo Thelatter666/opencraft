@@ -43,6 +43,13 @@ BlockRegistry BlockRegistry::create_default() {
     registry.register_block("diamond_ore", {"Diamond Ore", true, false, 3.0f});
     registry.register_block("snow_block", {"Snow Block", true, false, 0.2f});
     registry.register_block("obsidian", {"Obsidian", true, false, 50.0f});
+    // T-D60 (contract ①): the crafting station. Appended last so every id above
+    // keeps its number - the mesher's tile index and the saved region files both
+    // depend on that ordering. Hardness 2.0 = the planks/log tier it is built
+    // from (research/01 §5.2); it is an ordinary block otherwise: no drop rule of
+    // its own, no interactivity in the block layer (the 3x3 screen is the
+    // client's, and opening it is a right-click the client interprets).
+    registry.register_block("assembly_bench", {"Assembly Bench", true, false, 2.0f});
     return registry;
 }
 

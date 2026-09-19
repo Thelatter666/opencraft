@@ -215,6 +215,16 @@ struct StandInVisual {
     if (id == "timber_chisel" || id == "timber_hewer" || id == "timber_spade" || id == "timber_edge") {
         return {0.60f, 0.46f, 0.30f}; // the timber tool tier
     }
+    // T-D60: the rock tier is grey where the timber tier is brown, so the two
+    // tiers read apart in a grid cell at 24 px (the screenshot chain of the
+    // card's §5.4 is the reason this matters at all). The stick is a pale wood
+    // tone, distinct from both and from the planks it is crafted from.
+    if (id == "rock_chisel" || id == "rock_hewer" || id == "rock_spade" || id == "rock_edge") {
+        return {0.52f, 0.53f, 0.56f}; // the rock tool tier
+    }
+    if (id == "timber_stick") {
+        return {0.72f, 0.62f, 0.42f};
+    }
     if (id == "timber_headguard" || id == "timber_cuirass" || id == "timber_greaves" || id == "timber_treads") {
         return {0.72f, 0.58f, 0.36f}; // the timber armour tier
     }
@@ -282,18 +292,17 @@ inline constexpr StartingStack kStartingHotbar[] = {
 };
 
 // The main section ships content too (ores, food, tools, one armour piece per
-// body part) so the storage cards have something to move around. It is not
-// visible in this card -- the E-key screen is the next one.
+// body part) so the storage cards have something to move around.
 inline constexpr StartingStack kStartingMain[] = {
     {9, "char_ore", 12},       {10, "ferrous_ore", 6},    {11, "lucent_ore", 2},
     {12, "sunroot", 9},        {13, "timber_hewer", 1},   {14, "timber_headguard", 1},
     {15, "timber_cuirass", 1}, {16, "timber_greaves", 1}, {17, "timber_treads", 1},
-    // T-D59 裁决 S-4: the sword and the shovel join the kit so the charge ramp,
-    // the crit and the sprint knockback are reachable in the shipped client (the
-    // pick and the axe alone cover damage but leave the gate's flagship weapon
-    // unwieldable). TEMPORARY by design: once the crafting card lands, its
-    // ruling decides whether these two leave the kit.
-    {18, "timber_edge", 1},    {19, "timber_spade", 1},
+    // T-D60 裁决 C-7: the sword and the shovel LEFT the kit, two cards after
+    // T-D59's S-4 put them in "until the crafting card lands". The card has
+    // landed: both are craftable from planks and a stick now, so granting them
+    // would hand the player the tier the progression is supposed to produce
+    // (and the empty cells are where the first crafted tools land). The pick
+    // and the axe stay - they are the tools the chain STARTS from.
 };
 
 // Fills the launch kit into a fresh inventory. Slots are written exactly, so a

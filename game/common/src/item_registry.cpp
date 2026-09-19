@@ -34,6 +34,11 @@ struct LaunchItem {
     // `timber_*` tools below pass them.
     double attack_damage = 0.0;
     double attack_speed = 0.0;
+    // T-D60 mining. The defaults are the hand's: no tier at all (kNoTool) at
+    // multiplier 1.0, so an entry that passes nothing mines exactly as a fist
+    // does (ItemDef::mining_tier has the argument for -1).
+    int mining_tier = kNoTool;
+    double mining_speed = 1.0;
 };
 
 // ⚖ T-D46 ruling C-3: the `timber_*` pieces are the LEATHER tier's equivalent -
@@ -78,6 +83,26 @@ constexpr double kTimberSpadeSpeed = 1.0;  // §6.1: 锹 1.0
 // The two armour columns of an entry that passes no armour, spelled out so the
 // tool rows below read as "0.0 armour, then the weapon numbers".
 constexpr double kNoArmor = 0.0;
+
+// ⚖ T-D60 C-6: the two tool tiers this card ships, quoted off research/01 §9's
+// Tiers sheet and §5.1's multiplier line - 采集等级 木 0 / 石 1, 挖掘速度 木 2 /
+// 石 4. Two constants per tier rather than one struct because the table below is
+// positional, and because a later tier (铁 2 / 6) is then one more pair.
+constexpr int kTimberMiningTier = 0;
+constexpr double kTimberMiningSpeed = 2.0;
+constexpr int kRockMiningTier = 1;
+constexpr double kRockMiningSpeed = 4.0;
+
+// ⚖ T-D60 C-5: the ROCK tier's finished damage numbers, the same sheet's
+// 基础伤害 line at the second tier (剑 5 / 斧 9 / 镐 3 / 锹 3.5 - research/01
+// §6.1, the numbers the card's §4.1 kill-count arithmetic uses: 20 HP falls to a
+// rock blade in 4 hits, to a timber blade in 5, to a fist in 20). The attack
+// SPEEDS are the timber set's: the sheet's speed column is a property of the
+// weapon's KIND, and it does not move with the tier.
+constexpr double kRockSwordDamage = 5.0;
+constexpr double kRockAxeDamage = 9.0;
+constexpr double kRockPickDamage = 3.0;
+constexpr double kRockSpadeDamage = 3.5;
 
 constexpr LaunchItem kLaunchItems[] = {
     // Item forms of the launch blocks -- all stack to 64. Water has no entry
@@ -130,16 +155,16 @@ constexpr LaunchItem kLaunchItems[] = {
     // 星钻; "timber" is that system's first tier). T-D59 gave them their ⚖
     // attack numbers (C-4, the constants above) - a timber blade is a real
     // weapon now, and T-D46's "徒手杀一只 20 血生物要 12 秒" is the measurement
-    // it is meant to move. Durability and harvest level are still unmodelled:
-    // they are the mining card's, not this one's.
+    // it is meant to move. Durability is still unmodelled (T-D61); the harvest
+    // tier and the mining multiplier arrived with T-D60 (C-6).
     {"timber_chisel", "Timber Chisel Pick", kStackLimitSingle, EquipSlot::None, nullptr, kNoArmor, kNoArmor,
-     kTimberPickDamage, kTimberPickSpeed},
+     kTimberPickDamage, kTimberPickSpeed, kTimberMiningTier, kTimberMiningSpeed},
     {"timber_hewer", "Timber Hewing Axe", kStackLimitSingle, EquipSlot::None, nullptr, kNoArmor, kNoArmor,
-     kTimberAxeDamage, kTimberAxeSpeed},
+     kTimberAxeDamage, kTimberAxeSpeed, kTimberMiningTier, kTimberMiningSpeed},
     {"timber_spade", "Timber Digging Spade", kStackLimitSingle, EquipSlot::None, nullptr, kNoArmor, kNoArmor,
-     kTimberSpadeDamage, kTimberSpadeSpeed},
+     kTimberSpadeDamage, kTimberSpadeSpeed, kTimberMiningTier, kTimberMiningSpeed},
     {"timber_edge", "Timber Edge Blade", kStackLimitSingle, EquipSlot::None, nullptr, kNoArmor, kNoArmor,
-     kTimberSwordDamage, kTimberSwordSpeed},
+     kTimberSwordDamage, kTimberSwordSpeed, kTimberMiningTier, kTimberMiningSpeed},
 
     // Armour, first tier. Present because the inventory's four armour slots
     // need something that is allowed to occupy them, and because one piece
@@ -153,6 +178,37 @@ constexpr LaunchItem kLaunchItems[] = {
      kLeatherTierToughness},
     {"timber_treads", "Timber Treads", kStackLimitSingle, EquipSlot::Feet, nullptr, kLeatherTierFeet,
      kLeatherTierToughness},
+
+    // ── T-D60 crafting (appended; every id above keeps its number) ──────────
+    // The crafted content of the progression chain, in the order the player
+    // meets it: the stick (from planks), the bench (from planks), the rock tier
+    // (from what the wooden tier digs out of stone). Appended rather than
+    // inserted so the numeric ids of the launch set do not move - the saved
+    // files and the tests that name item ids both read them positionally.
+    //
+    // The stick is an ordinary 64-tier material (C-5: max_stack 64); it has no
+    // block form and no use beyond being an ingredient, which is what a stick is
+    // in the base game too.
+    {"timber_stick", "Timber Stick", kStackLimitLarge, EquipSlot::None, nullptr},
+
+    // The bench block's item form. Its block id is resolved by string like every
+    // other placeable entry (see create_default) - and it is the one item whose
+    // existence the block registry makes mandatory: a block with no item form
+    // can be placed but never obtained (docs/05 §3.1 第 13 条).
+    {"assembly_bench", "Assembly Bench", kStackLimitLarge, EquipSlot::None, "assembly_bench"},
+
+    // The ROCK tier (docs/01 §5: 岩质). Same four kinds as the timber set, same
+    // shapes, one tier up: mining tier 1 (采集等级 石 1) and multiplier 4 (挖掘
+    // 速度 石 4), which together are what turn "stone takes 7.5 s by hand and
+    // drops nothing" into "0.5625 s and a block of cobblestone".
+    {"rock_chisel", "Rock Chisel Pick", kStackLimitSingle, EquipSlot::None, nullptr, kNoArmor, kNoArmor,
+     kRockPickDamage, kTimberPickSpeed, kRockMiningTier, kRockMiningSpeed},
+    {"rock_hewer", "Rock Hewing Axe", kStackLimitSingle, EquipSlot::None, nullptr, kNoArmor, kNoArmor, kRockAxeDamage,
+     kTimberAxeSpeed, kRockMiningTier, kRockMiningSpeed},
+    {"rock_spade", "Rock Digging Spade", kStackLimitSingle, EquipSlot::None, nullptr, kNoArmor, kNoArmor,
+     kRockSpadeDamage, kTimberSpadeSpeed, kRockMiningTier, kRockMiningSpeed},
+    {"rock_edge", "Rock Edge Blade", kStackLimitSingle, EquipSlot::None, nullptr, kNoArmor, kNoArmor, kRockSwordDamage,
+     kTimberSwordSpeed, kRockMiningTier, kRockMiningSpeed},
 };
 
 } // namespace
@@ -176,8 +232,17 @@ ItemRegistry ItemRegistry::create_default() {
     for (const auto &entry : kLaunchItems) {
         const std::uint16_t block = entry.block == nullptr ? kNoBlock : blocks.id_of(entry.block);
         registry.register_item(entry.id, {entry.display_name, entry.max_stack, entry.equip, block, entry.armor_points,
-                                          entry.armor_toughness, entry.attack_damage, entry.attack_speed});
+                                          entry.armor_toughness, entry.attack_damage, entry.attack_speed,
+                                          entry.mining_tier, entry.mining_speed});
     }
+    // ── T-D60: the one block that does not leave its own item form behind ────
+    // ⚖ Breaking stone yields cobblestone, which is the base game's own rule for
+    // the block and - here - the hinge of the whole progression chain: the only
+    // way to a rock pick is to dig stone, and a wood pick is the only thing that
+    // can dig it (docs/01 §4 + the card's §4.1 table). Registered by STRING id
+    // for the same reason the block links above are: a renumbering of either
+    // registry must fail loudly here rather than silently drop the wrong item.
+    registry.set_block_drop(blocks.id_of("stone"), registry.id_of("rubble_rock"));
     return registry;
 }
 
@@ -243,12 +308,28 @@ std::optional<std::uint16_t> ItemRegistry::item_for_block(const std::uint16_t bl
     if (block == kNoBlock) {
         return std::nullopt;
     }
+    // The override wins over the item-form scan: a block whose broken form is
+    // NOT the item that places it (T-D60: stone -> cobblestone) would otherwise
+    // be answered by the scan below with the wrong item.
+    if (const auto override_it = drop_overrides_.find(block); override_it != drop_overrides_.end()) {
+        return override_it->second;
+    }
     for (std::uint16_t item = 0; item < defs_.size(); ++item) {
         if (defs_[item].block == block) {
             return item;
         }
     }
     return std::nullopt;
+}
+
+void ItemRegistry::set_block_drop(const std::uint16_t block, const std::uint16_t item) {
+    if (!has_numeric(block) && block != kNoBlock) {
+        throw std::out_of_range("unknown block numeric id for a drop override");
+    }
+    if (!has_numeric(item)) {
+        throw std::out_of_range("unknown item numeric id for a drop override");
+    }
+    drop_overrides_[block] = item;
 }
 
 } // namespace opencraft::game

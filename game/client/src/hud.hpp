@@ -7,8 +7,10 @@
 // count readout.
 
 #include <cstdint>
+#include <optional>
 #include <span>
 
+#include "crafting_ui.hpp"
 #include "interaction.hpp"
 #include "opencraft/game/item_registry.hpp"
 #include "opencraft/game/item_stack.hpp"
@@ -54,5 +56,31 @@ struct HudState {
 
 // Depth test is disabled on entry and restored on exit (as before).
 void draw_hud(const HudResources &res, const HudState &state);
+
+// ── T-D60: the crafting screen ─────────────────────────────────────────────
+// Everything the panel draws, assembled by the caller. `layout` decides every
+// position AND is what the click was hit-tested against (one object, so what the
+// player clicks is what they see); `result` is worked out once by the caller with
+// craft_result_of() so the drawing never re-runs the matcher.
+struct CraftingDrawState {
+    CraftingLayout layout{};
+    const game::Inventory *inventory = nullptr;
+    const game::ItemRegistry *items = nullptr;
+    VesselIds vessels;
+    const CraftingState *crafting = nullptr;
+    // The cell the pointer is over (draws a highlight frame); None for none.
+    CraftSlotRef hover{};
+    // What the grid makes right now, if anything.
+    std::optional<game::RecipeResult> result;
+    // Where the carried stack is drawn, in framebuffer pixels.
+    float cursor_x = 0.0f;
+    float cursor_y = 0.0f;
+};
+
+// Draws the panel over the live scene: a dim, the window, every cell's backdrop,
+// the items in them, the counts, the hover frame and the stack on the pointer.
+// Blend is enabled on entry and depth test/cull disabled, exactly like the death
+// screen (whose contract is the same one); the caller restores GL state.
+void draw_crafting_screen(const HudResources &res, const CraftingDrawState &state);
 
 } // namespace opencraft::client

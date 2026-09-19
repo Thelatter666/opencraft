@@ -360,4 +360,18 @@ TEST_CASE("wiring launch kit lands in the inventory and samples the three stack 
         INFO("armour/offhand cell " << slot);
         CHECK(inventory.slot(slot).empty());
     }
+
+    // ★ T-D60 (C-7, the card's §5.2 ④): the sword and the shovel are NO LONGER
+    // in the kit. T-D59's ruling S-4 put them in "until the crafting card lands"
+    // and named these two cells; the card has landed, so both are empty and the
+    // run from a log to a blade is the player's own work. Asserted as an ABSENCE
+    // on purpose - the loops above only walk the entries the table HAS, so a kit
+    // that quietly kept the two rows would still pass them.
+    CHECK(inventory.slot(18).empty());
+    CHECK(inventory.slot(19).empty());
+    // ... and the pickaxe and the axe stay: they are what the chain STARTS from
+    // (dig the log, then dig the stone), which is what makes the absence a
+    // progression decision rather than a hole.
+    CHECK(inventory.slot(7).item == items.id_of("timber_chisel"));
+    CHECK(inventory.slot(13).item == items.id_of("timber_hewer"));
 }

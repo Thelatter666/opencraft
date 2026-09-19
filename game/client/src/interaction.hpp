@@ -124,6 +124,21 @@ struct InteractionState {
         prev_left = false;
     }
 
+    // T-D60: what a screen owning the pointer must clear, which is
+    // clear_live_state() minus the charge clock - and the two differ by exactly
+    // the fields that die with the PLAYER rather than with a screen. Opening the
+    // inventory must not restart the swing: the authority keeps its own charge
+    // clock and would settle the next hit as a cold one however full the bar
+    // looked (T-D59's mirror rule - if the two disagree, the authority is right).
+    void clear_world_targets() {
+        crack_stage = -1;
+        has_target = false;
+        picked_mob = server::EntityStore::kNoEntity;
+        picked_mob_distance = 0.0;
+        swinging = false;
+        place_cooldown = 0;
+    }
+
     // How charged the held weapon is, 0.2 … 1.0 - what the HUD bar draws. The
     // weapon's speed is read fresh from the selected cell every call, so the bar
     // follows a hotbar switch on the same frame (the authority does the same per

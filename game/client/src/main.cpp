@@ -25,6 +25,7 @@
 #include "camera_spring.hpp"
 #include "chunk_renderer.hpp"
 #include "client_config.hpp"
+#include "crafting_ui.hpp"
 #include "cube_geometry.hpp"
 #include "death_screen.hpp"
 #include "fov.hpp"
@@ -40,6 +41,7 @@
 #include "opencraft/game/mining.hpp"
 #include "opencraft/game/placement.hpp"
 #include "opencraft/game/raycast.hpp"
+#include "opencraft/game/recipe_registry.hpp"
 #include "opencraft/physics/auto_jump.hpp"
 #include "opencraft/physics/input_state.hpp"
 #include "opencraft/physics/player_physics.hpp"
@@ -345,6 +347,16 @@ int main() {
     // the cursor mode is handed over on the edge, not every frame.
     bool prev_death_clicked = false;
     bool prev_dead = false;
+    // T-D60: the E key's edge and the crafting screen's own open/closed edge (the
+    // latter drives the cursor hand-over, exactly like prev_dead's).
+    bool prev_e = false;
+    bool crafting_was_open = false;
+    // The crafting screen's own button edges and its per-frame draw state. Both
+    // are frame-loop locals: the panel is drawn from the same state it was
+    // clicked through, and the edges exist only for the loose pointer.
+    bool prev_craft_left = false;
+    bool prev_craft_right = false;
+    client::CraftingDrawState craft_view;
     // The gamerule skeleton's one rule (gamerule.hpp): what a death leaves the
     // player holding. Read by the death drop and by the respawn button.
     const client::GameRules rules{};
@@ -362,6 +374,34 @@ int main() {
     client::InteractionState interact(item_registry);
     client::fill_starting_inventory(interact.inventory);
     interact.refresh_selection();
+
+    // ── T-D60: recipes and the crafting screen ──────────────────────────────
+    // The recipe table is DATA built once from the item registry (the same
+    // fail-loudly-by-string-id contract the item table's block links use), and
+    // the screen is pure client state: C-2 puts crafting on this side of the
+    // split, because a craft touches nothing but the inventory. The world half
+    // of the card - placing and digging an assembly bench - goes through the
+    // ordinary PlaceBlock/Dig verbs, which is why nothing here talks to the
+    // authority.
+    const gam::RecipeRegistry recipes = gam::RecipeRegistry::create_default(item_registry);
+    client::CraftingState crafting;
+    OC_LOG_INFO("crafting: {} recipe(s) loaded", recipes.size());
+
+    // T-D60: closing the screen in ONE place, because three routes reach it (E,
+    // ESC, a right click outside the panel) and all three owe the player the same
+    // two things. The contents come back through crafting_close(), which refuses
+    // rather than dropping anything - and a refusal keeps the screen open, which
+    // is the card's 取简 ruling. Then the held-item cache follows, because the
+    // screen can move the selected hotbar cell's item (taking the last block out
+    // of cell 3 changes what the hand holds and what the next right click does).
+    const auto close_crafting_screen = [&](const char *how) {
+        if (!client::crafting_close(crafting, interact.inventory)) {
+            OC_LOG_WARN("crafting: the screen's contents do not fit in the inventory; keeping it open ({})", how);
+            return;
+        }
+        interact.refresh_selection();
+        OC_LOG_INFO("crafting: screen closed ({})", how);
+    };
 
     if (stored_level.has_value() && stored_level->has_player && stored_level->selected_block != 0) {
         // Restore the persisted selection to the cell whose item places that
@@ -434,6 +474,7 @@ int main() {
         .state = interact,
         .life = life,
         .rules = rules,
+        .crafting = crafting,
     };
 
     // HUD inputs that outlive the frame loop; every referenced object is a
@@ -484,6 +525,27 @@ int main() {
         if (life.dead != prev_dead) {
             if (life.dead) {
                 mining.reset();
+                // T-D60: a death cannot be survived behind an open screen (mobs do
+                // not wait for the player to finish crafting), and two modals may
+                // not be up at once - the death screen is the one that wins
+                // (T-D45). Handing the contents back FIRST means the death drop
+                // (§7) picks them up with everything else, so nothing is stranded
+                // in a screen the player can no longer see.
+                if (crafting.open() && !client::crafting_close(crafting, interact.inventory)) {
+                    // No room left: the card's "keep the screen open" ruling cannot
+                    // apply to a corpse, so the screen closes and its contents stay
+                    // in it - not destroyed, not dropped, and shown again the next
+                    // time the player opens a surface.
+                    int stranded = crafting.cursor.empty() ? 0 : 1;
+                    for (int i = 0; i < crafting.width() * crafting.width(); ++i) {
+                        stranded += crafting.grid[i].empty() ? 0 : 1;
+                    }
+                    OC_LOG_WARN("died with the crafting screen open and no room for its contents; "
+                                "{} stack(s) stay in the screen",
+                                stranded);
+                    crafting.mode = client::CraftingMode::None;
+                }
+                interact.refresh_selection();
                 glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
             } else {
                 glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
@@ -501,8 +563,15 @@ int main() {
         // ESC edge: toggle pause in both directions. A dead player cannot pause
         // - the death screen is the modal state, and pausing under it would put
         // two overlays on top of each other with two live button sets.
+        //
+        // T-D60: while a crafting screen is open, ESC is the screen's own close
+        // key and does NOT reach the pause menu (one modal at a time, and the
+        // player who presses ESC over a bag means "put this away").
         const bool esc_down = client::key_pressed(window, GLFW_KEY_ESCAPE) != 0;
-        if (esc_down && !prev_esc && !life.dead) {
+        const bool esc_edge = esc_down && !prev_esc;
+        if (esc_edge && !life.dead && crafting.open()) {
+            close_crafting_screen("ESC");
+        } else if (esc_edge && !life.dead) {
             paused = !paused;
             if (paused) {
                 mining.reset();
@@ -515,12 +584,51 @@ int main() {
         }
         prev_esc = esc_down;
 
+        // ── T-D60: the E key (the one key the game had left free) ───────────
+        // E toggles the 2x2 pocket screen, which is the surface every player has:
+        // the bench's 3x3 is opened by right-clicking a placed bench (tick.cpp).
+        // Not while paused or dead - both of those own the pointer themselves -
+        // and not while the FIRST frame is still settling, because the pause
+        // menu's own keys must not be able to open a second overlay.
+        const bool e_down = client::key_pressed(window, GLFW_KEY_E) != 0;
+        if (e_down && !prev_e && !life.dead && !paused) {
+            if (crafting.open()) {
+                close_crafting_screen("E");
+            } else {
+                crafting.open_mode(client::CraftingMode::Pocket);
+                OC_LOG_INFO("crafting: opened the pocket screen (2x2)");
+            }
+        }
+        prev_e = e_down;
+
+        // The cursor follows the screen, on the EDGE (the same hand-over the
+        // death screen and the pause menu do): a loose pointer for the panel's
+        // clicks, and the anchored one back for the mouse look.
+        if (crafting.open() != crafting_was_open) {
+            if (crafting.open()) {
+                glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+                // The buttons are sampled at the instant the screen opens: the
+                // click that opened it (or a held button from the world) must not
+                // read as a fresh click inside the panel.
+                prev_craft_left = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS;
+                prev_craft_right = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS;
+            } else {
+                glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+                cursor_anchored = false;
+                interact.refresh_selection();
+            }
+            crafting_was_open = crafting.open();
+        }
+
         // ── mouse look ──────────────────────────────────────────────────────
         // T-D45: not while dead - the cursor is loose so the RESPAWN button can
         // be clicked, and a loose cursor that still turns the view is the "the
         // camera is spinning while I am dead" bug. The ticks below keep running
         // (the world does not stop for a death screen); only the looking stops.
-        if (!paused && !life.dead) {
+        // T-D60 adds the third clause for the same reason and with the same
+        // shape: while a crafting screen is up the pointer drives the panel, so
+        // it must not also drive the camera.
+        if (!paused && !life.dead && !crafting.open()) {
             if (!cursor_anchored) {
                 glfwGetCursorPos(window, &last_cursor_x, &last_cursor_y);
                 cursor_anchored = true;
@@ -644,6 +752,74 @@ int main() {
 
         glfwGetFramebufferSize(window, &fb_width, &fb_height);
         glViewport(0, 0, fb_width, fb_height);
+
+        // ── T-D60: the crafting screen's input, and the frame's layout ───────
+        // The pointer is loose while a screen is up, so its clicks are read HERE
+        // rather than in the tick - and the tick is gated (C-3) exactly so the
+        // same click cannot also reach the world. The layout computed below is
+        // the one object the hit-test and the drawing both use, so what the
+        // player clicks is what they see.
+        if (crafting.open()) {
+            craft_view = client::CraftingDrawState{};
+            craft_view.layout =
+                client::CraftingLayout::make(static_cast<float>(fb_width), static_cast<float>(fb_height));
+            craft_view.inventory = &interact.inventory;
+            craft_view.items = &item_registry;
+            craft_view.vessels = interact.vessels;
+            craft_view.crafting = &crafting;
+            // glfwGetCursorPos reports CONTENT pixels; the panel works in
+            // FRAMEBUFFER pixels. On a HiDPI display the two differ by the
+            // backing-store scale (pause_menu.cpp's conversion, same reason).
+            double mx = 0.0;
+            double my = 0.0;
+            glfwGetCursorPos(window, &mx, &my);
+            int win_w = 0;
+            int win_h = 0;
+            glfwGetWindowSize(window, &win_w, &win_h);
+            if (win_w > 0 && win_h > 0 && (win_w != fb_width || win_h != fb_height)) {
+                mx *= static_cast<double>(fb_width) / static_cast<double>(win_w);
+                my *= static_cast<double>(fb_height) / static_cast<double>(win_h);
+            }
+            craft_view.hover = craft_view.layout.hit(static_cast<float>(mx), static_cast<float>(my), crafting.width());
+            // The carried stack rides centred on the pointer.
+            craft_view.cursor_x = static_cast<float>(mx) - client::CraftingLayout::kCellPx * 0.5f;
+            craft_view.cursor_y = static_cast<float>(my) - client::CraftingLayout::kCellPx * 0.5f;
+
+            const bool left = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS;
+            const bool right = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS;
+            const bool left_edge = left && !prev_craft_left;
+            const bool right_edge = right && !prev_craft_right;
+            prev_craft_left = left;
+            prev_craft_right = right;
+            if (left_edge || right_edge) {
+                const client::CraftingClickOut out =
+                    client::crafting_click(crafting, interact.inventory, recipes, craft_view.hover, right_edge);
+                if (out.crafted) {
+                    // The screen can move the selected hotbar cell's item, so the
+                    // hand (and the HUD, and the next placement) follows.
+                    interact.refresh_selection();
+                    OC_LOG_INFO("crafted {} x{} in the {}x{} grid", out.crafted_count, 1, crafting.width(),
+                                crafting.width());
+                } else if (out.changed) {
+                    interact.refresh_selection();
+                } else if (out.refused) {
+                    OC_LOG_INFO("crafting: the cell refused that stack");
+                }
+            }
+            // ⚠ A right click OUTSIDE the panel does NOT close the screen, and
+            // that is a deliberate departure from a literal reading of the card's
+            // C-1 parenthetical ("E/Esc/右键工作台关闭"). Two reasons, one of them
+            // found on-machine: (a) a click on the bench block cannot reach the
+            // tick while a screen is up - that is what C-3 asks for - so the
+            // "right-click the bench to close it" route has no reachable path;
+            // (b) when it was implemented as "a right click outside the panel
+            // closes", the SAME click that opened the bench's 3x3 screen fell
+            // through to that rule one frame later and dismissed it (measured
+            // 2026-09-19: `assembly bench: opened a 3x3 surface` and `screen
+            // closed (right click)` 0 ms apart). E and Esc are the base game's own
+            // ways out of a container, and they are the two this screen has.
+            craft_view.result = client::craft_result_of(crafting, recipes);
+        }
 
         // Sprint FOV (T-D1): driven by the physics sprint state — double-tap
         // and Ctrl both stretch the view. Constants and easing live in
@@ -997,6 +1173,20 @@ int main() {
             .dead = life.dead,
         };
         client::draw_hud(hud_res, hud_state);
+
+        // ── T-D60: the crafting screen, over the HUD ────────────────────────
+        // Drawn after the hotbar rather than instead of it: the panel's own
+        // hotbar row is in the middle of the screen and the HUD's is at the
+        // bottom, so both stay readable (and the panel is not a pause - the
+        // world behind it keeps moving, which is what §2.3's 不暂停 means).
+        // `craft_view` was built from the same layout the click was hit-tested
+        // against, earlier in this frame.
+        if (crafting.open()) {
+            client::draw_crafting_screen(hud_res, craft_view);
+            glEnable(GL_DEPTH_TEST);
+            glEnable(GL_CULL_FACE);
+            glDisable(GL_BLEND);
+        }
 
         // ── the death screen (T-D45) ────────────────────────────────────────
         // Modal: it replaces the pause menu while the player is dead (ESC is

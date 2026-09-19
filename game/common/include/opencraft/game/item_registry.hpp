@@ -60,6 +60,14 @@ inline constexpr int kStackLimitSingle = 1;
 // of the block layer's header, exactly like StringHash above.
 inline constexpr std::uint16_t kNoBlock = 0xFFFF;
 
+// ── T-D60: "this is not a mining tool" ──────────────────────────────────────
+// The tier of a bare hand and of every item that is not a tool. It sits BELOW
+// the §9 Tiers sheet's lowest tool (木 0) on purpose: that is what lets one
+// comparison - `mining_tier >= harvest level` - say both "a hand cannot take
+// stone" and "a wooden pick can", with the hand occupying no tier of its own.
+// See ItemDef::mining_tier for the whole argument.
+inline constexpr int kNoTool = -1;
+
 // Static description of an item type. Data only: no per-stack state, no
 // components/NBT (M2c content cards add what they actually need).
 struct ItemDef {
@@ -107,6 +115,29 @@ struct ItemDef {
     // base game's numbers for their kinds (item_registry.cpp).
     double attack_damage = 0.0;
     double attack_speed = 0.0;
+
+    // ── T-D60 mining tiers (the fields above are unchanged) ─────────────────
+    // The tool tier of research/01 §9's Tiers sheet, 0-based exactly as that
+    // sheet writes it (木 0 / 石 1 / 铜 1 / 铁 2 / 钻 3 / 合金 4), and the ⚖
+    // mining speed multiplier of the same sheet (research/01 §5.1: 徒手 1 / 木 2
+    // / 石 4 / 铜 5 / 铁 6 / 钻 8 / 合金 9 / 金 12).
+    //
+    // ★ The BARE HAND is `kNoTool` (-1), i.e. BELOW the sheet, and that is
+    // deliberate - it is what makes docs/01 §4's two rules true at once with the
+    // single comparison the T-D60 contract asks for (`mining_tier >= 需求等级`,
+    // no epsilon and no second flag): a hand cannot take stone at all (no wood
+    // pick ⇒ ÷100 and no drop, the 150-tick ⚖ case), while the wooden pick -
+    // tier 0, the sheet's lowest tool - takes it in 23 ticks. Had the hand been
+    // 0 as well, the two would be indistinguishable and the card's own
+    // progression chain (木镐 → 圆石 → 石镐) would not close. 0 therefore means
+    // WOOD, and the default below is the hand's value, so an item that declares
+    // no tier swings like a fist rather than silently as a pickaxe.
+    int mining_tier = kNoTool;
+    // The divisor's numerator in mining.hpp's damage formula, for a miner whose
+    // tier is high enough. 1.0 = a bare hand, and it is ALSO what an
+    // under-tiered tool is reduced to (research/01 §5.3: 等级不足时挖得极慢且无
+    // 掉落 - the ÷100 branch and the gear's multiplier do not stack).
+    double mining_speed = 1.0;
 };
 
 // ── the "not a weapon" fallback, resolved in one place ─────────────────────
@@ -167,11 +198,21 @@ public:
     // carried in a vessel and is not an item). T-E1's drop rule: the authority
     // asks this when a dig succeeds.
     //
-    // Scans in ascending item id so an item set that maps two items to one
-    // block still answers deterministically; the launch set is 1:1. The block
-    // id is a BLOCK numeric id, meaningful only against the block registry this
-    // item set was built for (see create_default).
+    // Answers a registered DROP OVERRIDE first (T-D60, set_block_drop), then
+    // scans in ascending item id so an item set that maps two items to one block
+    // still answers deterministically. The launch set has exactly one override
+    // (stone -> the cobblestone item) and is otherwise 1:1. The block id is a
+    // BLOCK numeric id, meaningful only against the block registry this item set
+    // was built for (see create_default).
     [[nodiscard]] std::optional<std::uint16_t> item_for_block(std::uint16_t block) const;
+
+    // Registers "breaking `block` yields `item`", for the blocks whose broken
+    // form is not the item that places them. T-D60 needs one (⚖ stone ->
+    // cobblestone, see create_default); expressing it here rather than at the
+    // dig call site keeps the drop rule in the one place that already documents
+    // itself as "the item a block leaves behind". Throws std::out_of_range for
+    // either id if it is unknown.
+    void set_block_drop(std::uint16_t block, std::uint16_t item);
 
     [[nodiscard]] std::uint16_t empty() const { return kEmptyId; }
 
@@ -181,6 +222,9 @@ private:
     std::unordered_map<std::string, std::uint16_t, StringHash, std::equal_to<>> numeric_by_id_;
     std::vector<std::string> id_by_numeric_;
     std::vector<ItemDef> defs_;
+    // Block id -> the item it leaves behind when broken, for the blocks whose
+    // broken form is not their own item form (T-D60; see set_block_drop).
+    std::unordered_map<std::uint16_t, std::uint16_t> drop_overrides_;
 };
 
 } // namespace opencraft::game
